@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 
 import BeShelf from "../../assets/icons/BeShelf.svg";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../setting/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 
@@ -13,11 +13,11 @@ export function HeaderUnauthenticated() {
         <img src={BeShelf} alt="BeShelf Logo" className="h-24 w-auto" />
       </div>
       <div className="flex space-x-4">
-        <div>1</div>
-        <div>2</div>
-        <div>3</div>
-        <div>4</div>
-        <div>5</div>
+        <NavLink to="#" className={({isActive,isPending,isTransitioning })=>[isPending?"pending":"",isActive?"active":"",isTransitioning?"transitioning":""].join("")}>1</NavLink>
+        <NavLink to="#" className={({isActive,isPending,isTransitioning })=>[isPending?"pending":"",isActive?"active":"",isTransitioning?"transitioning":""].join("")}>2</NavLink>
+        <NavLink to="#" className={({isActive,isPending,isTransitioning })=>[isPending?"pending":"",isActive?"active":"",isTransitioning?"transitioning":""].join("")}>3</NavLink>
+        <NavLink to="#" className={({isActive,isPending,isTransitioning })=>[isPending?"pending":"",isActive?"active":"",isTransitioning?"transitioning":""].join("")}>4</NavLink>
+        <NavLink to="#" className={({isActive,isPending,isTransitioning })=>[isPending?"pending":"",isActive?"active":"",isTransitioning?"transitioning":""].join("")}>5</NavLink>
       </div>
       <div className="flex space-x-4">
         <button
@@ -55,11 +55,11 @@ export function HeaderAuthenticated() {
         <img src={BeShelf} alt="BeShelf Logo" className="h-24 w-auto" />
       </div>
       <div className="flex space-x-4">
-        <div>1</div>
-        <div>2</div>
-        <div>3</div>
-        <div>4</div>
-        <div>5</div>
+      <NavLink to="#" className={({isActive,isPending,isTransitioning })=>[isPending?"pending":"",isActive?"active":"",isTransitioning?"transitioning":""].join("")}>1</NavLink>
+        <NavLink to="#" className={({isActive,isPending,isTransitioning })=>[isPending?"pending":"",isActive?"active":"",isTransitioning?"transitioning":""].join("")}>2</NavLink>
+        <NavLink to="#" className={({isActive,isPending,isTransitioning })=>[isPending?"pending":"",isActive?"active":"",isTransitioning?"transitioning":""].join("")}>3</NavLink>
+        <NavLink to="#" className={({isActive,isPending,isTransitioning })=>[isPending?"pending":"",isActive?"active":"",isTransitioning?"transitioning":""].join("")}>4</NavLink>
+        <NavLink to="#" className={({isActive,isPending,isTransitioning })=>[isPending?"pending":"",isActive?"active":"",isTransitioning?"transitioning":""].join("")}>5</NavLink>
       </div>
       <div className="flex space-x-4">
         <button
