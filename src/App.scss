@@ -1,0 +1,16 @@
+.profile{
+    .active{
+        background-color: #374151;
+        color: white;
+    }
+}
+.notification-bell{
+    background-color: #e4e6eb;
+    color: black;
+    :hover{
+        color: #3b82f6;
+    }
+    + .active{
+        color: #3b82f6;
+    }
+}

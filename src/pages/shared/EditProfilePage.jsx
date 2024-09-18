@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../setting/AuthContext";
+import { useLocation } from "react-router-dom";
 
 export default function EditProfilePage() {
   const { userInfor, setUserInfor } = useContext(AuthContext); // Access the context to get and update user info
@@ -9,6 +10,9 @@ export default function EditProfilePage() {
     phone: userInfor?.phone || "",
     password: "",
   });
+  const test=useLocation();
+  console.log(test);
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;

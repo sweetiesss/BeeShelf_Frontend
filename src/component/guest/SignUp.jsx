@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,Link} from "react-router-dom";
 
 export default function SignUp() {
   const [form, setForm] = useState({});
@@ -102,7 +102,7 @@ export default function SignUp() {
         </button>
         <div className="flex justify-center items-center flex-col">
           <div>Already have an account?</div>
-          <a href="/signin">Sign In</a>
+          <Link to="/signin">Sign In</Link>
         </div>
       </div>
     </div>

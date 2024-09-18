@@ -1,7 +1,8 @@
 import { Outlet } from "react-router-dom";
 import { HeaderAuthenticated, HeaderUnauthenticated } from "../layout/Header";
+import { Sidebar } from "../layout/Sidebar";
 
-export  function LayoutGuest() {
+export function LayoutGuest() {
   return (
     <div>
       <div>
@@ -20,9 +21,11 @@ export function LayoutLogined() {
         <HeaderAuthenticated />
       </div>
       <div className="pt-[5rem]">
+        <div className="absolute w-fit h-[calc(100%-5rem)]">
+          {/* <Sidebar /> */}
+        </div>
         <Outlet />
       </div>
     </div>
   );
 }
-

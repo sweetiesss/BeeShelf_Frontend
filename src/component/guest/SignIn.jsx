@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../setting/AuthContext";
 
@@ -74,8 +74,6 @@ export default function SignIn() {
           callback: handleCredentialResponse,
         });
 
-        const parentWidth = buttonDivRef.current.offsetWidth;
-
         google.accounts.id.renderButton(document.getElementById("buttonDiv"), {
           theme: "outline",
           size: "large",
@@ -128,7 +126,7 @@ export default function SignIn() {
         <div>
           <div className="flex justify-between">
             <label>Password</label>
-            <a href="/forgotpassword">Forgot password?</a>
+            <Link to="/forgotpassword">Forgot password?</Link>
           </div>
           <input
             className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
@@ -166,7 +164,7 @@ export default function SignIn() {
           ref={buttonDivRef}
         ></div>
         <div className="flex justify-center">
-          <a href="/signup">Create account</a>
+          <Link to="/signup">Create account</Link>
         </div>
       </div>
     </div>

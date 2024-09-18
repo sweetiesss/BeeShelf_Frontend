@@ -1,4 +1,4 @@
-import "./App.css";
+import "./App.scss";
 import { Route, Router, Routes } from "react-router-dom";
 import GuestRoutes from "./routes/GuestRoutes";
 import AdminRoutes from "./routes/AdminRoutes";

@@ -26,10 +26,7 @@ body {
 }
 a{
   cursor: pointer;
-  text-decoration: underline;
-}
-a:hover{
-  opacity: 50%;
+  text-decoration: none;
 }
 
 

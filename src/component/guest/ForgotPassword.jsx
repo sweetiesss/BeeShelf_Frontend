@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 
 export default function ForgotPassword() {
   const [form, setForm] = useState({});
@@ -40,7 +40,7 @@ export default function ForgotPassword() {
           className="w-full rounded-lg overflow-hidden flex justify-center"
         ></div>
         <div className="flex justify-center">
-          <a href="/signup">Back to Sign In</a>
+          <Link to="/signin">Back to Sign In</Link>
         </div>
       </div>
     </div>
