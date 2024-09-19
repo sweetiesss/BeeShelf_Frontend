@@ -96,7 +96,7 @@ export default function SignIn() {
     console.log("User Info:", userObject);
     setUserInfor(userObject);
     setIsAuthenticated(true);
-    nav("/partner");
+    nav("/partner/dashboard");
     // Here, you can send the token to your backend for verification and further processing
   };
 

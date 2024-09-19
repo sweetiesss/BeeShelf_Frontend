@@ -36,7 +36,7 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+    <div className="w-full max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg ">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Name Field */}

@@ -1,3 +1,13 @@
+:root{
+    --oposite-main-color:#000000;
+    --text-main-color:black;
+    --main-color:#ffffff;
+    --second-color:#F2F0F0;
+    --line-main-color:#DDDDDD;
+    --main-project-color:#FFCA54;
+    --text-second-color:#B2B2B2;
+}
+
 .profile{
     .active{
         background-color: #374151;
@@ -10,7 +20,7 @@
     :hover{
         color: #3b82f6;
     }
-    + .active{
+    .active{
         color: #3b82f6;
     }
 }

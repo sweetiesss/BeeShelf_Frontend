@@ -1,0 +1,12 @@
+.sidebar-navigate {
+  .active {
+    background-color: var(--main-project-color);
+    color: var(--text-main-color);
+    padding-left: 1.5rem;
+  }
+  .navigate-menu:hover {
+    background-color: var(--main-project-color);
+    color: var(--text-main-color);
+    padding-left: 1.5rem;
+  }
+}

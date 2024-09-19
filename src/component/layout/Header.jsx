@@ -142,72 +142,7 @@ export function HeaderAuthenticated() {
   }, []);
 
   return (
-    <div className="flex items-center justify-between h-20 w-full bg-blue-500 text-white px-4">
-      <div className="flex items-center">
-        <img src={BeShelf} alt="BeShelf Logo" className="h-24 w-auto" />
-      </div>
-      <div className="flex space-x-4">
-        <NavLink
-          to="#"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          Product
-        </NavLink>
-        <NavLink
-          to="#"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          Warehouse
-        </NavLink>
-        <NavLink
-          to="#"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          Order
-        </NavLink>
-        <NavLink
-          to="#"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          Shipper
-        </NavLink>
-        <NavLink
-          to="#"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          Dashboard
-        </NavLink>
-      </div>
+    <div className="flex items-center justify-end h-20 w-full bg-[var(--main-color)] text-white px-4 border-0 border-b-2">
       <div className="flex space-x-5 items-center">
         <button
           className={

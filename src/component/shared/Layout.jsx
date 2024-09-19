@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { HeaderAuthenticated, HeaderUnauthenticated } from "../layout/Header";
 import { Sidebar } from "../layout/Sidebar";
+import "./Layout.scss";
 
 export function LayoutGuest() {
   return (
@@ -17,14 +18,14 @@ export function LayoutGuest() {
 export function LayoutLogined() {
   return (
     <div>
-      <div className="absolute w-full h-fit">
-        <HeaderAuthenticated />
+      <div className="absolute w-fit h-full">
+        <Sidebar />
       </div>
-      <div className="pt-[5rem]">
-        <div className="absolute w-fit h-[calc(100%-5rem)]">
-          {/* <Sidebar /> */}
+      <div className="h-full bg-[var(--second-color)]">
+        <HeaderAuthenticated />
+        <div className="w-full h-full min-h-[calc(100vh-5rem)]">
+          <Outlet />
         </div>
-        <Outlet />
       </div>
     </div>
   );
