@@ -1,12 +1,10 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import BeShelf from "../../assets/icons/BeShelf.svg";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../setting/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import { Bell } from "@phosphor-icons/react";
-import { withRouter } from "react-router-dom";
-
 
 export function HeaderUnauthenticated() {
   const nav = useNavigate();
@@ -106,6 +104,42 @@ export function HeaderAuthenticated() {
     setUserInfor(null);
     nav("/");
   };
+  const notificationBell = useRef();
+  const notificationDropwDown = useRef();
+  const profileAvatar = useRef();
+  const profileDropDown = useRef();
+  const mouseDownEvent = (event) => {
+    if (
+      notificationBell.current &&
+      notificationBell.current.contains(event.target)
+    ) {
+      setOpenNotification((prev) => !prev);
+    } else if (
+      notificationDropwDown.current &&
+      notificationDropwDown.current.contains(event.target)
+    ) {
+      return;
+    } else {
+      setOpenNotification(false);
+    }
+    if (profileAvatar.current && profileAvatar.current.contains(event.target)) {
+      setOpenUserInfor((prev) => !prev);
+    } else if (
+      profileDropDown.current &&
+      profileDropDown.current.contains(event.target)
+    ) {
+      return;
+    } else {
+      setOpenUserInfor(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", mouseDownEvent);
+    return () => {
+      document.removeEventListener("mousedown", mouseDownEvent);
+    };
+  }, []);
 
   return (
     <div className="flex items-center justify-between h-20 w-full bg-blue-500 text-white px-4">
@@ -175,12 +209,17 @@ export function HeaderAuthenticated() {
         </NavLink>
       </div>
       <div className="flex space-x-5 items-center">
-        <button className={"rounded-full w-10 h-10 flex justify-center items-center notification-bell"} onClick={() => setOpenNotification((prev) => !prev)}>
-          <Bell size={32} weight="fill"/>
+        <button
+          className={
+            "rounded-full w-8 h-8 flex justify-center items-center notification-bell"
+          }
+          ref={notificationBell}
+        >
+          <Bell size={24} weight="fill" />
         </button>
         <button
           className="bg-white text-blue-500 border rounded-full overflow-hidden h-fit hover:bg-blue-600 hover:text-white transition duration-200"
-          onClick={() => setOpenUserInfor((pre) => !pre)}
+          ref={profileAvatar}
         >
           <img
             src={userInfor?.picture || defaultAvatar}
@@ -190,32 +229,35 @@ export function HeaderAuthenticated() {
         </button>
       </div>
       {openNotification && (
-        <div className="absolute right-4 mt-2 w-48  rounded-lg shadow-lg z-10 top-20">
+        <div
+          className="absolute right-20 mt-2 w-48  rounded-lg shadow-lg z-10 top-20"
+          ref={notificationDropwDown}
+        >
           <div className=" text-gray-700 flex flex-col profile">
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-t-lg "
-              exact={true}
+              exact="true"
               to="profile"
             >
               Profile
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-              exact={true}
+              exact="true"
               to="setting"
             >
               Settings
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-              exact={true}
+              exact="true"
               to="notification"
             >
               Notification
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-              exact={true}
+              exact="true"
               to="help"
             >
               Help
@@ -230,32 +272,32 @@ export function HeaderAuthenticated() {
         </div>
       )}
       {openUserInfor && (
-        <div className="absolute right-4 mt-2 w-48  rounded-lg shadow-lg z-10 top-20">
+        <div className="absolute right-4 mt-2 w-48  rounded-lg shadow-lg z-10 top-20" ref={profileDropDown}>
           <div className=" text-gray-700 flex flex-col profile">
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-t-lg "
-              exact={true}
+              exact="true"
               to="profile"
             >
               Profile
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-              exact={true}
+              exact="true"
               to="setting"
             >
               Settings
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-              exact={true}
+              exact="true"
               to="notification"
             >
               Notification
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-              exact={true}
+              exact="true"
               to="help"
             >
               Help
