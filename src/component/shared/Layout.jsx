@@ -17,13 +17,13 @@ export function LayoutGuest() {
 }
 export function LayoutLogined() {
   return (
-    <div>
-      <div className="absolute w-fit h-full">
+    <div className="flex h-screen">
+      <div className="w-fit h-full border-0 border-r-2 border-[var(--line-main-color)]">
         <Sidebar />
       </div>
-      <div className="h-full bg-[var(--second-color)]">
+      <div className="h-full bg-[var(--second-color)] w-full">
         <HeaderAuthenticated />
-        <div className="w-full h-full min-h-[calc(100vh-5rem)]">
+        <div className="w-full  min-h-[calc(100vh-5rem)]">
           <Outlet />
         </div>
       </div>
