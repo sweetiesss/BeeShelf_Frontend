@@ -1,10 +1,11 @@
 :root{
     --oposite-main-color:#000000;
-    --text-main-color:black;
     --main-color:#ffffff;
     --second-color:#F2F0F0;
     --line-main-color:#DDDDDD;
+    --line-oposite-color:#000000;
     --main-project-color:#FFCA54;
+    --text-main-color:black;
     --text-second-color:#B2B2B2;
 }
 
@@ -23,4 +24,8 @@
     .active{
         color: #3b82f6;
     }
+}
+table{
+    border-collapse: separate;
+    border-spacing: 0;
 }

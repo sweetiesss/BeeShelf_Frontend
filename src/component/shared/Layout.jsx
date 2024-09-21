@@ -23,7 +23,7 @@ export function LayoutLogined() {
       </div>
       <div className="h-full bg-[var(--second-color)] w-full">
         <HeaderAuthenticated />
-        <div className="w-full  min-h-[calc(100vh-5rem)]">
+        <div className="w-full  min-h-[calc(100vh-5rem)] p-10">
           <Outlet />
         </div>
       </div>

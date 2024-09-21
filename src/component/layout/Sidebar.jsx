@@ -34,9 +34,10 @@ export function Sidebar() {
         )}
       </div>
       <nav className="flex flex-col flex-grow px-4 text-[var(--text-second-color)] sidebar-navigate space-y-4">
-        {PartnerRouterInfor.map((item) => (
+        {PartnerRouterInfor.map((item,num) => (
           <NavLink
             to={item.path}
+            key={num}
             className={`flex items-start navigate-menu p-2 rounded-lg  ${({
               isActive,
               isPending,
