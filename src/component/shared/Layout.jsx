@@ -17,11 +17,11 @@ export function LayoutGuest() {
 }
 export function LayoutLogined() {
   return (
-    <div className="flex h-screen">
-      <div className="w-fit h-full border-0 border-r-2 border-[var(--line-main-color)]">
+    <div className="flex h-screen layout">
+      <div className="w-fit h-full border-0 border-r-2 border-[var(--line-main-color)] sidebar-wrapper">
         <Sidebar />
       </div>
-      <div className="h-full bg-[var(--second-color)] w-full">
+      <div className="h-full bg-[var(--second-color)] w-full body-wrapper">
         <HeaderAuthenticated />
         <div className="w-full  min-h-[calc(100vh-5rem)] p-10">
           <Outlet />

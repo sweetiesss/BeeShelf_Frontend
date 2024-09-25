@@ -8,7 +8,7 @@ import PartnerRoutes from "./routes/PartnerRoutes";
 
 function App() {
   return (
-    <div className="App text-[var(--text-main-color)]">
+    <div className="App text-[var(--text-main-color)] max-w-[100vw]">
       <AuthProvider>
         <RoleProvider>
           <Routes>

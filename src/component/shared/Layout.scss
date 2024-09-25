@@ -1,3 +1,4 @@
+
 .sidebar {
   width:16rem ;
   transition: width 0.3s ease-in-out;
@@ -31,3 +32,11 @@
     }
   }
 }
+// .body-wrapper{
+//   width: calc(100% - 16rem);
+// }
+// .layout:has(.slide-out){
+//   .body-wrapper{
+//     width: calc(100% - 4.5rem);
+//   }
+// }
