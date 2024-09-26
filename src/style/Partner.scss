@@ -43,7 +43,16 @@
 }
 
 .detail-product{
-  label{
+  .label{
       color:var(--text-second-color);
+  }
+  input{
+    background-color: inherit;
+    outline: none;
+    border-bottom: 2px solid var(--text-second-color);
+    padding: 0.5rem 0;
+  }
+  input:focus{
+    border-bottom: 2px solid black;
   }
 }

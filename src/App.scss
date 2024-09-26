@@ -1,31 +1,42 @@
-:root{
-    --oposite-main-color:#000000;
-    --main-color:#ffffff;
-    --second-color:#F2F0F0;
-    --line-main-color:#DDDDDD;
-    --line-oposite-color:#000000;
-    --main-project-color:#FFCA54;
-    --text-main-color:black;
-    --text-second-color:#B2B2B2;
+:root {
+  --oposite-main-color: #000000;
+  --main-color: #ffffff;
+  --second-color: #f2f0f0;
+  --line-main-color: #dddddd;
+  --line-oposite-color: #000000;
+  --main-project-color: #ffca54;
+  --text-main-color: black;
+  --text-second-color: #b2b2b2;
+}
+[data-theme="dark"] {
+  --oposite-main-color: #ffffff;  /* Opposite of dark background */
+  --main-color: #1e1e1e;          /* Main dark background color */
+  --second-color: #2e2e2e;        /* Secondary darker background */
+  --line-main-color: #444444;     /* Darker line color */
+  --line-oposite-color: #ffffff;  /* Line opposite color for dark mode */
+  --main-project-color: #ffca54;  /* Keep the project highlight color */
+  --text-main-color: #f5f5f5;     /* Light text for contrast */
+  --text-second-color: #cccccc;   /* Lighter secondary text */
+
 }
 
-.profile{
-    .active{
-        background-color: #374151;
-        color: white;
-    }
+.profile {
+  .active {
+    background-color: #374151;
+    color: white;
+  }
 }
-.notification-bell{
-    background-color: #e4e6eb;
-    color: black;
-    :hover{
-        color: #3b82f6;
-    }
-    .active{
-        color: #3b82f6;
-    }
+.notification-bell {
+  background-color: #e4e6eb;
+  color: black;
+  :hover {
+    color: #3b82f6;
+  }
+  .active {
+    color: #3b82f6;
+  }
 }
-table{
-    border-collapse: separate;
-    border-spacing: 0;
+table {
+  border-collapse: separate;
+  border-spacing: 0;
 }

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate,Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { AuthContext } from "../../setting/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
