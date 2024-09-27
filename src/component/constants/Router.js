@@ -7,6 +7,7 @@ import {
 } from "@phosphor-icons/react";
 import HomePage from "../../pages/guest/HomePage";
 import ProductPage from "../../pages/partner/ProductPage";
+import ImportProductExcel from "../../pages/shared/ImportProductExcel";
 
 export const PartnerRouterInfor = [
   {
@@ -45,3 +46,11 @@ export const PartnerRouterInfor = [
     label: "Order",
   },
 ];
+export const PartnerRouterImportExcel=[
+  {
+    path: "product/import_product",
+    index: false,
+    element: ImportProductExcel,
+    label: "Import Product Excel",
+  }
+]

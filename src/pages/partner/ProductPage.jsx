@@ -10,6 +10,9 @@ import {
 import { useEffect, useState } from "react";
 import "../../style/Partner.scss";
 import { useTranslation } from "react-i18next";
+import { NavLink } from "react-router-dom";
+import * as XLSX from "xlsx";
+
 const products = [
   {
     id: 1,
@@ -81,7 +84,7 @@ export default function ProductPage() {
     checked: false,
     indeterminate: false,
   });
-  const {t}=useTranslation();
+  const { t } = useTranslation();
   useEffect(() => {
     const checkCount = selectedProducts.length;
     if (checkCount == 1) {
@@ -111,6 +114,45 @@ export default function ProductPage() {
   const handleClickOverall = (e) => {
     e.stopPropagation();
     setSelectedProducts([]);
+  };
+  const handleDownload = (data) => {
+    const formattedData = data.map((item) => ({
+      ...item,
+      tags: item.tags.join(", "), // Converting array to comma-separated string
+    }));
+    const formatDate = () => {
+      const date = new Date();
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${day}-${month}-${year}-${hours}h-${minutes}m-${seconds}s`;
+    };
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Products");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+
+    link.download = `${t("Products")}-${formatDate()}.xlsx`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
   const DetailProduct = () => {
     return (
@@ -269,16 +311,19 @@ export default function ProductPage() {
               placeholder={t("QuickSearch")}
             />
           </div>
-          <button className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold">
-          {t("ImportExcel")}
-          </button>
-          <button className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold">
-          {t("ExportExcel")}
+          <NavLink
+            to="import_product"
+            className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold"
+          >
+            {t("ImportExcel")}
+          </NavLink>
+          <button className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold" onClick={()=>handleDownload(products)}>
+            {t("ExportExcel")}
           </button>
         </div>
         <div className="mt-5 flex space-x-10 items-center">
           <select className="pr-1 bg-inherit text-[var(--text-main-color)] font-bold text-xl rounded-xl outline-none">
-            <option>   {t("INSTOCK")}</option>
+            <option> {t("INSTOCK")}</option>
             <option>{t("OUTSTOCK")}</option>
           </select>
           <div className="font-semibold ">
@@ -304,8 +349,18 @@ export default function ProductPage() {
             }`}
             disabled={selectedProducts.length === 0}
           >
-           {t("Delete")}
+            {t("Delete")}
           </button>
+          <button
+            className={`bg-blue-500 px-3 py-1 rounded-xl ${
+              selectedProducts.length === 0 && "opacity-70"
+            }`}
+            disabled={selectedProducts.length === 0}
+            onClick={()=>handleDownload(selectedProducts)}
+          >
+            {t("ExportExcelSelectedProducts")}
+          </button>
+
           <button className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold">
             + {t("AddProduct")}
           </button>
@@ -363,7 +418,13 @@ export default function ProductPage() {
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
-                    <div className=" px-1 py-2 column-2"></div>
+                    <div className=" px-1 py-2 column-2 flex justify-center">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-20 w-20 rounded-xl"
+                      />
+                    </div>
                     <div className=" px-1 py-2 column-3">{product.sku}</div>
                     <div className=" px-1 py-2 column-4">{product.name}</div>
                     <div className=" px-1 py-2 column-5">
@@ -421,7 +482,9 @@ export default function ProductPage() {
           <div className="text-2xl font-semibold">122</div>
         </div>
         <div className="mb-3">
-          <div className="text-[var(--text-second-color)]">{t("StockIssue")}</div>
+          <div className="text-[var(--text-second-color)]">
+            {t("StockIssue")}
+          </div>
           <div className="text-2xl font-semibold">1</div>
         </div>
       </div>

@@ -7,7 +7,7 @@ import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import { Bell, Moon, SunDim } from "@phosphor-icons/react";
 import { SettingContext } from "../../context/SettingContext";
 import { LANGUAGES } from "../constants/Language";
-import { LanguageSelector } from "../../pages/shared/ChangeLanguages";
+import { LanguageSelector } from "../shared/ChangeLanguages";
 import { useTranslation } from "react-i18next";
 
 export function HeaderUnauthenticated() {
@@ -257,7 +257,7 @@ export function HeaderAuthenticated() {
       )}
       {openUserInfor && (
         <div
-          className="absolute right-4 mt-2 w-48  rounded-lg shadow-lg z-10 top-20"
+          className="absolute right-4 mt-2 w-48  rounded-lg shadow-lg z-10 top-20 bg-[var(--main-color)]"
           ref={profileDropDown}
         >
           <div className=" text-gray-700 flex flex-col profile">

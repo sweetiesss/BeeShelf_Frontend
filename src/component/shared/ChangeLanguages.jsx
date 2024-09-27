@@ -1,6 +1,6 @@
 import React from "react"; // Ensure React is imported for type usage
 import { useTranslation } from "react-i18next";
-import { LANGUAGES } from "../../component/constants/Language";
+import { LANGUAGES } from "../constants/Language";
 
 export const LanguageSelector = () => {
   const { i18n, t } = useTranslation();
