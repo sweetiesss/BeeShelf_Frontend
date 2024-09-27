@@ -1,10 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import { LayoutLogined } from "../component/shared/Layout";
-import ProfilePage from "../pages/shared/ProfilePage";
-import EditProfilePage from "../pages/shared/EditProfilePage";
 import {
-  PartnerRouterImportExcel,
   PartnerRouterInfor,
+  PartnerRouterNoneSider,
 } from "../component/constants/Router";
 
 export default function PartnerRoutes() {
@@ -19,9 +17,7 @@ export default function PartnerRoutes() {
           )
         )}
         {/* <Route path="product" element={<ProductPage />} /> */}
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="editProfile" element={<EditProfilePage />} />
-        {PartnerRouterImportExcel.map((item, key) => (
+        {PartnerRouterNoneSider.map((item, key) => (
           <Route key={key} path={item.path} element={<item.element />} />
         ))}
       </Route>

@@ -8,6 +8,9 @@ import {
 import HomePage from "../../pages/guest/HomePage";
 import ProductPage from "../../pages/partner/ProductPage";
 import ImportProductExcel from "../../pages/shared/ImportProductExcel";
+import AddProductPage from "../../pages/partner/AddProductPage";
+import ProfilePage from "../../pages/shared/ProfilePage";
+import EditProfilePage from "../../pages/shared/EditProfilePage";
 
 export const PartnerRouterInfor = [
   {
@@ -46,11 +49,29 @@ export const PartnerRouterInfor = [
     label: "Order",
   },
 ];
-export const PartnerRouterImportExcel=[
+export const PartnerRouterNoneSider=[
   {
     path: "product/import_product",
     index: false,
     element: ImportProductExcel,
     label: "Import Product Excel",
+  },
+  {
+    path: "product/add_product",
+    index: false,
+    element: AddProductPage,
+    label: "Add Product",
+  },
+  {
+    path: "profile",
+    index: false,
+    element: ProfilePage,
+    label: "Profile",
+  },
+  {
+    path: "editProfile",
+    index: false,
+    element: EditProfilePage,
+    label: "Edit Profile",
   }
 ]

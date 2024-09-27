@@ -361,9 +361,9 @@ export default function ProductPage() {
             {t("ExportExcelSelectedProducts")}
           </button>
 
-          <button className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold">
+          <NavLink className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold" to="add_product">
             + {t("AddProduct")}
-          </button>
+          </NavLink>
         </div>
         <div className="p-4">
           <div className="shadow-lg bg-white rounded-lg p-4 custome-table mb-3">
