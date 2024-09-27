@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 
 import { useTranslation } from "react-i18next";
+import { useLocation,use, NavLink } from "react-router-dom";
 import * as XLSX from "xlsx";
 
 export default function ImportProductExcel({ result, setResult }) {
+
+  
   const [excelData, setExcelData] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [overall, setOverall] = useState({
@@ -127,6 +130,11 @@ export default function ImportProductExcel({ result, setResult }) {
 
   return (
     <div>
+      <div className="flex space-x-4 font-semibold text-xl mb-10 ">
+        <NavLink to="../product" className="opacity-50">{t("Product")}</NavLink>
+        <p>/</p>
+        <NavLink to="../product" className="font-bold">{t("ImportExcel")}</NavLink>
+      </div>
       <button onClick={handleDownload} className="bg-black text-white p-2 mb-4">
         {t("DownloadExcelTemplate")}
       </button>
@@ -157,7 +165,7 @@ export default function ImportProductExcel({ result, setResult }) {
             </button>
           </div>
           <div className="p-4">
-            <div className="shadow-lg bg-white rounded-lg p-4 custome-table mb-3">
+            <div className="shadow-lg bg-white rounded-lg p-4 custome-import-table mb-3">
               <div className="flex w-full">
                 <div className="text-left pb-2  column-1">
                   {selectedProducts.length > 0 ? (
