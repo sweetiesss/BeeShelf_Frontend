@@ -5,10 +5,13 @@ import { NavLink } from "react-router-dom";
 // const routePartner = [
 //   { icon: House, link: "dashboard", label: "Dashboard" },
 // ];
-import { PartnerRouterInfor } from "../../routes/PartnerRoutes";
+import { PartnerRouterInfor } from "../constants/Router";
 import { SettingContext } from "../../context/SettingContext";
+import { useTranslation } from "react-i18next";
 export function Sidebar() {
   const [isSlideOut, setSlideOut] = useState(false);
+  const { t } = useTranslation();
+
   // const { settingInfor, setSettingInfor } = useContext(SettingContext);
   // const [theme, setTheme] = useState(settingInfor.theme);
 
@@ -65,7 +68,7 @@ export function Sidebar() {
           >
             <item.icon className="icon" size={24} weight="fill" />
             {isSlideOut && (
-              <p className="px-2 transition-colors text-lg">{item.label}</p>
+              <p className="px-2 transition-colors text-lg">{t(item.label)}</p>
             )}
           </NavLink>
         ))}

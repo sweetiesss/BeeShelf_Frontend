@@ -9,6 +9,7 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import "../../style/Partner.scss";
+import { useTranslation } from "react-i18next";
 const products = [
   {
     id: 1,
@@ -80,6 +81,7 @@ export default function ProductPage() {
     checked: false,
     indeterminate: false,
   });
+  const {t}=useTranslation();
   useEffect(() => {
     const checkCount = selectedProducts.length;
     if (checkCount == 1) {
@@ -145,7 +147,7 @@ export default function ProductPage() {
             <div className="w-[35%]">
               <div>
                 <div className="">
-                  <div className="label">Display Name</div>
+                  <div className="label">{t("DisplayName")}</div>
                   <input
                     onClick={(e) => e.stopPropagation()}
                     className="w-full"
@@ -154,7 +156,7 @@ export default function ProductPage() {
                 </div>
                 <div className="flex justify-between w-full">
                   <div className="w-[30%]">
-                    <div className="label">SKU</div>
+                    <div className="label">{t("SKU")}</div>
                     <input
                       className="w-full"
                       onClick={(e) => e.stopPropagation()}
@@ -162,7 +164,7 @@ export default function ProductPage() {
                     />
                   </div>
                   <div className="w-[60%]">
-                    <div className="label">Barcode</div>
+                    <div className="label">{t("Barcode")}</div>
                     <input
                       className="w-full"
                       onClick={(e) => e.stopPropagation()}
@@ -172,7 +174,7 @@ export default function ProductPage() {
                 </div>
                 <div className="flex justify-between">
                   <div className="w-[45%]">
-                    <div className="label">Brand</div>
+                    <div className="label">{t("Brand")}</div>
                     <input
                       className="w-full"
                       onClick={(e) => e.stopPropagation()}
@@ -180,7 +182,7 @@ export default function ProductPage() {
                     />
                   </div>
                   <div className="w-[45%]">
-                    <div className="label">Vendor</div>
+                    <div className="label">{t("Vendor")}</div>
                     <input
                       className="w-full"
                       onClick={(e) => e.stopPropagation()}
@@ -190,7 +192,7 @@ export default function ProductPage() {
                 </div>
                 <div className="flex space-x-4 w-full justify-between">
                   <div className="w-[26%]">
-                    <div className="label">Stock: </div>
+                    <div className="label">{t("Stock")}: </div>
                     <input
                       className="w-full"
                       onClick={(e) => e.stopPropagation()}
@@ -198,7 +200,7 @@ export default function ProductPage() {
                     />
                   </div>
                   <div className="w-[26%]">
-                    <div className="label">Site: </div>
+                    <div className="label">{t("Size")}: </div>
                     <input
                       className="w-full"
                       onClick={(e) => e.stopPropagation()}
@@ -218,7 +220,7 @@ export default function ProductPage() {
             </div>
 
             <div className="w-[35%] bg-red-500">
-              <p className="text-sm text-gray-500">Tags:</p>
+              <p className="text-sm text-gray-500">{t("Tags")}:</p>
               <div className="flex gap-2">
                 {isShowDetailProduct.tags.map((tag, index) => (
                   <span
@@ -234,10 +236,10 @@ export default function ProductPage() {
         </div>
         <hr />
         <div className="flex justify-between py-2 pb-4">
-          <button className="px-4 py-2">Reset</button>
+          <button className="px-4 py-2">{t("Reset")}</button>
           <div className="space-x-10">
-            <button className="px-4 py-2">Update</button>
-            <button className="px-4 py-2">Delete</button>
+            <button className="px-4 py-2">{t("Update")}</button>
+            <button className="px-4 py-2">{t("Delete")}</button>
           </div>
         </div>
       </div>
@@ -247,15 +249,15 @@ export default function ProductPage() {
     <div className="w-full h-full flex justify-between">
       <div className="w-fit">
         <div className="flex items-center justify-stretch space-x-10 ">
-          <p className="text-3xl font-bold">Products</p>
+          <p className="text-3xl font-bold">{t("Products")}</p>
           <div className="focus-within:outline-black flex bg-white px-2 pl-4 py-1 rounded-xl outline-2 outline outline-[var(--line-main-color)]">
-            <label className="opacity-70">Category:</label>
+            <label className="opacity-70">{t("Category")}:</label>
             <select name="category" className="pr-2 outline-none">
               <option>Cosemetic</option>
             </select>
           </div>
           <div className="focus-within:outline-black flex bg-white px-2 pl-4 py-1 rounded-xl outline-2 outline outline-[var(--line-main-color)]">
-            <label className="opacity-70">Brand:</label>
+            <label className="opacity-70">{t("Brand")}:</label>
             <select name="category" className="pr-2 outline-none">
               <option>Ladygaga</option>
             </select>
@@ -264,23 +266,23 @@ export default function ProductPage() {
             <MagnifyingGlass size={18} weight="bold" />
             <input
               className="outline-none pl-1 ml-1 border-0 border-l-2 border-[var(--line-main-color)] focus-within:border-black "
-              placeholder="Quick Search"
+              placeholder={t("QuickSearch")}
             />
           </div>
           <button className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold">
-            Import Excel
+          {t("ImportExcel")}
           </button>
           <button className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold">
-            Exprot Excel
+          {t("ExportExcel")}
           </button>
         </div>
         <div className="mt-5 flex space-x-10 items-center">
           <select className="pr-1 bg-inherit text-[var(--text-main-color)] font-bold text-xl rounded-xl outline-none">
-            <option>IN STOCK</option>
-            <option>OUT STOCK</option>
+            <option>   {t("INSTOCK")}</option>
+            <option>{t("OUTSTOCK")}</option>
           </select>
           <div className="font-semibold ">
-            {selectedProducts.length}/{products.length} Total producs
+            {selectedProducts.length}/{products.length} {t("Totalproducts")}
           </div>
           <div
             className={`bg-blue-500 px-3 py-1 rounded-xl ${
@@ -291,9 +293,9 @@ export default function ProductPage() {
               className="bg-inherit pr-1"
               disabled={selectedProducts.length === 0}
             >
-              <option>Add to Inventory</option>
-              <option>Inventory A</option>
-              <option>Inventory B</option>
+              <option> {t("AddtoInventory")}</option>
+              <option>{t("Inventory")} A</option>
+              <option>{t("Inventory")} B</option>
             </select>
           </div>
           <button
@@ -302,10 +304,10 @@ export default function ProductPage() {
             }`}
             disabled={selectedProducts.length === 0}
           >
-            Delete
+           {t("Delete")}
           </button>
           <button className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold">
-            + Add Product
+            + {t("AddProduct")}
           </button>
         </div>
         <div className="p-4">
@@ -326,12 +328,12 @@ export default function ProductPage() {
                 )}
               </div>
               <div className="text-left pb-2   column-2"></div>
-              <div className="text-left pb-2 column-3">SKU</div>
-              <div className="text-left pb-2  column-4">Name</div>
-              <div className="text-left pb-2  column-5">Group</div>
-              <div className="text-left pb-2 column-6">Category</div>
-              <div className="text-left pb-2  column-7 ">Price</div>
-              <div className="text-left pb-2  column-8 ">Tags</div>
+              <div className="text-left pb-2 column-3">{t("SKU")}</div>
+              <div className="text-left pb-2  column-4">{t("Name")}</div>
+              <div className="text-left pb-2  column-5">{t("Group")}</div>
+              <div className="text-left pb-2 column-6">{t("Category")}</div>
+              <div className="text-left pb-2  column-7 ">{t("Price")}</div>
+              <div className="text-left pb-2  column-8 ">{t("Tags")}</div>
               <div className="text-left pb-2  column-9 "></div>
             </div>
             {products.map((product) => {
@@ -407,19 +409,19 @@ export default function ProductPage() {
         </div>
       </div>
       <div className="bg-[var(--main-color)] w-fit flex-grow p-10 rounded-xl shadow-xl border-2 border-[var(--line-main-color)] h-fit">
-        <div className="font-semibold text-xl mb-5">OverView</div>
+        <div className="font-semibold text-xl mb-5">{t("OVERVIEW")}</div>
         <div className="mb-3">
-          <div className="text-[var(--text-second-color)]">Sku total</div>
+          <div className="text-[var(--text-second-color)]">{t("Skutotal")}</div>
           <div className="text-2xl font-semibold">12,312</div>
         </div>
         <div className="mb-3">
           <div className="text-[var(--text-second-color)]">
-            Product Reserved
+            {t("ProductReserved")}
           </div>
           <div className="text-2xl font-semibold">122</div>
         </div>
         <div className="mb-3">
-          <div className="text-[var(--text-second-color)]">Stocl Issue</div>
+          <div className="text-[var(--text-second-color)]">{t("StockIssue")}</div>
           <div className="text-2xl font-semibold">1</div>
         </div>
       </div>

@@ -6,6 +6,9 @@ import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import { Bell, Moon, SunDim } from "@phosphor-icons/react";
 import { SettingContext } from "../../context/SettingContext";
+import { LANGUAGES } from "../constants/Language";
+import { LanguageSelector } from "../../pages/shared/ChangeLanguages";
+import { useTranslation } from "react-i18next";
 
 export function HeaderUnauthenticated() {
   const nav = useNavigate();
@@ -100,6 +103,7 @@ export function HeaderAuthenticated() {
     useContext(AuthContext);
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
+  const { t } = useTranslation();
 
   const changeTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -154,8 +158,9 @@ export function HeaderAuthenticated() {
   }, []);
 
   return (
-    <div className="flex items-center justify-end h-20 w-full bg-[var(--main-color)] text-white px-4 border-0 border-b-2">
+    <div className="flex items-center justify-end h-20 w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2">
       <div className="flex space-x-5 items-center">
+        <LanguageSelector />
         <div className="p-4 relative">
           <div
             className={` bg-theme-change ${
@@ -170,11 +175,15 @@ export function HeaderAuthenticated() {
                     weight="fill"
                     className="rounded-full bg-white text-yellow-400  "
                   />
-                  <p className="text-left pl-2 text-black">Light</p>
+                  <p className="text-left pl-2 text-black w-fit text-nowrap">
+                    {t("Light")}
+                  </p>
                 </>
               ) : (
                 <>
-                  <p className="text-right pr-2">Dark</p>
+                  <p className="text-right pr-2 w-fit text-nowrap">
+                    {t("Dark")}
+                  </p>
                   <Moon
                     weight="fill"
                     className="rounded-full bg-white text-gray-400 p-[0.25rem]"
@@ -214,34 +223,34 @@ export function HeaderAuthenticated() {
               exact="true"
               to="profile"
             >
-              Profile
+              {t("Profile")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="setting"
             >
-              Settings
+              {t("Settings")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="notification"
             >
-              Notification
+              {t("Notification")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="help"
             >
-              Help
+              {t("Help")}
             </NavLink>
             <div
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-b-lg"
               onClick={logout}
             >
-              Log Out
+              {t("Logout")}
             </div>
           </div>
         </div>
@@ -257,34 +266,34 @@ export function HeaderAuthenticated() {
               exact="true"
               to="profile"
             >
-              Profile
+              {t("Profile")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="setting"
             >
-              Settings
+              {t("Settings")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="notification"
             >
-              Notification
+              {t("Notification")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="help"
             >
-              Help
+              {t("Help")}
             </NavLink>
             <div
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-b-lg"
               onClick={logout}
             >
-              Log Out
+              {t("Logout")}
             </div>
           </div>
         </div>

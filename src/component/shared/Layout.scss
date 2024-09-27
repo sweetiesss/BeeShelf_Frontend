@@ -32,6 +32,7 @@
 }
 .bg-theme-change {
   width: 5rem;
+  transition: width 0.3s ease-in-out;
 
   display: flex;
   justify-content: start;
