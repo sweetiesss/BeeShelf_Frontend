@@ -43,7 +43,7 @@ i18n
           OUTSTOCK: "OUT STOCK",
           Totalproducts: "Total products",
           AddtoInventory: "Add to Inventory",
-          Delet: "Delete",
+          Delete: "Delete",
           AddProduct: "Add Product",
           SKU: "SKU",
           Name: "Name",
