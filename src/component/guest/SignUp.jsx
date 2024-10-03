@@ -28,9 +28,9 @@ export default function SignUp() {
             className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
             type="text"
             onChange={handleInput}
-            name="Email"
+            name="email"
             placeholder="Email"
-            value={form?.Email || ""}
+            value={form?.email || ""}
           />
         </div>
         <div>
@@ -39,9 +39,20 @@ export default function SignUp() {
             className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
             type="text"
             onChange={handleInput}
-            name="FullName"
-            placeholder="Full Name"
-            value={form?.FullName || ""}
+            name="firstName"
+            placeholder="First Name"
+            value={form?.firstName || ""}
+          />
+        </div>
+        <div>
+          <label>Last name*</label>
+          <input
+            className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+            type="text"
+            onChange={handleInput}
+            name="lastName"
+            placeholder="Last Name"
+            value={form?.lastName || ""}
           />
         </div>
         <div>
@@ -50,9 +61,9 @@ export default function SignUp() {
             className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
             type="text"
             onChange={handleInput}
-            name="PhoneNumber"
+            name="phone"
             placeholder="Phone Number"
-            value={form?.PhoneNumber || ""}
+            value={form?.phone || ""}
           />
         </div>
 
@@ -62,9 +73,9 @@ export default function SignUp() {
             className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
             type="password"
             onChange={handleInput}
-            name="Password"
+            name="password"
             placeholder="Password"
-            value={form?.Password || ""}
+            value={form?.password || ""}
           />
         </div>
 
@@ -74,9 +85,9 @@ export default function SignUp() {
             className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
             type="password"
             onClick={handleInput}
-            name="ConfirmPassword"
+            name="confirmPassword"
             placeholder="Confirm Password"
-            value={form?.ConfirmPassword || ""}
+            value={form?.confirmPassword || ""}
           />
         </div>
 

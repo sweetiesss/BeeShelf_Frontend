@@ -161,7 +161,7 @@ export function HeaderAuthenticated() {
     <div className="flex items-center justify-end h-20 w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2">
       <div className="flex space-x-5 items-center">
         <LanguageSelector />
-        <div className="p-4 relative">
+        {/* <div className="p-4 relative">
           <div
             className={` bg-theme-change ${
               theme === "light" ? "light-mode" : "dark-mode"
@@ -187,6 +187,40 @@ export function HeaderAuthenticated() {
                   <Moon
                     weight="fill"
                     className="rounded-full bg-white text-gray-400 p-[0.25rem]"
+                  />
+                </>
+              )}
+            </div>
+          </div>
+        </div> */}
+        <div className="p-4 relative">
+          <div
+            className={`bg-theme-change ${
+              theme === "light"
+                ? "light-mode light-mode-animate"
+                : "dark-mode dark-mode-animate"
+            }`}
+            onClick={changeTheme}
+          >
+            <div className="theme-button">
+              {theme === "light" ? (
+                <>
+                  <SunDim
+                    weight="fill"
+                    className="rounded-full bg-white text-yellow-400 theme-icon"
+                  />
+                  <p className="text-left pl-2 text-black w-fit text-nowrap">
+                    {t("Light")}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-right pr-2 w-fit text-nowrap">
+                    {t("Dark")}
+                  </p>
+                  <Moon
+                    weight="fill"
+                    className="rounded-full bg-white text-gray-400 p-[0.25rem] theme-icon"
                   />
                 </>
               )}
