@@ -8,7 +8,9 @@ import { BrowserRouter } from "react-router-dom";
 import { SettingProvider } from "./context/SettingContext";
 
 
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
+
 root.render(
   <BrowserRouter>
     <SettingProvider>

@@ -13,8 +13,9 @@
 
 // export default instance;
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useState } from "react";
+import { toast } from "react-toastify";
 const useAxios = () => {
   const instance = axios.create({
     baseURL: process.env.REACT_APP_BASE_URL_API,
@@ -40,19 +41,17 @@ const useAxios = () => {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
   const fetchData = async ({ url, method, data = {}, params = {} }) => {
     setLoading(true);
     try {
-      const result = await instance({
+      const resultPromise = instance({
         url,
         method,
         data,
         params,
       });
-      setResponse(result.data);
-      console.log("result",result);
-      
-      return result;
+      return resultPromise;
     } catch (error) {
       const errorMessage = error.response ? error.response.data : error.message;
       setError(errorMessage);

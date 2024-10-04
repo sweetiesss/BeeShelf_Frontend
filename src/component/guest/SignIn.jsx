@@ -29,7 +29,7 @@ export default function SignIn() {
           console.log("Login Successfully");
           console.log(rememberMe);
           setIsAuthenticated(true);
-          const successData=findData.data;
+          const successData=findData.data;  
           setUserInfor(successData);
           nav("/" + successData?.roleName);
         }
@@ -37,7 +37,7 @@ export default function SignIn() {
         console.log(form);
         console.log("Failed");
         console.log(rememberMe);
-        setError(findData?.message)
+        setError(findData?.response?.data?.message)
         console.log(error);
         
       }
