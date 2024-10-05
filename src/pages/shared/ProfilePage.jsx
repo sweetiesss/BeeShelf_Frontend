@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { AuthContext } from "../../setting/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import { useNavigate } from "react-router-dom";
 

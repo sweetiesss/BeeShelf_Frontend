@@ -2,9 +2,13 @@ import { useContext, useEffect, useRef, useState } from "react";
 
 import BeShelf from "../../assets/icons/BeShelf.svg";
 import { NavLink, useNavigate } from "react-router-dom";
-import { AuthContext } from "../../setting/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
-import { Bell } from "@phosphor-icons/react";
+import { Bell, Moon, SunDim } from "@phosphor-icons/react";
+import { SettingContext } from "../../context/SettingContext";
+import { LANGUAGES } from "../constants/Language";
+import { LanguageSelector } from "../shared/ChangeLanguages";
+import { useTranslation } from "react-i18next";
 
 export function HeaderUnauthenticated() {
   const nav = useNavigate();
@@ -97,6 +101,18 @@ export function HeaderAuthenticated() {
   const [openNotification, setOpenNotification] = useState(false);
   const { isAuthenticated, setIsAuthenticated, userInfor, setUserInfor } =
     useContext(AuthContext);
+  const { settingInfor, setSettingInfor } = useContext(SettingContext);
+  const [theme, setTheme] = useState(settingInfor.theme);
+  const { t } = useTranslation();
+
+  const changeTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    setSettingInfor((prev) => ({
+      ...prev,
+      theme: newTheme,
+    }));
+  };
   const nav = useNavigate();
 
   const logout = () => {
@@ -142,8 +158,75 @@ export function HeaderAuthenticated() {
   }, []);
 
   return (
-    <div className="flex items-center justify-end h-20 w-full bg-[var(--main-color)] text-white px-4 border-0 border-b-2">
+    <div className="flex items-center justify-end h-20 w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2">
       <div className="flex space-x-5 items-center">
+        <LanguageSelector />
+        {/* <div className="p-4 relative">
+          <div
+            className={` bg-theme-change ${
+              theme === "light" ? "light-mode" : "dark-mode"
+            }`}
+            onClick={changeTheme}
+          >
+            <div className="theme-button ">
+              {theme === "light" ? (
+                <>
+                  <SunDim
+                    weight="fill"
+                    className="rounded-full bg-white text-yellow-400  "
+                  />
+                  <p className="text-left pl-2 text-black w-fit text-nowrap">
+                    {t("Light")}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-right pr-2 w-fit text-nowrap">
+                    {t("Dark")}
+                  </p>
+                  <Moon
+                    weight="fill"
+                    className="rounded-full bg-white text-gray-400 p-[0.25rem]"
+                  />
+                </>
+              )}
+            </div>
+          </div>
+        </div> */}
+        <div className="p-4 relative">
+          <div
+            className={`bg-theme-change ${
+              theme === "light"
+                ? "light-mode light-mode-animate"
+                : "dark-mode dark-mode-animate"
+            }`}
+            onClick={changeTheme}
+          >
+            <div className="theme-button">
+              {theme === "light" ? (
+                <>
+                  <SunDim
+                    weight="fill"
+                    className="rounded-full bg-white text-yellow-400 theme-icon"
+                  />
+                  <p className="text-left pl-2 text-black w-fit text-nowrap">
+                    {t("Light")}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-right pr-2 w-fit text-nowrap">
+                    {t("Dark")}
+                  </p>
+                  <Moon
+                    weight="fill"
+                    className="rounded-full bg-white text-gray-400 p-[0.25rem] theme-icon"
+                  />
+                </>
+              )}
+            </div>
+          </div>
+        </div>
         <button
           className={
             "rounded-full w-8 h-8 flex justify-center items-center notification-bell"
@@ -174,74 +257,77 @@ export function HeaderAuthenticated() {
               exact="true"
               to="profile"
             >
-              Profile
+              {t("Profile")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="setting"
             >
-              Settings
+              {t("Settings")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="notification"
             >
-              Notification
+              {t("Notification")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="help"
             >
-              Help
+              {t("Help")}
             </NavLink>
             <div
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-b-lg"
               onClick={logout}
             >
-              Log Out
+              {t("Logout")}
             </div>
           </div>
         </div>
       )}
       {openUserInfor && (
-        <div className="absolute right-4 mt-2 w-48  rounded-lg shadow-lg z-10 top-20" ref={profileDropDown}>
+        <div
+          className="absolute right-4 mt-2 w-48  rounded-lg shadow-lg z-10 top-20 bg-[var(--main-color)]"
+          ref={profileDropDown}
+        >
           <div className=" text-gray-700 flex flex-col profile">
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-t-lg "
               exact="true"
               to="profile"
             >
-              Profile
+              {t("Profile")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="setting"
             >
-              Settings
+              {t("Settings")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="notification"
             >
-              Notification
+              {t("Notification")}
             </NavLink>
             <NavLink
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
               exact="true"
               to="help"
             >
-              Help
+              {t("Help")}
             </NavLink>
             <div
               className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-b-lg"
               onClick={logout}
             >
-              Log Out
+              {t("Logout")}
             </div>
           </div>
         </div>
