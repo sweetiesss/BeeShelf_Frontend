@@ -24,7 +24,7 @@ export default function SignIn() {
     try {
       setLoading(true);
       const findData = await requestLogin(form);
-      console.log("signin", findData);
+
       if (findData && findData?.status === 200) {
         if (findData?.data && findData?.data.length != 0) {
           console.log(form);
@@ -74,9 +74,7 @@ export default function SignIn() {
   }, []);
 
   const handleCredentialResponse = (response) => {
-    console.log("Encoded JWT ID token: " + response.credential);
     const userObject = jwtDecode(response.credential);
-    console.log("User Info:", userObject);
     setUserInfor(userObject);
     setIsAuthenticated(true);
     nav("/partner/dashboard");
