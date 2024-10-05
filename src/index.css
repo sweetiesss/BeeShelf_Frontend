@@ -31,6 +31,7 @@ input:focus {
 
 a {
   cursor: pointer !important;
+  text-decoration: underline;
 }
 
 button {
