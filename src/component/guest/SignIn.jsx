@@ -3,12 +3,11 @@ import { useNavigate, Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../context/AuthContext";
 import AxiosUser from "../../services/User";
-
 export default function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({});
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const nav = useNavigate();
   const buttonDivRef = useRef(null);
   const { setIsAuthenticated, setUserInfor } = useContext(AuthContext);
