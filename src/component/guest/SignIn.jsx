@@ -7,7 +7,7 @@ export default function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({});
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const buttonDivRef = useRef(null);
   const { setIsAuthenticated, setUserInfor } = useContext(AuthContext);
