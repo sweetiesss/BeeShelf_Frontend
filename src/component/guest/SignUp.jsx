@@ -7,7 +7,7 @@ export default function SignUp() {
   const [form, setForm] = useState({});
   const [agree, setAgree] = useState(false);
   const [errors, setErrors] = useState({});
-  const { loading } = useAxios();
+  const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const { requestSignUp } = AxiosUser();
   const handleInput = (e) => {
@@ -59,23 +59,31 @@ export default function SignUp() {
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      const todayDate = new Date().toISOString();
-      const submitFrom = {
-        ...form,
-        createDate: todayDate,
-        pictureId: 1,
-        roleName: "Partner",
-      };
- 
+      try {
+        const todayDate = new Date().toISOString();
+        const submitFrom = {
+          ...form,
+          createDate: todayDate,
+          pictureId: null,
+          roleName: "Partner",
+        };
+        setLoading(true);
+        const result = await requestSignUp(submitFrom);
 
-      const result = await requestSignUp(submitFrom);
-      
-      console.log(result);
+        console.log(result);
+        if(result?.status===200){
+          nav("/signin");
+        }
+      } catch (e) {
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   return (
     <div className="w-full max-w-lg p-4 mx-auto bg-white rounded-2xl shadow-md sm:p-6 lg:p-8 relative">
+      {loading && <div className="loading"></div>}
       <button
         className="absolute left-5 top-2 text-2xl font-bold text-gray-500 hover:text-gray-800"
         onClick={() => nav("/")}
@@ -198,10 +206,21 @@ export default function SignUp() {
         </div>
         {errors.agree && <p className="text-red-500 text-sm">{errors.agree}</p>}
         <button
-          className="w-full bg-blue-500 text-white rounded-lg p-2 hover:bg-blue-600 transition duration-200"
+          className={`${
+            loading && "loading-button"
+          }  w-full bg-blue-500 text-white rounded-lg p-2 hover:bg-blue-600 transition duration-200`}
           onClick={handleSubmit}
+          disabled={loading}
+
         >
-          Sign Up
+          {loading ? (
+            <div className="loading-container">
+              <div className="dot" /> <div className="dot" />{" "}
+              <div className="dot" />
+            </div>
+          ) : (
+            "Sign Up"
+          )}
         </button>
         <div className="flex justify-center items-center flex-col">
           <div>Already have an account?</div>

@@ -24,9 +24,21 @@ body {
   -ms-user-select: none;
   
 }
-a{
-  cursor: pointer;
-  text-decoration: none;
+input,
+input:focus {
+  cursor: text !important;
+}
+
+a {
+  cursor: pointer !important;
+}
+
+button {
+  cursor: pointer !important;
+}
+
+button:disabled {
+  cursor: not-allowed !important;
 }
 
 

@@ -3,11 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../context/AuthContext";
 import AxiosUser from "../../services/User";
-// import AxiosUser, { requestLogin } from "../../services/User";
+
 export default function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({});
-  const [error,setError]=useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const buttonDivRef = useRef(null);
   const { setIsAuthenticated, setUserInfor } = useContext(AuthContext);
@@ -19,17 +20,18 @@ export default function SignIn() {
   };
   const { requestLogin } = AxiosUser();
 
-  const checkLogin =async () => {
+  const checkLogin = async () => {
     try {
+      setLoading(true);
       const findData = await requestLogin(form);
-      console.log("signin",findData);
-      if (findData && findData?.status===200) {
-        if (findData?.data&&findData?.data.length != 0) {
+      console.log("signin", findData);
+      if (findData && findData?.status === 200) {
+        if (findData?.data && findData?.data.length != 0) {
           console.log(form);
           console.log("Login Successfully");
           console.log(rememberMe);
           setIsAuthenticated(true);
-          const successData=findData.data;  
+          const successData = findData.data;
           setUserInfor(successData);
           nav("/" + successData?.roleName);
         }
@@ -37,11 +39,13 @@ export default function SignIn() {
         console.log(form);
         console.log("Failed");
         console.log(rememberMe);
-        setError(findData?.response?.data?.message)
+        setError(findData?.response?.data?.message);
         console.log(error);
-        
       }
-    } catch (ex) {}
+    } catch (ex) {
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -76,11 +80,11 @@ export default function SignIn() {
     setUserInfor(userObject);
     setIsAuthenticated(true);
     nav("/partner/dashboard");
-    // Here, you can send the token to your backend for verification and further processing
   };
 
   return (
     <div className="w-full max-w-lg p-4 mx-auto bg-white rounded-2xl overflow-hidden shadow-md sm:p-6 lg:p-8 relative">
+      {loading && <div className="loading"></div>}
       <button
         className="absolute left-5 top-2 text-2xl font-bold text-gray-500 hover:text-gray-800"
         onClick={() => nav("/")}
@@ -90,7 +94,7 @@ export default function SignIn() {
       <header className="mb-4">
         <h1 className="text-2xl font-semibold text-center">Sign In</h1>
       </header>
-      {error!=="" &&(<div>{error}</div>)}
+      {error !== "" && <div>{error}</div>}
       <div className="flex flex-col space-y-4">
         <div>
           <label>Email</label>
@@ -133,10 +137,20 @@ export default function SignIn() {
           </label>
         </div>
         <button
-          className="w-full bg-blue-500 text-white rounded-lg p-2 hover:bg-blue-600 transition duration-200"
+          className={`${
+            loading && "loading-button"
+          } w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2 transition duration-200 relative `}
           onClick={checkLogin}
+          disabled={loading}
         >
-          Login
+          {loading ? (
+            <div className="loading-container">
+              <div className="dot" /> <div className="dot" />{" "}
+              <div className="dot" />
+            </div>
+          ) : (
+            "Login"
+          )}
         </button>
         <div
           id="buttonDiv"

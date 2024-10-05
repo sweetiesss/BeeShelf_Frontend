@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate,Link } from "react-router-dom";
+import { useNavigate,Link, useLocation } from "react-router-dom";
 
 export default function ForgotPassword() {
   const [form, setForm] = useState({});
@@ -8,11 +8,13 @@ export default function ForgotPassword() {
     const value = e.target;
     setForm(() => ({ ...form, [value.name]: value.value }));
   };
+
+  
   return (
     <div className="w-full max-w-lg p-4 mx-auto bg-white rounded-2xl overflow-hidden shadow-md sm:p-6 lg:p-8 relative">
       <button
         className="absolute left-5 top-2 text-2xl font-bold text-gray-500 hover:text-gray-800"
-        onClick={() => nav("/")}
+        onClick={() => nav("/signin")}
       >
         {"<"}
       </button>
