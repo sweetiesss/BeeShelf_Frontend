@@ -3,7 +3,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { useLocation } from "react-router-dom";
 
 export default function EditProfilePage() {
-  const { userInfor, setUserInfor } = useContext(AuthContext); // Access the context to get and update user info
+  const { userInfor, setUserInfor } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     name: userInfor?.name || "",
     email: userInfor?.email || "",
@@ -20,13 +20,12 @@ export default function EditProfilePage() {
   };
 
   const handleSave = () => {
-    // Validate and save the form data (e.g., send it to the backend)
+
     console.log("Saved:", formData);
-    setUserInfor({ ...userInfor, ...formData }); // Update user information in context
+    setUserInfor({ ...userInfor, ...formData });
   };
 
   const handleReset = () => {
-    // Reset the form to its original state
     setFormData({
       name: userInfor?.name || "",
       email: userInfor?.email || "",

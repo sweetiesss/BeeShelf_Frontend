@@ -169,7 +169,7 @@ i18n
           Vendor: "ベンダー",
           Stock: "在庫",
           Size: "サイズ",
-          OverView: "概要",
+          OVERVIEW: "概要",
           Skutotal: "総SKU",
           ProductReserved: "予約済み製品",
           StockIssue: "在庫問題",
