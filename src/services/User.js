@@ -1,7 +1,8 @@
 import { toast } from "react-toastify";
-import useAxios from "./CustomizeAxios";
-const AxiosUser = () => {
-  const { response, fetchData } = useAxios();
+import useAxios from "./CustomizeAxios.js";
+
+export default function AxiosUser() {
+  const { fetchData } = useAxios();
 
   const requestLogin = async (data) => {
     try {
@@ -84,10 +85,9 @@ const AxiosUser = () => {
     }
   };
 
-  return { requestLogin, requestSignUp,getAuth };
-};
+  return { requestLogin, requestSignUp, getAuth };
+}
 
-export default AxiosUser;
 // const requestLogin= async (data)=>{
 
 // console.log(process.env.BASE_URL_API);

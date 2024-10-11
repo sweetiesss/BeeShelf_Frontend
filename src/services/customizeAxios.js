@@ -1,8 +1,7 @@
-
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useState } from "react";
-import { toast } from "react-toastify";
-const useAxios = () => {
+
+export default function useAxios() {
   const instance = axios.create({
     baseURL: process.env.REACT_APP_BASE_URL_API,
   });
@@ -47,6 +46,4 @@ const useAxios = () => {
     }
   };
   return { response, error, loading, fetchData };
-};
-
-export default useAxios;
+}
