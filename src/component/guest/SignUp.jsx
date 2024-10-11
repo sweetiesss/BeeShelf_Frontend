@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AxiosUser from "../../services/User";
-import useAxios from "../../services/customizeAxios";
+import useAxios from "../../services/CustomizeAxios";
 
 export default function SignUp() {
   const [form, setForm] = useState({});
@@ -63,9 +63,7 @@ export default function SignUp() {
         const todayDate = new Date().toISOString();
         const submitFrom = {
           ...form,
-          createDate: todayDate,
           pictureId: null,
-          roleName: "Partner",
         };
         setLoading(true);
         const result = await requestSignUp(submitFrom);

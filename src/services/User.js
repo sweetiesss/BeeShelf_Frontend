@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
-import useAxios from "./customizeAxios";
-import axios from "./customizeAxios";
+import useAxios from "./CustomizeAxios";
+import axios from "./CustomizeAxios";
 
 const AxiosUser = () => {
   const { response, fetchData } = useAxios();
@@ -36,10 +36,29 @@ const AxiosUser = () => {
       return error;
     }
   };
+  const getAuth = async (data) => {
+    try {
+      const fetching = fetchData({
+        url: "auth/Login",
+        method: "POST",
+        data: data,
+      });
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+      });
+      const resultFetching = await fetching;
+      return resultFetching;
+    } catch (error) {
+      console.error("Login error:", error);
+      console.log("error", error.message);
+
+      return error;
+    }
+  };
   const requestSignUp = async (data) => {
     try {
       const fetching = fetchData({
-        url: "user/CreateUser",
+        url: "auth/Signup",
         method: "POST",
         data,
       });
@@ -67,7 +86,7 @@ const AxiosUser = () => {
     }
   };
 
-  return { requestLogin, requestSignUp };
+  return { requestLogin, requestSignUp,getAuth };
 };
 
 export default AxiosUser;

@@ -16,7 +16,7 @@ export default function ProductList({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="shadow-lg bg-white rounded-lg p-4 custome-table mb-3">
+    <div className="shadow-lg bg-white rounded-lg p-4 custome-table mb-3 overflow-y-scroll max-h-[70vh]">
       <div className="flex w-full">
         <div className="text-left pb-2  column-1">
           {selectedProducts.length > 0 ? (

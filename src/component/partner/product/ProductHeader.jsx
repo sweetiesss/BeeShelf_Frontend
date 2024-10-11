@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   ArrowRight,
   CaretDown,
+  CaretLeft,
   CaretUp,
   FilePlus,
   MagnifyingGlass,
@@ -10,12 +11,29 @@ import {
 } from "@phosphor-icons/react";
 import { NavLink } from "react-router-dom";
 
-export default function ProductHeader({ handleDownload,selectedProducts,products }) {
+export default function ProductHeader({
+  handleDownload,
+  selectedProducts,
+  products,
+  updatable,
+  inInventory,
+  setInventory,
+}) {
   const { t } = useTranslation();
   return (
     <div className="space-y-10">
       <div className="flex items-center justify-stretch space-x-10 ">
-        <p className="text-3xl font-bold">{t("Products")}</p>
+        <div className="flex items-center space-x-3">
+          {inInventory && (
+            <div
+              className="font-bold text-2xl cursor-pointer"
+              onClick={() => setInventory("")}
+            >
+              <CaretLeft weight="bold" />
+            </div>
+          )}
+          <p className="text-3xl font-bold">{t("Products")}</p>
+        </div>
         <div className="focus-within:outline-black flex bg-white px-2 pl-4 py-1 rounded-xl outline-2 outline outline-[var(--line-main-color)]">
           <label className="opacity-70">{t("Category")}:</label>
           <select name="category" className="pr-2 outline-none">
@@ -35,15 +53,17 @@ export default function ProductHeader({ handleDownload,selectedProducts,products
             placeholder={t("QuickSearch")}
           />
         </div>
-        <NavLink
-          to="import_product"
-          className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold"
-        >
-          {t("ImportExcel")}
-        </NavLink>
+        {!inInventory && (
+          <NavLink
+            to="import_product"
+            className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold"
+          >
+            {t("ImportExcel")}
+          </NavLink>
+        )}
         <button
           className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold"
-          onClick={()=>handleDownload(products)}
+          onClick={() => handleDownload(products)}
         >
           {t("ExportExcel")}
         </button>
@@ -56,44 +76,63 @@ export default function ProductHeader({ handleDownload,selectedProducts,products
         <div className="font-semibold ">
           {selectedProducts?.length}/{products?.length} {t("Totalproducts")}
         </div>
-        <div
-          className={`bg-blue-500 px-3 py-1 rounded-xl ${
-            selectedProducts?.length === 0 && "opacity-70"
-          }`}
-        >
-          <select
-            className="bg-inherit pr-1"
-            disabled={selectedProducts?.length === 0}
-          >
-            <option> {t("AddtoInventory")}</option>
-            <option>{t("Inventory")} A</option>
-            <option>{t("Inventory")} B</option>
-          </select>
-        </div>
-        <button
-          className={`bg-blue-500 px-3 py-1 rounded-xl ${
-            selectedProducts?.length === 0 && "opacity-70"
-          }`}
-          disabled={selectedProducts?.length === 0}
-        >
-          {t("Delete")}
-        </button>
-        <button
-          className={`bg-blue-500 px-3 py-1 rounded-xl ${
-            selectedProducts?.length === 0 && "opacity-70"
-          }`}
-          disabled={selectedProducts?.length === 0}
-          onClick={() => handleDownload(selectedProducts)}
-        >
-          {t("ExportExcelSelectedProducts")}
-        </button>
+        {inInventory ? (
+          <>
+            <button
+              className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold"
+              to="add_product"
+            >
+              + {t("Request Import Products")}
+            </button>
+            <button
+              className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold"
+              to="add_product"
+            >
+              - {t("Request Export Products")}
+            </button>
+          </>
+        ) : (
+          <>
+            <div
+              className={`bg-blue-500 px-3 py-1 rounded-xl ${
+                selectedProducts?.length === 0 && "opacity-70"
+              }`}
+            >
+              <select
+                className="bg-inherit pr-1"
+                disabled={selectedProducts?.length === 0}
+              >
+                <option> {t("AddtoInventory")}</option>
+                <option>{t("Inventory")} A</option>
+                <option>{t("Inventory")} B</option>
+              </select>
+            </div>
+            <button
+              className={`bg-blue-500 px-3 py-1 rounded-xl ${
+                selectedProducts?.length === 0 && "opacity-70"
+              }`}
+              disabled={selectedProducts?.length === 0}
+            >
+              {t("Delete")}
+            </button>
+            <button
+              className={`bg-blue-500 px-3 py-1 rounded-xl ${
+                selectedProducts?.length === 0 && "opacity-70"
+              }`}
+              disabled={selectedProducts?.length === 0}
+              onClick={() => handleDownload(selectedProducts)}
+            >
+              {t("ExportExcelSelectedProducts")}
+            </button>
 
-        <NavLink
-          className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold"
-          to="add_product"
-        >
-          + {t("AddProduct")}
-        </NavLink>
+            <NavLink
+              className="bg-[var(--main-project-color)] px-4 py-1 rounded-xl font-semibold"
+              to="add_product"
+            >
+              + {t("AddProduct")}
+            </NavLink>
+          </>
+        )}
       </div>
     </div>
   );

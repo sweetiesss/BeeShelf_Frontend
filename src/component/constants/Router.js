@@ -11,6 +11,7 @@ import ImportProductExcel from "../../pages/shared/ImportProductExcel";
 import AddProductPage from "../../pages/partner/AddProductPage";
 import ProfilePage from "../../pages/shared/ProfilePage";
 import EditProfilePage from "../../pages/shared/EditProfilePage";
+import InventoryPage from "../../pages/partner/InventoryPage";
 
 export const PartnerRouterInfor = [
   {
@@ -31,7 +32,7 @@ export const PartnerRouterInfor = [
     icon: Package,
     path: "inventory",
     index: false,
-    element: HomePage,
+    element: InventoryPage,
     label: "Inventory",
   },
   {
