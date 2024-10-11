@@ -4,9 +4,9 @@ import BeShelf from "../../assets/icons/BeShelf.svg";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
-import { Bell, Moon, SunDim } from "@phosphor-icons/react";
+import { Bell} from "@phosphor-icons/react";
 import { SettingContext } from "../../context/SettingContext";
-import { LANGUAGES } from "../constants/Language";
+
 import { LanguageSelector } from "../shared/ChangeLanguages";
 import { useTranslation } from "react-i18next";
 
@@ -96,11 +96,11 @@ export function HeaderUnauthenticated() {
     </div>
   );
 }
+
 export function HeaderAuthenticated() {
   const [openUserInfor, setOpenUserInfor] = useState(false);
   const [openNotification, setOpenNotification] = useState(false);
-  const { isAuthenticated, setIsAuthenticated, userInfor, setUserInfor } =
-    useContext(AuthContext);
+  const { userInfor, setUserInfor } = useContext(AuthContext);
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
   const { t } = useTranslation();
@@ -116,7 +116,6 @@ export function HeaderAuthenticated() {
   const nav = useNavigate();
 
   const logout = () => {
-    setIsAuthenticated(false);
     setUserInfor(null);
     nav("/");
   };
@@ -161,71 +160,20 @@ export function HeaderAuthenticated() {
     <div className="flex items-center justify-end h-20 w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2">
       <div className="flex space-x-5 items-center">
         <LanguageSelector />
-        {/* <div className="p-4 relative">
-          <div
-            className={` bg-theme-change ${
-              theme === "light" ? "light-mode" : "dark-mode"
-            }`}
-            onClick={changeTheme}
-          >
-            <div className="theme-button ">
-              {theme === "light" ? (
-                <>
-                  <SunDim
-                    weight="fill"
-                    className="rounded-full bg-white text-yellow-400  "
-                  />
-                  <p className="text-left pl-2 text-black w-fit text-nowrap">
-                    {t("Light")}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-right pr-2 w-fit text-nowrap">
-                    {t("Dark")}
-                  </p>
-                  <Moon
-                    weight="fill"
-                    className="rounded-full bg-white text-gray-400 p-[0.25rem]"
-                  />
-                </>
-              )}
-            </div>
-          </div>
-        </div> */}
         <div className="p-4 relative">
-          <div
-            className={`bg-theme-change ${
-              theme === "light"
-                ? "light-mode light-mode-animate"
-                : "dark-mode dark-mode-animate"
-            }`}
-            onClick={changeTheme}
-          >
-            <div className="theme-button">
-              {theme === "light" ? (
-                <>
-                  <SunDim
-                    weight="fill"
-                    className="rounded-full bg-white text-yellow-400 theme-icon"
-                  />
-                  <p className="text-left pl-2 text-black w-fit text-nowrap">
-                    {t("Light")}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-right pr-2 w-fit text-nowrap">
-                    {t("Dark")}
-                  </p>
-                  <Moon
-                    weight="fill"
-                    className="rounded-full bg-white text-gray-400 p-[0.25rem] theme-icon"
-                  />
-                </>
-              )}
+          <input type="checkbox" className="theme-input" id="toggle_checkbox" checked={theme === "dark"} onChange={changeTheme} />
+
+          <label for="toggle_checkbox" className="background-theme">
+            <div id="star">
+              <div class="star" id="star-1">
+                ★
+              </div>
+              <div class="star" id="star-2">
+                ★
+              </div>
             </div>
-          </div>
+            <div id="moon"></div>
+          </label>
         </div>
         <button
           className={

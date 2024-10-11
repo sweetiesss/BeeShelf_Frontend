@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import "../../style/Partner.scss";
+import "../../../style/Partner.scss";
 import { useTranslation } from "react-i18next";
 import * as XLSX from "xlsx";
-import ProductList from "../../component/partner/product/ProductList";
-import ProductHeader from "../../component/partner/product/ProductHeader";
-import ProductOverview from "../../component/partner/product/ProductOverview";
+import ProductHeader from "../product/ProductHeader";
+import ProductList from "../product/ProductList";
+import ProductOverview from "../product/ProductOverview";
 
 const products = [
   {
@@ -70,7 +70,7 @@ const products = [
 
   // Add more products as needed
 ];
-export default function ProductPage() {
+export default function InventoryProduct({inventory,setInventory}) {
   const [isShowDetailProduct, setShowDetailProduct] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [overall, setOverall] = useState({
@@ -155,6 +155,9 @@ export default function ProductPage() {
           handleDownload={handleDownload}
           products={products}
           selectedProducts={selectedProducts}
+          updatable={false}
+          inInventory={true}
+          setInventory={setInventory}
         />
         <ProductList
           products={products}
@@ -165,6 +168,8 @@ export default function ProductPage() {
           isProductSelected={isProductSelected}
           overall={overall}
           handleClickOverall={handleClickOverall}
+          updatable={false}
+          inInventory={true}
         />
       </div>
       <ProductOverview />

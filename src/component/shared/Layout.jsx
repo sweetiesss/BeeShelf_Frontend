@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { HeaderAuthenticated, HeaderUnauthenticated } from "../layout/Header";
 import { Sidebar } from "../layout/Sidebar";
-import "./Layout.scss";
+import "../../style/Layout.scss";
 
 export function LayoutGuest() {
   return (

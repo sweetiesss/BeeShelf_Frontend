@@ -25,12 +25,12 @@ export default function ProfilePage() {
         {/* User Information */}
         <div className="flex flex-col">
           <h1 className="text-2xl font-bold text-gray-900">
-            {userInfor?.name || "John Doe"}
+            {userInfor?.lastName +" "+userInfor?.firstName || "John Doe"}
           </h1>
           <p className="text-gray-600">
             {userInfor?.email || "johndoe@example.com"}
           </p>
-          <p className="text-blue-500">{userInfor?.role || "User Role"}</p>
+          <p className="text-blue-500">{userInfor?.roleName || "User Role"}</p>
         </div>
       </div>
 
@@ -62,7 +62,7 @@ export default function ProfilePage() {
               Joined On
             </label>
             <p className="bg-gray-100 p-2 rounded-lg text-gray-800">
-              {userInfor?.joined || "01 Jan 2023"}
+              { userInfor?.createDate&& new Intl.DateTimeFormat('en-Us',{day:'2-digit',month:'short',year:"numeric"}).format(new Date( userInfor?.createDate))}
             </p>
           </div>
         </div>
