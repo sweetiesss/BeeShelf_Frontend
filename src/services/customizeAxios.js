@@ -1,17 +1,3 @@
-// import axios from "axios";
-
-// console.log(process.env.REACT_APP_BASE_URL_API);
-
-// const instance =axios.create({
-//     baseURL:process.env.REACT_APP_BASE_URL_API
-// })
-// instance.interceptors.response.use(function(response){
-//     return response.data;
-// },function(error){
-//     return Promise.reject(error)
-// })
-
-// export default instance;
 
 import axios, { AxiosError } from "axios";
 import { useState } from "react";

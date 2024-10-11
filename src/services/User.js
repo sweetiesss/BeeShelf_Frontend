@@ -1,7 +1,5 @@
 import { toast } from "react-toastify";
 import useAxios from "./CustomizeAxios";
-import axios from "./CustomizeAxios";
-
 const AxiosUser = () => {
   const { response, fetchData } = useAxios();
 
