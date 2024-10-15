@@ -149,7 +149,7 @@ export default function InventoryProduct({inventory,setInventory}) {
   };
 
   return (
-    <div className="w-full h-full flex justify-between">
+    <div className="w-full h-full flex justify-between gap-10">
       <div className="w-fit space-y-10">
         <ProductHeader
           handleDownload={handleDownload}

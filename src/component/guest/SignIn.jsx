@@ -10,8 +10,9 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const buttonDivRef = useRef(null);
-  const { setIsAuthenticated, setUserInfor,isAuthenticated } = useContext(AuthContext);
-  const { requestLogin,getAuth } = AxiosUser();
+  const { setIsAuthenticated, setUserInfor,userInfor } =
+    useContext(AuthContext);
+  const { loginByEmailPassword } = AxiosUser();
 
   const googleClientID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
@@ -23,23 +24,15 @@ export default function SignIn() {
   const checkLogin = async () => {
     try {
       setLoading(true);
-      const findData = await getAuth(form);
-
-      if (findData && findData?.status === 200) {
-        if (findData?.data && findData?.data.length != 0) {
-
-          const successData = findData?.data;
-          setIsAuthenticated(successData);
-
-          setUserInfor(successData);
-          nav("/" + successData?.roleName);
-        }
+      const findData = await loginByEmailPassword(form);
+      console.log(findData);
+      if (findData===true) {
+        nav("/" + userInfor?.roleName);
       } else {
-        console.log(form);
-        console.log("Failed");
         console.log(rememberMe);
-        setError(findData?.response?.data?.message);
-        console.log(error);
+        console.log("sign in",findData);
+        
+        // setError(findData);
       }
     } catch (ex) {
     } finally {

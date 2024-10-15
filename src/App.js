@@ -12,7 +12,10 @@ import "react-toastify/dist/ReactToastify.css";
 import RoleProvider from "./context/RoleProvider";
 import InventoryPage from "./pages/partner/InventoryPage";
 import { LayoutLogined } from "./component/shared/Layout";
-import Working from "./pages/partner/Working";
+import ProductPage from "./pages/partner/ProductPage";
+import OrderPage from "./pages/partner/OrderPage";
+import HomePage from "./pages/partner/HomePage";
+import OrderDashboard from "./component/partner/dashboard/OrderDashboard";
 function App() {
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
@@ -58,7 +61,10 @@ function App() {
           />
           <Route path="/*" element={<LayoutLogined />}>
             <Route path="working" element={<InventoryPage />} />
-            <Route path="working2" element={<Working />} />
+            <Route path="working2" element={<OrderPage />} />
+            <Route path="working3" element={<HomePage />} />
+            <Route path="working4" element={<OrderDashboard />} />
+            <Route path="working5" element={<ProductPage />} />
           </Route>
         </Routes>
       </AuthProvider>
