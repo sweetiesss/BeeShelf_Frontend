@@ -27,12 +27,13 @@ export default function useAxios() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const fetchData = async ({ url, method, data = {}, params = {} }) => {
+  const fetchData = async ({ url, method,headers, data = {}, params = {} }) => {
     setLoading(true);
     try {
       const resultPromise = instance({
         url,
         method,
+        headers,
         data,
         params,
       });

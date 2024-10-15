@@ -10,7 +10,7 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const buttonDivRef = useRef(null);
-  const { setIsAuthenticated, setUserInfor,userInfor } =
+  const { setIsAuthenticated, setUserInfor,handleLogin } =
     useContext(AuthContext);
   const { loginByEmailPassword } = AxiosUser();
 
@@ -25,14 +25,15 @@ export default function SignIn() {
     try {
       setLoading(true);
       const findData = await loginByEmailPassword(form);
-      console.log(findData);
-      if (findData===true) {
-        nav("/" + userInfor?.roleName);
+      console.log("here",findData);
+      if (findData) {
+        console.log("userInfor",findData);
+        handleLogin(findData,rememberMe);
+        nav("/" + findData?.roleName);
       } else {
         console.log(rememberMe);
         console.log("sign in",findData);
-        
-        // setError(findData);
+        setError(findData);
       }
     } catch (ex) {
     } finally {

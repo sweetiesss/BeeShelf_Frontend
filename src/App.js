@@ -54,7 +54,7 @@ function App() {
           <Route
             path="/partner/*"
             element={
-              <RoleProvider allowedRoles={["Partner,User"]}>
+              <RoleProvider allowedRoles={["Partner","User"]}>
                 <PartnerRoutes />
               </RoleProvider>
             }
