@@ -1,17 +1,24 @@
 import { toast } from "react-toastify";
 import useAxios from "./CustomizeAxios";
-
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function AxiosUser() {
   const { fetchData } = useAxios();
+  const { setIsAuthenticated, setUserInfor, isAuthenticated } =
+    useContext(AuthContext);
 
-  const requestLogin = async (data) => {
+  const requestGetUserByEmail = async ({ email, token }) => {
     try {
       const fetching = fetchData({
-        url: "user/Login",
+        url: "user/get-user",
         method: "POST",
-        data: data,
+        data: email,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+      console.log(fetching);
       await toast.promise(fetching, {
         pending: "Request in progress...",
         success: {
@@ -27,7 +34,9 @@ export default function AxiosUser() {
           },
         },
       });
+
       const resultFetching = await fetching;
+      console.log(resultFetching);
       return resultFetching;
     } catch (error) {
       console.error("Login error:", error);
@@ -49,12 +58,40 @@ export default function AxiosUser() {
       const resultFetching = await fetching;
       return resultFetching;
     } catch (error) {
-      console.error("Login error:", error);
-      console.log("error", error.message);
-
-      return error;
+      return error.response.data.message;
     }
   };
+
+  const loginByEmailPassword = async (data) => {
+    try {
+      const getToken = await getAuth(data);
+      if (getToken && getToken?.status === 200) {
+        if (getToken?.data && getToken?.data.length > 0) {
+          const successDataToken = getToken?.data;
+          setIsAuthenticated(successDataToken);
+          const getAccount = await requestGetUserByEmail(4, successDataToken);
+          console.log("services Account", getAccount);
+          if (
+            getAccount &&
+            getAccount?.status === 200 &&
+            getAccount?.data.length > 0
+          ) {
+            setUserInfor(getAccount);
+            console.log("here ?");
+
+            return true;
+          }
+          console.log(getAccount);
+          return getAccount;
+        }
+      }
+      return getToken;
+    } catch (e) {
+      console.log(e);
+      return e.response.data.message;
+    }
+  };
+
   const requestSignUp = async (data) => {
     try {
       const fetching = fetchData({
@@ -86,7 +123,7 @@ export default function AxiosUser() {
     }
   };
 
-  return { requestLogin, requestSignUp, getAuth };
+  return { requestSignUp, loginByEmailPassword };
 }
 
 // const requestLogin= async (data)=>{

@@ -17,42 +17,27 @@ export default function SignUp() {
 
   const validateForm = () => {
     let formErrors = {};
-
-    // Email validation
     if (!form?.email || !/\S+@\S+\.\S+/.test(form.email)) {
       formErrors.email = "Please enter a valid email address.";
     }
-
-    // First name validation
     if (!form?.firstName) {
       formErrors.firstName = "First name is required.";
     }
-
-    // Last name validation
     if (!form?.lastName) {
       formErrors.lastName = "Last name is required.";
     }
-
-    // Phone validation (simple number validation)
     if (!form?.phone || !/^\d{10,12}$/.test(form.phone)) {
       formErrors.phone = "Please enter a valid phone number.";
     }
-
-    // Password validation
     if (!form?.password || form.password.length < 6) {
       formErrors.password = "Password must be at least 6 characters.";
     }
-
-    // Confirm password validation
     if (form?.password !== form?.confirmPassword) {
       formErrors.confirmPassword = "Passwords do not match.";
     }
-
-    // Agreement validation
     if (!agree) {
       formErrors.agree = "You must agree to the terms and conditions.";
     }
-
     setErrors(formErrors);
     return Object.keys(formErrors).length === 0;
   };
