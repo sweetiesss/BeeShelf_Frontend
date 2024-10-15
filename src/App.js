@@ -64,6 +64,7 @@ function App() {
             <Route path="working2" element={<OrderPage />} />
             <Route path="working3" element={<HomePage />} />
             <Route path="working4" element={<OrderDashboard />} />
+            <Route path="working5" element={<ProductPage />} />
           </Route>
         </Routes>
       </AuthProvider>
