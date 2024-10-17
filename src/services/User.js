@@ -122,9 +122,3 @@ export default function AxiosUser() {
   return { requestSignUp, loginByEmailPassword };
 }
 
-// const requestLogin= async (data)=>{
-
-// console.log(process.env.BASE_URL_API);
-//     return await axios.post("user/Login",data);
-// }
-// export {requestLogin}

@@ -1,5 +1,6 @@
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function useAxios() {
   const instance = axios.create({
@@ -26,6 +27,7 @@ export default function useAxios() {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { isAuthenticated } = useContext(AuthContext);
 
   const fetchData = async ({ url, method,headers, data = {}, params = {} }) => {
     setLoading(true);
@@ -46,5 +48,28 @@ export default function useAxios() {
       setLoading(false);
     }
   };
-  return { response, error, loading, fetchData };
+  const fetchDataBearer = async ({ url, method, data = {}, params = {} }) => {
+    console.log(isAuthenticated);
+    
+    setLoading(true);
+    try {
+      const resultPromise = instance({
+        url,
+        method,
+        headers: {
+          Authorization: `Bearer ${isAuthenticated}`,
+        },
+        data,
+        params,
+      });
+      return resultPromise;
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data : error.message;
+      setError(errorMessage);
+      return Promise.reject(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+  return { response, error, loading, fetchData,fetchDataBearer };
 }

@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 
 export default function AddProductPage() {
-  // State for individual product input
   const [product, setProduct] = useState({
     image: "",
     sku: "",
@@ -17,27 +16,26 @@ export default function AddProductPage() {
   });
   const { t } = useTranslation();
 
-  // State for validation messages
+ 
   const [errors, setErrors] = useState({});
 
-  // State for the list of products
+ 
   const [products, setProducts] = useState([]);
 
-  // Handle input changes and validation
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Update the product state
+   
     setProduct((prevProduct) => ({
       ...prevProduct,
       [name]: value,
     }));
 
-    // Validate inputs on change
     validateField(name, value);
   };
 
-  // Validation logic for individual fields
+ 
   const validateField = (name, value) => {
     let errorMessage = "";
 
@@ -95,7 +93,7 @@ export default function AddProductPage() {
     }));
   };
 
-  // Helper function to validate URL format
+  
   const isValidURL = (url) => {
     const urlPattern = new RegExp(
       "^(https?:\\/\\/)?" + // Protocol
@@ -106,11 +104,10 @@ export default function AddProductPage() {
     return urlPattern.test(url);
   };
 
-  // Handle form submission
+ 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Perform final validation before submission
     const newErrors = {};
 
     Object.keys(product).forEach((field) => {
@@ -120,26 +117,25 @@ export default function AddProductPage() {
       }
     });
 
-    // Check if there are any validation errors
+    
     if (Object.keys(newErrors).length > 0) {
       setErrors((prev) => ({ ...prev, ...newErrors }));
       return;
     }
 
-    // Convert tags to array
     const tagsArray = product.tags.split(",").map((tag) => tag.trim());
 
-    // Create new product
+   
     const newProduct = {
       ...product,
       id: products.length + 1,
       tags: tagsArray,
     };
 
-    // Add product to the list
+
     setProducts([...products, newProduct]);
 
-    // Clear form fields and errors after submission
+    
     setProduct({
       image: "",
       sku: "",
@@ -167,7 +163,7 @@ export default function AddProductPage() {
       <div className="container">
         <h1 className="title">Add New Product</h1>
         <form onSubmit={handleSubmit} className="product-form">
-          {/* Image */}
+   
           <div className="form-group">
             <label htmlFor="image">Product Image URL</label>
             <input
