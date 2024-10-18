@@ -68,6 +68,7 @@ i18n
           Vietnamese: "VietNamese",
           Warehouse: "Warehouse",
           WarehouseSize: "Warehouse Size",
+          Weight:"Weight"
         },
       },
       vi: {
@@ -123,6 +124,7 @@ i18n
           Vietnamese: "Tiếng Việt",
           Warehouse: "Kho hàng",
           WarehouseSize: "Kích thước kho",
+          Weight:"Trọng lượng",
         },
       },
       ja: {
@@ -178,6 +180,7 @@ i18n
           Vietnamese: "ベトナム語",
           Warehouse: "倉庫",
           WarehouseSize: "倉庫サイズ",
+          Weight:"重量"
         },
       },
     },

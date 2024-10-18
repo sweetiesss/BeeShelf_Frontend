@@ -10,46 +10,65 @@ export function AuthProvider({ children }) {
 
   const [rememberMe, setRememberMe] = useState(false);
 
+  // Manage user info separately
   const [userInfor, setUserInfor] = useState(() => {
     const storedData = localStorage.getItem("UserInfor");
-    if (storedData) {
-      const parsedData = JSON.parse(storedData);
-      const now = new Date().getTime();
-      if (parsedData?.expiry && parsedData?.expiry > now) {
-        return parsedData.value;
-      } else {
-        localStorage.removeItem("UserInfor");
-        return null;
-      }
-    }
-    return null;
+    return storedData ? JSON.parse(storedData) : null;
   });
-  useEffect(() => {
-    if (userInfor) {
-      const storedData = localStorage.getItem("UserInfor");
-      let parsedData = storedData ? JSON.parse(storedData) : null;
 
-      if (parsedData && parsedData?.expiry) {
-        localStorage.setItem(
-          "UserInfor",
-          JSON.stringify({ value: userInfor, expiry: parsedData.expiry })
-        );
-      } else {
-        const now = new Date();
-        let expiryTime;
-        if (rememberMe) {
-          expiryTime = now.getTime() + 1000 * 60 * 60 * 24 * 30; 
-        } else {
-          expiryTime = now.getTime() + 1000 * 60 * 60 * 24; 
-        }
-        localStorage.setItem(
-          "UserInfor",
-          JSON.stringify({ value: userInfor, expiry: expiryTime })
-        );
-      }
-    }
+  // Manage expiry date independently
+  const [expiryDate, setExpiryDate] = useState(() => {
+    const storedExpiry = localStorage.getItem("UserExpiry");
+    return storedExpiry ? parseInt(storedExpiry) : null;
+  });
+
+  // Effect for handling user info and setting expiry
+  useEffect(() => {
+    localStorage.setItem("UserInfor", JSON.stringify(userInfor));
+  }, [userInfor]);
+
+  // Effect for handling the expiration logic
+  useEffect(() => {
+    localStorage.setItem("UserExpiry", expiryDate); // Store the expiry date in a separate localStorage key
+  }, [expiryDate]);
+
+  // Effect for handling the authentication state
+  useEffect(() => {
     localStorage.setItem("Authenticated", JSON.stringify(isAuthenticated));
-  }, [isAuthenticated, userInfor, rememberMe]);
+  }, [isAuthenticated]);
+
+  // Function to set the expiry date based on rememberMe choice
+  const setExpiry = () => {
+    const now = new Date();
+    let expiryTime;
+
+    if (rememberMe) {
+      expiryTime = now.getTime() + 1000 * 60 * 60 * 24 * 30; // 1 month
+    } else {
+      expiryTime = now.getTime() + 1000 * 60 * 60 * 24; // 1 day
+    }
+
+    setExpiryDate(expiryTime);
+  };
+
+  const handleLogin = (userData, rememberMeFlag) => {
+    setUserInfor(userData);
+    setRememberMe(rememberMeFlag);
+    setExpiry();
+  };
+  const handleLogout = () => {
+    localStorage.removeItem("UserInfor");
+    localStorage.removeItem("Authenticated");
+    localStorage.removeItem("UserExpiry");
+  };
+
+  useEffect(() => {
+    const now = new Date().getTime();
+    if (expiryDate && now > expiryDate) {
+      // Clear the stored data if expired
+      handleLogout();
+    }
+  }, [expiryDate]);
 
   return (
     <AuthContext.Provider
@@ -60,6 +79,9 @@ export function AuthProvider({ children }) {
         setUserInfor,
         rememberMe,
         setRememberMe,
+        setExpiryDate,
+        handleLogin,
+        handleLogout,
       }}
     >
       {children}

@@ -5,20 +5,18 @@ import { AuthContext } from "../context/AuthContext";
 
 export default function AxiosUser() {
   const { fetchData } = useAxios();
-  const { setIsAuthenticated, setUserInfor, isAuthenticated } =
-    useContext(AuthContext);
+  const { setIsAuthenticated } = useContext(AuthContext);
 
-  const requestGetUserByEmail = async ({ email, token }) => {
+  const requestGetUserByEmail = async (email, token) => {
     try {
       const fetching = fetchData({
-        url: "user/get-user",
-        method: "POST",
-        data: email,
+        url: `user/get-user/${email}`,
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(fetching);
+
       await toast.promise(fetching, {
         pending: "Request in progress...",
         success: {
@@ -36,12 +34,15 @@ export default function AxiosUser() {
       });
 
       const resultFetching = await fetching;
-      console.log(resultFetching);
+      console.log("Fetched User Data:", resultFetching);
+
+      // Return the result to the caller
       return resultFetching;
     } catch (error) {
       console.error("Login error:", error);
       console.log("error", error.message);
 
+      // Return error for further handling
       return error;
     }
   };
@@ -69,19 +70,14 @@ export default function AxiosUser() {
         if (getToken?.data && getToken?.data.length > 0) {
           const successDataToken = getToken?.data;
           setIsAuthenticated(successDataToken);
-          const getAccount = await requestGetUserByEmail(4, successDataToken);
-          console.log("services Account", getAccount);
-          if (
-            getAccount &&
-            getAccount?.status === 200 &&
-            getAccount?.data.length > 0
-          ) {
-            setUserInfor(getAccount);
-            console.log("here ?");
+          const getAccount = await requestGetUserByEmail(
+            data.email,
+            successDataToken
+          );
 
-            return true;
+          if (getAccount && getAccount?.status === 200 && getAccount?.data) {
+            return getAccount.data;
           }
-          console.log(getAccount);
           return getAccount;
         }
       }
@@ -126,9 +122,3 @@ export default function AxiosUser() {
   return { requestSignUp, loginByEmailPassword };
 }
 
-// const requestLogin= async (data)=>{
-
-// console.log(process.env.BASE_URL_API);
-//     return await axios.post("user/Login",data);
-// }
-// export {requestLogin}

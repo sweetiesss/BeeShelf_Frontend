@@ -100,7 +100,7 @@ export function HeaderUnauthenticated() {
 export function HeaderAuthenticated() {
   const [openUserInfor, setOpenUserInfor] = useState(false);
   const [openNotification, setOpenNotification] = useState(false);
-  const { userInfor, setUserInfor } = useContext(AuthContext);
+  const { userInfor, setUserInfor,setIsAuthenticated ,handleLogout} = useContext(AuthContext);
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
   const { t } = useTranslation();
@@ -116,7 +116,7 @@ export function HeaderAuthenticated() {
   const nav = useNavigate();
 
   const logout = () => {
-    setUserInfor(null);
+   handleLogout();
     nav("/");
   };
   const notificationBell = useRef();

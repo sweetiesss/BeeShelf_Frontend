@@ -1,8 +1,8 @@
 // components/partner/product/DetailProduct.js
 
 import { ArrowLeft, ArrowRight, Plus } from "@phosphor-icons/react";
-
-export default function DetailProduct({ product }) {
+import defaultImg from "../../../assets/img/defaultImg.jpg";
+export default function DetailProduct({ product,handleDeleteClick}) {
   return (
     <div className="detail-product px-8">
       <div className="p-4">
@@ -10,7 +10,7 @@ export default function DetailProduct({ product }) {
           <div className="space-y-4">
             <div className="relative">
               <img
-                src={product.image}
+                src={product.imageLink?product.imageLink:defaultImg}
                 alt={product.name}
                 className="h-56 w-56 rounded-xl"
               />
@@ -22,15 +22,6 @@ export default function DetailProduct({ product }) {
                 onClick={(e) => e.stopPropagation()}
               >
                 <Plus weight="bold" />
-              </div>
-            </div>
-            <div className="flex items-center justify-between px-4">
-              <div className="px-2 py-1 border-[var(--line-main-color)]  border-2  bg-white rounded-xl shadow-lg">
-                <ArrowLeft className="" weight="bold" />
-              </div>
-              <p className="">1 of 3</p>
-              <div className="px-2 py-1 border-[var(--line-main-color)]  border-2 bg-white rounded-xl shadow-lg">
-                <ArrowRight className="" weight="bold" />
               </div>
             </div>
           </div>
@@ -97,7 +88,7 @@ export default function DetailProduct({ product }) {
                 <input
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.size || 'N/A'}
+                  value={product.size || "N/A"}
                 />
               </div>
               <div className="w-[26%]">
@@ -112,17 +103,72 @@ export default function DetailProduct({ product }) {
           </div>
 
           <div className="w-[35%]">
-            <p className="text-sm text-gray-500">Tags:</p>
-            <div className="flex gap-2">
-              {product.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-gray-200 text-sm rounded"
-                >
-                  {tag}
-                </span>
-              ))}
+            <div className="flex justify-between gap-10">
+              <div className="w-1/2">
+                <div className="label">Price: </div>
+                <input
+                  className="w-full"
+                  onClick={(e) => e.stopPropagation()}
+                  value={product.price}
+                />
+              </div>
+              <div className="w-1/2">
+                <div className="label">Cost: </div>
+                <input
+                  className="w-full"
+                  onClick={(e) => e.stopPropagation()}
+                  value={product.cost}
+                />
+              </div>
             </div>
+
+            <div className="w-[26%]">
+              <div className="label">Origin: </div>
+              <input
+                className="w-full"
+                onClick={(e) => e.stopPropagation()}
+                value={product.origin}
+              />
+            </div>
+            <div className="w-[26%]">
+              <div className="label">Weight: </div>
+              <input
+                className="w-full"
+                onClick={(e) => e.stopPropagation()}
+                value={product.weight}
+              />
+            </div>
+            <div className="flex justify-between gap-10">
+              <div className="w-1/2">
+                <div className="label">Create Date: </div>
+                <input
+                  className="w-full"
+                  onClick={(e) => e.stopPropagation()}
+                  value={new Date(product.createDate).toLocaleDateString()}
+                />
+              </div>
+              <div className="w-1/2">
+                <div className="label">Exp Date: </div>
+                <input
+                  className="w-full"
+                  onClick={(e) => e.stopPropagation()}
+                  value={new Date(product.expDate).toLocaleDateString()}
+                />
+              </div>
+            </div>
+            {/* <div>
+              <p className="text-sm text-gray-500">Tags:</p>
+              <div className="flex gap-2">
+                {product?.tags?.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="px-2 py-1 bg-gray-200 text-sm rounded"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -131,7 +177,7 @@ export default function DetailProduct({ product }) {
         <button className="px-4 py-2">Reset</button>
         <div className="space-x-10">
           <button className="px-4 py-2">Update</button>
-          <button className="px-4 py-2">Delete</button>
+          <button className="px-4 py-2" onClick={()=>handleDeleteClick(product)}>Delete</button>
         </div>
       </div>
     </div>
