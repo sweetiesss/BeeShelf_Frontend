@@ -1,6 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
 
-import BeShelf from "../../assets/icons/BeShelf.svg";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
@@ -13,73 +12,65 @@ import { useTranslation } from "react-i18next";
 export function HeaderUnauthenticated() {
   const nav = useNavigate();
   return (
-    <div className="flex items-center justify-between h-20 w-full bg-blue-500 text-white px-4">
-      <div className="flex items-center">
-        <img src={BeShelf} alt="BeShelf Logo" className="h-24 w-auto" />
+    <div className="flex items-center justify-between h-20 w-full text-black px-4 font-light text-lg header">
+      <div className="flex items-center text-2xl font-bold">
+        <p>BeShelf</p>
       </div>
-      <div className="flex space-x-4">
+      <div className="flex space-x-24 navigate-menu">
         <NavLink
-          to="#"
+          to="about"
           className={({ isActive, isPending, isTransitioning }) =>
             [
+              "menu-item ",
               isPending ? "pending" : "",
               isActive ? "active" : "",
               isTransitioning ? "transitioning" : "",
             ].join("")
           }
         >
-          1
+          ABOUT
         </NavLink>
         <NavLink
-          to="#"
+          to="service"
           className={({ isActive, isPending, isTransitioning }) =>
             [
+              "menu-item ",
               isPending ? "pending" : "",
               isActive ? "active" : "",
               isTransitioning ? "transitioning" : "",
             ].join("")
           }
         >
-          2
+          SERVICE
         </NavLink>
         <NavLink
-          to="#"
+          to="package"
           className={({ isActive, isPending, isTransitioning }) =>
             [
+              "menu-item ",
               isPending ? "pending" : "",
               isActive ? "active" : "",
               isTransitioning ? "transitioning" : "",
             ].join("")
           }
         >
-          3
+          PACKAGE
         </NavLink>
         <NavLink
-          to="#"
+          to="contact"
           className={({ isActive, isPending, isTransitioning }) =>
             [
+              "menu-item ",
               isPending ? "pending" : "",
               isActive ? "active" : "",
               isTransitioning ? "transitioning" : "",
             ].join("")
           }
         >
-          4
-        </NavLink>
-        <NavLink
-          to="#"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          5
+          CONTACT
         </NavLink>
       </div>
-      <div className="flex space-x-4">
+      <div className="flex space-x-4 font-semibold">
         <button
           className="bg-white text-blue-500 px-3 py-1 rounded hover:bg-blue-600 hover:text-white transition duration-200"
           onClick={() => nav("/signin")}

@@ -1,3 +1,154 @@
+.header {
+  .navigate-menu {
+    .menu-item {
+      transition: all 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .menu-item:hover {
+      font-weight: 500;
+      background-color: #007bff; /* Change background color on hover */
+      color: white; /* Change text color on hover */
+      border-radius: 5px; /* Optional: Add rounded corners */
+    }
+    .active {
+      font-weight: 700;
+    }
+  }
+}
+// .guest-about {
+//   .container {
+//     position: relative;
+//     display: flex;
+//     justify-content: space-between;
+//     align-items: center;
+//     padding: 50px;
+//     height: 100vh;
+//     background-image: url("");
+//     background-size: cover;
+//     background-position: center;
+//   }
+
+//   .content {
+//     flex: 1;
+//     max-width: 40%;
+//   }
+
+//   .subtitle {
+//     font-size: 1rem;
+//     letter-spacing: 1px;
+//     color: #999;
+//     margin-bottom: 10px;
+//   }
+
+//   .main-title {
+//     font-size: 3rem;
+//     font-weight: 700;
+//     margin-bottom: 20px;
+//   }
+
+//   .book-btn {
+//     padding: 15px 30px;
+//     font-size: 1.2rem;
+//     color: white;
+//     background-color: #007bff;
+//     border: none;
+//     border-radius: 50px;
+//     cursor: pointer;
+//     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+//   }
+
+//   .book-btn:hover {
+//     background-color: #0056b3;
+//   }
+
+//   .airplane-image {
+//     flex: 1;
+//     position: relative;
+//     max-width: 45%;
+//   }
+
+//   .airplane-image img {
+//     width: 100%;
+//     height: auto;
+//     object-fit: cover;
+//   }
+
+//   .know-more {
+//     position: absolute;
+//     bottom: 20px;
+//     right: 20px;
+//     background: white;
+//     padding: 20px;
+//     border-radius: 20px;
+//     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+//     display: flex;
+//     align-items: center;
+//   }
+
+//   .info {
+//     margin-right: 20px;
+//   }
+
+//   .info h3 {
+//     margin: 0;
+//     font-size: 1.2rem;
+//     font-weight: bold;
+//   }
+
+//   .info p {
+//     margin: 5px 0;
+//     font-size: 1rem;
+//   }
+
+//   .info span {
+//     font-size: 0.9rem;
+//     color: #666;
+//   }
+
+//   .more-btn {
+//     background-color: #007bff;
+//     color: white;
+//     border: none;
+//     padding: 10px;
+//     border-radius: 50%;
+//     cursor: pointer;
+//   }
+
+//   .more-btn:hover {
+//     background-color: #0056b3;
+//   }
+
+//   .images {
+//     display: flex;
+//     gap: 10px;
+//   }
+
+//   .images img {
+//     width: 50px;
+//     height: 50px;
+//     border-radius: 50%;
+//     object-fit: cover;
+//   }
+// }
+.know-more {
+  background: black;
+  // clip-path: polygon(
+  //   0% 0%,
+  //   100% 0%,
+  //   100% 72%,
+  //   75.5% 72%,
+  //   75.5% 82%,
+  //   66.6% 82%,
+  //   66.6% 100%,
+  //   0% 100%
+  // );
+ clip-path: path("M0,40 Q50,10 100,40 T200,40 T300,80 Q350,110 400,80 V180 Q350,200 300,180 T200,180 T100,140 Q50,110 0,140 Z");
+ 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  height: 70vh;
+}
+
 .sidebar {
   width: 16rem;
   transition: width 0.3s ease-in-out;
@@ -30,6 +181,7 @@
     }
   }
 }
+
 // .bg-theme-change {
 //   width: 5rem;
 //   transition: all 0.5s ease-in-out;
@@ -80,108 +232,96 @@
 //   );
 // }
 
-#toggle_checkbox
-{
-    display: none;
+#toggle_checkbox {
+  display: none;
 }
-.background-theme
-{
-    display: block;
-    position: relative;
-    width: 56px;
-    height: 27px;
-    margin: 0 auto;
-    background-color: #77b5fe;
-    border-radius: 27px;
-    cursor: pointer;
-    transition: 0.3s ease background-color;
-    overflow: hidden;
+.background-theme {
+  display: block;
+  position: relative;
+  width: 56px;
+  height: 27px;
+  margin: 0 auto;
+  background-color: #77b5fe;
+  border-radius: 27px;
+  cursor: pointer;
+  transition: 0.3s ease background-color;
+  overflow: hidden;
 }
 
-#star
-{
-    position: absolute;
-    top: 6.5px;
-    left: 6.5px;
-    width: 14.5px;
-    height: 14.5px;
-    background-color: #fafd0f;
-    transform: scale(1);
-    border-radius: 50%;
-    transition: 0.3s ease top, 0.3s ease left, 0.3s ease transform, 0.3s ease background-color;
-    z-index: 1;
+#star {
+  position: absolute;
+  top: 6.5px;
+  left: 6.5px;
+  width: 14.5px;
+  height: 14.5px;
+  background-color: #fafd0f;
+  transform: scale(1);
+  border-radius: 50%;
+  transition: 0.3s ease top, 0.3s ease left, 0.3s ease transform,
+    0.3s ease background-color;
+  z-index: 1;
 }
 
-#star-1
-{
-    position: relative;
+#star-1 {
+  position: relative;
 }
 
-#star-2
-{
-    position: absolute;
-    transform: rotateZ(36deg);
+#star-2 {
+  position: absolute;
+  transform: rotateZ(36deg);
 }
 
-.star
-{
-    top: 0;
-    left: -3px;
-    font-size: 26px;
-    line-height: 13.5px;
-    color: #fafd0f;
-    transition: 0.3s ease color;
+.star {
+  top: 0;
+  left: -3px;
+  font-size: 26px;
+  line-height: 13.5px;
+  color: #fafd0f;
+  transition: 0.3s ease color;
 }
 
-#moon
-{
-    position: absolute;
-    bottom: -25px;
-    right: 4px;
-    width: 19px;
-    height: 19px;
-    background-color: #fff;
-    border-radius: 50%;
-    transition: 0.3s ease bottom;
+#moon {
+  position: absolute;
+  bottom: -25px;
+  right: 4px;
+  width: 19px;
+  height: 19px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: 0.3s ease bottom;
 }
 
-#moon:before
-{
-    content: "";
-    position: absolute;
-    top: -5.5px;
-    left: -8px;
-    width: 19px;
-    height: 19px;
-    background-color:#03a9f4;
-    border-radius: 50%;
-    transition: 0.3s ease background-color;
+#moon:before {
+  content: "";
+  position: absolute;
+  top: -5.5px;
+  left: -8px;
+  width: 19px;
+  height: 19px;
+  background-color: #03a9f4;
+  border-radius: 50%;
+  transition: 0.3s ease background-color;
 }
 
-#toggle_checkbox:checked + label
-{
-    background-color: #000;
+#toggle_checkbox:checked + label {
+  background-color: #000;
 }
 
-#toggle_checkbox:checked + label #star
-{
-    top: 1.5px;
-    left: 30px;
-    transform: scale(0.3);
-    background-color: yellow;
+#toggle_checkbox:checked + label #star {
+  top: 1.5px;
+  left: 30px;
+  transform: scale(0.3);
+  background-color: yellow;
 }
 
-#toggle_checkbox:checked + label .star
-{
-    color: yellow;
+#toggle_checkbox:checked + label .star {
+  color: yellow;
 }
 
-#toggle_checkbox:checked + label #moon
-{
-    bottom: 4px;
+#toggle_checkbox:checked + label #moon {
+  bottom: 4px;
 }
 
-#toggle_checkbox:checked + label #moon:before
-{
-    background-color: #000;
+#toggle_checkbox:checked + label #moon:before {
+  background-color: #000;
 }
