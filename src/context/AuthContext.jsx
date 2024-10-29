@@ -1,19 +1,14 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { createContext, useEffect, useState } from "react";
-import useAxios from "../services/CustomizeAxios";
+import { createContext, useEffect, useLayoutEffect, useState } from "react";
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
- 
-
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const storedAuth = localStorage.getItem("Authenticated");
     return storedAuth ? JSON.parse(storedAuth) : false;
   });
-
-  const [rememberMe, setRememberMe] = useState(false);
 
   const [userInfor, setUserInfor] = useState(() => {
     const storedData = localStorage.getItem("UserInfor");
@@ -46,34 +41,20 @@ export function AuthProvider({ children }) {
 
   const refreshAccessToken = async () => {
     try {
-      const response = await axios.post(process.env.REACT_APP_BASE_URL_API+"auth/refresh-token", {
-        jwt: isAuthenticated,
-      });
-      setIsAuthenticated(response.data); // Update token
-      console.log(response);
-      
+      const response = await axios.post(
+        process.env.REACT_APP_BASE_URL_API + "auth/refresh-token",
+        {
+          jwt: isAuthenticated,
+        }
+      );
+      setIsAuthenticated(response.data);
     } catch (error) {
-      console.error("Failed to refresh token:", error);
       handleLogout();
     }
   };
 
-  // const setExpiry = () => {
-  //   const now = new Date();
-  //   let expiryTime;
-
-  //   if (rememberMe) {
-  //     expiryTime = now.getTime() + 1000 * 60 * 60 * 24 * 30; // 1 month
-  //   } else {
-  //     expiryTime = now.getTime() + 1000 * 60 * 60 * 24; // 1 day
-  //   }
-
-  //   setExpiryDate(expiryTime);
-  // };
-
-  const handleLogin = (userData, rememberMeFlag) => {
+  const handleLogin = (userData) => {
     setUserInfor(userData);
-    setRememberMe(rememberMeFlag);
   };
   const handleLogout = () => {
     localStorage.removeItem("UserInfor");
@@ -83,39 +64,27 @@ export function AuthProvider({ children }) {
     setUserInfor(null);
   };
 
-  useEffect(() => {
-    const checkTokenExpiration=()=>{
-      const now=new Date().getTime();
-      console.log("refreshing");
-      console.log(now);
-      console.log(expiryDate);
-      console.log(now>expiryDate);
-      
-      
-      
-
-      if(expiryDate&&now>expiryDate){
-          console.log("heere");
-          refreshAccessToken();
-       
+  useLayoutEffect(() => {
+    const checkTokenExpiration = () => {
+      const now = new Date().getTime();
+      if (expiryDate && now > expiryDate) {
+        refreshAccessToken();
       }
-    }
+    };
     const interval = setInterval(checkTokenExpiration, 60000);
     return () => clearInterval(interval);
-  }, [expiryDate, rememberMe, isAuthenticated]);
+  }, [expiryDate, isAuthenticated]);
 
   return (
     <AuthContext.Provider
-    value={{
-      isAuthenticated,
-      setIsAuthenticated,
-      userInfor,
-      setUserInfor,
-      rememberMe,
-      setRememberMe,
-      handleLogin,
-      handleLogout,
-    }}
+      value={{
+        isAuthenticated,
+        setIsAuthenticated,
+        userInfor,
+        setUserInfor,
+        handleLogin,
+        handleLogout,
+      }}
     >
       {children}
     </AuthContext.Provider>
