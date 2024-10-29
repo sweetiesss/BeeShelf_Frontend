@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../context/AuthContext";
 import AxiosUser from "../../services/User";
+import { EnvelopeSimple, LockKeyOpen } from "@phosphor-icons/react";
 export default function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({});
@@ -10,7 +11,7 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const buttonDivRef = useRef(null);
-  const { setIsAuthenticated, setUserInfor,handleLogin } =
+  const { setIsAuthenticated, setUserInfor, handleLogin } =
     useContext(AuthContext);
   const { loginByEmailPassword } = AxiosUser();
 
@@ -25,14 +26,14 @@ export default function SignIn() {
     try {
       setLoading(true);
       const findData = await loginByEmailPassword(form);
-      console.log("here",findData);
+      console.log("here", findData);
       if (findData) {
-        console.log("userInfor",findData);
-        handleLogin(findData,rememberMe);
+        console.log("userInfor", findData);
+        handleLogin(findData, rememberMe);
         nav("/" + findData?.roleName);
       } else {
         console.log(rememberMe);
-        console.log("sign in",findData);
+        console.log("sign in", findData);
         setError(findData);
       }
     } catch (ex) {
@@ -74,10 +75,10 @@ export default function SignIn() {
   };
 
   return (
-    <div className="w-full max-w-lg p-4 mx-auto bg-white rounded-2xl overflow-hidden shadow-md sm:p-6 lg:p-8 relative">
+    <div className="w-full max-w-xl p-4 mx-auto rounded-2xl overflow-hidden sm:p-6 lg:p-8 relative ">
       {loading && <div className="loading"></div>}
       <button
-        className="absolute left-5 top-2 text-2xl font-bold text-gray-500 hover:text-gray-800"
+        className="absolute left-5 top-4 text-2xl font-bold text-gray-500 hover:text-gray-800"
         onClick={() => nav("/")}
       >
         {"<"}
@@ -89,48 +90,60 @@ export default function SignIn() {
       <div className="flex flex-col space-y-4">
         <div>
           <label>Email</label>
-          <input
-            className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-            type="text"
-            onChange={handleInput}
-            name="email"
-            placeholder="Email"
-            value={form?.email || ""}
-          />
+          <div className="flex items-center border border-gray-300 rounded-lg  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 text-[#9ca3b2] focus-within:text-black ">
+            <label className=" text-3xl p-4 border-r-2 border rounded-s-lg">
+              <EnvelopeSimple weight="fill" />
+            </label>
+            <input
+              className="p-4 w-full rounded-lg outline-none"
+              type="text"
+              onChange={handleInput}
+              name="email"
+              placeholder="Email"
+              value={form?.email || ""}
+            />
+          </div>
         </div>
         <div>
           <div className="flex justify-between">
             <label>Password</label>
-            <Link to="/forgotpassword">Forgot password?</Link>
           </div>
-          <input
-            className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-            type="password"
-            onChange={handleInput}
-            name="password"
-            placeholder="Password"
-            value={form?.password || ""}
-          />
+          <div className="flex items-center border border-gray-300 rounded-lg  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 text-[#9ca3b2] focus-within:text-black ">
+          <label className="text-3xl p-4 border-r-2 border rounded-s-lg">
+              <LockKeyOpen weight="fill" />
+            </label>
+            <input
+              className="p-4 w-full rounded-lg outline-none"
+              type="password"
+              onChange={handleInput}
+              name="password"
+              placeholder="Password"
+              value={form?.password || ""}
+            />
+          </div>
         </div>
-        <div
-          className="flex items-center"
-          onClick={() => setRememberMe((prev) => !prev)}
-        >
-          <input
-            type="checkbox"
-            className="mr-2 cursor-pointer"
-            name="RememberMe"
-            checked={rememberMe}
-            readOnly
-          />
-          <label className="text-sm text-gray-600 cursor-pointer">
-            Remember me
-          </label>
+        <div className="flex items-center justify-between">
+          <div
+            className="flex items-center"
+            onClick={() => setRememberMe((prev) => !prev)}
+          >
+            <input
+              type="checkbox"
+              className="mr-2 cursor-pointer"
+              name="RememberMe"
+              checked={rememberMe}
+              readOnly
+            />
+            <label className="text-sm text-gray-600 cursor-pointer">
+              Remember me
+            </label>
+          </div>{" "}
+          <Link to="/forgotpassword">Forgot password?</Link>
         </div>
         <button
           className={`${
             loading && "loading-button"
-          } w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2 transition duration-200 relative `}
+          } w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-4 transition duration-200 relative `}
           onClick={checkLogin}
           disabled={loading}
         >

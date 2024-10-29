@@ -8,6 +8,7 @@ import ForgotPassword from "../component/guest/ForgotPassword";
 import ServicePage from "../pages/guest/ServicePage";
 import PackagePage from "../pages/guest/PackagePage";
 import ContactPage from "../pages/guest/ContactPage";
+import LoginAndSignInPage from "../pages/guest/LoginAndSignInPage";
 
 export default function GuestRoutes() {
   return (
@@ -18,8 +19,7 @@ export default function GuestRoutes() {
         <Route path="contact" element={<ContactPage />} />
         <Route path="package" element={<PackagePage />} />
       </Route>
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
+      <Route path="/authorize/*" element={<LoginAndSignInPage />} />
       <Route path="/forgotpassword" element={<ForgotPassword />} />
     </Routes>
   );

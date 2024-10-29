@@ -73,13 +73,13 @@ export function HeaderUnauthenticated() {
       <div className="flex space-x-4 font-semibold">
         <button
           className="bg-white text-blue-500 px-3 py-1 rounded hover:bg-blue-600 hover:text-white transition duration-200"
-          onClick={() => nav("/signin")}
+          onClick={() => nav("/authorize/signin")}
         >
           Sign In
         </button>
         <button
           className="bg-white text-blue-500 px-3 py-1 rounded hover:bg-blue-600 hover:text-white transition duration-200"
-          onClick={() => nav("/signup")}
+          onClick={() => nav("/authorize/signup")}
         >
           Sign Up
         </button>

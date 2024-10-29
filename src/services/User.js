@@ -62,6 +62,18 @@ export default function AxiosUser() {
       return error.response.data.message;
     }
   };
+  const refreshToken=async(data)=>{
+    try{
+      const fetching =await fetchData({
+        url: "auth/refresh-token",
+        method: "POST",
+        data: data,
+      });
+      return fetching;
+    }catch(error){
+      return error.response.data.message;
+    }
+  }
 
   const loginByEmailPassword = async (data) => {
     try {
@@ -119,6 +131,6 @@ export default function AxiosUser() {
     }
   };
 
-  return { requestSignUp, loginByEmailPassword };
+  return { requestSignUp, loginByEmailPassword ,refreshToken};
 }
 
