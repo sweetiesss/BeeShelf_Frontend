@@ -2,7 +2,15 @@
 
 import { ArrowLeft, ArrowRight, Plus } from "@phosphor-icons/react";
 import defaultImg from "../../../assets/img/defaultImg.jpg";
-export default function DetailProduct({ product,handleDeleteClick}) {
+
+export default function DetailProduct({
+  product,
+  handleDeleteClick,
+  handleCreateRequest,
+  handleCancel,
+  handleConfirm,
+  type,
+}) {
   return (
     <div className="detail-product px-8">
       <div className="p-4">
@@ -10,7 +18,7 @@ export default function DetailProduct({ product,handleDeleteClick}) {
           <div className="space-y-4">
             <div className="relative">
               <img
-                src={product.imageLink?product.imageLink:defaultImg}
+                src={product.imageLink ? product.imageLink : defaultImg}
                 alt={product.name}
                 className="h-56 w-56 rounded-xl"
               />
@@ -173,13 +181,49 @@ export default function DetailProduct({ product,handleDeleteClick}) {
         </div>
       </div>
       <hr />
-      <div className="flex justify-between py-2 pb-4">
-        <button className="px-4 py-2">Reset</button>
-        <div className="space-x-10">
-          <button className="px-4 py-2">Update</button>
-          <button className="px-4 py-2" onClick={()=>handleDeleteClick(product)}>Delete</button>
+      {type === "OnAction" ? (
+        <div className="flex justify-between py-2 pb-4">
+          <div className="space-x-10">
+            <button
+              className="px-4 py-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCreateRequest();
+              }}
+            >
+              Reset
+            </button>
+          </div>
+          <div>
+            <button className="px-4 py-2" onClick={handleCancel}>Cancel</button>
+            <button className="px-4 py-2" onClick={handleConfirm}>Confirm</button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex justify-between py-2 pb-4">
+          <div className="space-x-10">
+            <button
+              className="px-4 py-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCreateRequest();
+              }}
+            >
+              Import
+            </button>
+          </div>
+          <div>
+            <button className="px-4 py-2">Reset</button>
+            <button className="px-4 py-2">Update</button>
+            <button
+              className="px-4 py-2"
+              onClick={() => handleDeleteClick(product)}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

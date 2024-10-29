@@ -66,12 +66,16 @@ export function AuthProvider({ children }) {
 
   useLayoutEffect(() => {
     const checkTokenExpiration = () => {
+      console.log("freshing");
+
       const now = new Date().getTime();
       if (expiryDate && now > expiryDate) {
-        refreshAccessToken();
+        console.log("freshing 2");
+
+        // refreshAccessToken();
       }
     };
-    const interval = setInterval(checkTokenExpiration, 60000);
+    const interval = setInterval(checkTokenExpiration, 10000);
     return () => clearInterval(interval);
   }, [expiryDate, isAuthenticated]);
 

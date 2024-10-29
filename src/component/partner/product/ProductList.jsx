@@ -24,6 +24,8 @@ export default function ProductList({
   page,
   setPage,
   handleDeleteClick,
+  handleCreateRequest,
+  handleChoseProductToRequest,
 }) {
   const { t } = useTranslation();
   return (
@@ -119,7 +121,7 @@ export default function ProductList({
                     </button>
                   </div>
                 </div>
-                {check && <DetailProduct product={product} handleDeleteClick={handleDeleteClick} />}
+                {check && <DetailProduct product={product} handleDeleteClick={handleDeleteClick} handleCreateRequest={handleCreateRequest} />}
               </div>
             </div>
           );
