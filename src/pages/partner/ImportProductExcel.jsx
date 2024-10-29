@@ -1,18 +1,21 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { useTranslation } from "react-i18next";
 import { useLocation,use, NavLink } from "react-router-dom";
 import * as XLSX from "xlsx";
+import { AuthContext } from "../../context/AuthContext";
+import AxiosProduct from "../../services/Product";
 
 export default function ImportProductExcel({ result, setResult }) {
 
-  
   const [excelData, setExcelData] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [overall, setOverall] = useState({
     checked: false,
     indeterminate: false,
   });
+  const {userInfor}=useContext(AuthContext);
+  const {createProductsWithUserId}=AxiosProduct();
   const { t } = useTranslation();
   useEffect(() => {
     const checkCount = selectedProducts.length;
@@ -43,34 +46,28 @@ export default function ImportProductExcel({ result, setResult }) {
   const handleDownload = (event) => {
     const data = [
       {
-        id: 1,
-        image: "https://via.placeholder.com/50",
-        sku: "101-elz",
+        pictureLink: "https://via.placeholder.com/50",
+        barcode: "101-elz",
         name: "Example Creamy A",
-        group: "A",
-        category: "Cosmetics",
-        price: "$10.00",
-        stock: 23,
-        reserved: 3,
-        tags: ["example", "A", "creams"],
+        price: 10.00,
+        weight: 0.5, 
+        productCategoryId: 1,
+        origin: "Made in USA" 
       },
       {
-        id: 2,
-        image: "https://via.placeholder.com/50",
-        sku: "233-elz",
+        pictureLink: "https://via.placeholder.com/50",
+        barcode: "233-elz",
         name: "Example Creamy B",
-        group: "B",
-        category: "Cosmetics",
-        price: "$10.00",
-        stock: 23,
-        reserved: 3,
-        tags: ["serum", "example"],
-      },
+        price: 10.00,
+        weight: 0.5, 
+        productCategoryId: 1,
+        origin: "Made in USA" 
+      }
     ];
+    
 
     const formattedData = data.map((item) => ({
       ...item,
-      tags: item.tags.join(", "), // Converting array to comma-separated string
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
@@ -116,16 +113,36 @@ export default function ImportProductExcel({ result, setResult }) {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
       // Update state with the JSON data
-      setExcelData(jsonData);
+      const updateData=jsonData.map(item=>({...item,ocopPartnerId:userInfor.id}))
+      setExcelData(updateData);
 
       // Optionally set the result if needed
-      setResult && setResult(jsonData);
+      setResult && setResult(updateData);
     };
 
     // Read the file as an array buffer
     reader.readAsArrayBuffer(file);
   };
-  console.log(excelData);
+  const hanldeImportAll=async()=>{
+    try{
+      console.log(excelData);
+      const result=await createProductsWithUserId(excelData);
+      console.log(result);
+    }catch(e){
+      console.log(e);
+      return e;
+    }
+  }
+  const handleImportSelectedProduct=async()=>{
+    try{
+      console.log(selectedProducts);
+      const result=await createProductsWithUserId(selectedProducts);
+      console.log(result);
+    }catch(e){
+      console.log(e);
+      return e;
+    }
+  }
   
 
   return (
@@ -157,10 +174,11 @@ export default function ImportProductExcel({ result, setResult }) {
                 selectedProducts.length === 0 && "opacity-70"
               }`}
               disabled={selectedProducts.length === 0}
+              onClick={handleImportSelectedProduct}
             >
               {t("ImportSelectedProducts")}
             </button>
-            <button className="bg-black text-white p-2 mx-4">
+            <button className="bg-black text-white p-2 mx-4" onClick={hanldeImportAll}>
               {t("ImportAllProducts")}
             </button>
           </div>
@@ -182,12 +200,12 @@ export default function ImportProductExcel({ result, setResult }) {
                   )}
                 </div>
                 <div className="text-left pb-2   column-2"></div>
-                <div className="text-left pb-2 column-3">{t("SKU")}</div>
+                <div className="text-left pb-2 column-3">{t("Barcode")}</div>
                 <div className="text-left pb-2  column-4">{t("Name")}</div>
-                <div className="text-left pb-2  column-5">{t("Group")}</div>
+                <div className="text-left pb-2  column-5">{t("origin")}</div>
                 <div className="text-left pb-2 column-6">{t("Category")}</div>
                 <div className="text-left pb-2  column-7 ">{t("Price")}</div>
-                <div className="text-left pb-2  column-8 ">{t("Tags")}</div>
+                <div className="text-left pb-2  column-8 ">{t("weight")}</div>
                 <div className="text-left pb-2  column-9 "></div>
               </div>
 
@@ -212,32 +230,24 @@ export default function ImportProductExcel({ result, setResult }) {
                           onChange={() => toggleProductSelection(product)}
                           onClick={(e) => e.stopPropagation()}
                         />
-                      </div>
+                      </div>  
                       <div className=" px-1 py-2 column-2 flex justify-center">
                         <img
-                          src={product.image}
+                          src={product.pictureLink}
                           alt={product.name}
                           className="h-20 w-20 rounded-xl"
                         />
                       </div>
-                      <div className=" px-1 py-2 column-3">{product.sku}</div>
+                      <div className=" px-1 py-2 column-3">{product.barcode}</div>
                       <div className=" px-1 py-2 column-4">{product.name}</div>
                       <div className=" px-1 py-2 column-5">
-                        <select
-                          defaultValue={product.group}
-                          className="border p-1 rounded-md"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <option value="A">A</option>
-                          <option value="B">B</option>
-                          <option value="C">C</option>
-                        </select>
+                      {product.origin}
                       </div>
                       <div className=" px-1 py-2 column-6">
-                        {product.category}
+                        {product.productCategoryId}
                       </div>
                       <div className=" px-1 py-2 column-7">{product.price}</div>
-                      <div className=" px-1 py-2 column-8">{product.tags}</div>
+                      <div className=" px-1 py-2 column-8">{product.weight}</div>
                       <div className=" px-1 py-2 column-9"></div>
                     </div>
                   </div>

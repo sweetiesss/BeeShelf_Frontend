@@ -30,6 +30,33 @@ export default function AxiosProduct() {
       return e;
     }
   }
+  const createProductsWithUserId=async(data)=>{
+    try {
+      const fetching = fetchDataBearer({
+        url: `product/create-products`,
+        method: "POST",
+        data:data
+      });
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `Product created`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return await fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  }
 
   const getProductByUserId = async (userId, pageIndex, Size) => {
     try {
@@ -71,5 +98,5 @@ export default function AxiosProduct() {
       return e;
     }
   };
-  return { getProductByUserId, deleteProductById,createProductWithUserId };
+  return { getProductByUserId, deleteProductById,createProductWithUserId,createProductsWithUserId };
 }
