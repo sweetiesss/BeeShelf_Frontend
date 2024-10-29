@@ -25,7 +25,6 @@ export default function ProductList({
   setPage,
   handleDeleteClick,
   handleCreateRequest,
-  handleChoseProductToRequest,
 }) {
   const { t } = useTranslation();
   return (
