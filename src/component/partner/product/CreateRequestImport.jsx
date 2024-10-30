@@ -1,77 +1,62 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import defaultImg from "../../../assets/img/defaultImg.jpg";
 import DetailProduct from "./DetailProduct";
 import AxiosLot from "../../../services/Lot";
 import { toast } from "react-toastify";
+import AxiosRequest from "../../../services/Request";
+import { AuthContext } from "../../../context/AuthContext";
 
 export default function CreateRequestImport({
   product,
   inventories,
   handleCancel,
 }) {
+  const { userInfor } = useContext(AuthContext);
   const baseForm = {
-    lotNumber: "string",
-    name: "string",
-    amount: 0,
-    productId: product?.id,
-    productAmount: 0,
-    inventoryId: 0,
+    ocopPartnerId: userInfor?.id,
+    name: "",
+    description: "",
+    sendToInventoryId: 0,
+    lot: {
+      lotNumber: "",
+      name: "",
+      amount: 0,
+      productId: product?.id,
+      productAmount: 0,
+    },
   };
   const [form, setForm] = useState(baseForm);
-  const { createLot } = AxiosLot();
+  const { createRequest } = AxiosRequest();
   const handleInput = (e) => {
-    const value = e.target;
-    setForm((prev) => ({ ...prev, [value.name]: value.value }));
+    const { name, value } = e.target;
+    setForm((prev) => {
+      const keys = name.split(".");
+      if (keys.length > 1) {
+        return {
+          ...prev,
+          [keys[0]]: {
+            ...prev[keys[0]],
+            [keys[1]]: value,
+          },
+        };
+      }
+      return { ...prev, [name]: value };
+    });
   };
-//   const handleConfirm = async () => {
-//     console.log(form);
-    
-//     const fetching =async () => {
-//       const data=await createLot(form);
-//       return data;
-//     };
-//     const result = await toast.promise(fetching(), {
-//       pending: "Request in progress...",
-//       success: {
-//         render() {
-//           return `Request created`;
-//         },
-//       },
-//       error: {
-//         render({ data }) {
-//           return `${data.response.data.message || "Something went wrong!"}`;
-//         },
-//       },
-//     });
-//     console.log(result);
-//   };
-const handleConfirm = async () => {
+  const handleConfirm = async () => {
     console.log(form);
-  
-    try {
-      const result = await toast.promise(
-        createLot(form), // Directly pass the promise returned by `createLot`
-        {
-          pending: "Request in progress...",
-          success: {
-            render() {
-              return `Request created`;
-            },
-          },
-          error: {
-            render({ data }) {
-              return `${data?.response?.data?.message || "Something went wrong!"}`;
-            },
-          },
-        }
-      );
-  
-      console.log(result);
-    } catch (error) {
-      console.error("Error in handleConfirm:", error);
-    }
+    const fetching = await createRequest(form, "Import", true);
+    console.log(fetching);
+    
+  };
+  const handleSaveDraft = async () => {
+    console.log(form);
+    const fetching = await createRequest(form, "Import", false);
+    console.log(fetching);
+    
   };
   
+
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50"></div>
@@ -85,25 +70,35 @@ const handleConfirm = async () => {
       >
         <div>
           <input
-            placeholder="Lot number"
-            name="lotNumber"
+            placeholder="Request Name"
+            name="name"
             onChange={handleInput}
           />
-          <input placeholder="Name" name="name" onChange={handleInput} />
+          <input
+            placeholder="Request Description"
+            name="description"
+            onChange={handleInput}
+          />
+          <input
+            placeholder="Lot number"
+            name="lot.lotNumber"
+            onChange={handleInput}
+          />
+          <input placeholder="Name" name="lot.name" onChange={handleInput} />
           <input
             placeholder="Amount of Lot"
             type="Number"
-            name="amount"
+            name="lot.amount"
             onChange={handleInput}
             min="1"
           />
           <input
             placeholder="Amount of Product"
             type="Number"
-            name="productAmount"
+            name="lot.productAmount"
             onChange={handleInput}
           />
-          <select onChange={handleInput} name="inventoryId">
+          <select onChange={handleInput} name="sendToInventoryId">
             <option>Select Inventory</option>
             {inventories &&
               inventories.status === 200 &&
@@ -120,6 +115,7 @@ const handleConfirm = async () => {
             type={"OnAction"}
             handleCancel={handleCancel}
             handleConfirm={handleConfirm}
+            handleSaveDraft={handleSaveDraft}
           />
         </div>
       </div>

@@ -10,6 +10,7 @@ export default function DetailProduct({
   handleCancel,
   handleConfirm,
   type,
+  handleSaveDraft
 }) {
   return (
     <div className="detail-product px-8">
@@ -196,6 +197,7 @@ export default function DetailProduct({
           </div>
           <div>
             <button className="px-4 py-2" onClick={handleCancel}>Cancel</button>
+            <button className="px-4 py-2" onClick={handleSaveDraft}>Save As Draft</button>
             <button className="px-4 py-2" onClick={handleConfirm}>Confirm</button>
           </div>
         </div>
