@@ -7,18 +7,19 @@ import {
 } from "@phosphor-icons/react";
 import HomePage from "../../pages/guest/HomePage";
 import ProductPage from "../../pages/partner/ProductPage";
-import ImportProductExcel from "../../pages/shared/ImportProductExcel";
+import ImportProductExcel from "../../pages/partner/ImportProductExcel";
 import AddProductPage from "../../pages/partner/AddProductPage";
 import ProfilePage from "../../pages/shared/ProfilePage";
 import EditProfilePage from "../../pages/shared/EditProfilePage";
 import InventoryPage from "../../pages/partner/InventoryPage";
-
+import OrderPage from "../../pages/partner/OrderPage";
+import OrderDashboard from "../partner/dashboard/OrderDashboard"
 export const PartnerRouterInfor = [
   {
     icon: House,
     path: "dashboard",
     index: true,
-    element: HomePage,
+    element: OrderDashboard,
     label: "Dashboard",
   },
   {
@@ -46,7 +47,7 @@ export const PartnerRouterInfor = [
     icon: AddressBook,
     path: "order",
     index: false,
-    element: HomePage,
+    element: OrderPage,
     label: "Order",
   },
 ];

@@ -1,4 +1,6 @@
-import { createContext, useEffect, useState } from "react";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { createContext, useEffect, useLayoutEffect, useState } from "react";
 
 export const AuthContext = createContext();
 
@@ -8,67 +10,74 @@ export function AuthProvider({ children }) {
     return storedAuth ? JSON.parse(storedAuth) : false;
   });
 
-  const [rememberMe, setRememberMe] = useState(false);
-
-  // Manage user info separately
   const [userInfor, setUserInfor] = useState(() => {
     const storedData = localStorage.getItem("UserInfor");
     return storedData ? JSON.parse(storedData) : null;
   });
 
-  // Manage expiry date independently
   const [expiryDate, setExpiryDate] = useState(() => {
-    const storedExpiry = localStorage.getItem("UserExpiry");
-    return storedExpiry ? parseInt(storedExpiry) : null;
+    const storedExpiry = localStorage.getItem("Authenticated");
+    return storedExpiry ? jwtDecode(storedExpiry).exp * 1000 : null;
   });
 
-  // Effect for handling user info and setting expiry
   useEffect(() => {
     localStorage.setItem("UserInfor", JSON.stringify(userInfor));
   }, [userInfor]);
 
-  // Effect for handling the expiration logic
   useEffect(() => {
-    localStorage.setItem("UserExpiry", expiryDate); // Store the expiry date in a separate localStorage key
+    localStorage.setItem("UserExpiry", expiryDate);
   }, [expiryDate]);
 
-  // Effect for handling the authentication state
   useEffect(() => {
-    localStorage.setItem("Authenticated", JSON.stringify(isAuthenticated));
+    if (isAuthenticated) {
+      localStorage.setItem("Authenticated", JSON.stringify(isAuthenticated));
+      const decoded = jwtDecode(isAuthenticated);
+      setExpiryDate(decoded.exp * 1000);
+    } else {
+      localStorage.removeItem("Authenticated");
+      setExpiryDate(null);
+    }
   }, [isAuthenticated]);
 
-  // Function to set the expiry date based on rememberMe choice
-  const setExpiry = () => {
-    const now = new Date();
-    let expiryTime;
-
-    if (rememberMe) {
-      expiryTime = now.getTime() + 1000 * 60 * 60 * 24 * 30; // 1 month
-    } else {
-      expiryTime = now.getTime() + 1000 * 60 * 60 * 24; // 1 day
+  const refreshAccessToken = async () => {
+    try {
+      const response = await axios.post(
+        process.env.REACT_APP_BASE_URL_API + "auth/refresh-token",
+        {
+          jwt: isAuthenticated,
+        }
+      );
+      setIsAuthenticated(response.data);
+    } catch (error) {
+      handleLogout();
     }
-
-    setExpiryDate(expiryTime);
   };
 
-  const handleLogin = (userData, rememberMeFlag) => {
+  const handleLogin = (userData) => {
     setUserInfor(userData);
-    setRememberMe(rememberMeFlag);
-    setExpiry();
   };
   const handleLogout = () => {
     localStorage.removeItem("UserInfor");
     localStorage.removeItem("Authenticated");
     localStorage.removeItem("UserExpiry");
+    setIsAuthenticated(null);
+    setUserInfor(null);
   };
 
-  useEffect(() => {
-    const now = new Date().getTime();
-    if (expiryDate && now > expiryDate) {
-      // Clear the stored data if expired
-      handleLogout();
-    }
-  }, [expiryDate]);
+  useLayoutEffect(() => {
+    const checkTokenExpiration = () => {
+      console.log("freshing");
+
+      const now = new Date().getTime();
+      if (expiryDate && now > expiryDate) {
+        console.log("freshing 2");
+
+        // refreshAccessToken();
+      }
+    };
+    const interval = setInterval(checkTokenExpiration, 10000);
+    return () => clearInterval(interval);
+  }, [expiryDate, isAuthenticated]);
 
   return (
     <AuthContext.Provider
@@ -77,9 +86,6 @@ export function AuthProvider({ children }) {
         setIsAuthenticated,
         userInfor,
         setUserInfor,
-        rememberMe,
-        setRememberMe,
-        setExpiryDate,
         handleLogin,
         handleLogout,
       }}

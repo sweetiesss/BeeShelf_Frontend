@@ -1,37 +1,44 @@
-// Mock API calls for orders (you can replace these with real API calls)
-const mockOrders = [
-    { id: 1, customerName: 'John Doe', totalPrice: 100, status: 'Pending' },
-    { id: 2, customerName: 'Jane Smith', totalPrice: 200, status: 'Shipped' },
-  ];
+import useAxios from "./CustomizeAxios";
+
+export default function AxiosOrder() {
+  // Simulate fetching data from API
+  const { fetchDataBearer } = useAxios();
+
+  const getOrderByUserId = async (
+    userId,
+    filterByStatus,
+    sortBy,
+    descending,
+    pageIndex,
+    Size
+  ) => {
+    try {
+      // const fetching = await fetchDataBearer({
+      //   url: `order/get-orders/${userId}?${
+      //     filterByStatus && "filterByStatus=" + filterByStatus + "&"
+      //   }${sortBy && "sortBy=" + sortBy + "&"}${
+      //     descending && "descending=" + descending + "&"
+      //   }pageIndex=${pageIndex}&pageSize=${Size}`,
+      //   method: "GET",
+      // });
+      const queryParams = new URLSearchParams();
   
-  export const fetchOrders = async () => {
-    // Simulate fetching data from API
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockOrders), 500);
-    });
+      // Conditionally add query parameters
+      if (typeof filterByStatus !== 'undefined') queryParams.append("filterByStatus", filterByStatus);
+      if (typeof sortBy !== 'undefined') queryParams.append("sortBy", sortBy);
+      if (typeof descending !== 'undefined') queryParams.append("descending", descending);
+      queryParams.append("pageIndex", pageIndex);
+      queryParams.append("pageSize", Size);
+    
+      const fetching = await fetchDataBearer({
+        url: `order/get-orders/${userId}?${queryParams.toString()}`,
+        method: "GET",
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
   };
-  
-  export const addOrder = async (order) => {
-    const newOrder = { ...order, id: mockOrders.length + 1 };
-    mockOrders.push(newOrder);
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(newOrder), 500);
-    });
-  };
-  
-  export const updateOrder = async (order) => {
-    const index = mockOrders.findIndex((o) => o.id === order.id);
-    mockOrders[index] = order;
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(order), 500);
-    });
-  };
-  
-  export const deleteOrder = async (orderId) => {
-    const index = mockOrders.findIndex((o) => o.id === orderId);
-    mockOrders.splice(index, 1);
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(), 500);
-    });
-  };
-  
+  return { getOrderByUserId };
+}
