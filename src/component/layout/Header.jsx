@@ -148,7 +148,7 @@ export function HeaderAuthenticated() {
   }, []);
 
   return (
-    <div className="flex items-center justify-end h-20 w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2">
+    <div className="flex items-center justify-end w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2 header">
       <div className="flex space-x-5 items-center">
         <LanguageSelector />
         <div className="p-4 relative">
