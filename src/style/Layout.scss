@@ -19,6 +19,8 @@
 .sidebar {
   width: 18.25rem;
   padding-top: 0.9rem;
+  transition: all 0.4s ease;
+
   .sidebar-navigate {
     margin-top: 3.2rem;
     .active {
@@ -33,12 +35,13 @@
 
     .navigate-menu {
       width: 15.5rem;
-      height: 4.3rem;
+      height: 5rem;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
       text-decoration: none !important;
+      transition: all 0.4s ease;
 
       .sidebar-menu-container {
         width: 100%;
@@ -48,19 +51,27 @@
         flex-direction: row;
         justify-content: start;
         align-items: center;
-        transition: all 0.25s ease;
+        transition: all 0.4s ease;
+        transition: color 0.15s ease;
+        overflow: hidden;
 
         .icon {
           font-size: 2rem;
-          transition: all 0.25s ease;
+          transition: all 0.4s ease;
+          transition: color 0.15s ease;
           margin-right: 1rem;
+          width: fit-content;
+
         }
         .label {
           pointer-events: none;
           opacity: 1;
-          text-align: center;
+          text-wrap: nowrap;
+          text-align:start;
           font-size: 0.87rem;
-          transition: all 0.25s ease;
+          width: fit-content;
+          transition: all 0.4s ease;
+          transition: color 0.15s ease;
         }
       }
     }
@@ -69,8 +80,9 @@
         background-color: var(--gray-menu-color);
         border-radius: 0.5rem;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      color: var(--text-main-color);
-
+        color: var(--text-main-color);
+        transition: all 0.4s ease;
+        transition: color 0.15s ease;
         .icon {
           font-size: 2rem;
         }
@@ -84,7 +96,6 @@
 .slide-out {
   width: 6.5rem;
   .sidebar-navigate {
-  
     .active {
       // background-color: var(--main-project-color);
       color: var(--text-main-color);
@@ -110,11 +121,13 @@
         justify-content: center;
         align-items: center;
         padding: 0;
-        transition: all 0.25s ease;
+        transition: all 0.4s ease;
+        transition: color 0.15s ease;
 
         .icon {
           font-size: 2rem;
-          transition: all 0.25s ease;
+          transition: all 0.4s ease;
+          transition: color 0.15s ease;
           margin-right: 0;
         }
         .label {
@@ -123,10 +136,11 @@
           position: absolute;
           width: 5rem;
           text-align: center;
-          bottom: -20%;
-          right: -75%;
+          bottom: -10%;
+          right: -15%;
           font-size: 0.87rem;
-          transition: all 0.25s ease;
+          transition: all 0.4s ease;
+          transition: color 0.15s ease;
         }
       }
     }
@@ -150,61 +164,12 @@
           position: absolute;
           bottom: 5%;
           font-size: 0.87rem;
-          transform: translate(-75%, 0%);
+          transform: translate(-15%, 10%);
         }
       }
     }
   }
 }
-// .bg-theme-change {
-//   width: 5rem;
-//   transition: all 0.5s ease-in-out;
-
-//   display: flex;
-//   justify-content: start;
-//   color: white;
-//   align-items: center;
-//   height: 2.25rem;
-//   border-radius: 20px;
-//   font-size: 1.5rem;
-//   padding: 0.5rem;
-
-//   cursor: pointer;
-//   .theme-button {
-//     display: flex;
-//     align-items: center;
-//     justify-content: space-between;
-//   transition: all 0.5s ease-in-out;
-
-//     p {
-//       font-size: 0.7rem;
-//       line-height: 0.8rem;
-//       font-weight: 600;
-//     }
-//   }
-// }
-// .light-mode {
-//   transition: all 0.5s ease-in-out;
-
-//   justify-content: start;
-//   background: radial-gradient(
-//     farthest-side at 0px 0px,
-//     #fbc223 10%,
-//     #fedd30 90%
-//   );
-// }
-// .dark-mode {
-//   transition: all 0.5s ease-in-out;
-
-//   justify-content: end;
-//   padding-top: 0.25rem;
-//   padding-bottom: 0.25rem;
-//   background: radial-gradient(
-//     farthest-side at 120px 0px,
-//     #2a2a2a 10%,
-//     #3a3a3a 90%
-//   );
-// }
 
 #toggle_checkbox {
   display: none;
