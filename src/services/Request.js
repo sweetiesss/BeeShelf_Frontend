@@ -6,8 +6,8 @@ export default function AxiosRequest() {
   const createRequest = async (data, type, send) => {
     try {
       const fetching = fetchDataBearer({
-        url: `request/create-request?${type && ("type="+ type + "&")}${
-          send && ("send="+send)
+        url: `request/create-request?${type && "type=" + type + "&"}${
+          send && "send=" + send
         }`,
         method: "POST",
         data: data,
@@ -34,5 +34,30 @@ export default function AxiosRequest() {
       };
     }
   };
-  return { createRequest };
+  const getRequestByUserId = async (
+    userId,
+    status,
+   
+    pageIndex,
+    pageSize
+  ) => {
+    try {
+      const queryParams = new URLSearchParams();
+      queryParams.append("status", status);
+      // if (typeof sortBy !== "undefined") queryParams.append("sortBy", sortBy);
+      queryParams.append("pageIndex", pageIndex);
+      queryParams.append("pageSize", pageSize);
+
+      const fetching = await fetchDataBearer({
+        url: `request/get-requests/${userId}?${queryParams.toString()}`,
+        method: "GET",
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
+
+  return { createRequest,getRequestByUserId };
 }

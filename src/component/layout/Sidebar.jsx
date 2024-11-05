@@ -50,12 +50,12 @@ export function Sidebar() {
           </p>
         )}
       </div>
-      <nav className="flex flex-col flex-grow px-4 text-[var(--text-second-color)] sidebar-navigate space-y-4">
+      <nav className="flex flex-col flex-grow items-center text-[var(--text-second-color)] sidebar-navigate space-y-4">
         {PartnerRouterInfor.map((item, num) => (
           <NavLink
             to={item.path}
             key={num}
-            className={`flex items-start navigate-menu p-2 rounded-lg  ${({
+            className={`flex navigate-menu  ${({
               isActive,
               isPending,
               isTransitioning,
@@ -66,10 +66,10 @@ export function Sidebar() {
                 isTransitioning ? "transitioning" : "",
               ].join("")}`}
           >
-            <item.icon className="icon" size={24} weight="fill" />
-            {isSlideOut && (
-              <p className="px-2 transition-colors text-lg">{t(item.label)}</p>
-            )}
+            <div className="sidebar-menu-container">
+              <item.icon className="icon" weight="fill" />
+              <p className="label">{t(item.label)}</p>
+            </div>
           </NavLink>
         ))}
       </nav>

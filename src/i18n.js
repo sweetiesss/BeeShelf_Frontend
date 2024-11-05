@@ -136,7 +136,7 @@ i18n
           Barcode: "バーコード",
           Brand: "ブランド",
           Category: "カテゴリ",
-          Dashboard: "ダッシュボード",
+          Dashboard: "統計学",
           Delete: "削除",
           DisplayName: "表示名",
           DownloadExcelTemplate: "エクセルテンプレートをダウンロード",

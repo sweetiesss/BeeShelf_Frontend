@@ -14,6 +14,7 @@ import EditProfilePage from "../../pages/shared/EditProfilePage";
 import InventoryPage from "../../pages/partner/InventoryPage";
 import OrderPage from "../../pages/partner/OrderPage";
 import OrderDashboard from "../partner/dashboard/OrderDashboard"
+import RequestPage from "../../pages/partner/RequestPage";
 export const PartnerRouterInfor = [
   {
     icon: House,
@@ -49,6 +50,13 @@ export const PartnerRouterInfor = [
     index: false,
     element: OrderPage,
     label: "Order",
+  },
+  {
+    icon: AddressBook,
+    path: "request",
+    index: false,
+    element: RequestPage,
+    label: "Request",
   },
 ];
 export const PartnerRouterNoneSider=[

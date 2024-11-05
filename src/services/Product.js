@@ -3,12 +3,12 @@ import useAxios from "./CustomizeAxios";
 
 export default function AxiosProduct() {
   const { fetchDataBearer } = useAxios();
-  const createProductWithUserId=async(data)=>{
+  const createProductWithUserId = async (data) => {
     try {
       const fetching = fetchDataBearer({
         url: `product/create-product  `,
         method: "POST",
-        data:data
+        data: data,
       });
       await toast.promise(fetching, {
         pending: "Request in progress...",
@@ -29,13 +29,13 @@ export default function AxiosProduct() {
       console.log(e);
       return e;
     }
-  }
-  const createProductsWithUserId=async(data)=>{
+  };
+  const createProductsWithUserId = async (data) => {
     try {
       const fetching = fetchDataBearer({
         url: `product/create-products`,
         method: "POST",
-        data:data
+        data: data,
       });
       await toast.promise(fetching, {
         pending: "Request in progress...",
@@ -56,7 +56,7 @@ export default function AxiosProduct() {
       console.log(e);
       return e;
     }
-  }
+  };
 
   const getProductByUserId = async (userId, pageIndex, Size) => {
     try {
@@ -98,5 +98,38 @@ export default function AxiosProduct() {
       return e;
     }
   };
-  return { getProductByUserId, deleteProductById,createProductWithUserId,createProductsWithUserId };
+  const updateProductById = async (productId, data) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `product/update-product/${productId}`,
+        method: "PUT",
+        data:data,
+      });
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `Uppdate data successfully`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return await fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
+  return {
+    getProductByUserId,
+    deleteProductById,
+    createProductWithUserId,
+    createProductsWithUserId,
+    updateProductById,
+  };
 }

@@ -25,6 +25,8 @@ export default function ProductList({
   setPage,
   handleDeleteClick,
   handleCreateRequest,
+  handleInputDetail,
+  setShowUpdateConfirmation,
 }) {
   const { t } = useTranslation();
   return (
@@ -55,7 +57,7 @@ export default function ProductList({
       </div>
       {products &&
         products?.items?.map((product) => {
-          let check = isShowDetailProduct === product;
+          let check = isShowDetailProduct?.id === product?.id;
           let chooice = selectedProducts.includes(product);
           return (
             <div key={product.id}>
@@ -120,7 +122,7 @@ export default function ProductList({
                     </button>
                   </div>
                 </div>
-                {check && <DetailProduct product={product} handleDeleteClick={handleDeleteClick} handleCreateRequest={handleCreateRequest} />}
+                {check && <DetailProduct product={isShowDetailProduct} handleDeleteClick={handleDeleteClick} handleCreateRequest={handleCreateRequest} handleInputDetail={handleInputDetail} setShowUpdateConfirmation={setShowUpdateConfirmation}/>}
               </div>
             </div>
           );

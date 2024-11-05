@@ -10,7 +10,9 @@ export default function DetailProduct({
   handleCancel,
   handleConfirm,
   type,
-  handleSaveDraft
+  handleSaveDraft,
+  handleInputDetail,
+  setShowUpdateConfirmation,
 }) {
   return (
     <div className="detail-product px-8">
@@ -39,6 +41,8 @@ export default function DetailProduct({
             <div className="">
               <div className="label">Display Name</div>
               <input
+                onChange={handleInputDetail}
+                name="name"
                 onClick={(e) => e.stopPropagation()}
                 className="w-full"
                 value={product.name}
@@ -57,9 +61,11 @@ export default function DetailProduct({
               <div className="w-[60%]">
                 <div className="label">Barcode</div>
                 <input
+                  onChange={handleInputDetail}
+                  name="barcode"
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.sku}
+                  value={product.barcode}
                 />
               </div>
             </div>
@@ -117,6 +123,7 @@ export default function DetailProduct({
                 <div className="label">Price: </div>
                 <input
                   className="w-full"
+                  name="price"
                   onClick={(e) => e.stopPropagation()}
                   value={product.price}
                 />
@@ -134,6 +141,8 @@ export default function DetailProduct({
             <div className="w-[26%]">
               <div className="label">Origin: </div>
               <input
+                onChange={handleInputDetail}
+                name="origin"
                 className="w-full"
                 onClick={(e) => e.stopPropagation()}
                 value={product.origin}
@@ -142,6 +151,8 @@ export default function DetailProduct({
             <div className="w-[26%]">
               <div className="label">Weight: </div>
               <input
+                onChange={handleInputDetail}
+                name="weight"
                 className="w-full"
                 onClick={(e) => e.stopPropagation()}
                 value={product.weight}
@@ -154,6 +165,7 @@ export default function DetailProduct({
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
                   value={new Date(product.createDate).toLocaleDateString()}
+                  disabled={true}
                 />
               </div>
               <div className="w-1/2">
@@ -165,19 +177,6 @@ export default function DetailProduct({
                 />
               </div>
             </div>
-            {/* <div>
-              <p className="text-sm text-gray-500">Tags:</p>
-              <div className="flex gap-2">
-                {product?.tags?.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-gray-200 text-sm rounded"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div> */}
           </div>
         </div>
       </div>
@@ -196,9 +195,15 @@ export default function DetailProduct({
             </button>
           </div>
           <div>
-            <button className="px-4 py-2" onClick={handleCancel}>Cancel</button>
-            <button className="px-4 py-2" onClick={handleSaveDraft}>Save As Draft</button>
-            <button className="px-4 py-2" onClick={handleConfirm}>Confirm</button>
+            <button className="px-4 py-2" onClick={handleCancel}>
+              Cancel
+            </button>
+            <button className="px-4 py-2" onClick={handleSaveDraft}>
+              Save As Draft
+            </button>
+            <button className="px-4 py-2" onClick={handleConfirm}>
+              Confirm
+            </button>
           </div>
         </div>
       ) : (
@@ -216,7 +221,12 @@ export default function DetailProduct({
           </div>
           <div>
             <button className="px-4 py-2">Reset</button>
-            <button className="px-4 py-2">Update</button>
+            <button
+              className="px-4 py-2"
+              onClick={() => setShowUpdateConfirmation(true)}
+            >
+              Update
+            </button>
             <button
               className="px-4 py-2"
               onClick={() => handleDeleteClick(product)}
