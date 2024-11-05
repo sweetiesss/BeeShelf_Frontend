@@ -4,16 +4,20 @@ import { AuthContext } from "../../context/AuthContext";
 // import { OrderDetailCard } from "../../component/partner/order/OrderCard";
 import RequestList from "../../component/partner/request/RequestList";
 import AxiosRequest from "../../services/Request";
+import { useDetail } from "../../context/DetailContext";
 
 export default function RequestPage() {
   const { userInfor } = useContext(AuthContext);
   const { getRequestByUserId } = AxiosRequest();
   const [requests, setRequests] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const { dataDetail, typeDetail, updateDataDetail, updateTypeDetail } =
+    useDetail();
 
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
-    status: "Draft",
+    status: "",
+    descending: true,
     pageIndex: 0,
     pageSize: 10,
   });
@@ -47,7 +51,10 @@ export default function RequestPage() {
     [filterField]
   );
 
-  console.log(filterField);
+  const handleFiltered = (e) => {
+    const { name, value } = e.target;
+    setFilterField((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleAddOrder = async (order) => {
     // const newOrder = await addOrder(order);
@@ -77,31 +84,34 @@ export default function RequestPage() {
   //   order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
   // );
   console.log("here", requests);
+  const handleShowDetail = (request) => {
+    updateDataDetail(request);
+    updateTypeDetail("request");
+    console.log(request);
+  };
 
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">Request Management</h1>
 
-      {/* <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search Orders..."
-          value={searchQuery}
-          onChange={handleSearch}
-          className="p-2 border border-gray-300 rounded-lg w-full md:w-1/3"
-        />
-      </div>
+      <select
+        name="status"
+        value={filterField.status}
+        onChange={handleFiltered}
+      >
+        <option>Select Request Status</option>
+        <option value={"Draft"}>Draft</option>
+        <option value={"Pending"}>Pending</option>
+        <option value={"Canceled"}>Canceled</option>
+        <option value={"Processing"}>Processing</option>
+        <option value={"Delivered"}>Delivered</option>
+        <option value={"Failed"}>Failed</option>
+        <option value={"Completed"}>Completed</option>
+      </select>
 
-
-      <OrderForm
-        onAddOrder={handleAddOrder}
-        onUpdateOrder={handleUpdateOrder}
-        selectedOrder={selectedOrder}
-      /> */}
-
-      {/* Order List */}
+      <button>Create request</button>
       <div className="flex justify-left gap-4 mt-6 ">
-        <div className="w-[60vw]">
+        <div className="w-full">
           <RequestList
             requests={requests}
             onDeleteOrder={handleDeleteOrder}
@@ -109,6 +119,7 @@ export default function RequestPage() {
             selectedOrder={selectedOrder}
             filterField={filterField}
             setFilterField={setFilterField}
+            handleShowDetail={handleShowDetail}
           />
         </div>
         {/* <div>{selectedOrder && <OrderDetailCard order={selectedOrder} />}</div> */}
