@@ -34,26 +34,39 @@ export default function DetailSlide() {
     };
   }, []);
   const ProductDetail = () => {
-    const [form, setForm] = useState();
+    const [form, setForm] = useState({
+      ocopPartnerId: userInfor?.id,
+      barcode: dataDetail?.barcode,
+      name: dataDetail?.name,
+      price: dataDetail?.price,
+      weight: dataDetail?.weight,
+      productCategoryId: dataDetail?.productCategoryId,
+      pictureLink: dataDetail?.pictureLink,
+      origin: dataDetail?.origin,
+    });
+    const [inputField, setInputField] = useState();
     const [errors, setErrors] = useState();
     const { updateProductById } = AxiosProduct();
     const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
     const handleEdit = () => {
       dataDetail?.isInInv
-        ? setForm({
-            price: dataDetail?.price,
-            weight: dataDetail?.weight,
-            pictureLink: dataDetail?.pictureLink,
+        ? setInputField({
+            price: true,
+            weight: false,
+            pictureLink: true,
+            barcode: false,
+            name: false,
+            productCategoryId: false,
+            origin: false,
           })
-        : setForm({
-            ocopPartnerId: userInfor?.id,
-            barcode: dataDetail?.barcode,
-            name: dataDetail?.name,
-            price: dataDetail?.price,
-            weight: dataDetail?.weight,
-            productCategoryId: dataDetail?.productCategoryId,
-            pictureLink: dataDetail?.pictureLink,
-            origin: dataDetail?.origin,
+        : setInputField({
+            barcode: true,
+            name: true,
+            price: true,
+            weight: true,
+            productCategoryId: false,
+            pictureLink: true,
+            origin: true,
           });
     };
     const handleInput = (e) => {
@@ -107,11 +120,11 @@ export default function DetailSlide() {
                 )}
               </div>
               <div className="text-center ">
-                {form?.name.length >= 0 ? (
+                {inputField?.name ? (
                   <input
                     name="name"
                     value={form?.name}
-                        placeholder="Name"
+                    placeholder="Name"
                     onChange={handleInput}
                     className={`input-field text-center ${
                       errors?.name ? "input-error" : ""
@@ -136,7 +149,7 @@ export default function DetailSlide() {
               </div>
               <div className="flex justify-between items-center gap-8 h-[3rem]">
                 <span className="text-gray-600 text-lg">Origin:</span>
-                {form?.origin.length>=0 ? (
+                {inputField?.origin ? (
                   <input
                     name="origin"
                     value={form?.origin}
@@ -168,7 +181,7 @@ export default function DetailSlide() {
               </div>
               <div className="flex justify-between items-center gap-8 h-[3rem]">
                 <span className="text-gray-600 text-lg">Price:</span>
-                {form?.price ? (
+                {inputField?.price ? (
                   <input
                     name="price"
                     type="number"
@@ -186,7 +199,7 @@ export default function DetailSlide() {
               </div>
               <div className="flex justify-between items-center gap-8 h-[3rem]">
                 <span className="text-gray-600 text-lg">Weight:</span>
-                {form?.weight ? (
+                {inputField?.weight ? (
                   <input
                     name="weight"
                     value={form?.weight}
@@ -204,9 +217,9 @@ export default function DetailSlide() {
               </div>
             </div>
             <div className="flex justify-between items-center w-full px-20">
-              {form ? (
+              {inputField ? (
                 <>
-                  <button onClick={() => setForm()}>Cancel</button>
+                  <button onClick={() => setInputField()}>Cancel</button>
                   <button onClick={handeUpdate}>Update</button>
                 </>
               ) : (
