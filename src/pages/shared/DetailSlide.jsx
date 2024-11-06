@@ -3,6 +3,8 @@ import { useDetail } from "../../context/DetailContext";
 import { X } from "@phosphor-icons/react";
 import { useAuth } from "../../context/AuthContext";
 import AxiosProduct from "../../services/Product";
+import AxiosLot from "../../services/Lot";
+import AxiosRequest from "../../services/Request";
 
 export default function DetailSlide() {
   const { userInfor } = useAuth();
@@ -15,27 +17,14 @@ export default function DetailSlide() {
     productCreateRequest,
     setProductCreateRequest,
   } = useDetail();
+
   const detailComponent = useRef();
 
   const handleCloseDetail = () => {
     updateDataDetail();
     updateTypeDetail("");
   };
-  useEffect(() => {
-    const handleClickOutSide = (event) => {
-      if (
-        detailComponent.current &&
-        !detailComponent.current.contains(event.target) &&
-        !productCreateRequest
-      ) {
-        handleCloseDetail();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutSide);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutSide);
-    };
-  }, [productCreateRequest]);
+
   const ProductDetail = () => {
     const [form, setForm] = useState({
       ocopPartnerId: userInfor?.id,
@@ -51,6 +40,21 @@ export default function DetailSlide() {
     const [errors, setErrors] = useState();
     const { updateProductById } = AxiosProduct();
     const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
+    useEffect(() => {
+      const handleClickOutSide = (event) => {
+        if (
+          detailComponent.current &&
+          !detailComponent.current.contains(event.target) &&
+          !productCreateRequest
+        ) {
+          handleCloseDetail();
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutSide);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutSide);
+      };
+    }, [productCreateRequest]);
     const handleEdit = () => {
       dataDetail?.isInInv
         ? setInputField({
@@ -269,15 +273,49 @@ export default function DetailSlide() {
     );
   };
 
-  const requestDetail = () => {
+  const RequestDetail = () => {
+    const { getLotById } = AxiosLot();
+    const { sendRequestById } = AxiosRequest();
+    const [lotData, setLotData] = useState();
+    useEffect(() => {
+      const handleClickOutSide = (event) => {
+        if (
+          detailComponent.current &&
+          !detailComponent.current.contains(event.target)
+        ) {
+          handleCloseDetail();
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutSide);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutSide);
+      };
+    }, []);
+    useEffect(() => {
+      const fetch = async () => {
+        try {
+          const data = await getLotById(dataDetail?.lotId);
+          setLotData(data?.data);
+        } catch (err) {
+          return err;
+        }
+      };
+      fetch();
+    }, [dataDetail]);
+    console.log(lotData);
+    console.log("dataDetail", dataDetail);
+    const handleSendRequest = async () => {
+      await sendRequestById(dataDetail?.id);
+      setRefresh(dataDetail?.id);
+    };
     return (
       <div className="w-[455px] h-full bg-white p-6 flex flex-col gap-8 text-black">
         {/* Header */}
-        <div className="w-full flex flex-col gap-8">
+        <div className="w-full flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <h2 className="text-2xl font-semibold text-black">
-                Product information
+                Request information
               </h2>
             </div>
             <div
@@ -287,39 +325,56 @@ export default function DetailSlide() {
               <X weight="bold" />
             </div>
           </div>
-
-          <div className="flex flex-col gap-3">
-            <div className="flex justify-between text-lg text-center">
-              <span className="flex-1 text-gray-500">Product details</span>
-              <span className="flex-1 text-black">LOT details</span>
-            </div>
-            <div className="w-full h-px bg-gray-300"></div>
-          </div>
+          <div className="w-full h-px bg-gray-300"></div>
         </div>
 
         <div className="w-full flex flex-col items-center gap-8">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-32 h-32 bg-gray-300 rounded-lg"></div>
+            <div className="w-32 h-32 bg-gray-300 rounded-lg relative">
+              <div
+                className={`absolute rounded-xl px-1 py-1 right-0 top-0 translate-x-5 -translate-y-5 ${
+                  dataDetail?.status === "Completed"
+                    ? "bg-green-200 text-green-800"
+                    : dataDetail?.status === "Shipped"
+                    ? "bg-yellow-200 text-yellow-800"
+                    : dataDetail?.status === "Pending"
+                    ? "bg-blue-200 text-blue-800"
+                    : dataDetail?.status === "Draft"
+                    ? "bg-gray-200 text-gray-800"
+                    : "bg-red-200 text-red-800"
+                }`}
+              >
+                {dataDetail?.status}
+              </div>
+            </div>
             <div className="text-center">
-              <p className="text-xl font-medium">Cauliflower</p>
-              <p className="text-gray-600 text-lg">#ID394812</p>
+              <p className="text-xl font-medium">{dataDetail?.name}</p>
+              <p
+                className={`text-gray-600 text-lg ${
+                  dataDetail?.requestType === "Import"
+                    ? "text-green-500"
+                    : "text-blue-500"
+                }`}
+              >
+                {dataDetail?.requestType}
+              </p>
             </div>
           </div>
 
           {/* Product Info Table */}
           <div className="w-full flex flex-col gap-4">
             {[
-              { label: "ID:", value: "#ID391288" },
-              { label: "Lot num:", value: "312947463" },
-              { label: "Name:", value: "Cauliflower" },
-              { label: "Create date:", value: "12/03/2024" },
-              { label: "Amount:", value: "123.423" },
-              { label: "Product ID:", value: "#ID394812" },
-              { label: "Product amount:", value: "492.412" },
-              { label: "Import date:", value: "12/03/2024" },
-              { label: "Export date:", value: "13/03/2024" },
-              { label: "Expiration date:", value: "12/05/2024" },
-              { label: "Inventory ID:", value: "#ID591038" },
+              { label: "Lot Num:", value: dataDetail?.lotId },
+              { label: "Product Name:", value: lotData?.lotNumber },
+              { label: "Create date:", value: dataDetail?.createDate },
+              { label: "Description:", value: dataDetail?.description },
+              { label: "Amount:", value: lotData?.amount },
+              // { label: "Product ID:", value: "#ID394812" },
+              { label: "Product amount:", value: lotData?.productAmount },
+              { label: "Import date:", value: "notYet" },
+              { label: "Export date:", value: "NotYet" },
+              { label: "Expiration date:", value: "NotYet" },
+              { label: "To Warehouse:", value: dataDetail?.warehouseName },
             ].map((item, index) => (
               <div key={index} className="flex justify-between text-lg">
                 <span className="text-gray-600">{item.label}</span>
@@ -328,6 +383,21 @@ export default function DetailSlide() {
             ))}
           </div>
         </div>
+        <div className="flex justify-between items-center w-full px-20">
+          {dataDetail?.status === "Draft" ? (
+            <>
+              <button>Delete</button>
+              <button>Edit</button>
+              <button onClick={handleSendRequest}>Send</button>
+            </>
+          ) : dataDetail?.status === "Pending" ? (
+            <>
+              <button>Delete</button>
+            </>
+          ) : (
+            <></>
+          )}
+        </div>
       </div>
     );
   };
@@ -335,7 +405,7 @@ export default function DetailSlide() {
   return (
     <div className="detail-slider z-10 text-white">
       <div ref={detailComponent} className="h-full">
-        {typeDetail == "request" && requestDetail()}
+        {typeDetail == "request" && RequestDetail()}
         {typeDetail == "product" && ProductDetail()}
       </div>
     </div>

@@ -15,5 +15,17 @@ export default function AxiosLot() {
       return e;
     }
   };
-  return { createLot };
+  const getLotById = async (id) => {
+    try {
+      const fetching = await fetchDataBearer({
+        url: `lot/get-lot/`+id,
+        method: "GET",
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
+  return { createLot,getLotById };
 }

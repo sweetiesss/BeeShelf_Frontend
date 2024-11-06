@@ -8,11 +8,18 @@ import { useDetail } from "../../context/DetailContext";
 
 export default function RequestPage() {
   const { userInfor } = useContext(AuthContext);
-  const { getRequestByUserId } = AxiosRequest();
+  const { getRequestByUserId, deleteRequestById } = AxiosRequest();
+  const [fetchAgain, setFetchingAgain] = useState(false);
   const [requests, setRequests] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const { dataDetail, typeDetail, updateDataDetail, updateTypeDetail } =
-    useDetail();
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+  const {
+    dataDetail,
+    typeDetail,
+    updateDataDetail,
+    updateTypeDetail,
+    refresh,
+  } = useDetail();
 
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
@@ -21,12 +28,36 @@ export default function RequestPage() {
     pageIndex: 0,
     pageSize: 10,
   });
+
   useEffect(() => {
-    debouncedFetchRequests();
+    fetchingData();
   }, []);
   useEffect(() => {
+    fetchingData();
+  }, [fetchAgain]);
+  useEffect(() => {
+    const fetching = async () => {
+      if (refresh && refresh != 0) {
+        const response = await getRequestByUserId(
+          filterField.userId,
+          filterField.status,
+          filterField.descending,
+          filterField.pageIndex,
+          filterField.pageSize
+        );
+        console.log(response);
+
+        setRequests(response?.data);
+        updateDataDetail(
+          response?.data?.items.find((item) => item.id === refresh)
+        );
+      }
+    };
+    fetching();
+  }, [refresh]);
+  useEffect(() => {
     debouncedFetchRequests();
-  }, [filterField]); 
+  }, [filterField]);
 
   const debounce = (func, delay) => {
     let timeout;
@@ -36,6 +67,17 @@ export default function RequestPage() {
         func.apply(null, args);
       }, delay);
     };
+  };
+
+  const fetchingData = async () => {
+    const response = await getRequestByUserId(
+      filterField.userId,
+      filterField.status,
+      filterField.descending,
+      filterField.pageIndex,
+      filterField.pageSize
+    );
+    setRequests(response?.data);
   };
 
   const debouncedFetchRequests = useCallback(
@@ -67,10 +109,22 @@ export default function RequestPage() {
     // setOrders(orders.map((o) => (o.id === updatedOrder.id ? updatedOrder : o)));
     // setSelectedOrder(null);
   };
+  const handleDeleteClick = (e, request) => {
+    e.stopPropagation();
+    setShowDeleteConfirmation(request);
+  };
 
-  const handleDeleteOrder = async (orderId) => {
-    // await deleteOrder(orderId);
-    // setOrders(orders.filter((o) => o.id !== orderId));
+  const confirmDelete = async () => {
+    try {
+      const res = await deleteRequestById(showDeleteConfirmation?.id);
+    } catch (e) {
+    } finally {
+      setShowDeleteConfirmation(null);
+      setFetchingAgain((prev) => !prev);
+    }
+  };
+  const cancelDelete = () => {
+    setShowDeleteConfirmation(null);
   };
 
   const handleSelectOrder = (order) => {
@@ -84,7 +138,6 @@ export default function RequestPage() {
   // const filteredOrders = orders.filter((order) =>
   //   order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
   // );
-  console.log("here", requests);
   const handleShowDetail = (request) => {
     updateDataDetail(request);
     updateTypeDetail("request");
@@ -115,7 +168,7 @@ export default function RequestPage() {
         <div className="w-full">
           <RequestList
             requests={requests}
-            onDeleteOrder={handleDeleteOrder}
+            handleDeleteClick={handleDeleteClick}
             handleSelectOrder={handleSelectOrder}
             selectedOrder={selectedOrder}
             filterField={filterField}
@@ -123,7 +176,35 @@ export default function RequestPage() {
             handleShowDetail={handleShowDetail}
           />
         </div>
-        {/* <div>{selectedOrder && <OrderDetailCard order={selectedOrder} />}</div> */}
+        {showDeleteConfirmation && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
+              style={{
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <p>{`Are you sure you want to delete ${showDeleteConfirmation.name}?`}</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => confirmDelete(showDeleteConfirmation)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={cancelDelete}
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

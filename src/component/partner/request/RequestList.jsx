@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function RequestList({
   requests,
-  onDeleteOrder,
+  handleDeleteClick,
   handleSelectOrder,
   selectedRequest,
   filterField,
@@ -22,10 +22,10 @@ export default function RequestList({
       setOpenAction(request);
     }
   };
-  const actionComponent=useRef();
-  const handleCloseAction=()=>{
+  const actionComponent = useRef();
+  const handleCloseAction = () => {
     setOpenAction();
-  }
+  };
 
   useEffect(() => {
     const handleClickOutSide = (event) => {
@@ -140,11 +140,24 @@ export default function RequestList({
                         ...
                       </button>
                       {openAction === request && (
-                        <div className="action-tab-container translate-x-1" ref={actionComponent}>
-                          <button onClick={()=>handleShowDetail(request)}>Show detail</button>
-                          <div>Delete</div>
+                        <div
+                          className="action-tab-container translate-x-1"
+                          ref={actionComponent}
+                        >
+                          <div onClick={() => handleShowDetail(request)}>
+                            Show detail
+                          </div>
+                          {(request?.status === "Draft" || request?.status === "Pending") && (
+                            <div
+                              onClick={(e) => {
+                                handleDeleteClick(e, request);
+                                handleCloseAction();
+                              }}
+                            >
+                              Delete
+                            </div>
+                          )}
                         </div>
-                      
                       )}
                     </td>
                   </tr>
@@ -160,7 +173,10 @@ export default function RequestList({
             className="outline outline-1 px-1"
             onChange={(e) => {
               const value = e.target.value;
-              setFilterField((prev) => ({ ...prev, pageSize: parseInt(value) }));
+              setFilterField((prev) => ({
+                ...prev,
+                pageSize: parseInt(value),
+              }));
             }}
             value={filterField.pageSize}
           >
