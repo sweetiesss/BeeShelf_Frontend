@@ -11,6 +11,7 @@ export const useDetail = () => useContext(DetailContext);
 export const DetailProvider = ({ children }) => {
   const [dataDetail, setDataDetail] = useState();
   const [typeDetail, setTypeDetail] = useState("");
+  const [refresh, setRefresh] = useState();
 
   const updateDataDetail = (data) => setDataDetail(data);
   const updateTypeDetail = (type) => setTypeDetail(type);
@@ -22,6 +23,8 @@ export const DetailProvider = ({ children }) => {
         typeDetail,
         updateDataDetail,
         updateTypeDetail,
+        refresh,
+        setRefresh,
       }}
     >
       {children}

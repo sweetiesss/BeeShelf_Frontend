@@ -1,8 +1,10 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { createContext, useEffect, useLayoutEffect, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
 
 export const AuthContext = createContext();
+
+export const useAuth=()=>useContext(AuthContext);
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {

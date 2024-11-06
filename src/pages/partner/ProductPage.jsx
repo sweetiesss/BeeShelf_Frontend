@@ -9,6 +9,7 @@ import AxiosProduct from "../../services/Product";
 import { AuthContext } from "../../context/AuthContext";
 import CreateRequestImport from "../../component/partner/product/CreateRequestImport";
 import AxiosInventory from "../../services/Inventory";
+import { useDetail } from "../../context/DetailContext";
 
 // const products = [
 //   {
@@ -83,16 +84,22 @@ export default function ProductPage() {
   const [isShowDetailProduct, setShowDetailProduct] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
-  const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
   const [overall, setOverall] = useState({
     checked: false,
     indeterminate: false,
   });
   const [openCreateRequest, setOpenCreateRequest] = useState(false);
   const { userInfor } = useContext(AuthContext);
-  const { getProductByUserId, deleteProductById, updateProductById } =
+  const { getProductByUserId, deleteProductById } =
     AxiosProduct();
+  const {
+
+    updateDataDetail,
+    updateTypeDetail,
+    refresh,
+  } = useDetail();
   const { getInventory100 } = AxiosInventory();
+
   const { t } = useTranslation();
   const debounce = (func, delay) => {
     let timeout;
@@ -123,6 +130,30 @@ export default function ProductPage() {
       debouncedFetchProducts(page);
     }
   }, [page, index, userInfor, debouncedFetchProducts, fetching]);
+  
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userInfor && refresh) {
+        console.log("here");
+        
+        try {
+          const response = await getProductByUserId(userInfor?.id, page, index);
+          setProducts(response?.data);
+          
+          const updatedItem = response?.data.find((item) => item?.id === refresh);
+          if (updatedItem) {
+            updateDataDetail(updatedItem);
+          }
+        } catch (error) {
+          console.error("Error fetching product data:", error);
+        }
+      }
+    };
+  
+    fetchData();
+  }, [refresh]); 
+  
 
   useEffect(() => {
     const checkCount = selectedProducts.length;
@@ -136,6 +167,8 @@ export default function ProductPage() {
   const handleShowDetailProductProduct = (e, product) => {
     e.stopPropagation();
     setShowDetailProduct(isShowDetailProduct === product ? null : product);
+    updateDataDetail(product);
+    updateTypeDetail("product");
   };
 
   const toggleProductSelection = (product) => {
@@ -225,25 +258,11 @@ export default function ProductPage() {
     setShowDetailProduct((prev) => ({ ...prev, [name]: value }));
   };
 
-  const confirmUpdate = async () => {
-    try {
-      const res = await updateProductById(
-        isShowDetailProduct?.id,
-        isShowDetailProduct
-      );
-    } catch (e) {
-    } finally {
-      setShowDeleteConfirmation(null);
-      setFetching((prev) => !prev);
-    }
-  };
-  const cancelUpdate = () => {
-    setShowUpdateConfirmation(false);
-  };
+
 
   return (
-    <div className="w-full h-full flex justify-between gap-10">
-      <div className="w-fit space-y-10">
+    <div className="w-full h-full gap-10">
+      <div className="w-full space-y-10">
         <ProductHeader
           handleDownload={handleDownload}
           products={products}
@@ -265,10 +284,9 @@ export default function ProductPage() {
           handleDeleteClick={handleDeleteClick}
           handleCreateRequest={handleCreateRequest}
           handleInputDetail={handleInputDetail}
-          setShowUpdateConfirmation={setShowUpdateConfirmation}
         />
       </div>
-      <ProductOverview />
+      {/* <ProductOverview /> */}
       {showDeleteConfirmation && (
         <>
           <div className="fixed inset-0 bg-black bg-opacity-50"></div>
@@ -290,35 +308,6 @@ export default function ProductPage() {
               </button>
               <button
                 onClick={cancelDelete}
-                className="bg-gray-300 text-black px-4 py-2 rounded-md"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-      {showUpdateConfirmation && (
-        <>
-          <div className="fixed inset-0 bg-black bg-opacity-50"></div>
-          <div
-            className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
-            style={{
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <p>{`Are you sure you want to update ${isShowDetailProduct.name}?`}</p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => confirmUpdate()}
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
-              >
-                Update
-              </button>
-              <button
-                onClick={cancelUpdate}
                 className="bg-gray-300 text-black px-4 py-2 rounded-md"
               >
                 Cancel
