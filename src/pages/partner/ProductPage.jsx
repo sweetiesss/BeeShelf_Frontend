@@ -88,10 +88,10 @@ export default function ProductPage() {
     checked: false,
     indeterminate: false,
   });
-  const [openCreateRequest, setOpenCreateRequest] = useState(false);
+ 
   const { userInfor } = useContext(AuthContext);
   const { getProductByUserId, deleteProductById } = AxiosProduct();
-  const { updateDataDetail, updateTypeDetail, refresh, setRefresh } =
+  const {dataDetail, updateDataDetail, updateTypeDetail, refresh, setRefresh,productCreateRequest, setProductCreateRequest } =
     useDetail();
   const { getInventory100 } = AxiosInventory();
 
@@ -159,7 +159,7 @@ export default function ProductPage() {
     }
   }, [selectedProducts]);
 
-  const handleShowDetailProductProduct = (e, product) => {
+  const handleShowDetailProduct = (e, product) => {
     e.stopPropagation();
     setShowDetailProduct(isShowDetailProduct === product ? null : product);
     updateDataDetail(product);
@@ -226,12 +226,9 @@ export default function ProductPage() {
     document.body.removeChild(link);
   };
 
-  const handleDeleteClick = (product) => {
+  const handleDeleteClick = (e,product) => {
+    e.stopPropagation();
     setShowDeleteConfirmation(product);
-  };
-  const handleCreateRequest = () => {
-    setOpenCreateRequest(true);
-    console.log(openCreateRequest);
   };
 
   const confirmDelete = async () => {
@@ -247,11 +244,7 @@ export default function ProductPage() {
     setShowDeleteConfirmation(null);
   };
 
-  const handleInputDetail = (e) => {
-    const { name, value } = e.target;
-    console.log(value);
-    setShowDetailProduct((prev) => ({ ...prev, [name]: value }));
-  };
+
 
   return (
     <div className="w-full h-full gap-10">
@@ -265,7 +258,6 @@ export default function ProductPage() {
           products={products}
           selectedProducts={selectedProducts}
           toggleProductSelection={toggleProductSelection}
-          handleShowDetailProductProduct={handleShowDetailProductProduct}
           isShowDetailProduct={isShowDetailProduct}
           isProductSelected={isProductSelected}
           overall={overall}
@@ -275,8 +267,7 @@ export default function ProductPage() {
           page={page}
           setPage={setPage}
           handleDeleteClick={handleDeleteClick}
-          handleCreateRequest={handleCreateRequest}
-          handleInputDetail={handleInputDetail}
+          handleShowDetailProduct={handleShowDetailProduct}
         />
       </div>
       {/* <ProductOverview /> */}
@@ -309,11 +300,11 @@ export default function ProductPage() {
           </div>
         </>
       )}
-      {openCreateRequest && (
+      {productCreateRequest && (
         <CreateRequestImport
-          product={isShowDetailProduct}
+          product={dataDetail}
           inventories={inventories}
-          handleCancel={() => setOpenCreateRequest(false)}
+          handleCancel={() => setProductCreateRequest(false)}
         />
       )}
     </div>

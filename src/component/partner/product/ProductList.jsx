@@ -1,12 +1,3 @@
-// components/partner/product/ProductList.js
-
-import {
-  CaretDown,
-  CaretLeft,
-  CaretRight,
-  CaretUp,
-} from "@phosphor-icons/react";
-import DetailProduct from "./DetailProduct"; // Import DetailProduct
 import { useTranslation } from "react-i18next";
 import Pagination from "../../shared/Paggination";
 import { useEffect, useRef, useState } from "react";
@@ -15,8 +6,7 @@ export default function ProductList({
   products,
   selectedProducts,
   toggleProductSelection,
-  handleShowDetailProductProduct,
-  isShowDetailProduct,
+  handleShowDetailProduct,
   isProductSelected,
   overall,
   handleClickOverall,
@@ -25,14 +15,11 @@ export default function ProductList({
   page,
   setPage,
   handleDeleteClick,
-  handleCreateRequest,
-  handleInputDetail,
-  setShowUpdateConfirmation,
 }) {
   const { t } = useTranslation();
   const [openAction, setOpenAction] = useState();
-  const handleOpenActionTab = (e,product) => {
-    e.stopPropagation()
+  const handleOpenActionTab = (e, product) => {
+    e.stopPropagation();
     if (product === openAction) {
       setOpenAction();
     } else {
@@ -94,7 +81,7 @@ export default function ProductList({
                   key={product.id}
                   className={`
                     hover:bg-gray-100 border-t-2 
-                  cursor-pointer ${chooice ? "bg-[var(--second-color)]" : ""}`}
+                  ${chooice ? "bg-[var(--second-color)]" : ""}`}
                   onClick={() => toggleProductSelection(product)}
                 >
                   <td className="">
@@ -125,18 +112,13 @@ export default function ProductList({
                       <option value="C">C</option>
                     </select>
                   </td>
-                  <td className="">
-                    {product.productCategoryName}
-                  </td>
+                  <td className="">{product.productCategoryName}</td>
                   <td className="">{product.price}</td>
                   <td className="">{product.weight}</td>
-                  <td
-                    className=" relative"
-                    // onClick={(e) => handleShowDetailProductProduct(e, product)}
-                  >
+                  <td className=" relative">
                     <button
                       className="text-center align-middle bg-red-500"
-                      onClick={(e) => handleOpenActionTab(e,product)}
+                      onClick={(e) => handleOpenActionTab(e, product)}
                     >
                       ...
                     </button>
@@ -145,42 +127,23 @@ export default function ProductList({
                         className="action-tab-container translate-x-1"
                         ref={actionComponent}
                       >
-                        <button
+                        <div
+                          className="cursor-pointer"
                           onClick={(e) =>
-                            handleShowDetailProductProduct(e, product)
+                            handleShowDetailProduct(e, product)
                           }
                         >
                           Show detail
-                        </button>
-                        <div>Delete</div>
+                        </div>
+                        <div
+                          className="cursor-pointer"
+                          onClick={(e) => handleDeleteClick(e, product)}
+                        >
+                          Delete
+                        </div>
                       </div>
                     )}
-                    {/* <button
-                      className={`border-2 px-2 rounded-xl shadow-lg text-2xl ${
-                        check
-                          ? "border-[var(--line-oposite-color)] text-[var(--text-main-color)]"
-                          : "text-[var(--text-second-color)]"
-                      } `}
-                      onClick={(e) =>
-                        handleShowDetailProductProduct(e, product)
-                      }
-                    >
-                      {check ? (
-                        <CaretUp weight="fill" />
-                      ) : (
-                        <CaretDown weight="fill" />
-                      )}
-                    </button> */}
                   </td>
-                  {/* {check && (
-                    <DetailProduct
-                      product={isShowDetailProduct}
-                      handleDeleteClick={handleDeleteClick}
-                      handleCreateRequest={handleCreateRequest}
-                      handleInputDetail={handleInputDetail}
-                      setShowUpdateConfirmation={setShowUpdateConfirmation}
-                    />
-                  )} */}
                 </tr>
               );
             })}

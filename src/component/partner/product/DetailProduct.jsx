@@ -5,14 +5,11 @@ import defaultImg from "../../../assets/img/defaultImg.jpg";
 
 export default function DetailProduct({
   product,
-  handleDeleteClick,
-  handleCreateRequest,
   handleCancel,
   handleConfirm,
-  type,
+  handleReset,
   handleSaveDraft,
   handleInputDetail,
-  setShowUpdateConfirmation,
 }) {
   return (
     <div className="detail-product px-8">
@@ -21,8 +18,8 @@ export default function DetailProduct({
           <div className="space-y-4">
             <div className="relative">
               <img
-                src={product.imageLink ? product.imageLink : defaultImg}
-                alt={product.name}
+                src={product?.imageLink ? product?.imageLink : defaultImg}
+                alt={product?.name}
                 className="h-56 w-56 rounded-xl"
               />
               <div
@@ -45,7 +42,7 @@ export default function DetailProduct({
                 name="name"
                 onClick={(e) => e.stopPropagation()}
                 className="w-full"
-                value={product.name}
+                value={product?.name}
               />
             </div>
 
@@ -55,7 +52,7 @@ export default function DetailProduct({
                 <input
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.sku}
+                  value={product?.sku}
                 />
               </div>
               <div className="w-[60%]">
@@ -65,7 +62,7 @@ export default function DetailProduct({
                   name="barcode"
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.barcode}
+                  value={product?.barcode}
                 />
               </div>
             </div>
@@ -76,7 +73,7 @@ export default function DetailProduct({
                 <input
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.group}
+                  value={product?.group}
                 />
               </div>
               <div className="w-[45%]">
@@ -84,7 +81,7 @@ export default function DetailProduct({
                 <input
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.category}
+                  value={product?.category}
                 />
               </div>
             </div>
@@ -95,7 +92,7 @@ export default function DetailProduct({
                 <input
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.stock}
+                  value={product?.stock}
                 />
               </div>
               <div className="w-[26%]">
@@ -103,7 +100,7 @@ export default function DetailProduct({
                 <input
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.size || "N/A"}
+                  value={product?.size || "N/A"}
                 />
               </div>
               <div className="w-[26%]">
@@ -111,7 +108,7 @@ export default function DetailProduct({
                 <input
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.reserved}
+                  value={product?.reserved}
                 />
               </div>
             </div>
@@ -125,7 +122,7 @@ export default function DetailProduct({
                   className="w-full"
                   name="price"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.price}
+                  value={product?.price}
                 />
               </div>
               <div className="w-1/2">
@@ -133,7 +130,7 @@ export default function DetailProduct({
                 <input
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={product.cost}
+                  value={product?.cost}
                 />
               </div>
             </div>
@@ -145,7 +142,7 @@ export default function DetailProduct({
                 name="origin"
                 className="w-full"
                 onClick={(e) => e.stopPropagation()}
-                value={product.origin}
+                value={product?.origin}
               />
             </div>
             <div className="w-[26%]">
@@ -155,7 +152,7 @@ export default function DetailProduct({
                 name="weight"
                 className="w-full"
                 onClick={(e) => e.stopPropagation()}
-                value={product.weight}
+                value={product?.weight}
               />
             </div>
             <div className="flex justify-between gap-10">
@@ -164,7 +161,7 @@ export default function DetailProduct({
                 <input
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={new Date(product.createDate).toLocaleDateString()}
+                  value={new Date(product?.createDate).toLocaleDateString()}
                   disabled={true}
                 />
               </div>
@@ -173,7 +170,7 @@ export default function DetailProduct({
                 <input
                   className="w-full"
                   onClick={(e) => e.stopPropagation()}
-                  value={new Date(product.expDate).toLocaleDateString()}
+                  value={new Date(product?.expDate).toLocaleDateString()}
                 />
               </div>
             </div>
@@ -181,61 +178,31 @@ export default function DetailProduct({
         </div>
       </div>
       <hr />
-      {type === "OnAction" ? (
-        <div className="flex justify-between py-2 pb-4">
-          <div className="space-x-10">
-            <button
-              className="px-4 py-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleCreateRequest();
-              }}
-            >
-              Reset
-            </button>
-          </div>
-          <div>
-            <button className="px-4 py-2" onClick={handleCancel}>
-              Cancel
-            </button>
-            <button className="px-4 py-2" onClick={handleSaveDraft}>
-              Save As Draft
-            </button>
-            <button className="px-4 py-2" onClick={handleConfirm}>
-              Confirm
-            </button>
-          </div>
+
+      <div className="flex justify-between py-2 pb-4">
+        <div className="space-x-10">
+          <button
+            className="px-4 py-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleReset();
+            }}
+          >
+            Reset
+          </button>
         </div>
-      ) : (
-        <div className="flex justify-between py-2 pb-4">
-          <div className="space-x-10">
-            <button
-              className="px-4 py-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleCreateRequest();
-              }}
-            >
-              Import
-            </button>
-          </div>
-          <div>
-            <button className="px-4 py-2">Reset</button>
-            <button
-              className="px-4 py-2"
-              onClick={() => setShowUpdateConfirmation(true)}
-            >
-              Update
-            </button>
-            <button
-              className="px-4 py-2"
-              onClick={() => handleDeleteClick(product)}
-            >
-              Delete
-            </button>
-          </div>
+        <div>
+          <button className="px-4 py-2" onClick={handleCancel}>
+            Cancel
+          </button>
+          <button className="px-4 py-2" onClick={handleSaveDraft}>
+            Save As Draft
+          </button>
+          <button className="px-4 py-2" onClick={handleConfirm}>
+            Confirm
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }

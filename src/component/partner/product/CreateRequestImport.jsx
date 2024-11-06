@@ -1,10 +1,11 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import defaultImg from "../../../assets/img/defaultImg.jpg";
 import DetailProduct from "./DetailProduct";
 import AxiosLot from "../../../services/Lot";
 import { toast } from "react-toastify";
 import AxiosRequest from "../../../services/Request";
 import { AuthContext } from "../../../context/AuthContext";
+import { useDetail } from "../../../context/DetailContext";
 
 export default function CreateRequestImport({
   product,
@@ -12,6 +13,7 @@ export default function CreateRequestImport({
   handleCancel,
 }) {
   const { userInfor } = useContext(AuthContext);
+  const { setProductCreateRequest } = useDetail();
   const baseForm = {
     ocopPartnerId: userInfor?.id,
     name: "",
@@ -27,6 +29,29 @@ export default function CreateRequestImport({
   };
   const [form, setForm] = useState(baseForm);
   const { createRequest } = AxiosRequest();
+
+  const floatingComponent = useRef();
+
+  const handleCloseImport =async (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    await setProductCreateRequest(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutSide = (event) => {
+      if (
+        floatingComponent.current &&
+        !floatingComponent.current.contains(event.target)
+      ) {
+        handleCloseImport(event);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutSide);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutSide);
+    };
+  }, []);
   const handleInput = (e) => {
     const { name, value } = e.target;
     setForm((prev) => {
@@ -47,26 +72,24 @@ export default function CreateRequestImport({
     console.log(form);
     const fetching = await createRequest(form, "Import", true);
     console.log(fetching);
-    
   };
   const handleSaveDraft = async () => {
     console.log(form);
     const fetching = await createRequest(form, "Import", false);
     console.log(fetching);
-    
   };
-  
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
       <div
-        className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit flex flex-col"
+        className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit flex flex-col z-10"
         style={{
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
         }}
+        ref={floatingComponent}
       >
         <div>
           <input
@@ -112,8 +135,7 @@ export default function CreateRequestImport({
         <div>
           <DetailProduct
             product={product}
-            type={"OnAction"}
-            handleCancel={handleCancel}
+            handleCancel={handleCloseImport}
             handleConfirm={handleConfirm}
             handleSaveDraft={handleSaveDraft}
           />

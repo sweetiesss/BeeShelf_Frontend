@@ -37,14 +37,14 @@ export default function AxiosRequest() {
   const getRequestByUserId = async (
     userId,
     status,
-   
+    descending,
     pageIndex,
     pageSize
   ) => {
     try {
       const queryParams = new URLSearchParams();
       queryParams.append("status", status);
-      // if (typeof sortBy !== "undefined") queryParams.append("sortBy", sortBy);
+      queryParams.append("descending",descending);
       queryParams.append("pageIndex", pageIndex);
       queryParams.append("pageSize", pageSize);
 

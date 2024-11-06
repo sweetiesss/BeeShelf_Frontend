@@ -26,7 +26,7 @@ export default function RequestPage() {
   }, []);
   useEffect(() => {
     debouncedFetchRequests();
-  }, [filterField]);
+  }, [filterField]); 
 
   const debounce = (func, delay) => {
     let timeout;
@@ -43,6 +43,7 @@ export default function RequestPage() {
       const response = await getRequestByUserId(
         filterField.userId,
         filterField.status,
+        filterField.descending,
         filterField.pageIndex,
         filterField.pageSize
       );

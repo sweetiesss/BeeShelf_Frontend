@@ -160,9 +160,9 @@ export default function RequestList({
             className="outline outline-1 px-1"
             onChange={(e) => {
               const value = e.target.value;
-              setFilterField((prev) => ({ ...prev, size: parseInt(value) }));
+              setFilterField((prev) => ({ ...prev, pageSize: parseInt(value) }));
             }}
-            value={filterField.size}
+            value={filterField.pageSize}
           >
             <option value={4}>4</option>
             <option value={5}>5</option>

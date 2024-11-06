@@ -12,6 +12,8 @@ export default function DetailSlide() {
     updateDataDetail,
     updateTypeDetail,
     setRefresh,
+    productCreateRequest,
+    setProductCreateRequest,
   } = useDetail();
   const detailComponent = useRef();
 
@@ -23,7 +25,8 @@ export default function DetailSlide() {
     const handleClickOutSide = (event) => {
       if (
         detailComponent.current &&
-        !detailComponent.current.contains(event.target)
+        !detailComponent.current.contains(event.target) &&
+        !productCreateRequest
       ) {
         handleCloseDetail();
       }
@@ -32,7 +35,7 @@ export default function DetailSlide() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutSide);
     };
-  }, []);
+  }, [productCreateRequest]);
   const ProductDetail = () => {
     const [form, setForm] = useState({
       ocopPartnerId: userInfor?.id,
@@ -84,7 +87,6 @@ export default function DetailSlide() {
         console.log(res);
         if (res.status === 200) {
           setRefresh(dataDetail?.id);
-          setInputField();
         }
       } catch (e) {
       } finally {
@@ -226,7 +228,9 @@ export default function DetailSlide() {
               ) : (
                 <>
                   <button onClick={handleEdit}>Edit</button>
-                  <button>Create Request</button>
+                  <button onClick={() => setProductCreateRequest(true)}>
+                    Create Request
+                  </button>
                 </>
               )}
             </div>
