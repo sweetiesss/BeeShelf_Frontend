@@ -90,14 +90,9 @@ export default function ProductPage() {
   });
   const [openCreateRequest, setOpenCreateRequest] = useState(false);
   const { userInfor } = useContext(AuthContext);
-  const { getProductByUserId, deleteProductById } =
-    AxiosProduct();
-  const {
-
-    updateDataDetail,
-    updateTypeDetail,
-    refresh,
-  } = useDetail();
+  const { getProductByUserId, deleteProductById } = AxiosProduct();
+  const { updateDataDetail, updateTypeDetail, refresh, setRefresh } =
+    useDetail();
   const { getInventory100 } = AxiosInventory();
 
   const { t } = useTranslation();
@@ -130,30 +125,30 @@ export default function ProductPage() {
       debouncedFetchProducts(page);
     }
   }, [page, index, userInfor, debouncedFetchProducts, fetching]);
-  
-  
+
   useEffect(() => {
     const fetchData = async () => {
-      if (userInfor && refresh) {
-        console.log("here");
-        
+      if (userInfor && refresh != 0) {
         try {
           const response = await getProductByUserId(userInfor?.id, page, index);
           setProducts(response?.data);
-          
-          const updatedItem = response?.data.find((item) => item?.id === refresh);
+
+          const updatedItem = response?.data?.items.find(
+            (item) => item?.id === refresh
+          );
           if (updatedItem) {
             updateDataDetail(updatedItem);
           }
         } catch (error) {
           console.error("Error fetching product data:", error);
+        } finally {
+          setRefresh(0);
         }
       }
     };
-  
+
     fetchData();
-  }, [refresh]); 
-  
+  }, [refresh]);
 
   useEffect(() => {
     const checkCount = selectedProducts.length;
@@ -257,8 +252,6 @@ export default function ProductPage() {
     console.log(value);
     setShowDetailProduct((prev) => ({ ...prev, [name]: value }));
   };
-
-
 
   return (
     <div className="w-full h-full gap-10">

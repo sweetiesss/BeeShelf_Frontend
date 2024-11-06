@@ -84,6 +84,7 @@ export default function DetailSlide() {
         console.log(res);
         if (res.status === 200) {
           setRefresh(dataDetail?.id);
+          setInputField();
         }
       } catch (e) {
       } finally {
