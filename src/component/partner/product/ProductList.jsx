@@ -63,11 +63,11 @@ export default function ProductList({
               "#"
             )}
           </td>
-          <td className=""></td>
-          <td className="">{t("SKU")}</td>
+          <td className="">{t("Image")}</td>
+          <td className="">{t("Barcode")}</td>
           <td className="">{t("Name")}</td>
-          <td className="">{t("Group")}</td>
           <td className="">{t("Category")}</td>
+          <td className="">{t("Origin")}</td>
           <td className="">{t("Price")}</td>
           <td className="">{t("Weight")}</td>
           <td className=""></td>
@@ -92,27 +92,17 @@ export default function ProductList({
                       onClick={(e) => e.stopPropagation()}
                     />
                   </td>
-                  <td className=" flex justify-center">
+                  <td className=" flex justify-start">
                     <img
                       src={product.image}
                       alt={product.name}
                       className="h-20 w-20 rounded-xl"
                     />
                   </td>
-                  <td className="">{product.sku}</td>
+                  <td className="">{product.barcode}</td>
                   <td className="">{product.name}</td>
-                  <td className="">
-                    <select
-                      defaultValue={product.group}
-                      className="border p-1 rounded-md"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <option value="A">A</option>
-                      <option value="B">B</option>
-                      <option value="C">C</option>
-                    </select>
-                  </td>
                   <td className="">{product.productCategoryName}</td>
+                  <td className="">{product.origin}</td>
                   <td className="">{product.price}</td>
                   <td className="">{product.weight}</td>
                   <td className=" relative">
@@ -129,9 +119,7 @@ export default function ProductList({
                       >
                         <div
                           className="cursor-pointer"
-                          onClick={(e) =>
-                            handleShowDetailProduct(e, product)
-                          }
+                          onClick={(e) => handleShowDetailProduct(e, product)}
                         >
                           Show detail
                         </div>

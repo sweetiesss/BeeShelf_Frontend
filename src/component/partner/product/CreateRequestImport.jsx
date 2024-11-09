@@ -9,11 +9,16 @@ import { useDetail } from "../../../context/DetailContext";
 
 export default function CreateRequestImport({
   product,
+  products,
+  setProduct,
   inventories,
   handleCancel,
+  type,
+  setType,
+  enableSelect,
 }) {
   const { userInfor } = useContext(AuthContext);
-  const { setProductCreateRequest } = useDetail();
+  const { setCreateRequest } = useDetail();
   const baseForm = {
     ocopPartnerId: userInfor?.id,
     name: "",
@@ -32,10 +37,10 @@ export default function CreateRequestImport({
 
   const floatingComponent = useRef();
 
-  const handleCloseImport =async (e) => {
+  const handleCloseImport = async (e) => {
     e.stopPropagation();
     e.preventDefault();
-    await setProductCreateRequest(false);
+    await setCreateRequest(false);
   };
 
   useEffect(() => {
@@ -70,12 +75,12 @@ export default function CreateRequestImport({
   };
   const handleConfirm = async () => {
     console.log(form);
-    const fetching = await createRequest(form, "Import", true);
+    const fetching = await createRequest(form, type, true);
     console.log(fetching);
   };
   const handleSaveDraft = async () => {
     console.log(form);
-    const fetching = await createRequest(form, "Import", false);
+    const fetching = await createRequest(form, type, false);
     console.log(fetching);
   };
 
@@ -91,55 +96,85 @@ export default function CreateRequestImport({
         }}
         ref={floatingComponent}
       >
-        <div>
-          <input
-            placeholder="Request Name"
-            name="name"
-            onChange={handleInput}
-          />
-          <input
-            placeholder="Request Description"
-            name="description"
-            onChange={handleInput}
-          />
-          <input
-            placeholder="Lot number"
-            name="lot.lotNumber"
-            onChange={handleInput}
-          />
-          <input placeholder="Name" name="lot.name" onChange={handleInput} />
-          <input
-            placeholder="Amount of Lot"
-            type="Number"
-            name="lot.amount"
-            onChange={handleInput}
-            min="1"
-          />
-          <input
-            placeholder="Amount of Product"
-            type="Number"
-            name="lot.productAmount"
-            onChange={handleInput}
-          />
-          <select onChange={handleInput} name="sendToInventoryId">
-            <option>Select Inventory</option>
-            {inventories &&
-              inventories.status === 200 &&
-              inventories.data.items.map((inv) => (
-                <option value={inv.id}>
-                  {inv.name}-{inv.warehouseName}
-                </option>
-              ))}
+        {enableSelect && (
+          <select
+            className=""
+            placeholder=""
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          >
+            <option value={null}>Select Type of Request</option>
+            <option value={"Import"}>Import products to warehouse</option>
+            <option value={null}>Export products</option>
+            <option value={null}>Withdrawn money</option>
+            <option value={null}>Others</option>
           </select>
-        </div>
-        <div>
-          <DetailProduct
-            product={product}
-            handleCancel={handleCloseImport}
-            handleConfirm={handleConfirm}
-            handleSaveDraft={handleSaveDraft}
-          />
-        </div>
+        )}
+        {type === "Import" && (
+          <>
+            <div>
+              <input
+                placeholder="Request Name"
+                name="name"
+                onChange={handleInput}
+              />
+              <input
+                placeholder="Request Description"
+                name="description"
+                onChange={handleInput}
+              />
+              <input
+                placeholder="Lot number"
+                name="lot.lotNumber"
+                onChange={handleInput}
+              />
+              <input
+                placeholder="Name"
+                name="lot.name"
+                onChange={handleInput}
+              />
+              <input
+                placeholder="Amount of Lot"
+                type="Number"
+                name="lot.amount"
+                onChange={handleInput}
+                min="1"
+              />
+              <input
+                placeholder="Amount of Product"
+                type="Number"
+                name="lot.productAmount"
+                onChange={handleInput}
+              />
+              <select onChange={handleInput} name="sendToInventoryId">
+                <option>Select Inventory</option>
+                {inventories &&
+                  inventories.status === 200 &&
+                  inventories.data.items.map((inv) => (
+                    <option value={inv.id}>
+                      {inv.name}-{inv.warehouseName}
+                    </option>
+                  ))}
+              </select>
+              {products?.length > 0 && (
+                <select>
+                  <option>Select Product</option>
+                </select>
+              )}
+            </div>
+            {product && (
+              <div>
+                <DetailProduct
+                  product={product}
+                  handleCancel={handleCloseImport}
+                  handleConfirm={handleConfirm}
+                  handleSaveDraft={handleSaveDraft}
+                />
+              </div>
+            )}
+          </>
+        )}
+        <></>
       </div>
     </>
   );

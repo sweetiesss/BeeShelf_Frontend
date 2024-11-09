@@ -5,6 +5,7 @@ import { AuthContext } from "../../context/AuthContext";
 import RequestList from "../../component/partner/request/RequestList";
 import AxiosRequest from "../../services/Request";
 import { useDetail } from "../../context/DetailContext";
+import CreateRequestImport from "../../component/partner/product/CreateRequestImport";
 
 export default function RequestPage() {
   const { userInfor } = useContext(AuthContext);
@@ -12,13 +13,19 @@ export default function RequestPage() {
   const [fetchAgain, setFetchingAgain] = useState(false);
   const [requests, setRequests] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [inventories, setInventories] = useState();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+  const [selectedProductOnCreateRequest, setSelectedProductOnCreateRequest] =
+    useState();
+  const [type, setType] = useState();
   const {
     dataDetail,
     typeDetail,
     updateDataDetail,
     updateTypeDetail,
     refresh,
+    createRequest,
+    setCreateRequest
   } = useDetail();
 
   const [filterField, setFilterField] = useState({
@@ -163,7 +170,7 @@ export default function RequestPage() {
         <option value={"Completed"}>Completed</option>
       </select>
 
-      <button>Create request</button>
+      <button onClick={()=>setCreateRequest(true)}>Create request</button>
       <div className="flex justify-left gap-4 mt-6 ">
         <div className="w-full">
           <RequestList
@@ -206,6 +213,16 @@ export default function RequestPage() {
           </>
         )}
       </div>
+      {createRequest && (
+        <CreateRequestImport
+          product={selectedProductOnCreateRequest}
+          setProduct={setSelectedProductOnCreateRequest}
+          inventories={inventories}
+          enableSelect={true}
+          type={type}
+          setType={setType}
+        />
+      )}
     </div>
   );
 }

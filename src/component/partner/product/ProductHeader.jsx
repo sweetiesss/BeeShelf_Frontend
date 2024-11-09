@@ -93,20 +93,6 @@ export default function ProductHeader({
           </>
         ) : (
           <>
-            <div
-              className={`bg-blue-500 px-3 py-1 rounded-xl ${
-                selectedProducts?.length === 0 && "opacity-70"
-              }`}
-            >
-              <select
-                className="bg-inherit pr-1"
-                disabled={selectedProducts?.length === 0}
-              >
-                <option> {t("AddtoInventory")}</option>
-                <option>{t("Inventory")} A</option>
-                <option>{t("Inventory")} B</option>
-              </select>
-            </div>
             <button
               className={`bg-blue-500 px-3 py-1 rounded-xl ${
                 selectedProducts?.length === 0 && "opacity-70"

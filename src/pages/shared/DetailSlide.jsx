@@ -14,8 +14,8 @@ export default function DetailSlide() {
     updateDataDetail,
     updateTypeDetail,
     setRefresh,
-    productCreateRequest,
-    setProductCreateRequest,
+    createRequest,
+    setCreateRequest,
   } = useDetail();
 
   const detailComponent = useRef();
@@ -45,7 +45,7 @@ export default function DetailSlide() {
         if (
           detailComponent.current &&
           !detailComponent.current.contains(event.target) &&
-          !productCreateRequest
+          !createRequest
         ) {
           handleCloseDetail();
         }
@@ -54,7 +54,7 @@ export default function DetailSlide() {
       return () => {
         document.removeEventListener("mousedown", handleClickOutSide);
       };
-    }, [productCreateRequest]);
+    }, [createRequest]);
     const handleEdit = () => {
       dataDetail?.isInInv
         ? setInputField({
@@ -232,7 +232,7 @@ export default function DetailSlide() {
               ) : (
                 <>
                   <button onClick={handleEdit}>Edit</button>
-                  <button onClick={() => setProductCreateRequest(true)}>
+                  <button onClick={() => setCreateRequest(true)}>
                     Create Request
                   </button>
                 </>
@@ -392,7 +392,7 @@ export default function DetailSlide() {
             </>
           ) : dataDetail?.status === "Pending" ? (
             <>
-              <button>Delete</button>
+              <button>Cancel</button>
             </>
           ) : (
             <></>

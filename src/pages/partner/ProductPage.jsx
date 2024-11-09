@@ -10,6 +10,7 @@ import { AuthContext } from "../../context/AuthContext";
 import CreateRequestImport from "../../component/partner/product/CreateRequestImport";
 import AxiosInventory from "../../services/Inventory";
 import { useDetail } from "../../context/DetailContext";
+import ListSkeleton from "../shared/SkeletonLoader";
 
 // const products = [
 //   {
@@ -88,11 +89,18 @@ export default function ProductPage() {
     checked: false,
     indeterminate: false,
   });
- 
+
   const { userInfor } = useContext(AuthContext);
   const { getProductByUserId, deleteProductById } = AxiosProduct();
-  const {dataDetail, updateDataDetail, updateTypeDetail, refresh, setRefresh,productCreateRequest, setProductCreateRequest } =
-    useDetail();
+  const {
+    dataDetail,
+    updateDataDetail,
+    updateTypeDetail,
+    refresh,
+    setRefresh,
+    createRequest,
+    setCreateRequest,
+  } = useDetail();
   const { getInventory100 } = AxiosInventory();
 
   const { t } = useTranslation();
@@ -226,7 +234,7 @@ export default function ProductPage() {
     document.body.removeChild(link);
   };
 
-  const handleDeleteClick = (e,product) => {
+  const handleDeleteClick = (e, product) => {
     e.stopPropagation();
     setShowDeleteConfirmation(product);
   };
@@ -244,31 +252,36 @@ export default function ProductPage() {
     setShowDeleteConfirmation(null);
   };
 
-
-
   return (
     <div className="w-full h-full gap-10">
       <div className="w-full space-y-10">
-        <ProductHeader
-          handleDownload={handleDownload}
-          products={products}
-          selectedProducts={selectedProducts}
-        />
-        <ProductList
-          products={products}
-          selectedProducts={selectedProducts}
-          toggleProductSelection={toggleProductSelection}
-          isShowDetailProduct={isShowDetailProduct}
-          isProductSelected={isProductSelected}
-          overall={overall}
-          handleClickOverall={handleClickOverall}
-          index={index}
-          setIndex={setIndex}
-          page={page}
-          setPage={setPage}
-          handleDeleteClick={handleDeleteClick}
-          handleShowDetailProduct={handleShowDetailProduct}
-        />
+        {products?.items?.length > 0 ? (
+          <>
+            <ProductHeader
+              handleDownload={handleDownload}
+              products={products}
+              selectedProducts={selectedProducts}
+            />
+
+            <ProductList
+              products={products}
+              selectedProducts={selectedProducts}
+              toggleProductSelection={toggleProductSelection}
+              isShowDetailProduct={isShowDetailProduct}
+              isProductSelected={isProductSelected}
+              overall={overall}
+              handleClickOverall={handleClickOverall}
+              index={index}
+              setIndex={setIndex}
+              page={page}
+              setPage={setPage}
+              handleDeleteClick={handleDeleteClick}
+              handleShowDetailProduct={handleShowDetailProduct}
+            />
+          </>
+        ) : (
+          <ListSkeleton size={index} />
+        )}
       </div>
       {/* <ProductOverview /> */}
       {showDeleteConfirmation && (
@@ -300,11 +313,12 @@ export default function ProductPage() {
           </div>
         </>
       )}
-      {productCreateRequest && (
+      {createRequest && (
         <CreateRequestImport
           product={dataDetail}
           inventories={inventories}
-          handleCancel={() => setProductCreateRequest(false)}
+          type="Import"
+          enableSelect={false}
         />
       )}
     </div>

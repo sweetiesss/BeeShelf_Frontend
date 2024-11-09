@@ -1,16 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { LayoutLogined } from "../component/shared/Layout";
-import {
-  PartnerRouterInfor,
-  PartnerRouterNoneSider,
-} from "../component/constants/Router";
-import {
-  AddressBook,
-  Bag,
-  House,
-  Package,
-  Warehouse,
-} from "@phosphor-icons/react";
+
 import { HomePage } from "../pages/partner/HomePage";
 import ProductPage from "../pages/partner/ProductPage";
 import OrderDashboard from "../component/partner/dashboard/OrderDashboard";
