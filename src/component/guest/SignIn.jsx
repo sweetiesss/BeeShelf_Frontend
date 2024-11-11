@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../context/AuthContext";
 import AxiosUser from "../../services/User";
 import { EnvelopeSimple, LockKeyOpen } from "@phosphor-icons/react";
-export default function SignIn() {
+export default function SignIn({setAction}) {
   const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({});
   const [error, setError] = useState("");
@@ -27,7 +27,7 @@ export default function SignIn() {
       setLoading(true);
       const findData = await loginByEmailPassword(form);
       console.log("here", findData);
-      if (findData) {
+      if (findData&&typeof findData ==="object") {
         console.log("userInfor", findData);
         handleLogin(findData, rememberMe);
         nav("/" + findData?.roleName);
@@ -75,14 +75,8 @@ export default function SignIn() {
   };
 
   return (
-    <div className="w-full max-w-xl p-4 mx-auto rounded-2xl overflow-hidden sm:p-6 lg:p-8 relative ">
+    <div className="w-full max-w-xl p-4 mx-auto rounded-2xl overflow-hidden sm:p-6 lg:p-8 relative bg-white">
       {loading && <div className="loading"></div>}
-      <button
-        className="absolute left-5 top-4 text-2xl font-bold text-gray-500 hover:text-gray-800"
-        onClick={() => nav("/")}
-      >
-        {"<"}
-      </button>
       <header className="mb-4">
         <h1 className="text-2xl font-semibold text-center">Sign In</h1>
       </header>
@@ -138,7 +132,7 @@ export default function SignIn() {
               Remember me
             </label>
           </div>{" "}
-          <Link to="/forgotpassword">Forgot password?</Link>
+          <button onClick={()=>setAction("Forgotpassword")}>Forgot password?</button>
         </div>
         <button
           className={`${
@@ -162,7 +156,7 @@ export default function SignIn() {
           ref={buttonDivRef}
         ></div>
         <div className="flex justify-center">
-          <Link to="/signup">Create account</Link>
+          <button onClick={()=>setAction("SignUp")}>Create account</button>
         </div>
       </div>
     </div>

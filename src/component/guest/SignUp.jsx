@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AxiosUser from "../../services/User";
 
-
-export default function SignUp() {
+export default function SignUp({setAction}) {
   const [form, setForm] = useState({});
   const [agree, setAgree] = useState(false);
   const [errors, setErrors] = useState({});
@@ -54,7 +53,7 @@ export default function SignUp() {
         const result = await requestSignUp(submitFrom);
 
         console.log(result);
-        if(result?.status===200){
+        if (result?.status === 200) {
           nav("/signin");
         }
       } catch (e) {
@@ -67,12 +66,6 @@ export default function SignUp() {
   return (
     <div className="w-full max-w-lg p-4 mx-auto bg-white rounded-2xl shadow-md sm:p-6 lg:p-8 relative">
       {loading && <div className="loading"></div>}
-      <button
-        className="absolute left-5 top-2 text-2xl font-bold text-gray-500 hover:text-gray-800"
-        onClick={() => nav("/")}
-      >
-        {"<"}
-      </button>
       <header className="mb-4">
         <h1 className="text-2xl font-semibold text-center">Sign Up</h1>
       </header>
@@ -194,7 +187,6 @@ export default function SignUp() {
           }  w-full bg-blue-500 text-white rounded-lg p-2 hover:bg-blue-600 transition duration-200`}
           onClick={handleSubmit}
           disabled={loading}
-
         >
           {loading ? (
             <div className="loading-container">
@@ -207,7 +199,7 @@ export default function SignUp() {
         </button>
         <div className="flex justify-center items-center flex-col">
           <div>Already have an account?</div>
-          <Link to="/signin">Sign In</Link>
+          <button onClick={() => setAction("Login")}>Sign In</button>
         </div>
       </div>
     </div>

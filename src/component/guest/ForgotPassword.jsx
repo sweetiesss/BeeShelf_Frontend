@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate,Link, useLocation } from "react-router-dom";
 
-export default function ForgotPassword() {
+export default function ForgotPassword({setAction}) {
   const [form, setForm] = useState({});
   const nav = useNavigate();
   const handleInput = (e) => {
@@ -12,12 +12,6 @@ export default function ForgotPassword() {
   
   return (
     <div className="w-full max-w-lg p-4 mx-auto bg-white rounded-2xl overflow-hidden shadow-md sm:p-6 lg:p-8 relative">
-      <button
-        className="absolute left-5 top-2 text-2xl font-bold text-gray-500 hover:text-gray-800"
-        onClick={() => nav("/signin")}
-      >
-        {"<"}
-      </button>
       <header className="mb-4">
         <h1 className="text-2xl font-semibold text-center">Reset Password</h1>
       </header>
@@ -42,7 +36,7 @@ export default function ForgotPassword() {
           className="w-full rounded-lg overflow-hidden flex justify-center"
         ></div>
         <div className="flex justify-center">
-          <Link to="/signin">Back to Sign In</Link>
+          <button onClick={()=>setAction("Login")}>Back to Sign In</button>
         </div>
       </div>
     </div>
