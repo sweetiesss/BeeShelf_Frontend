@@ -83,6 +83,31 @@ export default function AxiosRequest() {
       return e;
     }
   };
+  const updateRequestStatus = async (id,status) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `request/update-request-status/` + id+"?status="+status,
+        method: "PUT",
+      });
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `${status} request successfully`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return await fetching;
+    } catch (e) {
+      return e;
+    }
+  };
   const deleteRequestById = async (id) => {
     try {
       const fetching = fetchDataBearer({
@@ -109,5 +134,5 @@ export default function AxiosRequest() {
     }
   };
 
-  return { createRequest, getRequestByUserId, sendRequestById ,deleteRequestById};
+  return { createRequest, getRequestByUserId, sendRequestById ,deleteRequestById,updateRequestStatus};
 }

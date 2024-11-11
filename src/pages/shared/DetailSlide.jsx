@@ -275,8 +275,12 @@ export default function DetailSlide() {
 
   const RequestDetail = () => {
     const { getLotById } = AxiosLot();
-    const { sendRequestById } = AxiosRequest();
+    const { sendRequestById,updateRequestStatus } = AxiosRequest();
     const [lotData, setLotData] = useState();
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+    const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
+    const { deleteRequestById } = AxiosRequest();
+
     useEffect(() => {
       const handleClickOutSide = (event) => {
         if (
@@ -302,103 +306,205 @@ export default function DetailSlide() {
       };
       fetch();
     }, [dataDetail]);
-    console.log(lotData);
-    console.log("dataDetail", dataDetail);
     const handleSendRequest = async () => {
       await sendRequestById(dataDetail?.id);
       setRefresh(dataDetail?.id);
     };
+
+    const handleDeleteClick = (e, request) => {
+      e.stopPropagation();
+      setShowDeleteConfirmation(request);
+    };
+
+    const confirmDelete = async () => {
+      try {
+        const res = await deleteRequestById(showDeleteConfirmation?.id);
+        console.log(res);
+      } catch (e) {
+      } finally {
+        setRefresh(-1);
+        updateDataDetail();
+        cancelDelete();
+      }
+    };
+    const cancelDelete = () => {
+      setShowDeleteConfirmation(null);
+    };
+    const handleUpdateStatusClick = (e, request,status) => {
+      e.stopPropagation();
+      setShowUpdateConfirmation([request,status]);
+    };
+
+    const confirmUpdateStatus= async () => {
+      try {
+        const res = await updateRequestStatus(showUpdateConfirmation[0]?.id,showUpdateConfirmation[1]);
+        console.log(res);
+      } catch (e) {
+      } finally {
+        setRefresh(showUpdateConfirmation[0]?.id);
+        cancelDelete();
+      }
+    };
+    const exitUpdateStatus= () => {
+      setShowUpdateConfirmation(null);
+    };
+
     return (
-      <div className="w-[455px] h-full bg-white p-6 flex flex-col gap-8 text-black">
-        {/* Header */}
-        <div className="w-full flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h2 className="text-2xl font-semibold text-black">
-                Request information
-              </h2>
-            </div>
-            <div
-              className="text-3xl cursor-pointer text-gray-500 hover:text-black"
-              onClick={handleCloseDetail}
-            >
-              <X weight="bold" />
-            </div>
-          </div>
-          <div className="w-full h-px bg-gray-300"></div>
-        </div>
-
-        <div className="w-full flex flex-col items-center gap-8">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-32 h-32 bg-gray-300 rounded-lg relative">
-              <div
-                className={`absolute rounded-xl px-1 py-1 right-0 top-0 translate-x-5 -translate-y-5 ${
-                  dataDetail?.status === "Completed"
-                    ? "bg-green-200 text-green-800"
-                    : dataDetail?.status === "Shipped"
-                    ? "bg-yellow-200 text-yellow-800"
-                    : dataDetail?.status === "Pending"
-                    ? "bg-blue-200 text-blue-800"
-                    : dataDetail?.status === "Draft"
-                    ? "bg-gray-200 text-gray-800"
-                    : "bg-red-200 text-red-800"
-                }`}
-              >
-                {dataDetail?.status}
-              </div>
-            </div>
-            <div className="text-center">
-              <p className="text-xl font-medium">{dataDetail?.name}</p>
-              <p
-                className={`text-gray-600 text-lg ${
-                  dataDetail?.requestType === "Import"
-                    ? "text-green-500"
-                    : "text-blue-500"
-                }`}
-              >
-                {dataDetail?.requestType}
-              </p>
-            </div>
-          </div>
-
-          {/* Product Info Table */}
+      <>
+        <div className="w-[455px] h-full bg-white p-6 flex flex-col gap-8 text-black">
+          {/* Header */}
           <div className="w-full flex flex-col gap-4">
-            {[
-              { label: "Lot Num:", value: dataDetail?.lotId },
-              { label: "Product Name:", value: lotData?.lotNumber },
-              { label: "Create date:", value: dataDetail?.createDate },
-              { label: "Description:", value: dataDetail?.description },
-              { label: "Amount:", value: lotData?.amount },
-              // { label: "Product ID:", value: "#ID394812" },
-              { label: "Product amount:", value: lotData?.productAmount },
-              { label: "Import date:", value: "notYet" },
-              { label: "Export date:", value: "NotYet" },
-              { label: "Expiration date:", value: "NotYet" },
-              { label: "To Warehouse:", value: dataDetail?.warehouseName },
-            ].map((item, index) => (
-              <div key={index} className="flex justify-between text-lg">
-                <span className="text-gray-600">{item.label}</span>
-                <span className="text-black">{item.value}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <h2 className="text-2xl font-semibold text-black">
+                  Request information
+                </h2>
               </div>
-            ))}
+              <div
+                className="text-3xl cursor-pointer text-gray-500 hover:text-black"
+                onClick={handleCloseDetail}
+              >
+                <X weight="bold" />
+              </div>
+            </div>
+            <div className="w-full h-px bg-gray-300"></div>
+          </div>
+
+          <div className="w-full flex flex-col items-center gap-8">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-32 h-32 bg-gray-300 rounded-lg relative">
+                <div
+                  className={`absolute rounded-xl px-1 py-1 right-0 top-0 translate-x-5 -translate-y-5 ${
+                    dataDetail?.status === "Completed"
+                      ? "bg-green-200 text-green-800"
+                      : dataDetail?.status === "Shipped"
+                      ? "bg-yellow-200 text-yellow-800"
+                      : dataDetail?.status === "Pending"
+                      ? "bg-blue-200 text-blue-800"
+                      : dataDetail?.status === "Draft"
+                      ? "bg-gray-200 text-gray-800"
+                      : "bg-red-200 text-red-800"
+                  }`}
+                >
+                  {dataDetail?.status}
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-medium">{dataDetail?.name}</p>
+                <p
+                  className={`text-gray-600 text-lg ${
+                    dataDetail?.requestType === "Import"
+                      ? "text-green-500"
+                      : "text-blue-500"
+                  }`}
+                >
+                  {dataDetail?.requestType}
+                </p>
+              </div>
+            </div>
+
+            {/* Product Info Table */}
+            <div className="w-full flex flex-col gap-4">
+              {[
+                { label: "Lot Num:", value: dataDetail?.lotId },
+                { label: "Product Name:", value: lotData?.lotNumber },
+                { label: "Create date:", value: dataDetail?.createDate },
+                { label: "Description:", value: dataDetail?.description },
+                { label: "Amount:", value: lotData?.amount },
+                // { label: "Product ID:", value: "#ID394812" },
+                { label: "Product amount:", value: lotData?.productAmount },
+                { label: "Import date:", value: "notYet" },
+                { label: "Export date:", value: "NotYet" },
+                { label: "Expiration date:", value: "NotYet" },
+                { label: "To Warehouse:", value: dataDetail?.warehouseName },
+              ].map((item, index) => (
+                <div key={index} className="flex justify-between text-lg">
+                  <span className="text-gray-600">{item.label}</span>
+                  <span className="text-black">{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-between items-center w-full px-20">
+            {dataDetail?.status === "Draft" ? (
+              <>
+                <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
+                  Delete
+                </button>
+                <button>Edit</button>
+                <button onClick={handleSendRequest}>Send</button>
+              </>
+            ) : dataDetail?.status === "Pending" ? (
+              <>
+                <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
+                  Delete
+                </button>
+                <button onClick={(e)=>handleUpdateStatusClick(e,dataDetail,"Canceled")}>Cancel</button>
+              </>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
-        <div className="flex justify-between items-center w-full px-20">
-          {dataDetail?.status === "Draft" ? (
-            <>
-              <button>Delete</button>
-              <button>Edit</button>
-              <button onClick={handleSendRequest}>Send</button>
-            </>
-          ) : dataDetail?.status === "Pending" ? (
-            <>
-              <button>Cancel</button>
-            </>
-          ) : (
-            <></>
-          )}
-        </div>
-      </div>
+        {showDeleteConfirmation && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              style={{
+                top: "50%",
+                left: "-100%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <p>{`Are you sure you want to delete ${dataDetail?.name}?`}</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => confirmDelete(showDeleteConfirmation)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={cancelDelete}
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+        {showUpdateConfirmation && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              style={{
+                top: "50%",
+                left: "-100%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <p>{`Are you sure you want to ${showUpdateConfirmation[1]==="Canceled"?"cancel:":""} ${dataDetail?.name}?`}</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={confirmUpdateStatus}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={exitUpdateStatus}
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                >
+                  Exist
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </>
     );
   };
 

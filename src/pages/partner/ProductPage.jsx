@@ -10,72 +10,8 @@ import { AuthContext } from "../../context/AuthContext";
 import CreateRequestImport from "../../component/partner/product/CreateRequestImport";
 import AxiosInventory from "../../services/Inventory";
 import { useDetail } from "../../context/DetailContext";
-import ListSkeleton from "../shared/SkeletonLoader";
+import { ProductListSkeleton } from "../shared/SkeletonLoader";
 
-// const products = [
-//   {
-//     id: 1,
-//     image: "https://via.placeholder.com/50", // Replace with real image
-//     sku: "101-elz",
-//     name: "Silky Creamy Donkey Steam Moisture",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["egf", "retinol", "creams"],
-//   },
-//   {
-//     id: 2,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-//   {
-//     id: 3,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-//   {
-//     id: 4,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-//   {
-//     id: 5,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-
-//   // Add more products as needed
-// ];
 export default function ProductPage() {
   const [fetching, setFetching] = useState(false);
   const [products, setProducts] = useState();
@@ -255,14 +191,13 @@ export default function ProductPage() {
   return (
     <div className="w-full h-full gap-10">
       <div className="w-full space-y-10">
+        <ProductHeader
+          handleDownload={handleDownload}
+          products={products}
+          selectedProducts={selectedProducts}
+        />
         {products?.items?.length > 0 ? (
           <>
-            <ProductHeader
-              handleDownload={handleDownload}
-              products={products}
-              selectedProducts={selectedProducts}
-            />
-
             <ProductList
               products={products}
               selectedProducts={selectedProducts}
@@ -280,7 +215,7 @@ export default function ProductPage() {
             />
           </>
         ) : (
-          <ListSkeleton size={index} />
+          <ProductListSkeleton size={index} />
         )}
       </div>
       {/* <ProductOverview /> */}

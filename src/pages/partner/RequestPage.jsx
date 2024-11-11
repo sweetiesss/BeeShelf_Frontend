@@ -25,7 +25,7 @@ export default function RequestPage() {
     updateTypeDetail,
     refresh,
     createRequest,
-    setCreateRequest
+    setCreateRequest,
   } = useDetail();
 
   const [filterField, setFilterField] = useState({
@@ -44,7 +44,7 @@ export default function RequestPage() {
   }, [fetchAgain]);
   useEffect(() => {
     const fetching = async () => {
-      if (refresh && refresh != 0) {
+      if (refresh && refresh > 0) {
         const response = await getRequestByUserId(
           filterField.userId,
           filterField.status,
@@ -58,6 +58,17 @@ export default function RequestPage() {
         updateDataDetail(
           response?.data?.items.find((item) => item.id === refresh)
         );
+      }
+      if (refresh && refresh < 0) {
+        const response = await getRequestByUserId(
+          filterField.userId,
+          filterField.status,
+          filterField.descending,
+          filterField.pageIndex,
+          filterField.pageSize
+        );
+        console.log(response);
+        setRequests(response?.data);
       }
     };
     fetching();
@@ -170,7 +181,7 @@ export default function RequestPage() {
         <option value={"Completed"}>Completed</option>
       </select>
 
-      <button onClick={()=>setCreateRequest(true)}>Create request</button>
+      <button onClick={() => setCreateRequest(true)}>Create request</button>
       <div className="flex justify-left gap-4 mt-6 ">
         <div className="w-full">
           <RequestList
