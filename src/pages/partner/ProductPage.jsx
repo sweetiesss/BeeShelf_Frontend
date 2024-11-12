@@ -71,7 +71,7 @@ export default function ProductPage() {
       debouncedFetchProducts(page);
       setLoading(false);
     }
-  }, [page, index, userInfor, debouncedFetchProducts, fetching]);
+  }, [page, index, userInfor, fetching]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -193,7 +193,8 @@ export default function ProductPage() {
     setShowDeleteConfirmation(null);
   };
   const handleClose=()=>{
-    
+    setCreateRequest(false);
+    setFetching(prev=>!prev)
   }
 
   return (

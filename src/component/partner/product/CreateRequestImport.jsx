@@ -215,18 +215,20 @@ export default function CreateRequestImport({
                     </option>
                   ))}
               </select>
-              <select
-                className="border p-2 rounded w-full request-container"
-                onChange={handleProductSelect}
-                value={form.lot.productId}
-              >
-                <option value="">Choose Product</option>
-                {products.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
+              {products?.length > 0 && (
+                <select
+                  className="border p-2 rounded w-full request-container"
+                  onChange={handleProductSelect}
+                  value={form.lot.productId}
+                >
+                  <option value="">Choose Product</option>
+                  {products.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
             {product && (
               <div>
