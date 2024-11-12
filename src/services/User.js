@@ -84,7 +84,7 @@ export default function AxiosUser() {
   const requestSignUp = async (data) => {
     try {
       const fetching = fetchData({
-        url: "auth/Signup",
+        url: "auth/sign-up",
         method: "POST",
         data,
       });

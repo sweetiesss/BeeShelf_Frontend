@@ -91,8 +91,13 @@ export function HeaderUnauthenticated() {
 
 export function HeaderAuthenticated() {
   const [openNotification, setOpenNotification] = useState(false);
-  const { userInfor, setUserInfor, setIsAuthenticated, handleLogout } =
-    useContext(AuthContext);
+  const {
+    userInfor,
+    setUserInfor,
+    setIsAuthenticated,
+    handleLogout,
+    authWallet,
+  } = useContext(AuthContext);
   const {
     dataDetail,
     typeDetail,
@@ -147,9 +152,8 @@ export function HeaderAuthenticated() {
   };
 
   const handleProfileDetail = () => {
-    updateTypeDetail("profile")
+    updateTypeDetail("profile");
     console.log(typeDetail);
-    
   };
 
   return (
@@ -185,6 +189,7 @@ export function HeaderAuthenticated() {
         >
           <Bell size={24} weight="fill" />
         </button>
+        <div>{authWallet?.totalAmount}</div>
         <button
           className="bg-white text-blue-500 border rounded-full overflow-hidden h-fit hover:bg-blue-600 hover:text-white transition duration-200"
           onClick={handleProfileDetail}

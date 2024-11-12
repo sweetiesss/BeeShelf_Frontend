@@ -11,7 +11,7 @@ export default function SignIn({setAction}) {
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const buttonDivRef = useRef(null);
-  const { setIsAuthenticated, setUserInfor, handleLogin } =
+  const { setIsAuthenticated, setUserInfor, handleLogin} =
     useContext(AuthContext);
   const { loginByEmailPassword } = AxiosUser();
 

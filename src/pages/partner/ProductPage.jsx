@@ -14,6 +14,7 @@ import { ProductListSkeleton } from "../shared/SkeletonLoader";
 
 export default function ProductPage() {
   const [fetching, setFetching] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState();
   const [inventories, setInventory] = useState(null);
   const [index, setIndex] = useState(10);
@@ -66,7 +67,9 @@ export default function ProductPage() {
   }, []);
   useEffect(() => {
     if (userInfor) {
+      setLoading(true);
       debouncedFetchProducts(page);
+      setLoading(false);
     }
   }, [page, index, userInfor, debouncedFetchProducts, fetching]);
 
@@ -74,6 +77,7 @@ export default function ProductPage() {
     const fetchData = async () => {
       if (userInfor && refresh != 0) {
         try {
+          setLoading(true);
           const response = await getProductByUserId(userInfor?.id, page, index);
           setProducts(response?.data);
 
@@ -87,6 +91,7 @@ export default function ProductPage() {
           console.error("Error fetching product data:", error);
         } finally {
           setRefresh(0);
+          setLoading(false);
         }
       }
     };
@@ -196,23 +201,29 @@ export default function ProductPage() {
           products={products}
           selectedProducts={selectedProducts}
         />
-        {products?.items?.length > 0 ? (
+        {!loading ? (
           <>
-            <ProductList
-              products={products}
-              selectedProducts={selectedProducts}
-              toggleProductSelection={toggleProductSelection}
-              isShowDetailProduct={isShowDetailProduct}
-              isProductSelected={isProductSelected}
-              overall={overall}
-              handleClickOverall={handleClickOverall}
-              index={index}
-              setIndex={setIndex}
-              page={page}
-              setPage={setPage}
-              handleDeleteClick={handleDeleteClick}
-              handleShowDetailProduct={handleShowDetailProduct}
-            />
+            {products?.items?.length > 0 ? (
+              <ProductList
+                products={products}
+                selectedProducts={selectedProducts}
+                toggleProductSelection={toggleProductSelection}
+                isShowDetailProduct={isShowDetailProduct}
+                isProductSelected={isProductSelected}
+                overall={overall}
+                handleClickOverall={handleClickOverall}
+                index={index}
+                setIndex={setIndex}
+                page={page}
+                setPage={setPage}
+                handleDeleteClick={handleDeleteClick}
+                handleShowDetailProduct={handleShowDetailProduct}
+              />
+            ) : (
+              <>
+                <div>You don't have any product yet!</div>
+              </>
+            )}
           </>
         ) : (
           <ProductListSkeleton size={index} />
