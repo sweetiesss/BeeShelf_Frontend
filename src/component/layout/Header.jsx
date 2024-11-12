@@ -3,11 +3,12 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
-import { Bell} from "@phosphor-icons/react";
+import { Bell } from "@phosphor-icons/react";
 import { SettingContext } from "../../context/SettingContext";
 
 import { LanguageSelector } from "../shared/ChangeLanguages";
 import { useTranslation } from "react-i18next";
+import { useDetail } from "../../context/DetailContext";
 
 export function HeaderUnauthenticated() {
   const nav = useNavigate();
@@ -89,12 +90,29 @@ export function HeaderUnauthenticated() {
 }
 
 export function HeaderAuthenticated() {
-  const [openUserInfor, setOpenUserInfor] = useState(false);
   const [openNotification, setOpenNotification] = useState(false);
-  const { userInfor, setUserInfor,setIsAuthenticated ,handleLogout} = useContext(AuthContext);
+  const { userInfor, setUserInfor, setIsAuthenticated, handleLogout } =
+    useContext(AuthContext);
+  const {
+    dataDetail,
+    typeDetail,
+    updateDataDetail,
+    updateTypeDetail,
+    refresh,
+    setRefresh,
+    createRequest,
+    setCreateRequest,
+  } = useDetail();
+
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
   const { t } = useTranslation();
+  useEffect(() => {
+    document.addEventListener("mousedown", mouseDownEvent);
+    return () => {
+      document.removeEventListener("mousedown", mouseDownEvent);
+    };
+  }, []);
 
   const changeTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -107,13 +125,11 @@ export function HeaderAuthenticated() {
   const nav = useNavigate();
 
   const logout = () => {
-   handleLogout();
+    handleLogout();
     nav("/");
   };
   const notificationBell = useRef();
   const notificationDropwDown = useRef();
-  const profileAvatar = useRef();
-  const profileDropDown = useRef();
   const mouseDownEvent = (event) => {
     if (
       notificationBell.current &&
@@ -128,31 +144,26 @@ export function HeaderAuthenticated() {
     } else {
       setOpenNotification(false);
     }
-    if (profileAvatar.current && profileAvatar.current.contains(event.target)) {
-      setOpenUserInfor((prev) => !prev);
-    } else if (
-      profileDropDown.current &&
-      profileDropDown.current.contains(event.target)
-    ) {
-      return;
-    } else {
-      setOpenUserInfor(false);
-    }
   };
 
-  useEffect(() => {
-    document.addEventListener("mousedown", mouseDownEvent);
-    return () => {
-      document.removeEventListener("mousedown", mouseDownEvent);
-    };
-  }, []);
+  const handleProfileDetail = () => {
+    updateTypeDetail("profile")
+    console.log(typeDetail);
+    
+  };
 
   return (
     <div className="flex items-center justify-end w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2 header">
       <div className="flex space-x-5 items-center">
         <LanguageSelector />
         <div className="p-4 relative">
-          <input type="checkbox" className="theme-input" id="toggle_checkbox" checked={theme === "dark"} onChange={changeTheme} />
+          <input
+            type="checkbox"
+            className="theme-input"
+            id="toggle_checkbox"
+            checked={theme === "dark"}
+            onChange={changeTheme}
+          />
 
           <label for="toggle_checkbox" className="background-theme">
             <div id="star">
@@ -176,7 +187,7 @@ export function HeaderAuthenticated() {
         </button>
         <button
           className="bg-white text-blue-500 border rounded-full overflow-hidden h-fit hover:bg-blue-600 hover:text-white transition duration-200"
-          ref={profileAvatar}
+          onClick={handleProfileDetail}
         >
           <img
             src={userInfor?.picture || defaultAvatar}
@@ -189,49 +200,6 @@ export function HeaderAuthenticated() {
         <div
           className="absolute right-20 mt-2 w-48  rounded-lg shadow-lg z-10 top-20"
           ref={notificationDropwDown}
-        >
-          <div className=" text-gray-700 flex flex-col profile">
-            <NavLink
-              className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-t-lg "
-              exact="true"
-              to="profile"
-            >
-              {t("Profile")}
-            </NavLink>
-            <NavLink
-              className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-              exact="true"
-              to="setting"
-            >
-              {t("Settings")}
-            </NavLink>
-            <NavLink
-              className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-              exact="true"
-              to="notification"
-            >
-              {t("Notification")}
-            </NavLink>
-            <NavLink
-              className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-              exact="true"
-              to="help"
-            >
-              {t("Help")}
-            </NavLink>
-            <div
-              className="px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-b-lg"
-              onClick={logout}
-            >
-              {t("Logout")}
-            </div>
-          </div>
-        </div>
-      )}
-      {openUserInfor && (
-        <div
-          className="absolute right-4 mt-2 w-48  rounded-lg shadow-lg z-10 top-20 bg-[var(--main-color)]"
-          ref={profileDropDown}
         >
           <div className=" text-gray-700 flex flex-col profile">
             <NavLink

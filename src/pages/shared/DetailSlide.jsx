@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useDetail } from "../../context/DetailContext";
 import { X } from "@phosphor-icons/react";
-import { useAuth } from "../../context/AuthContext";
+import { AuthContext, useAuth } from "../../context/AuthContext";
 import AxiosProduct from "../../services/Product";
 import AxiosLot from "../../services/Lot";
 import AxiosRequest from "../../services/Request";
+import { useNavigate } from "react-router-dom";
+import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 
 export default function DetailSlide() {
   const { userInfor } = useAuth();
@@ -275,7 +277,7 @@ export default function DetailSlide() {
 
   const RequestDetail = () => {
     const { getLotById } = AxiosLot();
-    const { sendRequestById,updateRequestStatus } = AxiosRequest();
+    const { sendRequestById, updateRequestStatus } = AxiosRequest();
     const [lotData, setLotData] = useState();
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
     const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
@@ -330,14 +332,17 @@ export default function DetailSlide() {
     const cancelDelete = () => {
       setShowDeleteConfirmation(null);
     };
-    const handleUpdateStatusClick = (e, request,status) => {
+    const handleUpdateStatusClick = (e, request, status) => {
       e.stopPropagation();
-      setShowUpdateConfirmation([request,status]);
+      setShowUpdateConfirmation([request, status]);
     };
 
-    const confirmUpdateStatus= async () => {
+    const confirmUpdateStatus = async () => {
       try {
-        const res = await updateRequestStatus(showUpdateConfirmation[0]?.id,showUpdateConfirmation[1]);
+        const res = await updateRequestStatus(
+          showUpdateConfirmation[0]?.id,
+          showUpdateConfirmation[1]
+        );
         console.log(res);
       } catch (e) {
       } finally {
@@ -345,7 +350,7 @@ export default function DetailSlide() {
         cancelDelete();
       }
     };
-    const exitUpdateStatus= () => {
+    const exitUpdateStatus = () => {
       setShowUpdateConfirmation(null);
     };
 
@@ -439,7 +444,13 @@ export default function DetailSlide() {
                 <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
                   Delete
                 </button>
-                <button onClick={(e)=>handleUpdateStatusClick(e,dataDetail,"Canceled")}>Cancel</button>
+                <button
+                  onClick={(e) =>
+                    handleUpdateStatusClick(e, dataDetail, "Canceled")
+                  }
+                >
+                  Cancel
+                </button>
               </>
             ) : (
               <></>
@@ -486,7 +497,9 @@ export default function DetailSlide() {
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <p>{`Are you sure you want to ${showUpdateConfirmation[1]==="Canceled"?"cancel:":""} ${dataDetail?.name}?`}</p>
+              <p>{`Are you sure you want to ${
+                showUpdateConfirmation[1] === "Canceled" ? "cancel:" : ""
+              } ${dataDetail?.name}?`}</p>
               <div className="flex justify-end gap-4">
                 <button
                   onClick={confirmUpdateStatus}
@@ -507,12 +520,98 @@ export default function DetailSlide() {
       </>
     );
   };
+  const ProfileDetail = () => {
+    const { handleLogout, userInfor } = useContext(AuthContext);
+    const nav = useNavigate();
+    useEffect(() => {
+      const handleClickOutSide = (event) => {
+        if (
+          detailComponent.current &&
+          !detailComponent.current.contains(event.target)
+        ) {
+          handleCloseDetail();
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutSide);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutSide);
+      };
+    }, []);
+    const logout = () => {
+      handleLogout();
+      nav("/");
+      updateTypeDetail();
+    };
+
+    return (
+      <>
+        <div className="w-[455px] h-full bg-white p-6 flex flex-col gap-8 text-black ">
+          <div className="flex justify-between">
+            <div>User Profile</div>
+            <div>X</div>
+          </div>
+          <div className="flex-col items-center flex mt-[1rem]">
+            <div className="bg-gray-200 w-[8rem] h-[8rem] rounded-lg overflow-auto">
+              <img
+                src={userInfor?.picture || defaultAvatar}
+                className="relative w-full h-full"
+                alt="User Avatar"
+              ></img>
+            </div>
+            <div className="font-medium text-xl mt-[1rem] mx-[0.3rem]">
+              {userInfor?.firstName + " " + userInfor?.lastName}
+            </div>
+            <div className="text-[var(--en-vu-600)]">{userInfor?.roleName}</div>
+          </div>
+          <div className="flex flex-col w-full pl-[2rem] pr-[1rem]">
+            <div className="font-medium mb-[16px] flex justify-between items-center">
+              <p>Personal details</p>
+              <div>X</div>
+            </div>
+            <div className="grid grid-cols-2 gap-[16px] w-full">
+              <div className="text-[var(--en-vu-600)]">Phone number:</div>
+              <div className="text-[var(--en-vu-Base)]">{userInfor?.phone}</div>
+              <div className="text-[var(--en-vu-600)]">Email:</div>
+              <div className="text-[var(--en-vu-Base)]">{userInfor?.email}</div>
+            </div>
+            <div className="w-full border-b-2 my-4"></div>
+            <div className="font-medium mb-[16px] flex justify-between items-center">
+              <p>Business details</p>
+              <div>X</div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <div className="text-[var(--en-vu-600)]">Business name:</div>
+              <div className="text-[var(--en-vu-Base)]">
+                {userInfor?.businessName}
+              </div>
+              <div className="text-[var(--en-vu-600)]">Category name:</div>
+              <div className="text-[var(--en-vu-Base)]">
+                {userInfor?.categoryName}
+              </div>
+              <div className="text-[var(--en-vu-600)]">Ocop category name:</div>
+              <div className="text-[var(--en-vu-Base)]">
+                {userInfor?.ocopCategoryName}
+              </div>
+            </div>
+          </div>
+
+          <button
+            className="mt-auto bg-red-500 text-white py-2 px-4 rounded-lg"
+            onClick={logout}
+          >
+            Logout
+          </button>
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className="detail-slider z-10 text-white">
       <div ref={detailComponent} className="h-full">
         {typeDetail == "request" && RequestDetail()}
         {typeDetail == "product" && ProductDetail()}
+        {typeDetail == "profile" && ProfileDetail()}
       </div>
     </div>
   );
