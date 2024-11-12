@@ -24,7 +24,7 @@ export default function RequestPage() {
     useState();
 
   const { getProductByUserId } = AxiosProduct();
-  const {getInventory100}=AxiosInventory();
+  const { getInventory100 } = AxiosInventory();
   const [type, setType] = useState();
   const {
     dataDetail,
@@ -204,6 +204,25 @@ export default function RequestPage() {
     };
     fetchingData();
   }, []);
+  useEffect(() => {
+    const handleScroll = (e) => {
+      const { scrollTop, scrollHeight, clientHeight } = e.target;
+      if (
+        scrollTop + clientHeight >= scrollHeight - 10 &&
+        !isFetchingNextPage
+      ) {
+        setProductPage((prevPage) => prevPage + 1); // Increment page for next fetch
+      }
+    };
+
+    const container = document.querySelector(".request-container"); // Add a class to your scroll container
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [isFetchingNextPage]);
+  const handleClose = () => {
+    setCreateRequest(false);
+    setFetchingAgain((prv) => !prv);
+  };
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">Request Management</h1>
@@ -275,6 +294,7 @@ export default function RequestPage() {
           type={type}
           products={products}
           setType={setType}
+          handleClose={handleClose}
         />
       )}
     </div>

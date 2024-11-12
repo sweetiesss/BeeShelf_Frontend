@@ -16,6 +16,7 @@ export default function CreateRequestImport({
   type,
   setType,
   enableSelect,
+  handleClose,
 }) {
   const { userInfor } = useContext(AuthContext);
   const { setCreateRequest } = useDetail();
@@ -76,17 +77,14 @@ export default function CreateRequestImport({
   const handleConfirm = async () => {
     console.log(form);
     const fetching = await createRequest(form, type, true);
-    console.log(fetching);
+    handleClose();
   };
   const handleSaveDraft = async () => {
     console.log(form);
     const fetching = await createRequest(form, type, false);
-    console.log(fetching);
+    handleClose();
   };
   const handleProductSelect = (e) => {
-    console.log("here");
-    console.log(products);
-
     const selectedProductId = e.target.value;
     const selectedProduct = products.find(
       (item) => item.id == selectedProductId
@@ -170,32 +168,32 @@ export default function CreateRequestImport({
               <input
                 placeholder="Request Name"
                 name="name"
-                value={form?.name }
+                value={form?.name}
                 onChange={handleInput}
               />
               <input
                 placeholder="Request Description"
                 name="description"
-                value={form?.description }
+                value={form?.description}
                 onChange={handleInput}
               />
               <input
                 placeholder="Lot Number"
                 name="lot.lotNumber"
-                value={form?.lot?.lotNumber }
+                value={form?.lot?.lotNumber}
                 onChange={handleInput}
               />
               <input
                 placeholder="Name"
                 name="lot.name"
-                value={form?.lot?.name }
+                value={form?.lot?.name}
                 onChange={handleInput}
               />
               <input
                 placeholder="Amount of Lot"
                 type="number"
                 name="lot.amount"
-                value={form?.lot?.amount }
+                value={form?.lot?.amount}
                 onChange={handleInput}
                 min="1"
               />
@@ -203,7 +201,7 @@ export default function CreateRequestImport({
                 placeholder="Amount of Product"
                 type="number"
                 name="lot.productAmount"
-                value={form?.lot?.productAmount }
+                value={form?.lot?.productAmount}
                 onChange={handleInput}
               />
 
@@ -218,7 +216,7 @@ export default function CreateRequestImport({
                   ))}
               </select>
               <select
-                className="border p-2 rounded w-full"
+                className="border p-2 rounded w-full request-container"
                 onChange={handleProductSelect}
                 value={form.lot.productId}
               >

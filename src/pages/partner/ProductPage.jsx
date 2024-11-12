@@ -192,6 +192,9 @@ export default function ProductPage() {
   const cancelDelete = () => {
     setShowDeleteConfirmation(null);
   };
+  const handleClose=()=>{
+    
+  }
 
   return (
     <div className="w-full h-full gap-10">
@@ -265,6 +268,7 @@ export default function ProductPage() {
           inventories={inventories}
           type="Import"
           enableSelect={false}
+          handleClose={handleClose}
         />
       )}
     </div>
