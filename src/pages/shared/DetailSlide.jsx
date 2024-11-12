@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 
 export default function DetailSlide() {
-  const { userInfor } = useAuth();
+  const { userInfor } = useContext(AuthContext);
   const {
     dataDetail,
     typeDetail,
@@ -522,6 +522,7 @@ export default function DetailSlide() {
   };
   const ProfileDetail = () => {
     const { handleLogout, userInfor } = useContext(AuthContext);
+
     const nav = useNavigate();
     useEffect(() => {
       const handleClickOutSide = (event) => {
@@ -541,6 +542,10 @@ export default function DetailSlide() {
       handleLogout();
       nav("/");
       updateTypeDetail();
+    };
+    const handleEditProfile = () => {
+      updateTypeDetail();
+      nav("editProfile");
     };
 
     return (
@@ -566,7 +571,7 @@ export default function DetailSlide() {
           <div className="flex flex-col w-full pl-[2rem] pr-[1rem]">
             <div className="font-medium mb-[16px] flex justify-between items-center">
               <p>Personal details</p>
-              <div>X</div>
+              <div onClick={handleEditProfile}>X</div>
             </div>
             <div className="grid grid-cols-2 gap-[16px] w-full">
               <div className="text-[var(--en-vu-600)]">Phone number:</div>
@@ -577,7 +582,7 @@ export default function DetailSlide() {
             <div className="w-full border-b-2 my-4"></div>
             <div className="font-medium mb-[16px] flex justify-between items-center">
               <p>Business details</p>
-              <div>X</div>
+              <div onClick={handleEditProfile}>X</div>
             </div>
             <div className="grid grid-cols-2 gap-4 w-full">
               <div className="text-[var(--en-vu-600)]">Business name:</div>

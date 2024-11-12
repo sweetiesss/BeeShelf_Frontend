@@ -34,7 +34,7 @@ export default function PartnerRoutes() {
             element={<ImportProductExcel />}
           />
           <Route path="product/add_product" element={<AddProductPage />} />
-          <Route path="profile" element={<ProfilePage />} />
+          {/* <Route path="profile" element={<ProfilePage />} /> */}
           <Route path="editProfile" element={<EditProfilePage />} />
         </Route>
       </Routes>

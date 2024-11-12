@@ -6,6 +6,8 @@ import RequestList from "../../component/partner/request/RequestList";
 import AxiosRequest from "../../services/Request";
 import { useDetail } from "../../context/DetailContext";
 import CreateRequestImport from "../../component/partner/product/CreateRequestImport";
+import AxiosProduct from "../../services/Product";
+import AxiosInventory from "../../services/Inventory";
 
 export default function RequestPage() {
   const { userInfor } = useContext(AuthContext);
@@ -15,8 +17,14 @@ export default function RequestPage() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [inventories, setInventories] = useState();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+  const [productPage, setProductPage] = useState(0);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const [products, setProducts] = useState([]);
   const [selectedProductOnCreateRequest, setSelectedProductOnCreateRequest] =
     useState();
+
+  const { getProductByUserId } = AxiosProduct();
+  const {getInventory100}=AxiosInventory();
   const [type, setType] = useState();
   const {
     dataDetail,
@@ -162,6 +170,40 @@ export default function RequestPage() {
     console.log(request);
   };
 
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollTop + clientHeight >= scrollHeight - 10 && !isFetchingNextPage) {
+      setProductPage((prevPage) => prevPage + 1); // Load next page
+    }
+  };
+
+  useEffect(() => {
+    fetchingProducts(productPage);
+  }, [productPage]);
+
+  const fetchingProducts = async (page) => {
+    try {
+      setIsFetchingNextPage(true);
+      const response = await getProductByUserId(userInfor?.id, page, 10);
+      console.log(response);
+      if (response?.status === 200) {
+        setProducts((prev) => [...prev, ...response?.data?.items]);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setIsFetchingNextPage(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchingData = async () => {
+      const result = await getInventory100();
+      console.log(result);
+      setInventories(result);
+    };
+    fetchingData();
+  }, []);
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">Request Management</h1>
@@ -231,6 +273,7 @@ export default function RequestPage() {
           inventories={inventories}
           enableSelect={true}
           type={type}
+          products={products}
           setType={setType}
         />
       )}

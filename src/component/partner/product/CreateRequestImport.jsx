@@ -9,8 +9,8 @@ import { useDetail } from "../../../context/DetailContext";
 
 export default function CreateRequestImport({
   product,
-  products,
   setProduct,
+  products,
   inventories,
   handleCancel,
   type,
@@ -83,6 +83,27 @@ export default function CreateRequestImport({
     const fetching = await createRequest(form, type, false);
     console.log(fetching);
   };
+  const handleProductSelect = (e) => {
+    console.log("here");
+    console.log(products);
+
+    const selectedProductId = e.target.value;
+    const selectedProduct = products.find(
+      (item) => item.id == selectedProductId
+    );
+    console.log(selectedProductId);
+
+    console.log(selectedProduct);
+
+    setProduct(selectedProduct); // Update selected product in parent
+    setForm((prev) => ({
+      ...prev,
+      lot: {
+        ...prev.lot,
+        productId: selectedProductId,
+      },
+    }));
+  };
 
   return (
     <>
@@ -113,7 +134,7 @@ export default function CreateRequestImport({
         {type === "Import" && (
           <>
             <div>
-              <input
+              {/* <input
                 placeholder="Request Name"
                 name="name"
                 onChange={handleInput}
@@ -145,7 +166,47 @@ export default function CreateRequestImport({
                 type="Number"
                 name="lot.productAmount"
                 onChange={handleInput}
+              /> */}
+              <input
+                placeholder="Request Name"
+                name="name"
+                value={form?.name }
+                onChange={handleInput}
               />
+              <input
+                placeholder="Request Description"
+                name="description"
+                value={form?.description }
+                onChange={handleInput}
+              />
+              <input
+                placeholder="Lot Number"
+                name="lot.lotNumber"
+                value={form?.lot?.lotNumber }
+                onChange={handleInput}
+              />
+              <input
+                placeholder="Name"
+                name="lot.name"
+                value={form?.lot?.name }
+                onChange={handleInput}
+              />
+              <input
+                placeholder="Amount of Lot"
+                type="number"
+                name="lot.amount"
+                value={form?.lot?.amount }
+                onChange={handleInput}
+                min="1"
+              />
+              <input
+                placeholder="Amount of Product"
+                type="number"
+                name="lot.productAmount"
+                value={form?.lot?.productAmount }
+                onChange={handleInput}
+              />
+
               <select onChange={handleInput} name="sendToInventoryId">
                 <option>Select Inventory</option>
                 {inventories &&
@@ -156,11 +217,18 @@ export default function CreateRequestImport({
                     </option>
                   ))}
               </select>
-              {products?.length > 0 && (
-                <select>
-                  <option>Select Product</option>
-                </select>
-              )}
+              <select
+                className="border p-2 rounded w-full"
+                onChange={handleProductSelect}
+                value={form.lot.productId}
+              >
+                <option value="">Choose Product</option>
+                {products.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
             {product && (
               <div>
