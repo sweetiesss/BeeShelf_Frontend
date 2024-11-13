@@ -198,12 +198,13 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="w-full h-full gap-10">
-      <div className="w-full space-y-10">
+    <div className="w-full h-full gap-10 ">
+      <div className="w-full">
         <ProductHeader
           handleDownload={handleDownload}
           products={products}
           selectedProducts={selectedProducts}
+          handleClickOverall={handleClickOverall}
         />
         {!loading ? (
           <>
