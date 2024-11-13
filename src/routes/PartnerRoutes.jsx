@@ -14,12 +14,11 @@ import EditProfilePage from "../pages/shared/EditProfilePage";
 import DetailSlide from "../pages/shared/DetailSlide";
 import { useDetail } from "../context/DetailContext";
 export default function PartnerRoutes() {
-  const { dataDetail } = useDetail();
-  console.log("dataDetail",dataDetail);
-  
+  const { dataDetail, typeDetail } = useDetail();
+
   return (
     <div className="relative">
-      {dataDetail && <DetailSlide />}
+      {typeDetail && <DetailSlide />}
       <Routes>
         <Route path="/*" element={<LayoutLogined />}>
           <Route index element={<OrderDashboard />} />
@@ -35,7 +34,7 @@ export default function PartnerRoutes() {
             element={<ImportProductExcel />}
           />
           <Route path="product/add_product" element={<AddProductPage />} />
-          <Route path="profile" element={<ProfilePage />} />
+          {/* <Route path="profile" element={<ProfilePage />} /> */}
           <Route path="editProfile" element={<EditProfilePage />} />
         </Route>
       </Routes>

@@ -6,6 +6,8 @@ import RequestList from "../../component/partner/request/RequestList";
 import AxiosRequest from "../../services/Request";
 import { useDetail } from "../../context/DetailContext";
 import CreateRequestImport from "../../component/partner/product/CreateRequestImport";
+import AxiosProduct from "../../services/Product";
+import AxiosInventory from "../../services/Inventory";
 
 export default function RequestPage() {
   const { userInfor } = useContext(AuthContext);
@@ -15,8 +17,14 @@ export default function RequestPage() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [inventories, setInventories] = useState();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+  const [productPage, setProductPage] = useState(0);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const [products, setProducts] = useState([]);
   const [selectedProductOnCreateRequest, setSelectedProductOnCreateRequest] =
     useState();
+
+  const { getProductByUserId } = AxiosProduct();
+  const { getInventory100 } = AxiosInventory();
   const [type, setType] = useState();
   const {
     dataDetail,
@@ -25,7 +33,7 @@ export default function RequestPage() {
     updateTypeDetail,
     refresh,
     createRequest,
-    setCreateRequest
+    setCreateRequest,
   } = useDetail();
 
   const [filterField, setFilterField] = useState({
@@ -44,7 +52,7 @@ export default function RequestPage() {
   }, [fetchAgain]);
   useEffect(() => {
     const fetching = async () => {
-      if (refresh && refresh != 0) {
+      if (refresh && refresh > 0) {
         const response = await getRequestByUserId(
           filterField.userId,
           filterField.status,
@@ -58,6 +66,17 @@ export default function RequestPage() {
         updateDataDetail(
           response?.data?.items.find((item) => item.id === refresh)
         );
+      }
+      if (refresh && refresh < 0) {
+        const response = await getRequestByUserId(
+          filterField.userId,
+          filterField.status,
+          filterField.descending,
+          filterField.pageIndex,
+          filterField.pageSize
+        );
+        console.log(response);
+        setRequests(response?.data);
       }
     };
     fetching();
@@ -151,6 +170,59 @@ export default function RequestPage() {
     console.log(request);
   };
 
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollTop + clientHeight >= scrollHeight - 10 && !isFetchingNextPage) {
+      setProductPage((prevPage) => prevPage + 1); // Load next page
+    }
+  };
+
+  useEffect(() => {
+    fetchingProducts(productPage);
+  }, [productPage]);
+
+  const fetchingProducts = async (page) => {
+    try {
+      setIsFetchingNextPage(true);
+      const response = await getProductByUserId(userInfor?.id, page, 10);
+      console.log(response);
+      if (response?.status === 200) {
+        setProducts((prev) => [...prev, ...response?.data?.items]);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setIsFetchingNextPage(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchingData = async () => {
+      const result = await getInventory100();
+      console.log(result);
+      setInventories(result);
+    };
+    fetchingData();
+  }, []);
+  useEffect(() => {
+    const handleScroll = (e) => {
+      const { scrollTop, scrollHeight, clientHeight } = e.target;
+      if (
+        scrollTop + clientHeight >= scrollHeight - 10 &&
+        !isFetchingNextPage
+      ) {
+        setProductPage((prevPage) => prevPage + 1); // Increment page for next fetch
+      }
+    };
+
+    const container = document.querySelector(".request-container"); // Add a class to your scroll container
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [isFetchingNextPage]);
+  const handleClose = () => {
+    setCreateRequest(false);
+    setFetchingAgain((prv) => !prv);
+  };
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">Request Management</h1>
@@ -170,7 +242,7 @@ export default function RequestPage() {
         <option value={"Completed"}>Completed</option>
       </select>
 
-      <button onClick={()=>setCreateRequest(true)}>Create request</button>
+      <button onClick={() => setCreateRequest(true)}>Create request</button>
       <div className="flex justify-left gap-4 mt-6 ">
         <div className="w-full">
           <RequestList
@@ -220,7 +292,9 @@ export default function RequestPage() {
           inventories={inventories}
           enableSelect={true}
           type={type}
+          products={products}
           setType={setType}
+          handleClose={handleClose}
         />
       )}
     </div>

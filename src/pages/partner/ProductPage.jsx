@@ -10,74 +10,11 @@ import { AuthContext } from "../../context/AuthContext";
 import CreateRequestImport from "../../component/partner/product/CreateRequestImport";
 import AxiosInventory from "../../services/Inventory";
 import { useDetail } from "../../context/DetailContext";
-import ListSkeleton from "../shared/SkeletonLoader";
+import { ProductListSkeleton } from "../shared/SkeletonLoader";
 
-// const products = [
-//   {
-//     id: 1,
-//     image: "https://via.placeholder.com/50", // Replace with real image
-//     sku: "101-elz",
-//     name: "Silky Creamy Donkey Steam Moisture",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["egf", "retinol", "creams"],
-//   },
-//   {
-//     id: 2,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-//   {
-//     id: 3,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-//   {
-//     id: 4,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-//   {
-//     id: 5,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-
-//   // Add more products as needed
-// ];
 export default function ProductPage() {
   const [fetching, setFetching] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState();
   const [inventories, setInventory] = useState(null);
   const [index, setIndex] = useState(10);
@@ -130,14 +67,17 @@ export default function ProductPage() {
   }, []);
   useEffect(() => {
     if (userInfor) {
+      setLoading(true);
       debouncedFetchProducts(page);
+      setLoading(false);
     }
-  }, [page, index, userInfor, debouncedFetchProducts, fetching]);
+  }, [page, index, userInfor, fetching]);
 
   useEffect(() => {
     const fetchData = async () => {
       if (userInfor && refresh != 0) {
         try {
+          setLoading(true);
           const response = await getProductByUserId(userInfor?.id, page, index);
           setProducts(response?.data);
 
@@ -151,6 +91,7 @@ export default function ProductPage() {
           console.error("Error fetching product data:", error);
         } finally {
           setRefresh(0);
+          setLoading(false);
         }
       }
     };
@@ -251,36 +192,45 @@ export default function ProductPage() {
   const cancelDelete = () => {
     setShowDeleteConfirmation(null);
   };
+  const handleClose=()=>{
+    setCreateRequest(false);
+    setFetching(prev=>!prev)
+  }
 
   return (
     <div className="w-full h-full gap-10">
       <div className="w-full space-y-10">
-        {products?.items?.length > 0 ? (
+        <ProductHeader
+          handleDownload={handleDownload}
+          products={products}
+          selectedProducts={selectedProducts}
+        />
+        {!loading ? (
           <>
-            <ProductHeader
-              handleDownload={handleDownload}
-              products={products}
-              selectedProducts={selectedProducts}
-            />
-
-            <ProductList
-              products={products}
-              selectedProducts={selectedProducts}
-              toggleProductSelection={toggleProductSelection}
-              isShowDetailProduct={isShowDetailProduct}
-              isProductSelected={isProductSelected}
-              overall={overall}
-              handleClickOverall={handleClickOverall}
-              index={index}
-              setIndex={setIndex}
-              page={page}
-              setPage={setPage}
-              handleDeleteClick={handleDeleteClick}
-              handleShowDetailProduct={handleShowDetailProduct}
-            />
+            {products?.items?.length > 0 ? (
+              <ProductList
+                products={products}
+                selectedProducts={selectedProducts}
+                toggleProductSelection={toggleProductSelection}
+                isShowDetailProduct={isShowDetailProduct}
+                isProductSelected={isProductSelected}
+                overall={overall}
+                handleClickOverall={handleClickOverall}
+                index={index}
+                setIndex={setIndex}
+                page={page}
+                setPage={setPage}
+                handleDeleteClick={handleDeleteClick}
+                handleShowDetailProduct={handleShowDetailProduct}
+              />
+            ) : (
+              <>
+                <div>You don't have any product yet!</div>
+              </>
+            )}
           </>
         ) : (
-          <ListSkeleton size={index} />
+          <ProductListSkeleton size={index} />
         )}
       </div>
       {/* <ProductOverview /> */}
@@ -319,6 +269,7 @@ export default function ProductPage() {
           inventories={inventories}
           type="Import"
           enableSelect={false}
+          handleClose={handleClose}
         />
       )}
     </div>

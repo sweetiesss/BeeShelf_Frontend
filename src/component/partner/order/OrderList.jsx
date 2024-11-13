@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import OrderCard from "./OrderCard";
 import defaultImg from "../../../assets/img/defaultImg.jpg";
 import Pagination from "../../shared/Paggination";
+import { useEffect, useRef, useState } from "react";
 
 export default function OrderList({
   orders,
@@ -10,8 +11,39 @@ export default function OrderList({
   selectedOrder,
   filterField,
   setFilterField,
+  handleShowDetailOrder,
 }) {
   const { t } = useTranslation();
+  const [openAction, setOpenAction] = useState();
+  const actionComponent = useRef();
+
+  useEffect(() => {
+    const handleClickOutSide = (event) => {
+      if (
+        actionComponent.current &&
+        !actionComponent.current.contains(event.target)
+      ) {
+        handleCloseAction();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutSide);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutSide);
+    };
+  }, []);
+
+  const handleOpenActionTab = (e, order) => {
+    e.stopPropagation();
+    if (order === openAction) {
+      setOpenAction();
+    } else {
+      setOpenAction(order);
+    }
+  };
+  const handleCloseAction = () => {
+    setOpenAction();
+  };
+
   console.log(orders);
   console.log("selecttedOorder", selectedOrder);
   return (
@@ -37,7 +69,7 @@ export default function OrderList({
             <td className="text-left pb-2 ">{t("Customer")}</td>
             <td className="text-center pb-2">{t("Status")}</td>
             <td className="text-center pb-2 ">{t("Quantity")}</td>
-            <td className="text-left pb-2 ">{t("Location")}</td>
+            <td className="text-left pb-2 ">{t("ToLocation")}</td>
             <td className="text-left pb-2 ">{t("Date")}</td>
             <td className="text-left pb-2 ">{t("Total")}</td>
             <td className="text-left pb-2 ">{t("Action")}</td>
@@ -80,18 +112,18 @@ export default function OrderList({
                   <td className=" px-1 py-2 text-center align-middle">
                     <p
                       className={`px-2 py-1 inline-block rounded-full text-sm font-semibold h-fit w-fit ${
-                        order.orderStatus === "Delivered"
+                        order.status === "Delivered"
                           ? "bg-green-200 text-green-800"
-                          : order.orderStatus === "Shipped"
+                          : order.status === "Shipped"
                           ? "bg-yellow-200 text-yellow-800"
-                          : order.orderStatus === "Processing"
+                          : order.status === "Processing"
                           ? "bg-blue-200 text-blue-800"
-                          : order.orderStatus === "Pending"
+                          : order.status === "Pending"
                           ? "bg-gray-200 text-gray-800"
                           : "bg-red-200 text-red-800"
                       }`}
                     >
-                      {order.orderStatus}
+                      {order.status}
                     </p>
                   </td>
                   <td className=" px-1 py-2 text-center">
@@ -102,7 +134,33 @@ export default function OrderList({
                     {new Date(order?.createDate).toLocaleDateString()}
                   </td>
                   <td className=" px-1 py-2 ">{order?.totalPrice}</td>
-                  <td>...</td>
+                  <td className=" relative">
+                    <button
+                      className="text-center align-middle bg-red-500"
+                      onClick={(e) => handleOpenActionTab(e, order)}
+                    >
+                      ...
+                    </button>
+                    {openAction === order && (
+                      <div
+                        className="action-tab-container translate-x-1"
+                        ref={actionComponent}
+                      >
+                        <div
+                          className="cursor-pointer"
+                           onClick={(e) => handleShowDetailOrder(e, order)}
+                        >
+                          Show detail
+                        </div>
+                        <div
+                          className="cursor-pointer"
+                          // onClick={(e) => handleDeleteClick(e, order)}
+                        >
+                          Delete
+                        </div>
+                      </div>
+                    )}
+                  </td>
                 </tr>
               );
             })}
@@ -130,16 +188,26 @@ export default function OrderList({
         </div>
         <div className="flex space-x-5 items-center">
           <p>
-            {(filterField.pageIndex + 1) * filterField.size - (filterField.size - 1)} - {(filterField.pageIndex + 1) * filterField.size}{" "}
-            of {orders?.totalItemsCount} {t("items")}
+            {(filterField.pageIndex + 1) * filterField.size -
+              (filterField.size - 1)}{" "}
+            - {(filterField.pageIndex + 1) * filterField.size} of{" "}
+            {orders?.totalItemsCount} {t("items")}
           </p>
           <Pagination
             totalPagesCount={orders?.totalPagesCount}
-            currentPage={filterField.pageIndex+1}
+            currentPage={filterField.pageIndex + 1}
             handleLeft={() =>
-              setFilterField((prev) => ({ ...prev, pageIndex: prev.pageIndex-1 }))
+              setFilterField((prev) => ({
+                ...prev,
+                pageIndex: prev.pageIndex - 1,
+              }))
             }
-            handleRight={() =>  setFilterField((prev) => ({ ...prev, pageIndex: prev.pageIndex+1 }))}
+            handleRight={() =>
+              setFilterField((prev) => ({
+                ...prev,
+                pageIndex: prev.pageIndex + 1,
+              }))
+            }
           />
         </div>
       </div>
