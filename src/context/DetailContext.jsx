@@ -13,6 +13,7 @@ export const DetailProvider = ({ children }) => {
   const [typeDetail, setTypeDetail] = useState("");
   const [refresh, setRefresh] = useState();
   const [createRequest, setCreateRequest] = useState();
+  const [createOrder, setCreateOrder] = useState();
 
   const updateDataDetail = (data) => setDataDetail(data);
   const updateTypeDetail = (type) => setTypeDetail(type);
@@ -28,6 +29,8 @@ export const DetailProvider = ({ children }) => {
         setRefresh,
         createRequest,
         setCreateRequest,
+        createOrder,
+        setCreateOrder,
       }}
     >
       {children}

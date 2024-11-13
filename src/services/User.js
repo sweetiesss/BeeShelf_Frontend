@@ -23,16 +23,18 @@ export default function AxiosUser() {
   const getAuth = async (data) => {
     try {
       const fetching = await fetchData({
-        url: "auth/Login",
+        url: "auth/login",
         method: "POST",
         data: data,
       });
+      console.log(fetching);
+      
       return fetching;
     } catch (error) {
-      return error.response.data.message;
+      return error;
     }
   };
- 
+
   const loginByEmailPassword = async (data) => {
     try {
       let name = "";
@@ -40,7 +42,7 @@ export default function AxiosUser() {
         const getToken = await getAuth(data);
 
         if (getToken && getToken?.status === 200) {
-          console.log("hesjsndaskjndk");
+     
 
           if (getToken?.data && getToken?.data.length > 0) {
             const successDataToken = getToken?.data;
@@ -57,8 +59,9 @@ export default function AxiosUser() {
             throw new Error("Unable to fetch account details.");
           }
         }
-
-        throw new Error(getToken || "Authentication failed.");
+  
+        
+        throw new Error(getToken?.message ||getToken?.error?.password?.[0] ||"Authentication failed.");
       };
 
       const result = await toast.promise(fetching(), {
@@ -70,7 +73,6 @@ export default function AxiosUser() {
         },
         error: {
           render({ data }) {
-
             return `${data?.message || "Something went wrong!"}`;
           },
         },
@@ -88,6 +90,8 @@ export default function AxiosUser() {
         method: "POST",
         data,
       });
+      console.log(fetching);
+
       await toast.promise(fetching, {
         pending: "Request in progress...",
         success: {
@@ -102,6 +106,7 @@ export default function AxiosUser() {
         },
       });
       const resultFetching = await fetching;
+
       return resultFetching;
     } catch (error) {
       return error;
