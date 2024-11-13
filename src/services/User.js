@@ -27,8 +27,8 @@ export default function AxiosUser() {
         method: "POST",
         data: data,
       });
-      console.log(fetching);
-      
+      console.log("getAuth", fetching);
+
       return fetching;
     } catch (error) {
       return error;
@@ -40,10 +40,9 @@ export default function AxiosUser() {
       let name = "";
       const fetching = async () => {
         const getToken = await getAuth(data);
+        console.log("getToken", getToken);
 
         if (getToken && getToken?.status === 200) {
-     
-
           if (getToken?.data && getToken?.data.length > 0) {
             const successDataToken = getToken?.data;
             setIsAuthenticated(successDataToken);
@@ -59,9 +58,12 @@ export default function AxiosUser() {
             throw new Error("Unable to fetch account details.");
           }
         }
-  
-        
-        throw new Error(getToken?.message ||getToken?.error?.password?.[0] ||"Authentication failed.");
+
+        throw new Error(
+          getToken?.response?.data?.errors?.password?.[0] ||
+            getToken?.response?.data?.message ||
+            "Authentication failed."
+        );
       };
 
       const result = await toast.promise(fetching(), {
