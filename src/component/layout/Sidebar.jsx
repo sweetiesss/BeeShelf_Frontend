@@ -17,7 +17,7 @@ export function Sidebar() {
     <div
       className={`${
         !isSlideOut && "slide-out"
-      } h-full bg-[var(--main-color)] text-[var(--text-main-color)] flex flex-col sidebar relative`}
+      } h-full bg-[var(--Xanh-Base)] text-[var(--en-vu-200)] flex flex-col sidebar relative`}
     >
       <button
         className="absolute -right-[0.625rem] top-20 bg-[var(--text-second-color)] w-5 flex justify-center items-center h-5"
@@ -40,40 +40,40 @@ export function Sidebar() {
           </p>
         )}
       </div>
-      <nav className="flex flex-col flex-grow items-center text-[var(--text-second-color)] sidebar-navigate space-y-4">
+      <nav className="flex flex-col flex-grow items-center text-[var(--en-vu-200)] sidebar-navigate space-y-4">
         {userInfor?.roleName === "Partner" && (
           <>
             <NavLink to="dashboard" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <House className="icon" weight="fill" />
+                <House className="icon" weight="bold" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
 
             <NavLink to="inventory" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Package className="icon" weight="fill" />
+                <Package className="icon" weight="bold" />
                 <p className="label">{t("Inventory")}</p>
               </div>
             </NavLink>
 
             <NavLink to="product" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Bag className="icon" weight="fill" />
+                <Bag className="icon" weight="bold" />
                 <p className="label">{t("Product")}</p>
               </div>
             </NavLink>
 
             <NavLink to="order" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="fill" />
+                <AddressBook className="icon" weight="bold" />
                 <p className="label">{t("Order")}</p>
               </div>
             </NavLink>
 
             <NavLink to="request" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="fill" />
+                <AddressBook className="icon" weight="bold" />
                 <p className="label">{t("Request")}</p>
               </div>
             </NavLink>
@@ -83,42 +83,42 @@ export function Sidebar() {
           <>
             <NavLink to="dashboard" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <House className="icon" weight="fill" />
+                <House className="icon" weight="bold" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
 
             <NavLink to="warehouse" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Warehouse className="icon" weight="fill" />
+                <Warehouse className="icon" weight="bold" />
                 <p className="label">{t("Warehouse")}</p>
               </div>
             </NavLink>
 
             <NavLink to="inventory" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Package className="icon" weight="fill" />
+                <Package className="icon" weight="bold" />
                 <p className="label">{t("Inventory")}</p>
               </div>
             </NavLink>
 
             <NavLink to="product" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Bag className="icon" weight="fill" />
+                <Bag className="icon" weight="bold" />
                 <p className="label">{t("Product")}</p>
               </div>
             </NavLink>
 
             <NavLink to="order" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="fill" />
+                <AddressBook className="icon" weight="bold" />
                 <p className="label">{t("Order")}</p>
               </div>
             </NavLink>
 
             <NavLink to="request" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="fill" />
+                <AddressBook className="icon" weight="bold" />
                 <p className="label">{t("Request")}</p>
               </div>
             </NavLink>

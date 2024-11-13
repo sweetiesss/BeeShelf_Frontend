@@ -44,27 +44,12 @@ export default function OrderList({
     setOpenAction();
   };
 
-  console.log(orders);
-  console.log("selecttedOorder", selectedOrder);
   return (
     <div className="shadow-lg bg-white rounded-lg p-4  mb-3 overflow-y-scroll max-h-[70vh] w-full relative">
       <table className="w-full">
         <thead>
           <tr>
-            <td className="text-center pb-2  ">
-              {orders?.length > 0 ? (
-                <input
-                  type="checkbox"
-                  // checked={overall?.checked}
-                  // onChange={handleClickOverall}
-                  // ref={(input) =>
-                  //   input && (input.indeterminate = overall?.indeterminate)
-                  // }
-                />
-              ) : (
-                "#"
-              )}
-            </td>
+            <td className="text-center pb-2">#</td>
             <td className="text-left pb-2  px-3">{t("Order")}</td>
             <td className="text-left pb-2 ">{t("Customer")}</td>
             <td className="text-center pb-2">{t("Status")}</td>
@@ -84,21 +69,9 @@ export default function OrderList({
               return (
                 <tr
                   key={order.id}
-                  className={`${
-                    check
-                      ? " border-2 rounded-xl  bg-[var(--second-color)] "
-                      : "hover:bg-gray-100 border-t-2 "
-                  } cursor-pointer `}
-                  onClick={() => handleSelectOrder(order)}
+                  className={`hover:bg-gray-100 border-t-2 cursor-pointer `}
                 >
-                  <td className=" px-1 py-2 text-center ">
-                    <input
-                      type="checkbox"
-                      checked={check}
-                      onChange={() => handleSelectOrder(order)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </td>
+                  <td className=" px-1 py-2 text-center ">{order?.id}</td>
 
                   <td className=" px-3 py-2  flex justify-left items-center ">
                     <img
@@ -106,7 +79,7 @@ export default function OrderList({
                       alt={order?.name}
                       className="h-20 w-20 rounded-xl"
                     />
-                    <p className="ml-2">#{order?.id}</p>
+                   
                   </td>
                   <td className=" px-1 py-2 ">{order?.name}ReceiverName</td>
                   <td className=" px-1 py-2 text-center align-middle">
@@ -148,7 +121,7 @@ export default function OrderList({
                       >
                         <div
                           className="cursor-pointer"
-                           onClick={(e) => handleShowDetailOrder(e, order)}
+                          onClick={(e) => handleShowDetailOrder(e, order)}
                         >
                           Show detail
                         </div>

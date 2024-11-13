@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import Pagination from "../../shared/Paggination";
 import { useEffect, useRef, useState } from "react";
+import { DotsThreeVertical } from "@phosphor-icons/react";
 
 export default function ProductList({
   products,
@@ -46,10 +47,10 @@ export default function ProductList({
     };
   }, []);
   return (
-    <div className="shadow-lg bg-white rounded-lg p-4 mb-3 overflow-y-scroll max-h-[70vh]">
-      <table className=" w-full">
-        <thead>
-          <td className="">
+    <div className="mb-3 h-full">
+      <table className=" w-full ">
+        <thead className="text-[var(--en-vu-500-disable)]">
+          <td className="border-b-2 py-4 w-10 text-center px-2">
             {selectedProducts.length > 0 ? (
               <input
                 type="checkbox"
@@ -63,16 +64,16 @@ export default function ProductList({
               "#"
             )}
           </td>
-          <td className="">{t("Image")}</td>
-          <td className="">{t("Barcode")}</td>
-          <td className="">{t("Name")}</td>
-          <td className="">{t("Category")}</td>
-          <td className="">{t("Origin")}</td>
-          <td className="">{t("Price")}</td>
-          <td className="">{t("Weight")}</td>
-          <td className=""></td>
+          <td className="border-b-2 py-4 w-28">{t("Image")}</td>
+          <td className="border-b-2 py-4 w-[10rem]">{t("Barcode")}</td>
+          <td className="border-b-2 py-4 w-[20rem]">{t("Name")}</td>
+          <td className="border-b-2 py-4 w-[20rem]">{t("Category")}</td>
+          <td className="border-b-2 py-4 w-[20rem]">{t("Origin")}</td>
+          <td className="border-b-2 py-4 w-[10rem]">{t("Price")}</td>
+          <td className="border-b-2 py-4">{t("Weight")}</td>
+          <td className="border-b-2 py-4 "></td>
         </thead>
-        <tbody>
+        <tbody className="overflow-y-auto max-h-[50vh] h-fit ">
           {products &&
             products?.items?.map((product) => {
               let chooice = selectedProducts.includes(product);
@@ -80,57 +81,57 @@ export default function ProductList({
                 <tr
                   key={product.id}
                   className={`
-                    hover:bg-gray-100 border-t-2 
-                  ${chooice ? "bg-[var(--second-color)]" : ""}`}
+                    hover:bg-[var(--Xanh-100)] border-t-2 
+                  ${chooice ? "bg-[var(--Xanh-100)]" : ""} font-medium`}
                   onClick={() => toggleProductSelection(product)}
                 >
-                  <td className="">
-                    <input
-                      type="checkbox"
-                      checked={isProductSelected(product)}
+                  <td className="w-10 px-2">
+                    <div 
+                     className={`w-4 h-4 rounded-sm ${isProductSelected(product)?"bg-[var(--Xanh-Base)]":"bg-[var(--en-vu-300)]"}`}
+                      // checked={isProductSelected(product)}
                       onChange={() => toggleProductSelection(product)}
                       onClick={(e) => e.stopPropagation()}
                     />
                   </td>
-                  <td className=" flex justify-start">
+                  <td className="w-28 h-[6rem]">
                     <img
-                      src={product.image}
+                      src={product.pictureLink}
                       alt={product.name}
-                      className="h-20 w-20 rounded-xl"
+                      className="w-[4rem] h-[4rem] rounded-xl"
                     />
                   </td>
-                  <td className="">{product.barcode}</td>
-                  <td className="">{product.name}</td>
-                  <td className="">{product.productCategoryName}</td>
-                  <td className="">{product.origin}</td>
-                  <td className="">{product.price}</td>
+                  <td className="w-[10rem]">{product.barcode}</td>
+                  <td className="w-[20rem]">{product.name}</td>
+                  <td className="w-[20rem]">{product.productCategoryName}</td>
+                  <td className="w-[20rem]">{product.origin}</td>
+                  <td className="w-[10rem]">{product.price}</td>
                   <td className="">{product.weight}</td>
-                  <td className=" relative">
+                  <td className=" px-4 text-end">
                     <button
-                      className="text-center align-middle bg-red-500"
+                      className="text-center align-middle relative"
                       onClick={(e) => handleOpenActionTab(e, product)}
                     >
-                      ...
+                      <DotsThreeVertical weight="bold" className="text-2xl" />
+                      {openAction === product && (
+                        <div
+                          className="action-tab-container translate-x-1"
+                          ref={actionComponent}
+                        >
+                          <div
+                            className="cursor-pointer"
+                            onClick={(e) => handleShowDetailProduct(e, product)}
+                          >
+                            Show detail
+                          </div>
+                          <div
+                            className="cursor-pointer"
+                            onClick={(e) => handleDeleteClick(e, product)}
+                          >
+                            Delete
+                          </div>
+                        </div>
+                      )}
                     </button>
-                    {openAction === product && (
-                      <div
-                        className="action-tab-container translate-x-1"
-                        ref={actionComponent}
-                      >
-                        <div
-                          className="cursor-pointer"
-                          onClick={(e) => handleShowDetailProduct(e, product)}
-                        >
-                          Show detail
-                        </div>
-                        <div
-                          className="cursor-pointer"
-                          onClick={(e) => handleDeleteClick(e, product)}
-                        >
-                          Delete
-                        </div>
-                      </div>
-                    )}
                   </td>
                 </tr>
               );
@@ -142,7 +143,7 @@ export default function ProductList({
         <div className="flex items-center space-x-5 mt-5">
           <p>{t("RowsPerPage")}:</p>
           <select
-            className="outline outline-1 px-1"
+            className="outline outline-1 px-1 py-1 rounded-xl"
             onChange={(e) => setIndex(e.target.value)}
             value={index}
           >
