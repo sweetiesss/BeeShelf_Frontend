@@ -154,6 +154,13 @@ table {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+#buttonDiv {
+  display: block;
+  visibility: visible;
+  width: 100%;
+  height: auto;
+}
+
 
 @keyframes shimmer {
   from {
