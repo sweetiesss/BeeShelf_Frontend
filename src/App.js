@@ -14,8 +14,9 @@ import InventoryPage from "./pages/partner/InventoryPage";
 import { LayoutLogined } from "./component/shared/Layout";
 import ProductPage from "./pages/partner/ProductPage";
 import OrderPage from "./pages/partner/OrderPage";
-import {HomePage,Dashboard} from "./pages/partner/HomePage";
+import { HomePage, Dashboard } from "./pages/partner/HomePage";
 import OrderDashboard from "./component/partner/dashboard/OrderDashboard";
+import { DetailProvider } from "./context/DetailContext";
 function App() {
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
@@ -41,33 +42,35 @@ function App() {
         transition={Zoom}
       />
       <AuthProvider>
-        <Routes>
-          <Route path="/*" element={<GuestRoutes />} />
-          <Route
-            path="/admin/*"
-            element={
-              <RoleProvider allowedRoles={["Admin"]}>
-                <AdminRoutes />
-              </RoleProvider>
-            }
-          />
-          <Route
-            path="/partner/*"
-            element={
-              <RoleProvider allowedRoles={["Partner","User"]}>
-                <PartnerRoutes />
-              </RoleProvider>
-            }
-          />
-          <Route path="/*" element={<LayoutLogined />}>
-            <Route path="working" element={<InventoryPage />} />
-            <Route path="working2" element={<OrderPage />} />
-            <Route path="working3" element={<HomePage />} />
-            <Route path="working4" element={<OrderDashboard />} />
-            <Route path="working5" element={<Dashboard />} />
-            <Route path="working6" element={<ProductPage />} />
-          </Route>
-        </Routes>
+        <DetailProvider>
+          <Routes>
+            <Route path="/*" element={<GuestRoutes />} />
+            <Route
+              path="/admin/*"
+              element={
+                <RoleProvider allowedRoles={["Admin"]}>
+                  <AdminRoutes />
+                </RoleProvider>
+              }
+            />
+            <Route
+              path="/partner/*"
+              element={
+                <RoleProvider allowedRoles={["Partner", "User"]}>
+                  <PartnerRoutes />
+                </RoleProvider>
+              }
+            />
+            <Route path="/*" element={<LayoutLogined />}>
+              <Route path="working" element={<InventoryPage />} />
+              <Route path="working2" element={<OrderPage />} />
+              <Route path="working3" element={<HomePage />} />
+              <Route path="working4" element={<OrderDashboard />} />
+              <Route path="working5" element={<Dashboard />} />
+              <Route path="working6" element={<ProductPage />} />
+            </Route>
+          </Routes>
+        </DetailProvider>
       </AuthProvider>
     </div>
   );

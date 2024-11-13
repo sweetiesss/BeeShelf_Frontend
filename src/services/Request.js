@@ -37,14 +37,14 @@ export default function AxiosRequest() {
   const getRequestByUserId = async (
     userId,
     status,
-   
+    descending,
     pageIndex,
     pageSize
   ) => {
     try {
       const queryParams = new URLSearchParams();
       queryParams.append("status", status);
-      // if (typeof sortBy !== "undefined") queryParams.append("sortBy", sortBy);
+      queryParams.append("descending", descending);
       queryParams.append("pageIndex", pageIndex);
       queryParams.append("pageSize", pageSize);
 
@@ -58,6 +58,81 @@ export default function AxiosRequest() {
       return e;
     }
   };
+  const sendRequestById = async (id) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `request/send-request?id=` + id,
+        method: "POST",
+      });
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `Send request successfully`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return await fetching;
+    } catch (e) {
+      return e;
+    }
+  };
+  const updateRequestStatus = async (id,status) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `request/update-request-status/` + id+"?status="+status,
+        method: "PUT",
+      });
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `${status} request successfully`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return await fetching;
+    } catch (e) {
+      return e;
+    }
+  };
+  const deleteRequestById = async (id) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `request/delete-request/` + id,
+        method: "DELETE",
+      });
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `Delete request successfully`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return await fetching;
+    } catch (e) {
+      return e;
+    }
+  };
 
-  return { createRequest,getRequestByUserId };
+  return { createRequest, getRequestByUserId, sendRequestById ,deleteRequestById,updateRequestStatus};
 }

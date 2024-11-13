@@ -1,28 +1,18 @@
-import { Moon, SunDim } from "@phosphor-icons/react";
 import React, { useContext, useState } from "react";
 import { NavLink } from "react-router-dom";
-
-// const routePartner = [
-//   { icon: House, link: "dashboard", label: "Dashboard" },
-// ];
-import { PartnerRouterInfor } from "../constants/Router";
-import { SettingContext } from "../../context/SettingContext";
+import {
+  House,
+  Warehouse,
+  Package,
+  Bag,
+  AddressBook,
+} from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../../context/AuthContext";
 export function Sidebar() {
   const [isSlideOut, setSlideOut] = useState(false);
   const { t } = useTranslation();
-
-  // const { settingInfor, setSettingInfor } = useContext(SettingContext);
-  // const [theme, setTheme] = useState(settingInfor.theme);
-
-  // const changeTheme = () => {
-  //   const newTheme = theme === "light" ? "dark" : "light";
-  //   setTheme(newTheme);
-  //   setSettingInfor((prev) => ({
-  //     ...prev,
-  //     theme: newTheme,
-  //   }));
-  // };
+  const { userInfor } = useContext(AuthContext);
   return (
     <div
       className={`${
@@ -51,51 +41,90 @@ export function Sidebar() {
         )}
       </div>
       <nav className="flex flex-col flex-grow items-center text-[var(--text-second-color)] sidebar-navigate space-y-4">
-        {PartnerRouterInfor.map((item, num) => (
-          <NavLink
-            to={item.path}
-            key={num}
-            className={`flex navigate-menu  ${({
-              isActive,
-              isPending,
-              isTransitioning,
-            }) =>
-              [
-                isPending ? "pending" : "",
-                isActive ? "active" : "",
-                isTransitioning ? "transitioning" : "",
-              ].join("")}`}
-          >
-            <div className="sidebar-menu-container">
-              <item.icon className="icon" weight="fill" />
-              <p className="label">{t(item.label)}</p>
-            </div>
-          </NavLink>
-        ))}
-      </nav>
+        {userInfor?.roleName === "Partner" && (
+          <>
+            <NavLink to="dashboard" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <House className="icon" weight="fill" />
+                <p className="label">{t("Dashboard")}</p>
+              </div>
+            </NavLink>
 
-      {/* <div className="p-4 relative">
-        <div
-          className={` bg-theme-change ${
-            theme === "light" ? "light-mode" : "dark-mode"
-          }`}
-          onClick={changeTheme}
-        >
-          <div className="theme-button ">
-            {theme === "light" ? (
-              <>
-                <SunDim weight="fill" className="rounded-full bg-white text-yellow-400  " />
-                <p className="text-left pl-2 text-black">Light</p>
-              </>
-            ) : (
-              <>
-                <p className="text-right pr-2">Dark</p>
-                <Moon weight="fill" className="rounded-full bg-white text-gray-400 p-[0.25rem]" />
-              </>
-            )}
-          </div>
-        </div>
-      </div> */}
+            <NavLink to="inventory" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Package className="icon" weight="fill" />
+                <p className="label">{t("Inventory")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="product" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Bag className="icon" weight="fill" />
+                <p className="label">{t("Product")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="order" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" weight="fill" />
+                <p className="label">{t("Order")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="request" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" weight="fill" />
+                <p className="label">{t("Request")}</p>
+              </div>
+            </NavLink>
+          </>
+        )}
+        {userInfor?.roleName != "Partner" && (
+          <>
+            <NavLink to="dashboard" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <House className="icon" weight="fill" />
+                <p className="label">{t("Dashboard")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="warehouse" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Warehouse className="icon" weight="fill" />
+                <p className="label">{t("Warehouse")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="inventory" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Package className="icon" weight="fill" />
+                <p className="label">{t("Inventory")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="product" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Bag className="icon" weight="fill" />
+                <p className="label">{t("Product")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="order" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" weight="fill" />
+                <p className="label">{t("Order")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="request" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" weight="fill" />
+                <p className="label">{t("Request")}</p>
+              </div>
+            </NavLink>
+          </>
+        )}
+      </nav>
     </div>
   );
 }

@@ -9,73 +9,12 @@ import AxiosProduct from "../../services/Product";
 import { AuthContext } from "../../context/AuthContext";
 import CreateRequestImport from "../../component/partner/product/CreateRequestImport";
 import AxiosInventory from "../../services/Inventory";
+import { useDetail } from "../../context/DetailContext";
+import { ProductListSkeleton } from "../shared/SkeletonLoader";
 
-// const products = [
-//   {
-//     id: 1,
-//     image: "https://via.placeholder.com/50", // Replace with real image
-//     sku: "101-elz",
-//     name: "Silky Creamy Donkey Steam Moisture",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["egf", "retinol", "creams"],
-//   },
-//   {
-//     id: 2,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-//   {
-//     id: 3,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-//   {
-//     id: 4,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-//   {
-//     id: 5,
-//     image: "https://via.placeholder.com/50",
-//     sku: "233-elz",
-//     name: "Elizavecca Gold CF-Nest 97% B-Jo Serum",
-//     group: "A",
-//     category: "Cosmetics",
-//     price: "$10.00",
-//     stock: 23,
-//     reserved: 3,
-//     tags: ["serum", "whitening"],
-//   },
-
-//   // Add more products as needed
-// ];
 export default function ProductPage() {
   const [fetching, setFetching] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState();
   const [inventories, setInventory] = useState(null);
   const [index, setIndex] = useState(10);
@@ -83,16 +22,24 @@ export default function ProductPage() {
   const [isShowDetailProduct, setShowDetailProduct] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
-  const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
   const [overall, setOverall] = useState({
     checked: false,
     indeterminate: false,
   });
-  const [openCreateRequest, setOpenCreateRequest] = useState(false);
+
   const { userInfor } = useContext(AuthContext);
-  const { getProductByUserId, deleteProductById, updateProductById } =
-    AxiosProduct();
+  const { getProductByUserId, deleteProductById } = AxiosProduct();
+  const {
+    dataDetail,
+    updateDataDetail,
+    updateTypeDetail,
+    refresh,
+    setRefresh,
+    createRequest,
+    setCreateRequest,
+  } = useDetail();
   const { getInventory100 } = AxiosInventory();
+
   const { t } = useTranslation();
   const debounce = (func, delay) => {
     let timeout;
@@ -120,9 +67,37 @@ export default function ProductPage() {
   }, []);
   useEffect(() => {
     if (userInfor) {
+      setLoading(true);
       debouncedFetchProducts(page);
+      setLoading(false);
     }
-  }, [page, index, userInfor, debouncedFetchProducts, fetching]);
+  }, [page, index, userInfor, fetching]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userInfor && refresh != 0) {
+        try {
+          setLoading(true);
+          const response = await getProductByUserId(userInfor?.id, page, index);
+          setProducts(response?.data);
+
+          const updatedItem = response?.data?.items.find(
+            (item) => item?.id === refresh
+          );
+          if (updatedItem) {
+            updateDataDetail(updatedItem);
+          }
+        } catch (error) {
+          console.error("Error fetching product data:", error);
+        } finally {
+          setRefresh(0);
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [refresh]);
 
   useEffect(() => {
     const checkCount = selectedProducts.length;
@@ -133,9 +108,11 @@ export default function ProductPage() {
     }
   }, [selectedProducts]);
 
-  const handleShowDetailProductProduct = (e, product) => {
+  const handleShowDetailProduct = (e, product) => {
     e.stopPropagation();
     setShowDetailProduct(isShowDetailProduct === product ? null : product);
+    updateDataDetail(product);
+    updateTypeDetail("product");
   };
 
   const toggleProductSelection = (product) => {
@@ -198,12 +175,9 @@ export default function ProductPage() {
     document.body.removeChild(link);
   };
 
-  const handleDeleteClick = (product) => {
+  const handleDeleteClick = (e, product) => {
+    e.stopPropagation();
     setShowDeleteConfirmation(product);
-  };
-  const handleCreateRequest = () => {
-    setOpenCreateRequest(true);
-    console.log(openCreateRequest);
   };
 
   const confirmDelete = async () => {
@@ -218,57 +192,48 @@ export default function ProductPage() {
   const cancelDelete = () => {
     setShowDeleteConfirmation(null);
   };
-
-  const handleInputDetail = (e) => {
-    const { name, value } = e.target;
-    console.log(value);
-    setShowDetailProduct((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const confirmUpdate = async () => {
-    try {
-      const res = await updateProductById(
-        isShowDetailProduct?.id,
-        isShowDetailProduct
-      );
-    } catch (e) {
-    } finally {
-      setShowDeleteConfirmation(null);
-      setFetching((prev) => !prev);
-    }
-  };
-  const cancelUpdate = () => {
-    setShowUpdateConfirmation(false);
-  };
+  const handleClose=()=>{
+    setCreateRequest(false);
+    setFetching(prev=>!prev)
+  }
 
   return (
-    <div className="w-full h-full flex justify-between gap-10">
-      <div className="w-fit space-y-10">
+    <div className="w-full h-full gap-10">
+      <div className="w-full space-y-10">
         <ProductHeader
           handleDownload={handleDownload}
           products={products}
           selectedProducts={selectedProducts}
         />
-        <ProductList
-          products={products}
-          selectedProducts={selectedProducts}
-          toggleProductSelection={toggleProductSelection}
-          handleShowDetailProductProduct={handleShowDetailProductProduct}
-          isShowDetailProduct={isShowDetailProduct}
-          isProductSelected={isProductSelected}
-          overall={overall}
-          handleClickOverall={handleClickOverall}
-          index={index}
-          setIndex={setIndex}
-          page={page}
-          setPage={setPage}
-          handleDeleteClick={handleDeleteClick}
-          handleCreateRequest={handleCreateRequest}
-          handleInputDetail={handleInputDetail}
-          setShowUpdateConfirmation={setShowUpdateConfirmation}
-        />
+        {!loading ? (
+          <>
+            {products?.items?.length > 0 ? (
+              <ProductList
+                products={products}
+                selectedProducts={selectedProducts}
+                toggleProductSelection={toggleProductSelection}
+                isShowDetailProduct={isShowDetailProduct}
+                isProductSelected={isProductSelected}
+                overall={overall}
+                handleClickOverall={handleClickOverall}
+                index={index}
+                setIndex={setIndex}
+                page={page}
+                setPage={setPage}
+                handleDeleteClick={handleDeleteClick}
+                handleShowDetailProduct={handleShowDetailProduct}
+              />
+            ) : (
+              <>
+                <div>You don't have any product yet!</div>
+              </>
+            )}
+          </>
+        ) : (
+          <ProductListSkeleton size={index} />
+        )}
       </div>
-      <ProductOverview />
+      {/* <ProductOverview /> */}
       {showDeleteConfirmation && (
         <>
           <div className="fixed inset-0 bg-black bg-opacity-50"></div>
@@ -298,40 +263,13 @@ export default function ProductPage() {
           </div>
         </>
       )}
-      {showUpdateConfirmation && (
-        <>
-          <div className="fixed inset-0 bg-black bg-opacity-50"></div>
-          <div
-            className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
-            style={{
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <p>{`Are you sure you want to update ${isShowDetailProduct.name}?`}</p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => confirmUpdate()}
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
-              >
-                Update
-              </button>
-              <button
-                onClick={cancelUpdate}
-                className="bg-gray-300 text-black px-4 py-2 rounded-md"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-      {openCreateRequest && (
+      {createRequest && (
         <CreateRequestImport
-          product={isShowDetailProduct}
+          product={dataDetail}
           inventories={inventories}
-          handleCancel={() => setOpenCreateRequest(false)}
+          type="Import"
+          enableSelect={false}
+          handleClose={handleClose}
         />
       )}
     </div>

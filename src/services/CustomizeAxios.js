@@ -25,11 +25,17 @@ export default function useAxios() {
     }
   );
   const [response, setResponse] = useState(null);
-  const [error, setError] = useState("");
+
   const [loading, setLoading] = useState(false);
   const { isAuthenticated } = useContext(AuthContext);
 
-  const fetchData = async ({ url, method,headers, data = {}, params = {} }) => {
+  const fetchData = async ({
+    url,
+    method,
+    headers,
+    data = {},
+    params = {},
+  }) => {
     setLoading(true);
     try {
       const resultPromise = instance({
@@ -41,16 +47,15 @@ export default function useAxios() {
       });
       return resultPromise;
     } catch (error) {
-      const errorMessage = error.response ? error.response.data : error.message;
-      setError(errorMessage);
-      return Promise.reject(errorMessage);
+      console.log(error);
+      return error;
     } finally {
       setLoading(false);
     }
   };
   const fetchDataBearer = async ({ url, method, data = {}, params = {} }) => {
     console.log(isAuthenticated);
-    
+
     setLoading(true);
     try {
       const resultPromise = instance({
@@ -65,11 +70,11 @@ export default function useAxios() {
       return resultPromise;
     } catch (error) {
       const errorMessage = error.response ? error.response.data : error.message;
-      setError(errorMessage);
+
       return Promise.reject(errorMessage);
     } finally {
       setLoading(false);
     }
   };
-  return { response, error, loading, fetchData,fetchDataBearer };
+  return { response, loading, fetchData, fetchDataBearer };
 }

@@ -1,8 +1,16 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { createContext, useEffect, useLayoutEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 
 export const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -19,6 +27,8 @@ export function AuthProvider({ children }) {
     const storedExpiry = localStorage.getItem("Authenticated");
     return storedExpiry ? jwtDecode(storedExpiry).exp * 1000 : null;
   });
+  const [authWallet, setAuthWallet] = useState(0);
+  const [takeAuthWaller, needToTakeAuthWaller] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("UserInfor", JSON.stringify(userInfor));
@@ -27,6 +37,10 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     localStorage.setItem("UserExpiry", expiryDate);
   }, [expiryDate]);
+
+  useEffect(() => {
+    getAuthWalletMoney();
+  }, [takeAuthWaller]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -53,8 +67,36 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const getAuthWalletMoney = async () => {
+    try {
+      if (userInfor && isAuthenticated && takeAuthWaller) {
+        console.log("check tokeen",isAuthenticated);
+        
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL_API}partner/get-wallet/${userInfor?.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${isAuthenticated}`,
+            },
+          }
+        );
+        console.log(response);
+        
+        setAuthWallet(response.data);
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching wallet:",
+        error.response?.data || error.message
+      );
+    }finally{
+      needToTakeAuthWaller(false);
+    }
+  };
+
   const handleLogin = (userData) => {
     setUserInfor(userData);
+    needToTakeAuthWaller(true)
   };
   const handleLogout = () => {
     localStorage.removeItem("UserInfor");
@@ -88,6 +130,8 @@ export function AuthProvider({ children }) {
         setUserInfor,
         handleLogin,
         handleLogout,
+        authWallet,
+        needToTakeAuthWaller,
       }}
     >
       {children}

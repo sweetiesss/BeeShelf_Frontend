@@ -1,21 +1,12 @@
-// components/partner/product/ProductList.js
-
-import {
-  CaretDown,
-  CaretLeft,
-  CaretRight,
-  CaretUp,
-} from "@phosphor-icons/react";
-import DetailProduct from "./DetailProduct"; // Import DetailProduct
 import { useTranslation } from "react-i18next";
 import Pagination from "../../shared/Paggination";
+import { useEffect, useRef, useState } from "react";
 
 export default function ProductList({
   products,
   selectedProducts,
   toggleProductSelection,
-  handleShowDetailProductProduct,
-  isShowDetailProduct,
+  handleShowDetailProduct,
   isProductSelected,
   overall,
   handleClickOverall,
@@ -24,109 +15,129 @@ export default function ProductList({
   page,
   setPage,
   handleDeleteClick,
-  handleCreateRequest,
-  handleInputDetail,
-  setShowUpdateConfirmation,
 }) {
   const { t } = useTranslation();
+  const [openAction, setOpenAction] = useState();
+  const handleOpenActionTab = (e, product) => {
+    e.stopPropagation();
+    if (product === openAction) {
+      setOpenAction();
+    } else {
+      setOpenAction(product);
+    }
+  };
+  const actionComponent = useRef();
+  const handleCloseAction = () => {
+    setOpenAction();
+  };
+
+  useEffect(() => {
+    const handleClickOutSide = (event) => {
+      if (
+        actionComponent.current &&
+        !actionComponent.current.contains(event.target)
+      ) {
+        handleCloseAction();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutSide);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutSide);
+    };
+  }, []);
   return (
-    <div className="shadow-lg bg-white rounded-lg p-4 custome-table mb-3 overflow-y-scroll max-h-[70vh]">
-      <div className="flex w-full">
-        <div className="text-left pb-2  column-1">
-          {selectedProducts.length > 0 ? (
-            <input
-              type="checkbox"
-              checked={overall?.checked}
-              onChange={handleClickOverall}
-              ref={(input) =>
-                input && (input.indeterminate = overall?.indeterminate)
-              }
-            />
-          ) : (
-            "#"
-          )}
-        </div>
-        <div className="text-left pb-2 column-2"></div>
-        <div className="text-left pb-2 column-3">{t("SKU")}</div>
-        <div className="text-left pb-2 column-4">{t("Name")}</div>
-        <div className="text-left pb-2 column-5">{t("Group")}</div>
-        <div className="text-left pb-2 column-6">{t("Category")}</div>
-        <div className="text-left pb-2 column-7">{t("Price")}</div>
-        <div className="text-left pb-2 column-8">{t("Weight")}</div>
-        <div className="text-left pb-2 column-9"></div>
-      </div>
-      {products &&
-        products?.items?.map((product) => {
-          let check = isShowDetailProduct?.id === product?.id;
-          let chooice = selectedProducts.includes(product);
-          return (
-            <div key={product.id}>
-              <div
-                className={`${
-                  check
-                    ? " bg-[var(--main-color)]  border-2 rounded-xl shadow-xl "
-                    : "hover:bg-gray-100 border-t-2 "
-                } cursor-pointer ${chooice ? "bg-[var(--second-color)]" : ""}`}
-                onClick={() => toggleProductSelection(product)}
-              >
-                <div className="flex items-center">
-                  <div className=" px-1 py-2 column-1">
+    <div className="shadow-lg bg-white rounded-lg p-4 mb-3 overflow-y-scroll max-h-[70vh]">
+      <table className=" w-full">
+        <thead>
+          <td className="">
+            {selectedProducts.length > 0 ? (
+              <input
+                type="checkbox"
+                checked={overall?.checked}
+                onChange={handleClickOverall}
+                ref={(input) =>
+                  input && (input.indeterminate = overall?.indeterminate)
+                }
+              />
+            ) : (
+              "#"
+            )}
+          </td>
+          <td className="">{t("Image")}</td>
+          <td className="">{t("Barcode")}</td>
+          <td className="">{t("Name")}</td>
+          <td className="">{t("Category")}</td>
+          <td className="">{t("Origin")}</td>
+          <td className="">{t("Price")}</td>
+          <td className="">{t("Weight")}</td>
+          <td className=""></td>
+        </thead>
+        <tbody>
+          {products &&
+            products?.items?.map((product) => {
+              let chooice = selectedProducts.includes(product);
+              return (
+                <tr
+                  key={product.id}
+                  className={`
+                    hover:bg-gray-100 border-t-2 
+                  ${chooice ? "bg-[var(--second-color)]" : ""}`}
+                  onClick={() => toggleProductSelection(product)}
+                >
+                  <td className="">
                     <input
                       type="checkbox"
                       checked={isProductSelected(product)}
                       onChange={() => toggleProductSelection(product)}
                       onClick={(e) => e.stopPropagation()}
                     />
-                  </div>
-                  <div className=" px-1 py-2 column-2 flex justify-center">
+                  </td>
+                  <td className=" flex justify-start">
                     <img
                       src={product.image}
                       alt={product.name}
                       className="h-20 w-20 rounded-xl"
                     />
-                  </div>
-                  <div className=" px-1 py-2 column-3">{product.sku}</div>
-                  <div className=" px-1 py-2 column-4">{product.name}</div>
-                  <div className=" px-1 py-2 column-5">
-                    <select
-                      defaultValue={product.group}
-                      className="border p-1 rounded-md"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <option value="A">A</option>
-                      <option value="B">B</option>
-                      <option value="C">C</option>
-                    </select>
-                  </div>
-                  <div className=" px-1 py-2 column-6">
-                    {product.productCategoryName}
-                  </div>
-                  <div className=" px-1 py-2 column-7">{product.price}</div>
-                  <div className=" px-1 py-2 column-8">{product.weight}</div>
-                  <div className=" px-1 py-2 column-9">
+                  </td>
+                  <td className="">{product.barcode}</td>
+                  <td className="">{product.name}</td>
+                  <td className="">{product.productCategoryName}</td>
+                  <td className="">{product.origin}</td>
+                  <td className="">{product.price}</td>
+                  <td className="">{product.weight}</td>
+                  <td className=" relative">
                     <button
-                      className={`border-2 px-2 rounded-xl shadow-lg text-2xl ${
-                        check
-                          ? "border-[var(--line-oposite-color)] text-[var(--text-main-color)]"
-                          : "text-[var(--text-second-color)]"
-                      } `}
-                      onClick={(e) =>
-                        handleShowDetailProductProduct(e, product)
-                      }
+                      className="text-center align-middle bg-red-500"
+                      onClick={(e) => handleOpenActionTab(e, product)}
                     >
-                      {check ? (
-                        <CaretUp weight="fill" />
-                      ) : (
-                        <CaretDown weight="fill" />
-                      )}
+                      ...
                     </button>
-                  </div>
-                </div>
-                {check && <DetailProduct product={isShowDetailProduct} handleDeleteClick={handleDeleteClick} handleCreateRequest={handleCreateRequest} handleInputDetail={handleInputDetail} setShowUpdateConfirmation={setShowUpdateConfirmation}/>}
-              </div>
-            </div>
-          );
-        })}
+                    {openAction === product && (
+                      <div
+                        className="action-tab-container translate-x-1"
+                        ref={actionComponent}
+                      >
+                        <div
+                          className="cursor-pointer"
+                          onClick={(e) => handleShowDetailProduct(e, product)}
+                        >
+                          Show detail
+                        </div>
+                        <div
+                          className="cursor-pointer"
+                          onClick={(e) => handleDeleteClick(e, product)}
+                        >
+                          Delete
+                        </div>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+        </tbody>
+      </table>
+
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-5 mt-5">
           <p>{t("RowsPerPage")}:</p>
@@ -146,13 +157,14 @@ export default function ProductList({
         </div>
         <div className="flex space-x-5 items-center">
           <p>
-            {(page + 1) * index - (index-1)} - {(page + 1) * index} of {products?.totalItemsCount} {t("items")}
+            {(page + 1) * index - (index - 1)} - {(page + 1) * index} of{" "}
+            {products?.totalItemsCount} {t("items")}
           </p>
           <Pagination
             totalPagesCount={products?.totalPagesCount}
             currentPage={page + 1}
-            handleLeft={() => setPage(page-1)}
-            handleRight={() => setPage(page+1)}
+            handleLeft={() => setPage(page - 1)}
+            handleRight={() => setPage(page + 1)}
             handleChoose={setPage}
           />
         </div>

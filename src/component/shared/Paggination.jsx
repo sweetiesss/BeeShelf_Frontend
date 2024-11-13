@@ -32,7 +32,11 @@ export default function Pagination({
   const paginationArray = createPaginationArray(currentPage, totalPagesCount);
   return (
     <div className="flex items-center space-x-3">
-      <button className="" onClick={handleLeft} disabled={currentPage === 1}>
+      <button
+        className={` ${currentPage === 1 && "opacity-0"}`}
+        onClick={handleLeft}
+        disabled={currentPage === 1}
+      >
         <CaretLeft />
       </button>
 
@@ -48,7 +52,7 @@ export default function Pagination({
             <button
               key={index}
               className={`${page === currentPage ? "font-bold" : "font-light"}`}
-              onClick={() => handleChoose(page-1)}
+              onClick={() => handleChoose(page - 1)}
             >
               {page}
             </button>
@@ -57,7 +61,7 @@ export default function Pagination({
       </div>
 
       <button
-        className=""
+        className={` ${currentPage === totalPagesCount && "opacity-0"}`}
         onClick={handleRight}
         disabled={currentPage === totalPagesCount}
       >

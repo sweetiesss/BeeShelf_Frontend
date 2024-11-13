@@ -4,12 +4,23 @@ import OrderList from "../../component/partner/order/OrderList";
 import AxiosOrder from "../../services/Order";
 import { AuthContext } from "../../context/AuthContext";
 import { OrderDetailCard } from "../../component/partner/order/OrderCard";
+import { useDetail } from "../../context/DetailContext";
 
 export default function OrderPage() {
   const { userInfor } = useContext(AuthContext);
   const { getOrderByUserId } = AxiosOrder();
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isShowDetailOrder, setShowDetailOrder] = useState(null);
+  const {
+    dataDetail,
+    updateDataDetail,
+    updateTypeDetail,
+    refresh,
+    setRefresh,
+    createOrder,
+    setCreateOrder,
+  } = useDetail();
 
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
@@ -46,14 +57,13 @@ export default function OrderPage() {
         filterField.pageIndex,
         filterField.size
       );
-      setOrders(response?.data); 
+      setOrders(response?.data);
     }, 500),
-    [filterField] 
+    [filterField]
   );
- 
-console.log(filterField);
 
- 
+  console.log(filterField);
+
   const handleAddOrder = async (order) => {
     // const newOrder = await addOrder(order);
     // setOrders([...orders, newOrder]);
@@ -83,30 +93,40 @@ console.log(filterField);
   // );
   console.log("here", orders);
 
+  const handleShowDetailOrder = (e, order) => {
+    e.stopPropagation();
+    setShowDetailOrder(isShowDetailOrder === order ? null : order);
+    updateDataDetail(order);
+    updateTypeDetail("order");
+  };
+  const handleFiltered = (e) => {
+    const { name, value } = e.target;
+    setFilterField((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6">Order Management</h1>
+      <h1 className="text-3xl font-bold mb-6">Request Management</h1>
 
-      {/* <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search Orders..."
-          value={searchQuery}
-          onChange={handleSearch}
-          className="p-2 border border-gray-300 rounded-lg w-full md:w-1/3"
-        />
-      </div>
+      <select
+        name="status"
+        value={filterField.status}
+        onChange={handleFiltered}
+      >
+        <option>Select Request Status</option>
+        <option value={"Draft"}>Draft</option>
+        <option value={"Pending"}>Pending</option>
+        <option value={"Canceled"}>Canceled</option>
+        <option value={"Processing"}>Processing</option>
+        <option value={"Delivered"}>Delivered</option>
+        <option value={"Failed"}>Failed</option>
+        <option value={"Completed"}>Completed</option>
+      </select>
 
+      <button onClick={() => setCreateOrder(true)}>Create Order</button>
 
-      <OrderForm
-        onAddOrder={handleAddOrder}
-        onUpdateOrder={handleUpdateOrder}
-        selectedOrder={selectedOrder}
-      /> */}
-
-      {/* Order List */}
       <div className="flex justify-left gap-4 mt-6 ">
-        <div className="w-[60vw]">
+        <div className="w-full">
           <OrderList
             orders={orders}
             onDeleteOrder={handleDeleteOrder}
@@ -114,9 +134,10 @@ console.log(filterField);
             selectedOrder={selectedOrder}
             filterField={filterField}
             setFilterField={setFilterField}
+            handleShowDetailOrder={handleShowDetailOrder}
           />
         </div>
-        <div>{selectedOrder && <OrderDetailCard order={selectedOrder} />}</div>
+
       </div>
     </div>
   );

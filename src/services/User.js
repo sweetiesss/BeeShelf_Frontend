@@ -8,7 +8,7 @@ export default function AxiosUser() {
   const { setIsAuthenticated } = useContext(AuthContext);
   const requestGetUserByEmail = async (email, token) => {
     try {
-      const fetching =await fetchData({
+      const fetching = await fetchData({
         url: `partner/get-partner/${email}`,
         method: "GET",
         headers: {
@@ -22,21 +22,26 @@ export default function AxiosUser() {
   };
   const getAuth = async (data) => {
     try {
-      const fetching =await fetchData({
-        url: "auth/Login",
+      const fetching = await fetchData({
+        url: "auth/login",
         method: "POST",
         data: data,
       });
+      console.log("getAuth", fetching);
+
       return fetching;
     } catch (error) {
-      return error.response.data.message;
+      return error;
     }
   };
+
   const loginByEmailPassword = async (data) => {
     try {
-      let name="";
-      const fetching = async() => {
-        const getToken =await  getAuth(data);
+      let name = "";
+      const fetching = async () => {
+        const getToken = await getAuth(data);
+        console.log("getToken", getToken);
+
         if (getToken && getToken?.status === 200) {
           if (getToken?.data && getToken?.data.length > 0) {
             const successDataToken = getToken?.data;
@@ -46,15 +51,22 @@ export default function AxiosUser() {
               successDataToken
             );
             if (getAccount && getAccount?.status === 200 && getAccount?.data) {
-              name=getAccount.data?.lastName;
+              name = getAccount.data?.lastName;
               return getAccount.data;
             }
-            return getAccount;
+
+            throw new Error("Unable to fetch account details.");
           }
         }
-        return getToken;
+
+        throw new Error(
+          getToken?.response?.data?.errors?.password?.[0] ||
+            getToken?.response?.data?.message ||
+            "Authentication failed."
+        );
       };
-     const result= await toast.promise(fetching(), {
+
+      const result = await toast.promise(fetching(), {
         pending: "Request in progress...",
         success: {
           render() {
@@ -63,23 +75,25 @@ export default function AxiosUser() {
         },
         error: {
           render({ data }) {
-            return `${data.response.data.message || "Something went wrong!"}`;
+            return `${data?.message || "Something went wrong!"}`;
           },
         },
       });
       return result;
     } catch (e) {
-      return e.response.data.message;
+      return Promise.reject(e);
     }
   };
 
   const requestSignUp = async (data) => {
     try {
       const fetching = fetchData({
-        url: "auth/Signup",
+        url: "auth/sign-up",
         method: "POST",
         data,
       });
+      console.log(fetching);
+
       await toast.promise(fetching, {
         pending: "Request in progress...",
         success: {
@@ -94,6 +108,7 @@ export default function AxiosUser() {
         },
       });
       const resultFetching = await fetching;
+
       return resultFetching;
     } catch (error) {
       return error;
