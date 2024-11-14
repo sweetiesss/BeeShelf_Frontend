@@ -58,20 +58,35 @@ export default function AxiosProduct() {
     }
   };
 
-  const getProductByUserId = async (userId, pageIndex, Size) => {
+  const getProductByUserId = async (
+    userId,
+    pageIndex,
+    size,
+    search,
+    sortBy,
+    descending
+  ) => {
     try {
+      const queryParams = new URLSearchParams();
+      if (search) queryParams.append("search", search);
+      if (sortBy) queryParams.append("sortBy", sortBy);
+      if (descending) queryParams.append("descending", descending);
+      queryParams.append("pageIndex", pageIndex || 0);
+      queryParams.append("pageSize", size || 10);
+      const url = `product/get-products/${userId}?${queryParams.toString()}`;
+
       const fetching = await fetchDataBearer({
-        url: `product/get-products/${userId}?pageIndex=${
-          pageIndex ? pageIndex : 0
-        }&pageSize=${Size ? Size : 10}`,
+        url: url,
         method: "GET",
       });
+
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
+
   const deleteProductById = async (productId) => {
     try {
       const fetching = fetchDataBearer({
@@ -103,7 +118,7 @@ export default function AxiosProduct() {
       const fetching = fetchDataBearer({
         url: `product/update-product/${productId}`,
         method: "PUT",
-        data:data,
+        data: data,
       });
       await toast.promise(fetching, {
         pending: "Request in progress...",
