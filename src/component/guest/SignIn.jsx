@@ -128,7 +128,7 @@ export default function SignIn({ action, setAction }) {
           disabled={loading}
         >
           {loading ? (
-            <div className="loading-container">
+            <div className="loading-container h-[2rem]">
               <div className="dot" /> <div className="dot" />
               <div className="dot" />
             </div>
@@ -176,7 +176,13 @@ export default function SignIn({ action, setAction }) {
         </div>
 
         <div className="flex justify-center">
-         <p className="text-[#848a9f] mr-2">Don’t have an account?</p> <button onClick={() => setAction("SignUp")}  className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]">Create account</button>
+          <p className="text-[#848a9f] mr-2">Don’t have an account?</p>{" "}
+          <button
+            onClick={() => setAction("SignUp")}
+            className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
+          >
+            Create account
+          </button>
         </div>
       </div>
     </div>
