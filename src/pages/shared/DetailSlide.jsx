@@ -247,14 +247,14 @@ export default function DetailSlide() {
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50"></div>
             <div
-              className="absolute bg-white border border-gray-300 text-black shadow-md rounded-lg p-4 w-fit h-fit"
+              className="absolute bg-white border border-gray-300 text-black shadow-md rounded-lg p-4 w-[20rem] h-fit"
               style={{
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <p>{`Are you sure you want to update ${dataDetail?.name}?`}</p>
+              <p><span className="text-[var(--en-vu-600)]">Are you sure you want to update:</span> <span className="font-semibold">{dataDetail?.name}</span>?</p>
               <div className="flex justify-end gap-4 mt-4">
                 <button
                   onClick={() => setShowUpdateConfirm(false)}

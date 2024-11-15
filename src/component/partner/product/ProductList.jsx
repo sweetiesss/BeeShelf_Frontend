@@ -8,10 +8,12 @@ import {
   CaretDown,
   CaretUp,
   DotsThreeVertical,
+  X,
 } from "@phosphor-icons/react";
 
 export default function ProductList({
   products,
+  response,
   selectedProducts,
   toggleProductSelection,
   handleShowDetailProduct,
@@ -26,6 +28,11 @@ export default function ProductList({
   handleSortChange,
   sortBy,
   descending,
+  notInDataBase,
+  editProduct,
+  editForm,
+  hanldeEditChange,
+  handleUpdateEdit,
 }) {
   const { t } = useTranslation();
   const [openAction, setOpenAction] = useState();
@@ -68,7 +75,7 @@ export default function ProductList({
         <thead className="text-[var(--en-vu-500-disable)] px-4">
           <tr>
             <th className="border-b-2 py-4 w-10 text-center px-2">
-              {selectedProducts.length > 0 ? (
+              {selectedProducts?.length > 0 ? (
                 <input
                   type="checkbox"
                   checked={overall?.checked}
@@ -177,17 +184,19 @@ export default function ProductList({
                 )}
               </span>
             </th>
-
-            <th className="border-b-2  py-4 w-[6vw] text-center">
-              {t("InInventory")}
-            </th>
+            {!notInDataBase && (
+              <th className="border-b-2  py-4 w-[6vw] text-center">
+                {t("InInventory")}
+              </th>
+            )}
             <th className="border-b-2 text-left py-4 "></th>
           </tr>
         </thead>
         <tbody className="overflow-y-auto max-h-[60vh] pb-[4rem] h-fit pl-4">
           {products &&
-            products?.items?.map((product) => {
-              let chooice = selectedProducts.includes(product);
+            products?.map((product) => {
+              let chooice = selectedProducts?.some(p=>p.id===product.id);
+              let editAble = editProduct === product;
               return (
                 <tr
                   key={product.id}
@@ -215,103 +224,219 @@ export default function ProductList({
                       className="w-[4vw] h-[4rem] rounded-xl"
                     />
                   </td>
-                  <td className="w-[10vw]">{product.barcode}</td>
-                  <td className="w-[14vw]">{product.name}</td>
-                  <td className="w-[10vw]">{product.productCategoryName}</td>
-                  <td className="w-[10vw]">{product.origin}</td>
-                  <td className="w-[7vw]">{product.price}</td>
-                  <td className="w-[8vw]">
-                    {new Date(product.createDate).toLocaleDateString("en-GB", {
-                      month: "2-digit",
-                      day: "2-digit",
-                      year: "2-digit",
-                    })}
-                  </td>
-                    <td className="">{product.weight}</td>
-                  <td className="w-[6vw] text-center">
-                    {product.isInInv ? (
-                      <span className="px-5 py-1 rounded-xl bg-green-300 ">
-                        Yes
-                      </span>
+                  <td className="w-[10vw]">
+                    {editAble ? (
+                      <input
+                        value={editForm?.barcode}
+                        name="barcode"
+                        className="w-[80%] px-2"
+                        onChange={hanldeEditChange}
+                      />
                     ) : (
-                      <span className="px-5 py-1 rounded-xl bg-gray-300 ">
-                        Not Yet
-                      </span>
+                      <div className="overflow-hidden text-nowrap max-w-[9vw]">
+                        {product.barcode}
+                      </div>
                     )}
                   </td>
-                  <td className="text-end">
-                    <button
-                      className="text-center align-middle relative "
-                      onClick={(e) => handleOpenActionTab(e, product)}
-                    >
-                      <DotsThreeVertical weight="bold" className="text-2xl" />
-                      {openAction === product && (
-                        <>
-                          <div className="absolute w-full h-full top-0"></div>
-                          <div
-                            className={`action-tab-container translate-x-1 border ${
-                              thisIsTheLastItem ? "-top-[200%]" : "top-[50%]"
-                            }`}
-                            ref={actionComponent}
-                          >
+                  <td className="w-[14vw]">
+                    {editAble ? (
+                      <input
+                        value={editForm?.name}
+                        name="name"
+                        className="w-[80%] px-2"
+                        onChange={hanldeEditChange}
+                      />
+                    ) : (
+                      <div className="overflow-hidden text-nowrap max-w-[13vw]">
+                        {product.name}
+                      </div>
+                    )}
+                  </td>
+                  <td className="w-[10vw]">
+                    <div className="overflow-hidden text-nowrap max-w-[9vw]">
+                      {product.productCategoryName}
+                    </div>
+                  </td>
+                  <td className="w-[10vw]">
+                    {editAble ? (
+                      <input
+                        value={editForm?.origin}
+                        name="origin"
+                        className="w-[80%] px-2"
+                        onChange={hanldeEditChange}
+                      />
+                    ) : (
+                      <div className="overflow-hidden text-nowrap max-w-[9vw]">
+                        {product.origin}
+                      </div>
+                    )}
+                  </td>
+                  <td className="w-[7vw]">
+                    {editAble ? (
+                      <input
+                      type="number"
+                        value={editForm?.price}
+                        name="price"
+                        className="w-[80%] px-2"
+                        onChange={hanldeEditChange}
+                      />
+                    ) : (
+                      <div className="overflow-hidden text-nowrap max-w-[6vw]">
+                        {product.price}
+                      </div>
+                    )}
+                  </td>
+                  <td className="w-[8vw]">
+                    {notInDataBase
+                      ? new Date().toLocaleDateString("en-GB", {
+                          month: "2-digit",
+                          day: "2-digit",
+                          year: "2-digit",
+                        })
+                      : new Date(product.createDate).toLocaleDateString(
+                          "en-GB",
+                          {
+                            month: "2-digit",
+                            day: "2-digit",
+                            year: "2-digit",
+                          }
+                        )}
+                  </td>
+
+                  <td className="overflow-hidden">  {editAble ? (
+                      <input
+                      type="number"
+                        value={editForm?.weight}
+                        name="weight"
+                        className="w-[80%] px-2"
+                        onChange={hanldeEditChange}
+                      />
+                    ) : product.weight}</td>
+                  {!notInDataBase ? (
+                    <td className="w-[6vw] text-center">
+                      {product.isInInv ? (
+                        <span className="px-5 py-1 rounded-xl bg-green-300 ">
+                          Yes
+                        </span>
+                      ) : (
+                        <span className="px-5 py-1 rounded-xl bg-gray-300 ">
+                          Not Yet
+                        </span>
+                      )}
+                    </td>
+                  ) : editAble ? (
+                    <td className="w-[6vw] text-center">
+                      <button
+                        className="px-5 py-1 rounded-xl bg-green-300 "
+                        onClick={handleUpdateEdit}
+                      >
+                        Save
+                      </button>
+                    </td>
+                  ) : (
+                    <td className="w-[6vw] text-center">
+                      <button
+                        className="px-5 py-1 rounded-xl bg-green-300 "
+                        onClick={(e) => handleShowDetailProduct(e, product)}
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  )}
+                  {!notInDataBase ? (
+                    <td className="text-end">
+                      <button
+                        className="text-center align-middle relative "
+                        onClick={(e) => handleOpenActionTab(e, product)}
+                      >
+                        <DotsThreeVertical weight="bold" className="text-2xl" />
+                        {openAction === product && (
+                          <>
+                            <div className="absolute w-full h-full top-0"></div>
                             <div
-                              className="cursor-pointer"
-                              onClick={(e) =>
-                                handleShowDetailProduct(e, product)
-                              }
+                              className={`action-tab-container translate-x-1 border ${
+                                thisIsTheLastItem ? "-top-[200%]" : "top-[50%]"
+                              }`}
+                              ref={actionComponent}
                             >
-                              Show detail
-                            </div>
-                            {!product?.isInInv && (
                               <div
                                 className="cursor-pointer"
-                                onClick={(e) => handleDeleteClick(e, product)}
+                                onClick={(e) =>
+                                  handleShowDetailProduct(e, product)
+                                }
                               >
-                                Delete
+                                Show detail
                               </div>
-                            )}
-                          </div>
-                        </>
-                      )}
-                    </button>
-                  </td>
+                              {!product?.isInInv && (
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={(e) => handleDeleteClick(e, product)}
+                                >
+                                  Delete
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </button>
+                    </td>
+                  ) : editAble ? (
+                    <td className="text-center">
+                      <button
+                        className="px-5 py-1 rounded-xl bg-red-500 text-white"
+                        onClick={(e) => handleShowDetailProduct(e)}
+                      >
+                        Cancel
+                      </button>
+                    </td>
+                  ) : (
+                    <td className="text-center">
+                      <button
+                        className="text-center align-middle text-2xl relative bg-red-500 text-white p-2 rounded-2xl"
+                        onClick={(e) => handleDeleteClick(e, product)}
+                      >
+                        <X weight="bold" />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               );
             })}
         </tbody>
       </table>
-
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-5 mt-5">
-          <p>{t("RowsPerPage")}:</p>
-          <select
-            className="outline outline-1 px-1 py-1 rounded-xl"
-            onChange={(e) => setIndex(e.target.value)}
-            value={index}
-          >
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-            <option>7</option>
-            <option>8</option>
-            <option>9</option>
-            <option>10</option>
-          </select>
+      {!notInDataBase && (
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-5 mt-5">
+            <p>{t("RowsPerPage")}:</p>
+            <select
+              className="outline outline-1 px-1 py-1 rounded-xl"
+              onChange={(e) => setIndex(e.target.value)}
+              value={index}
+            >
+              <option>4</option>
+              <option>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8</option>
+              <option>9</option>
+              <option>10</option>
+            </select>
+          </div>
+          <div className="flex space-x-5 items-center">
+            <p>
+              {(page + 1) * index - (index - 1)} - {(page + 1) * index} of{" "}
+              {response?.totalItemsCount} {t("items")}
+            </p>
+            <Pagination
+              totalPagesCount={response?.totalPagesCount}
+              currentPage={page + 1}
+              handleLeft={() => setPage(page - 1)}
+              handleRight={() => setPage(page + 1)}
+              handleChoose={setPage}
+            />
+          </div>
         </div>
-        <div className="flex space-x-5 items-center">
-          <p>
-            {(page + 1) * index - (index - 1)} - {(page + 1) * index} of{" "}
-            {products?.totalItemsCount} {t("items")}
-          </p>
-          <Pagination
-            totalPagesCount={products?.totalPagesCount}
-            currentPage={page + 1}
-            handleLeft={() => setPage(page - 1)}
-            handleRight={() => setPage(page + 1)}
-            handleChoose={setPage}
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 }
