@@ -74,7 +74,7 @@ export default function ProductList({
       <table className=" w-full ">
         <thead className="text-[var(--en-vu-500-disable)] px-4">
           <tr>
-            <th className="border-b-2 py-4 w-10 text-center px-2">
+            <th className="border-b-2 py-4 w-10 text-center px-2 ">
               {selectedProducts?.length > 0 ? (
                 <input
                   type="checkbox"
@@ -84,8 +84,22 @@ export default function ProductList({
                     input && (input.indeterminate = overall?.indeterminate)
                   }
                 />
+              ) : notInDataBase ? (
+                <span
+                  className={`hover:text-[var(--en-vu-600)] cursor-pointer flex items-center ${
+                    sortBy === "Id" && "text-black"
+                  } `}
+                  onClick={() => handleSortChange("Id")}
+                >
+                  #
+                  {!descending ? (
+                    <ArrowUp weight="bold" />
+                  ) : (
+                    <ArrowDown weight="bold" />
+                  )}
+                </span>
               ) : (
-                "#"
+                <span>#</span>
               )}
             </th>
             <th className="border-b-2 text-left py-4 w-[7vw]">{t("Image")}</th>
@@ -94,7 +108,7 @@ export default function ProductList({
             </th>
 
             <th
-              className={`border-b-2 text-left py-4 w-[14vw] cursor-pointer ${
+              className={`border-b-2 text-left py-4 w-[14vw] cursor-pointer hover:text-[var(--en-vu-600)] ${
                 sortBy === "Name" && "text-black"
               }`}
               onClick={() => {
@@ -116,7 +130,7 @@ export default function ProductList({
             </th>
 
             <th
-              className={`border-b-2 text-left py-4 w-[10vw] cursor-pointer ${
+              className={`border-b-2 text-left py-4 w-[10vw] cursor-pointer hover:text-[var(--en-vu-600)] ${
                 sortBy === "Origin" && "text-black"
               }`}
               onClick={() => {
@@ -134,7 +148,7 @@ export default function ProductList({
             </th>
 
             <th
-              className={`border-b-2 text-left py-4 w-[7vw] cursor-pointer ${
+              className={`border-b-2 text-left py-4 w-[7vw] cursor-pointer hover:text-[var(--en-vu-600)] ${
                 sortBy === "Price" && "text-black"
               }`}
               onClick={() => {
@@ -151,7 +165,7 @@ export default function ProductList({
               </span>
             </th>
             <th
-              className={`border-b-2 text-left py-4 cursor-pointer w-[8vw] ${
+              className={`border-b-2 text-left py-4 cursor-pointer w-[8vw] hover:text-[var(--en-vu-600)] ${
                 sortBy === "CreateDate" && "text-black"
               }`}
               onClick={() => {
@@ -168,7 +182,7 @@ export default function ProductList({
               </span>
             </th>
             <th
-              className={`border-b-2 text-left py-4 cursor-pointer ${
+              className={`border-b-2 text-left py-4 cursor-pointer hover:text-[var(--en-vu-600)] ${
                 sortBy === "Weight" && "text-black"
               }`}
               onClick={() => {
@@ -195,7 +209,7 @@ export default function ProductList({
         <tbody className="overflow-y-auto max-h-[60vh] pb-[4rem] h-fit pl-4">
           {products &&
             products?.map((product) => {
-              let chooice = selectedProducts?.some(p=>p.id===product.id);
+              let chooice = selectedProducts?.some((p) => p.id === product.id);
               let editAble = editProduct === product;
               return (
                 <tr
@@ -274,7 +288,7 @@ export default function ProductList({
                   <td className="w-[7vw]">
                     {editAble ? (
                       <input
-                      type="number"
+                        type="number"
                         value={editForm?.price}
                         name="price"
                         className="w-[80%] px-2"
@@ -303,15 +317,20 @@ export default function ProductList({
                         )}
                   </td>
 
-                  <td className="overflow-hidden">  {editAble ? (
+                  <td className="overflow-hidden">
+                    {" "}
+                    {editAble ? (
                       <input
-                      type="number"
+                        type="number"
                         value={editForm?.weight}
                         name="weight"
                         className="w-[80%] px-2"
                         onChange={hanldeEditChange}
                       />
-                    ) : product.weight}</td>
+                    ) : (
+                      product.weight
+                    )}
+                  </td>
                   {!notInDataBase ? (
                     <td className="w-[6vw] text-center">
                       {product.isInInv ? (

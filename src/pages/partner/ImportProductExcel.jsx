@@ -25,6 +25,8 @@ export default function ImportProductExcel({ result, setResult }) {
   const [editForm, setEditForm] = useState();
   const [search, setSearch] = useState("");
   const [editProduct, setEditProduct] = useState();
+  const [sortBy, setSortBy] = useState("id");
+  const [descending, setDescending] = useState(false);
   const [overall, setOverall] = useState({
     checked: false,
     indeterminate: false,
@@ -409,6 +411,35 @@ export default function ImportProductExcel({ result, setResult }) {
     }
   };
 
+  const handleSortChange = (value) => {
+    console.log("checkcheck", sortBy === value.toLowerCase());
+    let sortd = sortBy;
+    let desd = descending;
+    if (sortBy === value) {
+      setDescending((prev) => !prev);
+      desd = !descending;
+    } else {
+      setSortBy(value);
+      sortd = value;
+    }
+    console.log(sortd);
+    console.log(desd);
+
+    const sortedData = [...excelData].sort((a, b) => {
+      if (a[sortd.toLowerCase()] < b[sortd.toLowerCase()]) return desd ? 1 : -1;
+      if (a[sortd.toLowerCase()] > b[sortd.toLowerCase()]) return desd ? -1 : 1;
+      return 0;
+    });
+    const sortedDataBase = [...excelDataBase].sort((a, b) => {
+      if (a[sortd.toLowerCase()] < b[sortd.toLowerCase()]) return desd ? 1 : -1;
+      if (a[sortd.toLowerCase()] > b[sortd.toLowerCase()]) return desd ? -1 : 1;
+      return 0;
+    });
+
+    setExcelData(sortedData);
+    setExcelDataBase(sortedDataBase);
+  };
+
   return (
     <div>
       <div className="flex space-x-4 font-semibold text-xl mb-6 ">
@@ -561,6 +592,9 @@ export default function ImportProductExcel({ result, setResult }) {
               editForm={editForm}
               hanldeEditChange={hanldeEditChange}
               handleUpdateEdit={handleUpdateEdit}
+              handleSortChange={handleSortChange}
+              sortBy={sortBy}
+              descending={descending}
             />
           </>
         ) : (
