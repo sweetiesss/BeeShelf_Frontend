@@ -32,6 +32,7 @@ export default function AxiosProduct() {
   };
   const createProductsWithUserId = async (data) => {
     try {
+      toast.dismiss();
       const fetching = fetchDataBearer({
         url: `product/create-products`,
         method: "POST",
@@ -41,17 +42,23 @@ export default function AxiosProduct() {
         pending: "Request in progress...",
         success: {
           render() {
-            return `Product created`;
+            return `Products created`;
           },
+          theme: "colored",
+          autoClose: true,
+          closeOnClick: true,
         },
         error: {
           render({ data }) {
             console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
+          theme: "colored",
+          autoClose: false,
+          closeOnClick: true,
         },
       });
-      return await fetching;
+      return fetching;
     } catch (e) {
       console.log(e);
       return e;

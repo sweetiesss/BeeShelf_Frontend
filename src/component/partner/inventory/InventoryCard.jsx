@@ -25,7 +25,7 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
           {[
             { label: "Location", value: warehouse?.location },
             { label: "Inventories", value: warehouse?.totalInventory },
-            { label: "Capacity", value: warehouse?.capacity },
+            { label: "Capacity", value: totalWeight+"/"+warehouse?.capacity },
           ].map((item) => (
             <div className="flex-1 text-left flex items-center gap-4">
               <span className="text-gray-500">{item.label}:</span>

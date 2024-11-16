@@ -27,8 +27,8 @@ export default function ProductPage() {
     indeterminate: false,
   });
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("");
-  const [descending, setDescending] = useState(false);
+  const [sortBy, setSortBy] = useState("CreateDate");
+  const [descending, setDescending] = useState(true);
 
   const { userInfor } = useContext(AuthContext);
   const { getProductByUserId, deleteProductById } = AxiosProduct();
@@ -242,8 +242,9 @@ export default function ProductPage() {
           <>
             {products?.items?.length > 0 ? (
               <ProductList
-                products={products}
+                products={products?.items}
                 selectedProducts={selectedProducts}
+                response={products}
                 toggleProductSelection={toggleProductSelection}
                 isShowDetailProduct={isShowDetailProduct}
                 isProductSelected={isProductSelected}

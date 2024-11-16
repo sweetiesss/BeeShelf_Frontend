@@ -16,7 +16,7 @@ export default function useAxios() {
   );
   instance.interceptors.response.use(
     function (response) {
-      console.log("response", response.data);
+      console.log("response", response);
 
       return response;
     },
