@@ -25,8 +25,9 @@ export default function ImportProductExcel({ result, setResult }) {
   const [editForm, setEditForm] = useState();
   const [search, setSearch] = useState("");
   const [editProduct, setEditProduct] = useState();
-  const [sortBy, setSortBy] = useState("id");
+  const [sortBy, setSortBy] = useState("Id");
   const [descending, setDescending] = useState(false);
+  const [errorList, setErrorList] = useState([]);
   const [overall, setOverall] = useState({
     checked: false,
     indeterminate: false,
@@ -163,6 +164,7 @@ export default function ImportProductExcel({ result, setResult }) {
     const file = event.target.files[0];
     setExcelData([]);
     setExcelDataBase([]);
+    setErrorList([]);
     setSeen([]);
     if (!file) return; // Exit if no file selected
 
@@ -187,6 +189,8 @@ export default function ImportProductExcel({ result, setResult }) {
         id: index,
         ocopPartnerId: userInfor.id,
       }));
+      const result = validateExcelData(updateData);
+      setErrorList(result.inValid);
 
       setExcelData(updateData);
       setExcelDataBase(updateData);
@@ -212,7 +216,8 @@ export default function ImportProductExcel({ result, setResult }) {
           (item) => !excelData.some((da) => da.id === item.id)
         );
         setExcelData([]);
-
+        const result = validateExcelData(updatedDataBase);
+        setErrorList(result.inValid);
         setExcelDataBase(updatedDataBase);
       }
       checkDuplicatedData(result?.response?.data?.message);
@@ -235,6 +240,8 @@ export default function ImportProductExcel({ result, setResult }) {
             !selectedProducts.some((selected) => selected.id === item.id)
         );
         setExcelData(updateData);
+        const result = validateExcelData(updateDataBase);
+        setErrorList(result.inValid);
         setExcelDataBase(updateDataBase);
 
         const selectProductBaseUpdated = selectedProductsBase.filter(
@@ -271,6 +278,8 @@ export default function ImportProductExcel({ result, setResult }) {
     }
     if (indexToRemoveBase !== -1) {
       updateDataBase.splice(indexToRemoveBase, 1);
+      const result = validateExcelData(updateDataBase);
+      setErrorList(result.inValid);
       setExcelDataBase(updateDataBase);
     }
     cancelDelete();
@@ -311,6 +320,8 @@ export default function ImportProductExcel({ result, setResult }) {
     );
 
     setExcelData(uniqueData);
+    const result = validateExcelData([...uniqueDataBase, ...uniqueData]);
+    setErrorList(result.inValid);
     setExcelDataBase([...uniqueDataBase, ...uniqueData]);
     checkIsDuplicated(false); // Reset the duplicated flag
     setSeen([]); // Clear the seen list
@@ -348,7 +359,9 @@ export default function ImportProductExcel({ result, setResult }) {
   };
   const hanldeEditChange = (e) => {
     e.stopPropagation();
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    if (name === "price" && value <= 0) value = 1;
+    if (name === "weight" && value <= 0) value = 0.1;
     setEditForm((prev) => ({ ...prev, [name]: value }));
   };
   const handleUpdateEdit = (e) => {
@@ -361,6 +374,8 @@ export default function ImportProductExcel({ result, setResult }) {
     const updateDataBase = excelDataBase.map((item) =>
       item.id === editProduct.id ? { ...item, ...editForm } : item
     );
+    const result = validateExcelData(updateDataBase);
+    setErrorList(result.inValid);
     setExcelData(updateData);
     setExcelDataBase(updateDataBase);
     console.log("updateData", updateData);
@@ -370,6 +385,9 @@ export default function ImportProductExcel({ result, setResult }) {
         updateData.find((updated) => updated.id == item.id)
       );
       console.log("updateDataSelection", updatedSelectedProducts);
+
+      const result2 = validateExcelData(updatedSelectedProducts);
+      setErrorList(result2.inValid);
 
       setSelectedProducts(updatedSelectedProducts);
       setSelectedProductsBase(updatedSelectedProducts);
@@ -386,6 +404,9 @@ export default function ImportProductExcel({ result, setResult }) {
     const updatedDataBase = excelDataBase.filter(
       (item) => !selectedProducts.includes(item)
     );
+    const result = validateExcelData(updatedDataBase);
+    setErrorList(result.inValid);
+
     setExcelData(updatedData);
     setExcelDataBase(updatedDataBase);
     setSelectedProducts([]);
@@ -398,11 +419,11 @@ export default function ImportProductExcel({ result, setResult }) {
     setSearch(value);
     if (value !== "") {
       const updateData = excelDataBase.filter((item) =>
-        item.name.toLowerCase()?.includes(value.toLowerCase())
+        item.name?.toLowerCase()?.includes(value.toLowerCase())
       );
       setExcelData(updateData);
       const updateSelectedData = selectedProducts.filter((item) =>
-        item.name.toLowerCase()?.includes(value.toLowerCase())
+        item.name?.toLowerCase()?.includes(value.toLowerCase())
       );
       setSelectedProducts(updateSelectedData);
     } else {
@@ -439,6 +460,41 @@ export default function ImportProductExcel({ result, setResult }) {
     setExcelData(sortedData);
     setExcelDataBase(sortedDataBase);
   };
+  const validateExcelData = (data) => {
+    const rules = {
+      name: (value) =>
+        typeof value === "string" && value.trim() !== "" && value.length > 5,
+      origin: (value) => typeof value === "string" && value.trim() !== "",
+      price: (value) => !isNaN(Number(value)) && Number(value) > 0, // Convert to a number and check
+      barcode: (value) => typeof value === "string" && value.trim() !== "",
+      productCategoryId: (value) => !isNaN(Number(value)) && Number(value) > 0, // Convert to a number and check
+      weight: (value) => !isNaN(Number(value)) && Number(value) > 0, // Convert to a number and check
+    };
+
+    const validateResult = {
+      valid: [],
+      inValid: [],
+    };
+
+    data.forEach((item, index) => {
+      const error = [];
+      for (const field in rules) {
+        if (rules[field] && !rules[field](item[field])) {
+          error.push(`${field}`);
+        }
+      }
+      if (error.length > 0) {
+        validateResult.inValid.push({
+          item,
+          error,
+        });
+      } else {
+        validateResult.valid.push(item);
+      }
+    });
+    return validateResult;
+  };
+  console.log("errorList", errorList);
 
   return (
     <div>
@@ -595,6 +651,7 @@ export default function ImportProductExcel({ result, setResult }) {
               handleSortChange={handleSortChange}
               sortBy={sortBy}
               descending={descending}
+              errorList={errorList}
             />
           </>
         ) : (

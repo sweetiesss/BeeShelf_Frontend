@@ -8,6 +8,7 @@ import {
   CaretDown,
   CaretUp,
   DotsThreeVertical,
+  ExclamationMark,
   X,
 } from "@phosphor-icons/react";
 
@@ -33,6 +34,7 @@ export default function ProductList({
   editForm,
   hanldeEditChange,
   handleUpdateEdit,
+  errorList,
 }) {
   const { t } = useTranslation();
   const [openAction, setOpenAction] = useState();
@@ -77,6 +79,7 @@ export default function ProductList({
             <th className="border-b-2 py-4 w-10 text-center px-2 ">
               {selectedProducts?.length > 0 ? (
                 <input
+
                   type="checkbox"
                   checked={overall?.checked}
                   onChange={handleClickOverall}
@@ -210,13 +213,19 @@ export default function ProductList({
           {products &&
             products?.map((product) => {
               let chooice = selectedProducts?.some((p) => p.id === product.id);
+              let checkError = errorList?.find((p) => p.item.id === product.id);
+              console.log(checkError);
               let editAble = editProduct === product;
               return (
                 <tr
                   key={product.id}
                   className={`
-                    hover:bg-[var(--Xanh-100)] border-t-2 
-                  ${chooice ? "bg-[var(--Xanh-100)]" : ""} font-medium`}
+                border-t-2 
+                  ${chooice ? "bg-[var(--Xanh-100)]" : ""} font-medium ${
+                    checkError
+                      ? "bg-red-200 hover:bg-red-100"
+                      : "     hover:bg-[var(--Xanh-100)]"
+                  }`}
                   onClick={() => toggleProductSelection(product)}
                 >
                   <td className="w-10 px-2">
@@ -238,65 +247,130 @@ export default function ProductList({
                       className="w-[4vw] h-[4rem] rounded-xl"
                     />
                   </td>
-                  <td className="w-[10vw]">
+                  <td
+                    className={`w-[10vw]  ${
+                      checkError?.error?.includes("barcode") &&
+                      "text-red-500 font-bold"
+                    }`}
+                  >
                     {editAble ? (
                       <input
+                        placeholder="Input barcode"
                         value={editForm?.barcode}
                         name="barcode"
-                        className="w-[80%] px-2"
+                        className="w-[80%] px-2 py-1"
                         onChange={hanldeEditChange}
                       />
                     ) : (
-                      <div className="overflow-hidden text-nowrap max-w-[9vw]">
-                        {product.barcode}
-                      </div>
+                      <>
+                        <div
+                          className={`overflow-hidden text-nowrap max-w-[9vw] flex items-center `}
+                        >
+                          {product.barcode}
+                          {checkError?.error?.includes("barcode") &&
+                            !product.barcode && (
+                              <span className="bg-red-500 text-white text-lg rounded-md">
+                                <ExclamationMark weight="bold" />
+                              </span>
+                            )}
+                        </div>
+                      </>
                     )}
                   </td>
-                  <td className="w-[14vw]">
+                  <td
+                    className={`w-[14vw] ${
+                      checkError?.error?.includes("name") &&
+                      "text-red-500 font-bold"
+                    }`}
+                  >
                     {editAble ? (
                       <input
+                      placeholder="Input name"
                         value={editForm?.name}
                         name="name"
-                        className="w-[80%] px-2"
+                        className="w-[80%] px-2 py-1"
                         onChange={hanldeEditChange}
                       />
                     ) : (
-                      <div className="overflow-hidden text-nowrap max-w-[13vw]">
+                      <div
+                        className={`overflow-hidden text-nowrap max-w-[13vw] flex items-center `}
+                      >
                         {product.name}
+                        {checkError?.error?.includes("name") &&
+                          !product.name && (
+                            <span className="bg-red-500 text-white text-lg rounded-md">
+                              <ExclamationMark weight="bold" />
+                            </span>
+                          )}
                       </div>
                     )}
                   </td>
                   <td className="w-[10vw]">
-                    <div className="overflow-hidden text-nowrap max-w-[9vw]">
+                    <div
+                      className={`overflow-hidden text-nowrap max-w-[9vw] flex items-center${
+                        checkError?.error?.includes("name") && "text-red-500"
+                      }`}
+                    >
                       {product.productCategoryName}
+                      {checkError?.error?.includes("productCategoryId") && (
+                        <span className="bg-red-500 text-white text-lg rounded-md">
+                          <ExclamationMark weight="bold" />
+                        </span>
+                      )}
                     </div>
                   </td>
-                  <td className="w-[10vw]">
+                  <td
+                    className={`w-[10vw] ${
+                      checkError?.error?.includes("origin") &&
+                      "text-red-500 font-bold"
+                    }`}
+                  >
                     {editAble ? (
                       <input
+                      placeholder="Input origin"
                         value={editForm?.origin}
                         name="origin"
-                        className="w-[80%] px-2"
+                        className="w-[80%] px-2 py-1"
                         onChange={hanldeEditChange}
                       />
                     ) : (
-                      <div className="overflow-hidden text-nowrap max-w-[9vw]">
+                      <div className="overflow-hidden text-nowrap max-w-[9vw] flex items-center">
                         {product.origin}
+                        {checkError?.error?.includes("origin") &&
+                          !product.origin && (
+                            <span className="bg-red-500 text-white text-lg rounded-md">
+                              <ExclamationMark weight="bold" />
+                            </span>
+                          )}
                       </div>
                     )}
                   </td>
-                  <td className="w-[7vw]">
+                  <td
+                    className={`w-[7vw] ${
+                      checkError?.error?.includes("price") &&
+                      "text-red-500 font-bold"
+                    }`}
+                  >
                     {editAble ? (
                       <input
+                      placeholder="Price"
                         type="number"
                         value={editForm?.price}
                         name="price"
-                        className="w-[80%] px-2"
+                        className="w-[80%] px-2 py-1"
                         onChange={hanldeEditChange}
                       />
                     ) : (
-                      <div className="overflow-hidden text-nowrap max-w-[6vw]">
+                      <div
+                        className={`overflow-hidden text-nowrap max-w-[6vw] flex items-center `}
+                      >
                         {product.price}
+                        {checkError?.error?.includes("price") &&
+                          !product.price && (
+                            <span className="bg-red-500 text-white text-lg rounded-md">
+                              <ExclamationMark weight="bold" />
+                            </span>
+                          )}
                       </div>
                     )}
                   </td>
@@ -317,18 +391,33 @@ export default function ProductList({
                         )}
                   </td>
 
-                  <td className="overflow-hidden">
-                    {" "}
+                  <td
+                    className={`overflow-hidden  ${
+                      checkError?.error?.includes("weight") &&
+                      "text-red-500 font-bold"
+                    }`}
+                  >
                     {editAble ? (
                       <input
+                      placeholder="Weight"
                         type="number"
                         value={editForm?.weight}
                         name="weight"
-                        className="w-[80%] px-2"
+                        className="w-[80%] px-2 py-1"
                         onChange={hanldeEditChange}
                       />
                     ) : (
-                      product.weight
+                      <div
+                        className={`overflow-hidden text-nowrap max-w-[6vw] flex items-center`}
+                      >
+                        {product.weight}
+                        {checkError?.error?.includes("weight") &&
+                          !product.weight && (
+                            <span className="bg-red-500 text-white text-lg rounded-md">
+                              <ExclamationMark weight="bold" />
+                            </span>
+                          )}
+                      </div>
                     )}
                   </td>
                   {!notInDataBase ? (
