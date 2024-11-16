@@ -24,7 +24,7 @@
   --Xanh-100: #d6f3e8;
   --Xanh-10: #f0fbf7;
   
-  ---Base: #f02656;
+  --Do-Base: #f02656;
   ---100: #fcdae2;
 }
 [data-theme="dark"] {
@@ -48,6 +48,7 @@ table tbody{
 tbody tr{
   border: none;
 }
+
 
 .profile {
   .active {
@@ -116,7 +117,7 @@ table {
   position: absolute;
   left: 0;
   background-color: white;
-  top: 50%;
+
   text-align: center;
   width: fit-content;
   height: fit-content;

@@ -26,6 +26,9 @@ export default function ProductPage() {
     checked: false,
     indeterminate: false,
   });
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("CreateDate");
+  const [descending, setDescending] = useState(true);
 
   const { userInfor } = useContext(AuthContext);
   const { getProductByUserId, deleteProductById } = AxiosProduct();
@@ -51,11 +54,18 @@ export default function ProductPage() {
     };
   };
   const debouncedFetchProducts = useCallback(
-    debounce(async (page) => {
-      const response = await getProductByUserId(userInfor?.id, page, index);
+    debounce(async (page, index, sortBy, search, descending) => {
+      const response = await getProductByUserId(
+        userInfor?.id,
+        page,
+        index,
+        search,
+        sortBy,
+        descending
+      );
       setProducts(response?.data);
     }, 500),
-    [userInfor?.id, index]
+    [userInfor?.id]
   );
   useEffect(() => {
     const fetchingData = async () => {
@@ -68,17 +78,24 @@ export default function ProductPage() {
   useEffect(() => {
     if (userInfor) {
       setLoading(true);
-      debouncedFetchProducts(page);
+      debouncedFetchProducts(page, index, sortBy, search, descending);
       setLoading(false);
     }
-  }, [page, index, userInfor, fetching]);
+  }, [page, index, sortBy, search, userInfor, fetching, descending]);
 
   useEffect(() => {
     const fetchData = async () => {
       if (userInfor && refresh != 0) {
         try {
           setLoading(true);
-          const response = await getProductByUserId(userInfor?.id, page, index);
+          const response = await getProductByUserId(
+            userInfor?.id,
+            page,
+            index,
+            search,
+            sortBy,
+            descending
+          );
           setProducts(response?.data);
 
           const updatedItem = response?.data?.items.find(
@@ -192,10 +209,23 @@ export default function ProductPage() {
   const cancelDelete = () => {
     setShowDeleteConfirmation(null);
   };
-  const handleClose=()=>{
+  const handleClose = () => {
     setCreateRequest(false);
-    setFetching(prev=>!prev)
-  }
+    setFetching((prev) => !prev);
+  };
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value); // Update search term
+  };
+
+  const handleSortChange = (value) => {
+    console.log("checkcheck",sortBy===value);
+    
+    if (sortBy === value) {
+      setDescending((prev) => !prev);
+    } else {
+      setSortBy(value);
+    }
+  };
 
   return (
     <div className="w-full h-full gap-10 ">
@@ -205,13 +235,16 @@ export default function ProductPage() {
           products={products}
           selectedProducts={selectedProducts}
           handleClickOverall={handleClickOverall}
+          handleSearchChange={handleSearchChange}
+          search={search}
         />
         {!loading ? (
           <>
             {products?.items?.length > 0 ? (
               <ProductList
-                products={products}
+                products={products?.items}
                 selectedProducts={selectedProducts}
+                response={products}
                 toggleProductSelection={toggleProductSelection}
                 isShowDetailProduct={isShowDetailProduct}
                 isProductSelected={isProductSelected}
@@ -223,6 +256,10 @@ export default function ProductPage() {
                 setPage={setPage}
                 handleDeleteClick={handleDeleteClick}
                 handleShowDetailProduct={handleShowDetailProduct}
+                handleSortChange={handleSortChange}
+                sortBy={sortBy}
+                descending={descending}
+                setDescending={setDescending}
               />
             ) : (
               <>
@@ -231,7 +268,9 @@ export default function ProductPage() {
             )}
           </>
         ) : (
-          <ProductListSkeleton size={index} />
+          <div className="w-full mt-4">
+            <ProductListSkeleton size={index} />
+          </div>
         )}
       </div>
       {/* <ProductOverview /> */}

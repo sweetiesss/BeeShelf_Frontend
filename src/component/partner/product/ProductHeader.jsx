@@ -23,6 +23,8 @@ export default function ProductHeader({
   updatable,
   inInventory,
   setInventory,
+  handleSearchChange,
+  search,
 }) {
   const { t } = useTranslation();
   return (
@@ -82,11 +84,13 @@ export default function ProductHeader({
             >
               + {t("AddProduct")}
             </NavLink>
-            <div className="flex items-center outline-[var(--line-main-color)] focus-within:outline-black text-[var(--text-second-color)] focus-within:text-[var(--text-main-color)] bg-white px-2 pl-4 py-1 rounded-xl outline-2 outline">
+            <div className={`flex items-center focus-within:outline-black  focus-within:text-[var(--text-main-color)] bg-white px-2 pl-4 py-1 rounded-xl outline-2 outline ${search?"outline-black text-[var(--text-main-color)]":"outline-[var(--line-main-color)] text-[var(--text-second-color)]"}`}>
               <MagnifyingGlass size={18} weight="bold" />
               <input
-                className="outline-none pl-1 ml-1 border-0 border-l-2 border-[var(--line-main-color)] focus-within:border-black "
+                className={`outline-none pl-1 ml-1 border-0 border-l-2  focus-within:border-black ${search?"border-black":"border-[var(--line-main-color)]"}`}
                 placeholder={t("QuickSearch")}
+                onChange={handleSearchChange}
+                value={search}
               />
             </div>
           </div>
