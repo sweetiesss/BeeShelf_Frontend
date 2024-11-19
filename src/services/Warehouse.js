@@ -70,6 +70,18 @@ export default function AxiosWarehouse() {
       return e;
     }
   };
+  const getWarehouseById = async (userId) => {
+    try {
+      const fetching = await fetchDataBearer({
+        url: `warehouse/get-warehouse-by-user/${userId}`,
+        method: "GET",
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
   const deleteProductById = async (productId) => {
     try {
       const fetching = fetchDataBearer({

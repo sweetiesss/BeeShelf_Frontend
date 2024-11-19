@@ -42,6 +42,8 @@ export default function InventoryPage() {
       setLoading(false);
     }
   };
+  console.log(warehouse);
+  
   return (
     <div>
       <div className="text-left">

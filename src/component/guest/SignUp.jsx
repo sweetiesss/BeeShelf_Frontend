@@ -4,6 +4,7 @@ import AxiosUser from "../../services/User";
 import {
   Bank,
   Buildings,
+  CheckCircle,
   Coins,
   CreditCard,
   EnvelopeSimple,
@@ -12,13 +13,30 @@ import {
   User,
 } from "@phosphor-icons/react";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../../context/AuthContext";
+import Select from "react-select";
 
 export default function SignUp({ setAction }) {
-  const [form, setForm] = useState({});
+  const defaulform = {
+    email: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    citizenIdentificationNumber: "",
+    taxIdentificationNumber: "",
+    businessName: "",
+    bankName: "",
+    bankAccountNumber: "",
+    pictureLink:
+      "https://th.bing.com/th/id/R.8e2c571ff125b3531705198a15d3103c?rik=muXZvm3dsoQqwg&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fpng-user-icon-person-icon-png-people-person-user-icon-2240.png&ehk=MfHYkGonqy7I%2fGTKUAzUFpbYm9DhfXA9Q70oeFxWmH8%3d&risl=&pid=ImgRaw&r=0",
+  };
+  const [form, setForm] = useState(defaulform);
   const [agree, setAgree] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
+  const { banksList } = useAuth();
+
   const [step, setStep] = useState(1);
   const nav = useNavigate();
   const { requestSignUp } = AxiosUser();
@@ -83,6 +101,10 @@ export default function SignUp({ setAction }) {
   const handleToLogin = () => {
     setAction("Login");
     setSuccess(false);
+    setForm(defaulform);
+    setStep(1);
+    setErrors({});
+    setAgree(false);
   };
 
   const handleSubmit = async () => {
@@ -94,7 +116,68 @@ export default function SignUp({ setAction }) {
         };
         setLoading(true);
         const result = await requestSignUp(submitFrom);
-        console.log(result);
+        console.log("????", result);
+        if (result?.status === 400) {
+          const resultError = result?.response?.data?.message;
+          const resultErrors = result?.response?.data?.errors;
+          console.log("check", resultErrors);
+          console.log(Object.keys(resultErrors).length > 0);
+
+          if (resultError) {
+            Object.keys(defaulform).forEach((field) => {
+              if (resultError.toLowerCase().includes(field.toLowerCase())) {
+                setErrors((prev) => ({ ...prev, [field]: resultError }));
+                if (
+                  field === "email" ||
+                  field === "firstName" ||
+                  field === "lastName" ||
+                  field === "phone"
+                ) {
+                  setStep(1);
+                } else if (
+                  field === "citizenIdentificationNumber" ||
+                  field === "taxIdentificationNumber" ||
+                  field === "bankAccountNumber" ||
+                  field === "bankName"
+                ) {
+                  setStep(2);
+                } else if (field === "businessName") {
+                  setStep(3);
+                }
+              }
+            });
+          }
+
+          if (Object.keys(resultErrors).length > 0) {
+            Object.entries(resultErrors).forEach(([field, value]) => {
+              //  setErrors((prev)=>({...prev,[field]:value}));
+              const errorMessage = Array.isArray(value) ? value[0] : value;
+              console.log(errorMessage);
+              const fieldError = field.toLowerCase();
+              setErrors((prev) => ({
+                ...prev,
+                [fieldError]: errorMessage,
+              }));
+              if (
+                fieldError === "email" ||
+                fieldError === "firstName" ||
+                fieldError === "lastName" ||
+                fieldError === "phone"
+              ) {
+                setStep(1);
+              } else if (
+                fieldError === "citizenIdentificationNumber" ||
+                fieldError === "taxIdentificationNumber" ||
+                fieldError === "bankAccountNumber" ||
+                fieldError === "bankName"
+              ) {
+                setStep(2);
+              } else if (fieldError === "businessName") {
+                setStep(3);
+              }
+            });
+          }
+        }
         if (result?.status === 200) {
           setSuccess(true);
         }
@@ -112,6 +195,7 @@ export default function SignUp({ setAction }) {
   const loginByGoogle = useGoogleLogin({
     onSuccess: (tokenResponse) => console.log(tokenResponse),
   });
+  console.log(banksList?.data?.data);
 
   return (
     <div className="w-full p-4  overflow-hidden relative bg-white h-full">
@@ -353,14 +437,58 @@ export default function SignUp({ setAction }) {
                   <label className="text-3xl p-4 pr-0  rounded-s-lg ">
                     <Bank />
                   </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
+                  <Select
+                    className="w-full"
+                    styles={{
+                      control: (baseStyles) => ({
+                        ...baseStyles,
+                        border: "none",
+                        boxShadow: "none",
+                        width: "100%",
+                      }),
+                      dropdownIndicator: (baseStyles) => ({
+                        ...baseStyles,
+                        color: "inherit", // Optional: matches text color
+                        width: "100%",
+                      }),
+                      menu: (baseStyles) => ({
+                        ...baseStyles,
+                        border: "none",
+                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                        width: "100%",
+                      }),
+                    }}
+                    onChange={(selectedOption) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        bankName: selectedOption.value,
+                      }))
+                    }
+                    options={banksList?.data?.data.map((bank) => ({
+                      value: bank.shortName,
+                      label: bank.shortName,
+                      image: bank.logo,
+                    }))}
                     name="bankName"
                     placeholder="Bank Name"
-                    value={form?.bankName || ""}
-                  />
+                    value={banksList?.data?.data
+                      ?.map((bank) => ({
+                        value: bank.shortName,
+                        label: bank.shortName,
+                        image: bank.logo,
+                      }))
+                      .find((bank) => bank.value === form.bankName)}
+                    formatOptionLabel={({ label, image }) => (
+                      <div className="flex items-center gap-2 ">
+                        <img
+                          src={image}
+                          alt={label}
+                          className="w-32 h-full object-contain"
+                        />
+                        <span>{label}</span>
+                      </div>
+                    )}
+                  ></Select>
                 </div>
               </div>
               <div>
@@ -527,16 +655,37 @@ export default function SignUp({ setAction }) {
         </div>
       ) : (
         <div className="mt-10 text-xl">
-          <p className="font-medium text-[var(--en-vu-600)]">
-            Your account has been create successfully.
-          </p>
-          <p className="font-medium text-[var(--Xanh-Base)]">
-            We have already sent an email for your password.
-          </p>
-          <p className="font-medium text-[var(--en-vu-600)]">
-            Login and change the password again.
-          </p>
-          <button onClick={handleToLogin}>Sign In</button>
+          <div>
+            <p className="font-semibold text-xl text-[var(--Xanh-Base)] flex flex-col items-center">
+              <div>
+                <CheckCircle
+                  size={136}
+                  color="var(--Xanh-Base)"
+                  weight="fill"
+                />
+              </div>
+              <p className="mt-2">Your account has been create successfully.</p>
+            </p>
+          </div>
+          <div className="flex flex-col items-center mt-10">
+            <p className="font-medium text-lg text-[var(--en-vu-base)]">
+              We have already{" "}
+              <span className="text-[var(--Xanh-Base)] font-semibold">
+                sent an email
+              </span>{" "}
+              for your password.
+            </p>
+            <p className="font-medium text-lg text-[var(--en-vu-base)]">
+              Login and change the password again.
+            </p>
+          </div>
+
+          <button
+            className={`mt-10 w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
+            onClick={handleToLogin}
+          >
+            Sign In
+          </button>
         </div>
       )}
     </div>
