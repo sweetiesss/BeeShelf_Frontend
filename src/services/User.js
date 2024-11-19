@@ -97,8 +97,8 @@ export default function AxiosUser() {
       await toast.promise(fetching, {
         pending: "Request in progress...",
         success: {
-          render({ data }) {
-            return `Welcome ${data?.data?.firstName}`;
+          render() {
+            return `Your account created.`;
           },
         },
         error: {
