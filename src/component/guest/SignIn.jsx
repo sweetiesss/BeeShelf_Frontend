@@ -69,7 +69,7 @@ export default function SignIn({ action, setAction }) {
             </label>
             <input
               className="p-4 w-full rounded-lg outline-none"
-              type="text"
+              type="email"
               onChange={handleInput}
               name="email"
               placeholder="Email"

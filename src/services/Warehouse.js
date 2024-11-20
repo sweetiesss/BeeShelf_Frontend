@@ -1,62 +1,89 @@
 import { toast } from "react-toastify";
-import useAxios from "./CustomizeAxios";
+
+import useAxiosBearer from "./CustomizeAxios";
 
 export default function AxiosWarehouse() {
-  const { fetchDataBearer } = useAxios();
-//   const createProductWithUserId = async (data) => {
-//     try {
-//       const fetching = fetchDataBearer({
-//         url: `product/create-product  `,
-//         method: "POST",
-//         data: data,
-//       });
-//       await toast.promise(fetching, {
-//         pending: "Request in progress...",
-//         success: {
-//           render() {
-//             return `Product created`;
-//           },
-//         },
-//         error: {
-//           render({ data }) {
-//             console.log("data Error", data.response.data.message);
-//             return `${data.response.data.message || "Something went wrong!"}`;
-//           },
-//         },
-//       });
-//       return await fetching;
-//     } catch (e) {
-//       console.log(e);
-//       return e;
-//     }
-//   };
-//   const createProductsWithUserId = async (data) => {
-//     try {
-//       const fetching = fetchDataBearer({
-//         url: `product/create-products`,
-//         method: "POST",
-//         data: data,
-//       });
-//       await toast.promise(fetching, {
-//         pending: "Request in progress...",
-//         success: {
-//           render() {
-//             return `Product created`;
-//           },
-//         },
-//         error: {
-//           render({ data }) {
-//             console.log("data Error", data.response.data.message);
-//             return `${data.response.data.message || "Something went wrong!"}`;
-//           },
-//         },
-//       });
-//       return await fetching;
-//     } catch (e) {
-//       console.log(e);
-//       return e;
-//     }
-//   };
+  const { fetchDataBearer } = useAxiosBearer();
+  //   const createProductWithUserId = async (data) => {
+  //     try {
+  //       const fetching = fetchDataBearer({
+  //         url: `product/create-product  `,
+  //         method: "POST",
+  //         data: data,
+  //       });
+  //       await toast.promise(fetching, {
+  //         pending: "Request in progress...",
+  //         success: {
+  //           render() {
+  //             return `Product created`;
+  //           },
+  //         },
+  //         error: {
+  //           render({ data }) {
+  //             console.log("data Error", data.response.data.message);
+  //             return `${data.response.data.message || "Something went wrong!"}`;
+  //           },
+  //         },
+  //       });
+  //       return await fetching;
+  //     } catch (e) {
+  //       console.log(e);
+  //       return e;
+  //     }
+  //   };
+  //   const createProductsWithUserId = async (data) => {
+  //     try {
+  //       const fetching = fetchDataBearer({
+  //         url: `product/create-products`,
+  //         method: "POST",
+  //         data: data,
+  //       });
+  //       await toast.promise(fetching, {
+  //         pending: "Request in progress...",
+  //         success: {
+  //           render() {
+  //             return `Product created`;
+  //           },
+  //         },
+  //         error: {
+  //           render({ data }) {
+  //             console.log("data Error", data.response.data.message);
+  //             return `${data.response.data.message || "Something went wrong!"}`;
+  //           },
+  //         },
+  //       });
+  //       return await fetching;
+  //     } catch (e) {
+  //       console.log(e);
+  //       return e;
+  //     }
+  //   };
+
+  const getWarehouses = async (
+    search,
+    sortCriteria,
+    descending,
+    pageIndex,
+    pageSize
+  ) => {
+    try {
+      const fetching = await fetchDataBearer({
+        url: `/warehouse/get-warehouses`,
+        method: "GET",
+        params: {
+          search,
+          sortCriteria,
+          descending,
+          pageIndex,
+          pageSize,
+        },
+      });
+      return fetching;
+    } catch (e) {
+      console.error("Error fetching warehouses:", e);
+      return e;
+    }
+  };
 
   const getWarehouseByUserId = async (userId) => {
     try {
@@ -113,7 +140,7 @@ export default function AxiosWarehouse() {
       const fetching = fetchDataBearer({
         url: `product/update-product/${productId}`,
         method: "PUT",
-        data:data,
+        data: data,
       });
       await toast.promise(fetching, {
         pending: "Request in progress...",
@@ -136,6 +163,7 @@ export default function AxiosWarehouse() {
     }
   };
   return {
-    getWarehouseByUserId
+    getWarehouseByUserId,
+    getWarehouses,
   };
 }
