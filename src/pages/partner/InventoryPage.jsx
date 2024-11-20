@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   InventoryCard,
   WarehouseCard,
@@ -7,86 +7,129 @@ import {
   InventoryHeader,
   WarehouseHeader,
 } from "../../component/partner/inventory/Header";
-import { CaretLeft, CaretRight } from "@phosphor-icons/react";
+import {
+  CaretLeft,
+  CaretRight,
+  LockKeyOpen,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
 import InventoryProduct from "../../component/partner/inventory/InventoryProduct";
-
-const warehouses = [
-  {
-    warehouse_id: 1,
-    name: "Warehouse A",
-    size: 1000,
-    location: "Hanoi",
-    inventories: [
-      {
-        inventory_id: 1,
-        max_weight: 500,
-        weight: 500,
-        bought_date: "2023-09-15",
-        expiration_date: "2024-09-15",
-      },
-      {
-        inventory_id: 3,
-        max_weight: 1200,
-        bought_date: "2023-07-20",
-        expiration_date: "2024-07-20",
-      },
-    ],
-  },
-  {
-    warehouse_id: 2,
-    name: "Warehouse B",
-    size: 1500,
-    location: "Ho Chi Minh City",
-    inventories: [
-      {
-        inventory_id: 2,
-        max_weight: 750,
-        bought_date: "2023-08-10",
-        expiration_date: "2024-08-10",
-      },
-      {
-        inventory_id: 5,
-        max_weight: 1000,
-        bought_date: "2023-06-05",
-        expiration_date: "2024-06-05",
-      },
-    ],
-  },
-  {
-    warehouse_id: 3,
-    name: "Warehouse C",
-    size: 800,
-    location: "Da Nang",
-    inventories: [
-      {
-        inventory_id: 4,
-        max_weight: 300,
-        bought_date: "2023-10-01",
-        expiration_date: "2024-10-01",
-      },
-    ],
-  },
-];
+import AxiosWarehouse from "../../services/Warehouse";
+import { useAuth } from "../../context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function InventoryPage() {
   const [warehouse, setWareHouse] = useState("");
+  const [warehouses, setWareHouses] = useState();
   const [inventory, setInventory] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [refetching, setRefetching] = useState(false);
+  const [setFiltersVisible, filtersVisible] = useState(true);
+
+  const [search, setSearch] = useState(null);
+  const [sortCriteria, setSortCriteria] = useState(null);
+  const [descending, setDescending] = useState(false);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+
+  const { userInfor } = useAuth();
+  const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    fetchingDataWarehouses();
+  }, []);
+
+  const fetchingDataWarehouses = async () => {
+    try {
+      setLoading(true);
+      const res = await getWarehouses(
+        search,
+        sortCriteria,
+        descending,
+        pageIndex,
+        pageSize
+      );
+      console.log(res);
+      if (res?.status == 200) {
+        setWareHouses(res);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter state
+  const [filters, setFilters] = useState({
+    location: "",
+    sizeRange: [0, 5000],
+    status: "INSTOCK",
+  });
+
+  // Update filters
+  const updateFilter = (field, value) => {
+    setFilters({
+      ...filters,
+      [field]: value,
+    });
+  };
+
+  // Handle filter submission
+  const handleFilterSubmit = () => {
+    // applyFilters(filters); // This function should filter the warehouses based on the filters
+  };
+
+  // Toggle filter visibility
+  const toggleFilters = () => {
+    setFiltersVisible(!filtersVisible);
+  };
+
   return (
     <div>
       <div className="text-left">
         {/* Responsive grid for the inventory cards */}
+        <div>
+          <p className="text-3xl font-bold">{t("Warehouses")}</p>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <p>{t("Filters")}</p>
+            <div
+              className={`flex items-center border border-gray-300 rounded-2xl  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+                sortCriteria === "Location"
+                  ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                  : "text-[var(--en-vu-300)]"
+              }`}
+            >
+              <label className="text-xl  pr-0  rounded-s-lg ">
+                <LockKeyOpen weight="fill" />
+              </label>
+              <select
+                className=" w-full rounded-lg outline-none"
+                type="password"
+                // onChange={handleInput}
+                name="password"
+                placeholder="Password"
+                value={sortCriteria || ""}
+              >
+                <option>Location</option>
+              </select>
+            </div>
+          </div>
+          <div></div>
+        </div>
         {warehouse === "" ? (
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="col-span-3">
-                <WarehouseHeader />
-              </div>
-              {warehouses.map((warehouse) => (
-                <WarehouseCard
-                  warehouse={warehouse}
-                  setWareHouse={setWareHouse}
-                />
-              ))}
+              {warehouses &&
+                warehouses?.data?.items.map((warehouse) => (
+                  <WarehouseCard
+                    warehouse={warehouse}
+                    setWareHouse={setWareHouse}
+                  />
+                ))}
             </div>
           </div>
         ) : inventory === "" ? (
@@ -113,7 +156,7 @@ export default function InventoryPage() {
             ))}
           </div>
         ) : (
-          <InventoryProduct setInventory={setInventory}/>
+          <InventoryProduct setInventory={setInventory} />
         )}
       </div>
     </div>

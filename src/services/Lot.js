@@ -1,7 +1,8 @@
-import useAxios from "./CustomizeAxios";
+import useAxiosBearer from "./CustomizeAxios";
+
 
 export default function AxiosLot() {
-  const { fetchDataBearer } = useAxios();
+  const { fetchDataBearer } = useAxiosBearer();
   const createLot = async (data) => {
     try {
       const fetching = await fetchDataBearer({
