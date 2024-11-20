@@ -35,8 +35,11 @@ export default function ForgotPassword({ setAction }) {
       setError({});
       setLoading(true);
       console.log({ sentToken, Password: form.newPassword });
-
-      const result = await requestResetPassword(sentToken, form.newPassword);
+      const submitForm = {
+        token: token.replace(" ", "+"),
+        newPassword: form.newPassword,
+      };
+      const result = await requestResetPassword(submitForm);
       const errorMessage = result?.response?.data?.message;
       if (errorMessage) {
         if (errorMessage === "Invalid reset token.") {
@@ -53,7 +56,7 @@ export default function ForgotPassword({ setAction }) {
         setError({});
         setSuccess(false);
         setForm({});
-        setAction("Login")
+        setAction("Login");
       }
       console.log(result);
     } catch (e) {
@@ -182,15 +185,25 @@ export default function ForgotPassword({ setAction }) {
                     </p>
                   </p>
                 </div>
-                <div className="flex flex-col items-center mt-10">
-                  <p className="font-medium text-lg text-[var(--en-vu-base)]">
+                <div className="flex flex-col items-center mt-8">
+                  <p className="font-medium text-lg text-[var(--en-vu-base)] text-center">
                     We have already
-                    <span className="text-[var(--Xanh-Base)] font-semibold">
+                    <span className="text-[var(--Xanh-Base)] font-semibold mx-2">
                       sent an email
                     </span>
-                    to change your new password.
+                    for your password.
                   </p>
+                  <p>Check your email and change password again</p>
                 </div>
+                <button
+                  className={`mt-8 w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
+                  onClick={() => {
+                    nav("/authorize/signin");
+                    setAction("Login");
+                  }}
+                >
+                  To Login
+                </button>
               </div>
             )}
           </div>
@@ -225,7 +238,7 @@ export default function ForgotPassword({ setAction }) {
                 </label>
                 <input
                   className="p-4 w-full rounded-lg outline-none"
-                  type="text"
+                  type="password"
                   onChange={handleInput}
                   name="newPassword"
                   placeholder="Your New Password"

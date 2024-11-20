@@ -114,12 +114,12 @@ export default function AxiosUser() {
       return error;
     }
   };
-  const requestResetPassword = async (token, newPassword) => {
+  const requestResetPassword = async (data) => {
     try {
       const fetching = fetchData({
-        url:
-          "auth/reset-password?token=" + token + "&newPassword=" + newPassword,
+        url: "auth/reset-password",
         method: "POST",
+        data,
       });
       console.log(fetching);
 

@@ -17,7 +17,7 @@ export function WarehouseHeader({
   applyFilters,
 }) {
   const { t } = useTranslation();
-  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(true);
 
   // Filter state
   const [filters, setFilters] = useState({
@@ -59,12 +59,13 @@ export function WarehouseHeader({
 
       {/* Filter section with sliding effect */}
       <div
-        className={`fixed top-10 right-0 h-full w-80 bg-white shadow-2xl border-l-2 border-gray-300 z-40 p-6 transition-all duration-500 ease-in-out transform ${
+        className={`fixed top-16 right-0 h-full w-80 bg-white shadow-2xl border-l-2 border-gray-300 z-40 p-6 transition-all duration-500 ease-in-out transform ${
           filtersVisible
             ? "translate-x-0 opacity-100 visible"
             : "translate-x-full opacity-0 invisible"
         }`}
       >
+        
         <h2 className="text-2xl font-semibold mb-4">{t("Filters")}</h2>
         <div className="space-y-6">
           {/* Quick Search */}
