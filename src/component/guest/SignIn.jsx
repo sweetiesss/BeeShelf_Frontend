@@ -90,7 +90,7 @@ export default function SignIn({setAction}) {
             </label>
             <input
               className="p-4 w-full rounded-lg outline-none"
-              type="email"
+              type="text"
               onChange={handleInput}
               name="email"
               placeholder="Email"

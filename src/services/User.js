@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { useAxios } from "./CustomizeAxios";
+import useAxios from "./CustomizeAxios";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 

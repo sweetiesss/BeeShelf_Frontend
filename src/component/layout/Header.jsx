@@ -197,7 +197,7 @@ export function HeaderAuthenticated() {
           onClick={handleProfileDetail}
         >
           <img
-            src={userInfor?.pictureLink || defaultAvatar}
+            src={userInfor?.picture || defaultAvatar}
             className="relative w-10 h-10"
             alt="User Avatar"
           ></img>

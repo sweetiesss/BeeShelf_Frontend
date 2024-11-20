@@ -3,42 +3,17 @@ import { useNavigate, Link } from "react-router-dom";
 import AxiosUser from "../../services/User";
 
 export default function SignUp({ setAction }) {
-  const defaulform = {
-    email: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
-    citizenIdentificationNumber: "",
-    taxIdentificationNumber: "",
-    businessName: "",
-    bankName: "",
-    bankAccountNumber: "",
-    categoryId: null,
-    ocopCategoryId: null,
-    provinceId: 1,
-    pictureLink:
-      "https://th.bing.com/th/id/R.8e2c571ff125b3531705198a15d3103c?rik=muXZvm3dsoQqwg&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fpng-user-icon-person-icon-png-people-person-user-icon-2240.png&ehk=MfHYkGonqy7I%2fGTKUAzUFpbYm9DhfXA9Q70oeFxWmH8%3d&risl=&pid=ImgRaw&r=0",
-  };
-  const [form, setForm] = useState(defaulform);
+  const [form, setForm] = useState({});
   const [agree, setAgree] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
-  const [ocopCategory, setOcopCategory] = useState();
-  const { banksList, ocopCategoriesList } = useAuth();
-
   const [step, setStep] = useState(1);
   const nav = useNavigate();
   const { requestSignUp } = AxiosUser();
   const handleInput = (e) => {
-    const { name, value } = e.target;
-    setForm(() => ({ ...form, [name]: value }));
-    if (name === "ocopCategoryId" && value != null) {
-      const ocopCategoryFind = ocopCategoriesList?.data?.items?.find(
-        (item) => item.id == value
-      );
-      setOcopCategory(ocopCategoryFind);
-    }
+    const value = e.target;
+    setForm(() => ({ ...form, [value.name]: value.value }));
   };
 
   const validateForm = () => {
@@ -104,6 +79,7 @@ export default function SignUp({ setAction }) {
       try {
         const submitFrom = {
           ...form,
+          password: "123456789",
         };
         setLoading(true);
         const result = await requestSignUp(submitFrom);
@@ -122,10 +98,6 @@ export default function SignUp({ setAction }) {
       setStep((step) => step + 1);
     }
   };
-  const loginByGoogle = useGoogleLogin({
-    onSuccess: (tokenResponse) => console.log(tokenResponse),
-  });
-  console.log(ocopCategory);
 
   return (
     <div className="w-full max-w-lg p-4 mx-auto bg-white rounded-2xl shadow-md sm:p-6 lg:p-8 relative">
@@ -158,28 +130,6 @@ export default function SignUp({ setAction }) {
                 {errors.email && (
                   <p className="text-red-500 text-sm">{errors.email}</p>
                 )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.email
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.email
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <EnvelopeSimple />
-                  </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="email"
-                    onChange={handleInput}
-                    name="email"
-                    placeholder="Email"
-                    value={form?.email || ""}
-                  />
-                </div>
               </div>
               <div>
                 <label>First Name*</label>
@@ -339,93 +289,7 @@ export default function SignUp({ setAction }) {
                   <p className="text-red-500 text-sm">{errors.businessName}</p>
                 )}
               </div>
-              <div>
-                {errors.ocopCategoryId && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.ocopCategoryId}
-                  </p>
-                )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.ocopCategoryId
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.ocopCategoryId
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <Buildings />
-                  </label>
-                  <select
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="ocopCategoryId"
-                    placeholder="Business Name"
-                    value={form?.ocopCategoryId || ""}
-                  >
-                    <option value={null}>Choose Ocop Category</option>
-                    {ocopCategoriesList?.data?.items?.map((ocopCategory) => (
-                      <option value={ocopCategory.id}>
-                        {ocopCategory.type}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div>
-                {errors.categoryId && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.categoryId}
-                  </p>
-                )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.categoryId
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.categoryId
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <Buildings />
-                  </label>
-                  <select
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="categoryId"
-                    placeholder="Business Name"
-                    value={form?.categoryId || ""}
-                    disabled={!ocopCategory}
-                  >
-                    <option>Choose category</option>
-                    {ocopCategory?.categories?.map((category) => (
-                      <option value={category?.id}>{category?.type}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div
-                className={`flex items-center ${
-                  errors.agree ? "text-red-500 " : "text-black"
-                }`}
-                onClick={() => {
-                  setAgree(!agree);
-                  if (agree === false) {
-                    setErrors((prev) => ({ ...prev, agree: "" }));
-                  } else {
-                    setErrors((prev) => ({
-                      ...prev,
-                      agree: "You must agree to the terms and conditions.",
-                    }));
-                  }
-                }}
-              >
+              <div className="flex items-center">
                 <input
                   type="checkbox"
                   className="mr-2"
@@ -461,56 +325,9 @@ export default function SignUp({ setAction }) {
             </>
           )}
 
-          <div className="h-[23px] justify-start items-center gap-4 inline-flex">
-            <div className="grow shrink basis-0 h-[0px] border border-[#c6c9d8]"></div>
-            <div className="text-[#848a9f] text-lg font-normal font-['Lexend']">
-              or
-            </div>
-            <div className="grow shrink basis-0 h-[0px] border border-[#c6c9d8]"></div>
-          </div>
-          {/* <div id="buttonDiv" className="bg-black w-full h-fit"></div> */}
-          {/* <GoogleLogin
-          onSuccess={(token) => {
-            const decode=jwtDecode(token?.credential)
-            console.log(decode);
-          }}
-          onError={() => {
-            console.log("Login Failed");
-          }}
-          useOneTap
-          size="large"
-          text="continue_with"
-          auto_select={false}
-        /> */}
-          <div
-            className="h-16 px-[15px] py-5 rounded-[15px] border border-[#848a9f] justify-center items-center gap-4 inline-flex cursor-pointer hover:border-blue-500 hover:bg-blue-100 transition-all duration-200"
-            onClick={loginByGoogle}
-          >
-            <div className="justify-start items-center gap-4 flex">
-              <div className="w-8 h-8 relative">
-                <img
-                  src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg"
-                  className="w-full h-full object-contain"
-                  alt="Google Icon"
-                />
-              </div>
-              <div className="text-[#091540] text-lg font-normal font-['Lexend'] hover:text-blue-500 transition-colors duration-200">
-                Continue with Google
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-center">
-            <p className="text-[#848a9f] mr-2">Already have an account?</p>{" "}
-            <button
-              onClick={() => {
-                nav("/authorize/signin");
-                setAction("Login");
-              }}
-              className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
-            >
-              Login
-            </button>
+          <div className="flex justify-center items-center flex-col">
+            <div>Already have an account?</div>
+            <button onClick={handleToLogin}>Sign In</button>
           </div>
         </div>
       ) : (

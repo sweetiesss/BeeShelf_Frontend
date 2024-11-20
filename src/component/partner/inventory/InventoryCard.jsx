@@ -3,8 +3,8 @@ import React from "react";
 export function WarehouseCard({ warehouse, setWareHouse }) {
   return (
     <div
-      className="bg-white shadow-lg rounded-lg p-6 mb-4 w-full max-w-lg mx-auto text-black"
-      // onClick={() => setWareHouse(warehouse)}
+      className="bg-white shadow-md rounded-lg p-6 mb-4 w-full max-w-lg mx-auto text-black"
+      onClick={() => setWareHouse(warehouse)}
     >
       <div className="font-bold text-xl text-left ">{warehouse?.name}</div>
       <div className="flex items-center justify-between">

@@ -118,7 +118,6 @@ export function Sidebar() {
             </NavLink>
           </>
         )}
-        
       </nav>
     </div>
   );

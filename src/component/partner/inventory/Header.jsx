@@ -15,10 +15,9 @@ export function WarehouseHeader({
   products,
   warehouses,
   applyFilters,
-  setFiltersVisible,
-  filtersVisible,
 }) {
   const { t } = useTranslation();
+  const [filtersVisible, setFiltersVisible] = useState(false);
 
   // Filter state
   const [filters, setFilters] = useState({

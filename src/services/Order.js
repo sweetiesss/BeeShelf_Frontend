@@ -1,10 +1,8 @@
-import { toast } from "react-toastify";
-
-import useAxiosBearer from "./CustomizeAxios";
+import useAxios from "./CustomizeAxios";
 
 export default function AxiosOrder() {
   // Simulate fetching data from API
-  const { fetchDataBearer } = useAxiosBearer();
+  const { fetchDataBearer } = useAxios();
 
   const getOrderByUserId = async (
     userId,
