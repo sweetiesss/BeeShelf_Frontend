@@ -20,6 +20,21 @@ export default function AxiosUser() {
       return error;
     }
   };
+  // Get Employee
+  const requestGetEmployeeByEmail = async (email, token) => {
+    try {
+      const fetching = await fetchData({
+        url: `user/get-employee/${email}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return fetching;
+    } catch (error) {
+      return error;
+    }
+  };
   const getAuth = async (data) => {
     try {
       const fetching = await fetchData({
