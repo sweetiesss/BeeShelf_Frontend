@@ -1,14 +1,9 @@
 import { CheckCircle, EnvelopeSimple, Password } from "@phosphor-icons/react";
 import { useState } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
-import AxiosUser from "../../services/User";
-import { jwtDecode } from "jwt-decode";
+import { useNavigate,Link, useLocation } from "react-router-dom";
 
-export default function ForgotPassword({ setAction }) {
+export default function ForgotPassword({setAction}) {
   const [form, setForm] = useState({});
-  const [error, setError] = useState({});
-  const [loading, setLoading] = useState("");
-  const [success, setSuccess] = useState(false);
   const nav = useNavigate();
   const location = useLocation();
   const { requestResetPassword, sendRequestResetPassword } = AxiosUser();

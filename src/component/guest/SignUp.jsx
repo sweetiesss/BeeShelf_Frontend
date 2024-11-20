@@ -1,20 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AxiosUser from "../../services/User";
-import {
-  Bank,
-  Buildings,
-  CheckCircle,
-  Coins,
-  CreditCard,
-  EnvelopeSimple,
-  IdentificationCard,
-  Phone,
-  User,
-} from "@phosphor-icons/react";
-import { useGoogleLogin } from "@react-oauth/google";
-import { useAuth } from "../../context/AuthContext";
-import Select from "react-select";
 
 export default function SignUp({ setAction }) {
   const defaulform = {
@@ -109,13 +95,8 @@ export default function SignUp({ setAction }) {
     return Object.keys(formErrors).length === 0;
   };
   const handleToLogin = () => {
-    nav("/authorize/signin");
     setAction("Login");
     setSuccess(false);
-    setForm(defaulform);
-    setStep(1);
-    setErrors({});
-    setAgree(false);
   };
 
   const handleSubmit = async () => {
@@ -126,68 +107,7 @@ export default function SignUp({ setAction }) {
         };
         setLoading(true);
         const result = await requestSignUp(submitFrom);
-        console.log("????", result);
-        if (result?.status === 400) {
-          const resultError = result?.response?.data?.message;
-          const resultErrors = result?.response?.data?.errors;
-          console.log("check", resultErrors);
-          console.log(Object.keys(resultErrors).length > 0);
-
-          if (resultError) {
-            Object.keys(defaulform).forEach((field) => {
-              if (resultError.toLowerCase().includes(field.toLowerCase())) {
-                setErrors((prev) => ({ ...prev, [field]: resultError }));
-                if (
-                  field === "email" ||
-                  field === "firstName" ||
-                  field === "lastName" ||
-                  field === "phone"
-                ) {
-                  setStep(1);
-                } else if (
-                  field === "citizenIdentificationNumber" ||
-                  field === "taxIdentificationNumber" ||
-                  field === "bankAccountNumber" ||
-                  field === "bankName"
-                ) {
-                  setStep(2);
-                } else if (field === "businessName") {
-                  setStep(3);
-                }
-              }
-            });
-          }
-
-          if (Object.keys(resultErrors).length > 0) {
-            Object.entries(resultErrors).forEach(([field, value]) => {
-              //  setErrors((prev)=>({...prev,[field]:value}));
-              const errorMessage = Array.isArray(value) ? value[0] : value;
-              console.log(errorMessage);
-              const fieldError = field.toLowerCase();
-              setErrors((prev) => ({
-                ...prev,
-                [fieldError]: errorMessage,
-              }));
-              if (
-                fieldError === "email" ||
-                fieldError === "firstName" ||
-                fieldError === "lastName" ||
-                fieldError === "phone"
-              ) {
-                setStep(1);
-              } else if (
-                fieldError === "citizenIdentificationNumber" ||
-                fieldError === "taxIdentificationNumber" ||
-                fieldError === "bankAccountNumber" ||
-                fieldError === "bankName"
-              ) {
-                setStep(2);
-              } else if (fieldError === "businessName") {
-                setStep(3);
-              }
-            });
-          }
-        }
+        console.log(result);
         if (result?.status === 200) {
           setSuccess(true);
         }
@@ -208,106 +128,35 @@ export default function SignUp({ setAction }) {
   console.log(ocopCategory);
 
   return (
-    <div className="w-full p-4  overflow-hidden relative bg-white h-full">
+    <div className="w-full max-w-lg p-4 mx-auto bg-white rounded-2xl shadow-md sm:p-6 lg:p-8 relative">
       {loading && <div className="loading"></div>}
       <header className="mb-4">
-        <h1 className="text-4xl font-semibold">Welcome to BeeShelf</h1>
-        <p className="text-[var(--en-vu-600)] text-lg">
-          Come on and create an account
-        </p>
+        <h1 className="text-2xl font-semibold text-center">Sign Up</h1>
       </header>
-      {!isSuccess && (
-        <div className="grid grid-cols-3 gap-1 mt-[2rem]">
-          <div
-            className={`${
-              step === 1 ? "bg-[var(--Xanh-Base)]" : "bg-slate-200"
-            } ${
-              step > 1 && "cursor-pointer bg-[var(--Xanh-200)]"
-            } w-full  h-[0.5rem]`}
-            onClick={() => step > 1 && setStep(1)}
-          ></div>
-          <div
-            className={`${
-              step === 2 ? "bg-[var(--Xanh-Base)]" : "bg-slate-200"
-            } ${
-              step > 2 && "cursor-pointer bg-[var(--Xanh-200)]"
-            } w-full  h-[0.5rem]`}
-            onClick={() => step > 2 && setStep(2)}
-          ></div>
-          <div
-            className={`${
-              step === 3 ? "bg-[var(--Xanh-Base)]" : "bg-slate-200"
-            } w-full  h-[0.5rem]`}
-          ></div>
-        </div>
-      )}
+
+      <div className="grid grid-cols-3 gap-1">
+        <div className={`${step===1?"bg-green-400":"bg-slate-200"} w-full  h-[0.5rem]`} onClick={()=>step>1&&setStep(1)}></div>
+        <div className={`${step===2?"bg-green-400":"bg-slate-200"} w-full  h-[0.5rem]`} onClick={()=>step>2&&setStep(2)}></div>
+        <div className={`${step===3?"bg-green-400":"bg-slate-200"} w-full  h-[0.5rem]`} ></div>
+      </div>
       {!isSuccess ? (
-        <div className="flex flex-col space-y-5 mt-[2rem]">
+        <div className="flex flex-col space-y-4">
           {step === 1 ? (
             <>
               <div>
-                {errors.firstName && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.firstName}
-                  </p>
-                )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.firstName
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.firstName
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <User />
-                  </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="firstName"
-                    placeholder="First Name"
-                    value={form?.firstName || ""}
-                  />
-                </div>
-              </div>
-              <div>
-                {errors.lastName && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.lastName}
-                  </p>
-                )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.lastName
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.lastName
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <User />
-                  </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="lastName"
-                    placeholder="Last Name"
-                    value={form?.lastName || ""}
-                  />
-                </div>
-              </div>
-              <div>
+                <label>Email*</label>
+                <input
+                  className={`border rounded-lg p-2 w-full mt-2 ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
+                  type="text"
+                  onChange={handleInput}
+                  name="email"
+                  placeholder="Email"
+                  value={form?.email || ""}
+                />
                 {errors.email && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.email}
-                  </p>
+                  <p className="text-red-500 text-sm">{errors.email}</p>
                 )}
                 <div
                   className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
@@ -333,36 +182,55 @@ export default function SignUp({ setAction }) {
                 </div>
               </div>
               <div>
-                {errors.phone && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.phone}
-                  </p>
+                <label>First Name*</label>
+                <input
+                  className={`border rounded-lg p-2 w-full mt-2 ${
+                    errors.firstName ? "border-red-500" : "border-gray-300"
+                  }`}
+                  type="text"
+                  onChange={handleInput}
+                  name="firstName"
+                  placeholder="First Name"
+                  value={form?.firstName || ""}
+                />
+                {errors.firstName && (
+                  <p className="text-red-500 text-sm">{errors.firstName}</p>
                 )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.phone
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.phone
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <Phone />
-                  </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="phone"
-                    placeholder="Phone Number"
-                    value={form?.phone || ""}
-                  />
-                </div>
+              </div>
+              <div>
+                <label>Last Name*</label>
+                <input
+                  className={`border rounded-lg p-2 w-full mt-2 ${
+                    errors.lastName ? "border-red-500" : "border-gray-300"
+                  }`}
+                  type="text"
+                  onChange={handleInput}
+                  name="lastName"
+                  placeholder="Last Name"
+                  value={form?.lastName || ""}
+                />
+                {errors.lastName && (
+                  <p className="text-red-500 text-sm">{errors.lastName}</p>
+                )}
+              </div>
+              <div>
+                <label>Phone Number*</label>
+                <input
+                  className={`border rounded-lg p-2 w-full mt-2 ${
+                    errors.phone ? "border-red-500" : "border-gray-300"
+                  }`}
+                  type="text"
+                  onChange={handleInput}
+                  name="phone"
+                  placeholder="Phone Number"
+                  value={form?.phone || ""}
+                />
+                {errors.phone && (
+                  <p className="text-red-500 text-sm">{errors.phone}</p>
+                )}
               </div>
               <button
-                className={`w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative`}
+                className={` w-full bg-blue-500 text-white rounded-lg p-2 hover:bg-blue-600 transition duration-200`}
                 onClick={handleNext}
               >
                 Next
@@ -371,167 +239,83 @@ export default function SignUp({ setAction }) {
           ) : step === 2 ? (
             <>
               <div>
+                <label>Citizen Identification Number*</label>
+                <input
+                  className={`border rounded-lg p-2 w-full mt-2 ${
+                    errors.citizenIdentificationNumber
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                  type="text"
+                  onChange={handleInput}
+                  name="citizenIdentificationNumber"
+                  placeholder="Citizen Identification Number"
+                  value={form?.citizenIdentificationNumber || ""}
+                />
                 {errors.citizenIdentificationNumber && (
-                  <p className="text-red-500 text-md font-medium">
+                  <p className="text-red-500 text-sm">
                     {errors.citizenIdentificationNumber}
                   </p>
                 )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.citizenIdentificationNumber
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.citizenIdentificationNumber
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <IdentificationCard />
-                  </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="citizenIdentificationNumber"
-                    placeholder="Citizen Identification Number"
-                    value={form?.citizenIdentificationNumber || ""}
-                  />
-                </div>
               </div>
               <div>
+                <label>Tax Identification Number*</label>
+                <input
+                  className={`border rounded-lg p-2 w-full mt-2 ${
+                    errors.taxIdentificationNumber
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                  type="text"
+                  onChange={handleInput}
+                  name="taxIdentificationNumber"
+                  placeholder="Tax Identification Number"
+                  value={form?.taxIdentificationNumber || ""}
+                />
                 {errors.taxIdentificationNumber && (
-                  <p className="text-red-500 text-md font-medium">
+                  <p className="text-red-500 text-sm">
                     {errors.taxIdentificationNumber}
                   </p>
                 )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.taxIdentificationNumber
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.taxIdentificationNumber
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <Coins />
-                  </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="taxIdentificationNumber"
-                    placeholder="Tax Identification Number"
-                    value={form?.taxIdentificationNumber || ""}
-                  />
-                </div>
               </div>
               <div>
+                <label>Bank Name*</label>
+                <input
+                  className={`border rounded-lg p-2 w-full mt-2 ${
+                    errors.bankName ? "border-red-500" : "border-gray-300"
+                  }`}
+                  type="text"
+                  onChange={handleInput}
+                  name="bankName"
+                  placeholder="Bank Name"
+                  value={form?.bankName || ""}
+                />
                 {errors.bankName && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.bankName}
-                  </p>
+                  <p className="text-red-500 text-sm">{errors.bankName}</p>
                 )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.bankName
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.bankName
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <Bank />
-                  </label>
-                  <Select
-                    className="w-full"
-                    styles={{
-                      control: (baseStyles) => ({
-                        ...baseStyles,
-                        border: "none",
-                        boxShadow: "none",
-                        width: "100%",
-                      }),
-                      dropdownIndicator: (baseStyles) => ({
-                        ...baseStyles,
-                        color: "inherit", // Optional: matches text color
-                        width: "100%",
-                      }),
-                      menu: (baseStyles) => ({
-                        ...baseStyles,
-                        border: "none",
-                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                        width: "100%",
-                      }),
-                    }}
-                    onChange={(selectedOption) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        bankName: selectedOption.value,
-                      }))
-                    }
-                    options={banksList?.data?.data.map((bank) => ({
-                      value: bank.shortName,
-                      label: bank.shortName,
-                      image: bank.logo,
-                    }))}
-                    name="bankName"
-                    placeholder="Bank Name"
-                    value={banksList?.data?.data
-                      ?.map((bank) => ({
-                        value: bank.shortName,
-                        label: bank.shortName,
-                        image: bank.logo,
-                      }))
-                      .find((bank) => bank.value === form.bankName)}
-                    formatOptionLabel={({ label, image }) => (
-                      <div className="flex items-center gap-2 ">
-                        <img
-                          src={image}
-                          alt={label}
-                          className="w-32 h-full object-contain"
-                        />
-                        <span>{label}</span>
-                      </div>
-                    )}
-                  ></Select>
-                </div>
               </div>
               <div>
+                <label>Bank Account Number*</label>
+                <input
+                  className={`border rounded-lg p-2 w-full mt-2 ${
+                    errors.bankAccountNumber
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                  type="text"
+                  onChange={handleInput}
+                  name="bankAccountNumber"
+                  placeholder="Bank Account Number"
+                  value={form?.bankAccountNumber || ""}
+                />
                 {errors.bankAccountNumber && (
-                  <p className="text-red-500 text-md font-medium">
+                  <p className="text-red-500 text-sm">
                     {errors.bankAccountNumber}
                   </p>
                 )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.bankAccountNumber
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.bankAccountNumber
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <CreditCard />
-                  </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="bankAccountNumber"
-                    placeholder="Bank Account Number"
-                    value={form?.bankAccountNumber || ""}
-                  />
-                </div>
               </div>
               <button
-                className={`w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative`}
+                className={` w-full bg-blue-500 text-white rounded-lg p-2 hover:bg-blue-600 transition duration-200`}
                 onClick={handleNext}
               >
                 Next
@@ -540,33 +324,20 @@ export default function SignUp({ setAction }) {
           ) : (
             <>
               <div>
+                <label>Business Name*</label>
+                <input
+                  className={`border rounded-lg p-2 w-full mt-2 ${
+                    errors.businessName ? "border-red-500" : "border-gray-300"
+                  }`}
+                  type="text"
+                  onChange={handleInput}
+                  name="businessName"
+                  placeholder="Business Name"
+                  value={form?.businessName || ""}
+                />
                 {errors.businessName && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.businessName}
-                  </p>
+                  <p className="text-red-500 text-sm">{errors.businessName}</p>
                 )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.businessName
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.businessName
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <Buildings />
-                  </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="businessName"
-                    placeholder="Business Name"
-                    value={form?.businessName || ""}
-                  />
-                </div>
               </div>
               <div>
                 {errors.ocopCategoryId && (
@@ -657,25 +428,30 @@ export default function SignUp({ setAction }) {
               >
                 <input
                   type="checkbox"
-                  className="mr-2 cursor-pointer w-4 h-4"
+                  className="mr-2"
                   checked={agree}
-                  readOnly
+                  onChange={() => setAgree(!agree)}
                 />
-                <label className=" cursor-pointer">
+                <label
+                  className="text-sm text-gray-600 cursor-pointer"
+                  onClick={() => setAgree(!agree)}
+                >
                   I agree to the terms and conditions
                 </label>
               </div>
-
+              {errors.agree && (
+                <p className="text-red-500 text-sm">{errors.agree}</p>
+              )}
               <button
                 className={`${
                   loading && "loading-button"
-                } w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
+                }  w-full bg-blue-500 text-white rounded-lg p-2 hover:bg-blue-600 transition duration-200`}
                 onClick={handleSubmit}
                 disabled={loading}
               >
                 {loading ? (
-                  <div className="loading-container h-[2rem]">
-                    <div className="dot" /> <div className="dot" />
+                  <div className="loading-container">
+                    <div className="dot" /> <div className="dot" />{" "}
                     <div className="dot" />
                   </div>
                 ) : (
@@ -738,38 +514,11 @@ export default function SignUp({ setAction }) {
           </div>
         </div>
       ) : (
-        <div className="mt-10 text-xl">
-          <div>
-            <p className="font-semibold text-xl text-[var(--Xanh-Base)] flex flex-col items-center">
-              <div>
-                <CheckCircle
-                  size={136}
-                  color="var(--Xanh-Base)"
-                  weight="fill"
-                />
-              </div>
-              <p className="mt-2">Your account has been create successfully.</p>
-            </p>
-          </div>
-          <div className="flex flex-col items-center mt-10">
-            <p className="font-medium text-lg text-[var(--en-vu-base)]">
-              We have already{" "}
-              <span className="text-[var(--Xanh-Base)] font-semibold">
-                sent an email
-              </span>{" "}
-              for your password.
-            </p>
-            <p className="font-medium text-lg text-[var(--en-vu-base)]">
-              Login and change the password again.
-            </p>
-          </div>
-
-          <button
-            className={`mt-10 w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
-            onClick={handleToLogin}
-          >
-            Sign In
-          </button>
+        <div>
+          <p>Your account has been create successfully.</p>
+          <p>We have already sent an email for your password.</p>
+          <p>Login and change the password again.</p>
+          <button onClick={handleToLogin}>Sign In</button>
         </div>
       )}
     </div>

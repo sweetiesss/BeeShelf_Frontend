@@ -64,6 +64,21 @@ export function AuthProvider({ children }) {
       setExpiryDate(null);
     }
   }, [isAuthenticated]);
+
+
+
+  const handleLogin = (userData) => {
+    setUserInfor(userData);
+    needToTakeAuthWaller(true)
+  };
+  const handleLogout = () => {
+    localStorage.removeItem("UserInfor");
+    localStorage.removeItem("Authenticated");
+    localStorage.removeItem("UserExpiry");
+    setIsAuthenticated(null);
+    setUserInfor(null);
+  };
+
   useLayoutEffect(() => {
     const checkTokenExpiration = () => {
       console.log("freshing");
@@ -141,18 +156,6 @@ export function AuthProvider({ children }) {
     } finally {
       needToTakeAuthWaller(false);
     }
-  };
-
-  const handleLogin = (userData) => {
-    setUserInfor(userData);
-    needToTakeAuthWaller(true);
-  };
-  const handleLogout = () => {
-    localStorage.removeItem("UserInfor");
-    localStorage.removeItem("Authenticated");
-    localStorage.removeItem("UserExpiry");
-    setIsAuthenticated(null);
-    setUserInfor(null);
   };
 
   return (

@@ -60,7 +60,7 @@ export function WarehouseHeader({
 
       {/* Filter section with sliding effect */}
       <div
-        className={`fixed top-16 right-0 h-full w-80 bg-white shadow-2xl border-l-2 border-gray-300 z-40 p-6 transition-all duration-500 ease-in-out transform ${
+        className={`fixed top-10 right-0 h-full w-80 bg-white shadow-2xl border-l-2 border-gray-300 z-40 p-6 transition-all duration-500 ease-in-out transform ${
           filtersVisible
             ? "translate-x-0 opacity-100 visible"
             : "translate-x-full opacity-0 invisible"
