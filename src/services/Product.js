@@ -1,9 +1,8 @@
 import { toast } from "react-toastify";
-
-import useAxiosBearer from "./CustomizeAxios";
+import useAxios from "./CustomizeAxios";
 
 export default function AxiosProduct() {
-  const { fetchDataBearer } = useAxiosBearer();
+  const { fetchDataBearer } = useAxios();
   const createProductWithUserId = async (data) => {
     try {
       const fetching = fetchDataBearer({

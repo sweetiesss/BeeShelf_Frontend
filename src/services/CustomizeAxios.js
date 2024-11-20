@@ -2,59 +2,7 @@ import axios from "axios";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 
-export function useAxios() {
-  const instance = axios.create({
-    baseURL: process.env.REACT_APP_BASE_URL_API,
-  });
-  instance.interceptors.request.use(
-    function (config) {
-      return config;
-    },
-    function (error) {
-      return Promise.reject(error);
-    }
-  );
-  instance.interceptors.response.use(
-    function (response) {
-      console.log("response", response);
-
-      return response;
-    },
-    function (error) {
-      return Promise.reject(error);
-    }
-  );
-  const [response, setResponse] = useState(null);
-
-  const [loading, setLoading] = useState(false);
-
-  const fetchData = async ({
-    url,
-    method,
-    headers,
-    data = {},
-    params = {},
-  }) => {
-    setLoading(true);
-    try {
-      const resultPromise = instance({
-        url,
-        method,
-        headers,
-        data,
-        params,
-      });
-      return resultPromise;
-    } catch (error) {
-      console.log(error);
-      return error;
-    } finally {
-      setLoading(false);
-    }
-  };
-  return { response, loading, fetchData };
-}
-export default function useAxiosBearer() {
+export default function useAxios() {
   const instance = axios.create({
     baseURL: process.env.REACT_APP_BASE_URL_API,
   });
@@ -81,6 +29,30 @@ export default function useAxiosBearer() {
   const [loading, setLoading] = useState(false);
   const { isAuthenticated } = useContext(AuthContext);
 
+  const fetchData = async ({
+    url,
+    method,
+    headers,
+    data = {},
+    params = {},
+  }) => {
+    setLoading(true);
+    try {
+      const resultPromise = instance({
+        url,
+        method,
+        headers,
+        data,
+        params,
+      });
+      return resultPromise;
+    } catch (error) {
+      console.log(error);
+      return error;
+    } finally {
+      setLoading(false);
+    }
+  };
   const fetchDataBearer = async ({ url, method, data = {}, params = {} }) => {
     console.log(isAuthenticated);
 
@@ -104,5 +76,5 @@ export default function useAxiosBearer() {
       setLoading(false);
     }
   };
-  return { response, loading, fetchDataBearer };
+  return { response, loading, fetchData, fetchDataBearer };
 }

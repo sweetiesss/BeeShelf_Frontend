@@ -17,6 +17,8 @@ import OrderPage from "./pages/partner/OrderPage";
 import { HomePage, Dashboard } from "./pages/partner/HomePage";
 import OrderDashboard from "./component/partner/dashboard/OrderDashboard";
 import { DetailProvider } from "./context/DetailContext";
+import StaffRoutes from "./routes/StaffRoutes";
+
 function App() {
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
@@ -65,7 +67,7 @@ function App() {
               path="/staff/*"
               element={
                 <RoleProvider allowedRoles={["Staff", "User"]}>
-                  <PartnerRoutes />
+                  <StaffRoutes />
                 </RoleProvider>
               }
             />

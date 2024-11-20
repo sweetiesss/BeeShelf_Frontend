@@ -1,416 +1,110 @@
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { EnvelopeSimple } from "@phosphor-icons/react";
-import AxiosPartner from "../../services/Partner";
-import AxiosUser from "../../services/User";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { useLocation } from "react-router-dom";
 
-export default function ProfileEdit() {
-  const nav = useNavigate();
-  const { userInfor, handleLogout, ocopCategoriesList } = useAuth();
-  const { updateProfile } = AxiosPartner();
-  const { sendRequestResetPassword } = AxiosUser();
-
-  const [form, setForm] = useState({
-    firstName: userInfor?.firstName || "",
-    lastName: userInfor?.lastName || "",
+export default function EditProfilePage() {
+  const { userInfor, setUserInfor } = useContext(AuthContext);
+  const [formData, setFormData] = useState({
+    name: userInfor?.name || "",
     email: userInfor?.email || "",
     phone: userInfor?.phone || "",
-    pictureLink: userInfor?.pictureLink || "",
-
-    citizenIdentificationNumber: userInfor?.citizenIdentificationNumber || "",
-    taxIdentificationNumber: userInfor?.taxIdentificationNumber || "",
-    businessName: userInfor?.businessName || "",
-    bankName: userInfor?.bankName || "",
-    bankAccountNumber: userInfor?.bankAccountNumber || "",
-    ocopCategoryName: userInfor?.ocopCategoryName || null,
-    provinceName: userInfor?.provinceName || null,
-    categoryName: userInfor?.categoryName || null,
+    password: "",
   });
-  const [errors, setErrors] = useState({});
-  const [file, setFile] = useState(null);
-  const [ocopCategory, setOcopCategory] = useState();
-  const [loading, setLoading] = useState(false);
+  const test=useLocation();
+  console.log(test);
+  
 
-  useEffect(() => {
-    const setOcop = () => {
-      const data = ocopCategoriesList?.data?.items?.find(
-        (item) => item.type == userInfor?.ocopCategoryName
-      );
-      setOcopCategory(data);
-    };
-    setOcop();
-  }, [form.ocopCategoryId, userInfor]);
-
-  const handleResetPassword = async () => {
-    try {
-      setLoading(true);
-      const result = await sendRequestResetPassword(userInfor?.email);
-      console.log(result);
-      if (result.status === 200) {
-        handleLogout();
-        nav("/authorize/signin");
-      }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleInputChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setErrors({});
-    if (name === "pictureLink") {
-      setFile(null); // Reset the file if a link is provided
-    }
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setErrors({});
+  const handleSave = () => {
 
-    if (selectedFile) {
-      setFile(selectedFile);
-      setForm((prev) => ({
-        ...prev,
-        pictureLink: URL.createObjectURL(selectedFile), // Temporarily show the selected file as a preview
-      }));
-    }
+    console.log("Saved:", formData);
+    setUserInfor({ ...userInfor, ...formData });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (file) {
-      console.log("Upload this file:", file);
-    }
-    console.log("Form data to save:", form);
+  const handleReset = () => {
+    setFormData({
+      name: userInfor?.name || "",
+      email: userInfor?.email || "",
+      phone: userInfor?.phone || "",
+      password: "",
+    });
   };
-
-  console.log(ocopCategory);
 
   return (
-    <div className="grid grid-cols-3 grid-rows-2 gap-4 w-[80vw] h-[80vh] mx-auto">
-      {/* Profile Picture Section */}
-      <div className="col-span-1 row-span-2 border-2 bg-white shadow-lg rounded-lg flex flex-col items-center p-4">
-        <div className="w-52 h-52 rounded-full overflow-hidden border-2 border-gray-700  my-10">
-          <img
-            src={form.pictureLink}
-            alt="Profile"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              setErrors((prev) => ({ ...prev, pictureLink: "Invalid link." }));
-              e.target.src = userInfor?.pictureLink; // Fallback to userInfor picture
-            }}
-          />
-        </div>
-        {errors?.pictureLink !== "" && (
-          <div className="text-red-500 text-md font-medium">
-            {errors?.pictureLink}
-          </div>
-        )}
-        <div className="flex w-full items-center justify-between">
+    <div className="w-full max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg ">
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Name Field */}
+        <div>
+          <label className="block text-gray-700 font-semibold mb-2">Name</label>
           <input
             type="text"
-            name="pictureLink"
-            value={form.pictureLink}
-            onChange={handleInputChange}
-            placeholder="Image URL"
-            className="border rounded-lg px-2 w-[65%] text-sm py-3"
-          />
-          <label
-            htmlFor="uploadFileImg"
-            className={`${
-              file ? "bg-gray-600" : "bg-gray-400"
-            } text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-700 transition duration-200`}
-          >
-            Upload Image
-          </label>
-          <input
-            id="uploadFileImg"
-            type="file"
-            accept="image/png, image/jpeg"
-            className="hidden"
-            onChange={handleFileChange}
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your name"
           />
         </div>
 
-        <div className="w-full mt-10">
-          {errors?.firstName === "firstName" && (
-            <p className="text-red-500 text-md font-medium">
-              {errors?.firstName}
-            </p>
-          )}
-          <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-          >
-            First Name
-          </label>
-          <input
-            type="text"
-            name="firstName"
-            value={form.firstName}
-            onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
-          />
-        </div>
-        <div className="w-full mt-4">
-          {errors?.lastName === "lastName" && (
-            <p className="text-red-500 text-md font-medium">
-              {errors?.lastName}
-            </p>
-          )}
-          <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-          >
-            Last Name
-          </label>
-          <input
-            type="text"
-            name="lastName"
-            value={form.lastName}
-            onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
-          />
-        </div>
-        <div className="w-full mt-4">
-          {errors?.email === "email" && (
-            <p className="text-red-500 text-md font-medium">{errors?.email}</p>
-          )}
-          <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-          >
-            Email
-          </label>
+        {/* Email Field */}
+        <div>
+          <label className="block text-gray-700 font-semibold mb-2">Email</label>
           <input
             type="email"
             name="email"
-            value={form.email}
-            onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your email"
           />
         </div>
-        <div className="w-full mt-4">
-          {errors?.phone === "phone" && (
-            <p className="text-red-500 text-md font-medium">{errors?.phone}</p>
-          )}
-          <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-          >
-            Phone Number
-          </label>
+
+        {/* Phone Field */}
+        <div>
+          <label className="block text-gray-700 font-semibold mb-2">Phone</label>
           <input
             type="text"
             name="phone"
-            value={form.phone}
-            onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            value={formData.phone}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your phone number"
           />
         </div>
+
+        {/* Password Field */}
+        <div>
+          <label className="block text-gray-700 font-semibold mb-2">Password</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter a new password"
+          />
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex space-x-4 mt-8">
         <button
-          className={`mt-10 w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
-          onClick={handleSubmit}
+          onClick={handleSave}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
         >
           Save Changes
         </button>
-      </div>
-
-      <div className="col-span-2 row-span-1 border-2  bg-white shadow-lg rounded-lg p-4">
-        <h2 className="text-lg font-semibold mb-4">Secure Data</h2>
-        <div className="w-full mt-4">
-          {errors?.citizenIdentificationNumber ===
-            "citizenIdentificationNumber" && (
-            <p className="text-red-500 text-md font-medium">
-              {errors?.citizenIdentificationNumber}
-            </p>
-          )}
-          <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-          >
-            citizenIdentificationNumber
-          </label>
-          <input
-            type="text"
-            name="citizenIdentificationNumber"
-            value={form.citizenIdentificationNumber}
-            onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
-          />
-        </div>
-        <div className="w-full mt-4">
-          {errors?.taxIdentificationNumber === "taxIdentificationNumber" && (
-            <p className="text-red-500 text-md font-medium">
-              {errors?.taxIdentificationNumber}
-            </p>
-          )}
-          <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-          >
-            taxIdentificationNumber
-          </label>
-          <input
-            type="text"
-            name="taxIdentificationNumber"
-            value={form.taxIdentificationNumber}
-            onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
-          />
-        </div>
-        <div className="flex gap-4 w-full items-center">
-          <div className="w-full mt-4">
-            {errors?.bankName === "bankName" && (
-              <p className="text-red-500 text-md font-medium">
-                {errors?.bankName}
-              </p>
-            )}
-            <label
-              className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-            >
-              bankName
-            </label>
-            <input
-              type="text"
-              name="bankName"
-              value={form.bankName}
-              onChange={handleInputChange}
-              className={`border rounded-lg px-2 py-1 w-full text-lg`}
-            />
-          </div>
-          <div className="w-full mt-4">
-            {errors?.bankAccountNumber === "bankAccountNumber" && (
-              <p className="text-red-500 text-md font-medium">
-                {errors?.bankAccountNumber}
-              </p>
-            )}
-            <label
-              className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-            >
-              bankAccountNumber
-            </label>
-            <input
-              type="text"
-              name="bankAccountNumber"
-              value={form.bankAccountNumber}
-              onChange={handleInputChange}
-              className={`border rounded-lg px-2 py-1 w-full text-lg`}
-            />
-          </div>
-        </div>
-        <div className="flex gap-4 w-full items-end mt-4">
-          <div className="w-full">
-            {errors?.confirmPassword === "confirmPassword" && (
-              <p className="text-red-500 text-md font-medium">
-                {errors?.confirmPassword}
-              </p>
-            )}
-            <label
-              className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-            >
-              confirmPassword
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={form.confirmPassword}
-              onChange={handleInputChange}
-              className={`border rounded-lg px-2 py-1 w-full text-lg`}
-            />
-          </div>
-          <button
-            className={`bg-gray-400
-             text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-700 transition duration-200 text-nowrap`}
-            onClick={handleResetPassword}
-          >
-            Reset Password
-          </button>
-        </div>
-      </div>
-
-      {/* Edit Profile Form Section */}
-      <div className="col-span-2 row-span-1 border-2  bg-white shadow-lg rounded-lg p-4">
-        <h2 className="text-lg font-semibold mb-4">Edit Others</h2>
-        <div className="w-full mt-4">
-          {errors?.businessName === "businessName" && (
-            <p className="text-red-500 text-md font-medium">
-              {errors?.businessName}
-            </p>
-          )}
-          <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-          >
-            Business Name
-          </label>
-          <input
-            type="text"
-            name="businessName"
-            value={form.businessName}
-            onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
-          />
-        </div>
-        <div className="w-full mt-4">
-          {errors?.ocopCategoryId === "ocopCategoryId" && (
-            <p className="text-red-500 text-md font-medium">
-              {errors?.ocopCategoryId}
-            </p>
-          )}
-          <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-          >
-            Ocop Category Name
-          </label>
-          <select
-            type="text"
-            name="ocopCategoryId"
-            value={form.ocopCategoryId}
-            onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
-          >
-            {ocopCategoriesList?.data?.items?.map((ocopCate) => (
-              <option value={ocopCate.id}>{ocopCate.type}</option>
-            ))}
-          </select>
-        </div>
-        <div className="w-full mt-4">
-          {errors?.categoryId === "categoryId" && (
-            <p className="text-red-500 text-md font-medium">
-              {errors?.categoryId}
-            </p>
-          )}
-          <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-          >
-            Category Name
-          </label>
-          <select
-            type="text"
-            name="categoryId"
-            value={form.categoryId}
-            onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
-          ></select>
-        </div>
-
-        <div className="w-full mt-4">
-          {errors?.provinceId === "provinceId" && (
-            <p className="text-red-500 text-md font-medium">
-              {errors?.provinceId}
-            </p>
-          )}
-          <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
-          >
-            provinceId
-          </label>
-          <input
-            type="text"
-            name="provinceId"
-            value={form.provinceId}
-            onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
-          />
-        </div>
+        <button
+          onClick={handleReset}
+          className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+        >
+          Reset
+        </button>
       </div>
     </div>
   );

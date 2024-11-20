@@ -808,9 +808,9 @@ console.log("dataDetail",dataDetail);
             <div>X</div>
           </div>
           <div className="flex-col items-center flex mt-[1rem]">
-            <div className=" w-[8rem] h-[8rem] rounded-lg overflow-auto">
+            <div className="bg-gray-200 w-[8rem] h-[8rem] rounded-lg overflow-auto">
               <img
-                src={userInfor?.pictureLink || defaultAvatar}
+                src={userInfor?.picture || defaultAvatar}
                 className="relative w-full h-full"
                 alt="User Avatar"
               ></img>
