@@ -7,6 +7,7 @@ import {
   useLayoutEffect,
   useState,
 } from "react";
+import AxiosOthers from "../services/Others";
 
 export const AuthContext = createContext();
 
@@ -28,7 +29,14 @@ export function AuthProvider({ children }) {
     return storedExpiry ? jwtDecode(storedExpiry).exp * 1000 : null;
   });
   const [authWallet, setAuthWallet] = useState(0);
+  const [banksList,setBanksList]=useState();
   const [takeAuthWaller, needToTakeAuthWaller] = useState(false);
+
+  const { getBanks } = AxiosOthers();
+
+  useEffect(() => {
+    fetchBankList();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("UserInfor", JSON.stringify(userInfor));
@@ -52,6 +60,30 @@ export function AuthProvider({ children }) {
       setExpiryDate(null);
     }
   }, [isAuthenticated]);
+  useLayoutEffect(() => {
+    const checkTokenExpiration = () => {
+      console.log("freshing");
+
+      const now = new Date().getTime();
+      if (expiryDate && now > expiryDate) {
+        console.log("freshing 2");
+
+        // refreshAccessToken();
+      }
+    };
+    const interval = setInterval(checkTokenExpiration, 10000);
+    return () => clearInterval(interval);
+  }, [expiryDate, isAuthenticated]);
+
+  const fetchBankList = async () => {
+    try {
+      const banks = await getBanks();
+      setBanksList(banks);
+      console.log("banks",banks);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const refreshAccessToken = async () => {
     try {
@@ -69,34 +101,38 @@ export function AuthProvider({ children }) {
 
   const getAuthWalletMoney = async () => {
     try {
-      if (userInfor && isAuthenticated && takeAuthWaller) {
-        console.log("check tokeen",isAuthenticated);
-        
-        const response = await axios.get(
-          `${process.env.REACT_APP_BASE_URL_API}partner/get-wallet/${userInfor?.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${isAuthenticated}`,
-            },
-          }
-        );
-        console.log(response);
-        
-        setAuthWallet(response.data);
+      if (userInfor?.roleName === "Partner" && userInfor?.roleId == 2) {
+        if (userInfor && isAuthenticated && takeAuthWaller) {
+          console.log("check tokeen", isAuthenticated);
+
+          const response = await axios.get(
+            `${process.env.REACT_APP_BASE_URL_API}partner/get-wallet/${userInfor?.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${isAuthenticated}`,
+              },
+            }
+          );
+          console.log(response);
+
+          setAuthWallet(response.data);
+        }
+      } else {
+        return;
       }
     } catch (error) {
       console.error(
         "Error fetching wallet:",
         error.response?.data || error.message
       );
-    }finally{
+    } finally {
       needToTakeAuthWaller(false);
     }
   };
 
   const handleLogin = (userData) => {
     setUserInfor(userData);
-    needToTakeAuthWaller(true)
+    needToTakeAuthWaller(true);
   };
   const handleLogout = () => {
     localStorage.removeItem("UserInfor");
@@ -105,21 +141,6 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(null);
     setUserInfor(null);
   };
-
-  useLayoutEffect(() => {
-    const checkTokenExpiration = () => {
-      console.log("freshing");
-
-      const now = new Date().getTime();
-      if (expiryDate && now > expiryDate) {
-        console.log("freshing 2");
-
-        // refreshAccessToken();
-      }
-    };
-    const interval = setInterval(checkTokenExpiration, 10000);
-    return () => clearInterval(interval);
-  }, [expiryDate, isAuthenticated]);
 
   return (
     <AuthContext.Provider
@@ -132,6 +153,7 @@ export function AuthProvider({ children }) {
         handleLogout,
         authWallet,
         needToTakeAuthWaller,
+        banksList
       }}
     >
       {children}

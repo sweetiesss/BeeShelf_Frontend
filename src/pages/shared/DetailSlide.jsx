@@ -967,7 +967,7 @@ export default function DetailSlide() {
   };
 
   return (
-    <div className="detail-slider z-10 text-white">
+    <div className="detail-slider">
       <div ref={detailComponent} className="h-full">
         {typeDetail == "request" && RequestDetail()}
         {typeDetail == "product" && ProductDetail()}

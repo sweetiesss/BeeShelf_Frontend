@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SignIn from "../../component/guest/SignIn";
 import SignUp from "../../component/guest/SignUp";
 import ForgotPassword from "../../component/guest/ForgotPassword";
 
-export default function LoginAndSignInPage() {
-  const [action, setAction] = useState("Login");
+
+export default function LoginAndSignInPage({toAction}) {
+  const [action, setAction] = useState(toAction);
+
 
 
   return (
@@ -52,7 +54,7 @@ export default function LoginAndSignInPage() {
               : "translate-y-[200%]"
           }`}
         >
-          <SignUp setAction={setAction} />
+          <SignUp setAction={setAction}/>
         </div>
       </div>
     </div>

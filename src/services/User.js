@@ -97,8 +97,69 @@ export default function AxiosUser() {
       await toast.promise(fetching, {
         pending: "Request in progress...",
         success: {
+          render() {
+            return `Your account created.`;
+          },
+        },
+        error: {
           render({ data }) {
-            return `Welcome ${data?.data?.firstName}`;
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      const resultFetching = await fetching;
+
+      return resultFetching;
+    } catch (error) {
+      return error;
+    }
+  };
+  const requestResetPassword = async (data) => {
+    try {
+      const fetching = fetchData({
+        url: "auth/reset-password",
+        method: "POST",
+        data,
+      });
+      console.log(fetching);
+
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `Your new password updated.`;
+          },
+        },
+        error: {
+          render({ data }) {
+            if (data.response.data.message === "Invalid reset token.") {
+              return "The request is expired.";
+            } else {
+              return `${data.response.data.message || "Something went wrong!"}`;
+            }
+          },
+        },
+      });
+      const resultFetching = await fetching;
+
+      return resultFetching;
+    } catch (error) {
+      return error;
+    }
+  };
+  const sendRequestResetPassword = async (email) => {
+    try {
+      const fetching = fetchData({
+        url: "auth/forgot-password?email=" + email,
+        method: "POST",
+      });
+      console.log(fetching);
+
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `Your request has been sent`;
           },
         },
         error: {
@@ -115,5 +176,10 @@ export default function AxiosUser() {
     }
   };
 
-  return { requestSignUp, loginByEmailPassword };
+  return {
+    requestSignUp,
+    loginByEmailPassword,
+    requestResetPassword,
+    sendRequestResetPassword,
+  };
 }

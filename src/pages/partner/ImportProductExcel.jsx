@@ -36,6 +36,10 @@ export default function ImportProductExcel({ result, setResult }) {
   const { createProductsWithUserId } = AxiosProduct();
   const { t } = useTranslation();
 
+  useEffect(()=>{
+
+  },[])
+
   useEffect(() => {
     const checkCount = selectedProducts.length;
     if (checkCount == 1) {
@@ -58,6 +62,10 @@ export default function ImportProductExcel({ result, setResult }) {
 
     checkIsDuplicated(hasDuplicates);
   }, [excelData]);
+
+  const getProductCategory=async()=>{
+    
+  }
 
   const toggleProductSelection = (product) => {
     if (!editProduct) {
