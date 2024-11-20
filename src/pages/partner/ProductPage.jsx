@@ -26,9 +26,6 @@ export default function ProductPage() {
     checked: false,
     indeterminate: false,
   });
-  const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("CreateDate");
-  const [descending, setDescending] = useState(true);
 
   const { userInfor } = useContext(AuthContext);
   const { getProductByUserId, deleteProductById } = AxiosProduct();
@@ -54,18 +51,11 @@ export default function ProductPage() {
     };
   };
   const debouncedFetchProducts = useCallback(
-    debounce(async (page, index, sortBy, search, descending) => {
-      const response = await getProductByUserId(
-        userInfor?.id,
-        page,
-        index,
-        search,
-        sortBy,
-        descending
-      );
+    debounce(async (page) => {
+      const response = await getProductByUserId(userInfor?.id, page, index);
       setProducts(response?.data);
     }, 500),
-    [userInfor?.id]
+    [userInfor?.id, index]
   );
   useEffect(() => {
     const fetchingData = async () => {
@@ -78,24 +68,17 @@ export default function ProductPage() {
   useEffect(() => {
     if (userInfor) {
       setLoading(true);
-      debouncedFetchProducts(page, index, sortBy, search, descending);
+      debouncedFetchProducts(page);
       setLoading(false);
     }
-  }, [page, index, sortBy, search, userInfor, fetching, descending]);
+  }, [page, index, userInfor, fetching]);
 
   useEffect(() => {
     const fetchData = async () => {
       if (userInfor && refresh != 0) {
         try {
           setLoading(true);
-          const response = await getProductByUserId(
-            userInfor?.id,
-            page,
-            index,
-            search,
-            sortBy,
-            descending
-          );
+          const response = await getProductByUserId(userInfor?.id, page, index);
           setProducts(response?.data);
 
           const updatedItem = response?.data?.items.find(
@@ -209,42 +192,25 @@ export default function ProductPage() {
   const cancelDelete = () => {
     setShowDeleteConfirmation(null);
   };
-  const handleClose = () => {
+  const handleClose=()=>{
     setCreateRequest(false);
-    setFetching((prev) => !prev);
-  };
-  const handleSearchChange = (e) => {
-    setSearch(e.target.value); // Update search term
-  };
-
-  const handleSortChange = (value) => {
-    console.log("checkcheck",sortBy===value);
-    
-    if (sortBy === value) {
-      setDescending((prev) => !prev);
-    } else {
-      setSortBy(value);
-    }
-  };
+    setFetching(prev=>!prev)
+  }
 
   return (
-    <div className="w-full h-full gap-10 ">
-      <div className="w-full">
+    <div className="w-full h-full gap-10">
+      <div className="w-full space-y-10">
         <ProductHeader
           handleDownload={handleDownload}
           products={products}
           selectedProducts={selectedProducts}
-          handleClickOverall={handleClickOverall}
-          handleSearchChange={handleSearchChange}
-          search={search}
         />
         {!loading ? (
           <>
             {products?.items?.length > 0 ? (
               <ProductList
-                products={products?.items}
+                products={products}
                 selectedProducts={selectedProducts}
-                response={products}
                 toggleProductSelection={toggleProductSelection}
                 isShowDetailProduct={isShowDetailProduct}
                 isProductSelected={isProductSelected}
@@ -256,10 +222,6 @@ export default function ProductPage() {
                 setPage={setPage}
                 handleDeleteClick={handleDeleteClick}
                 handleShowDetailProduct={handleShowDetailProduct}
-                handleSortChange={handleSortChange}
-                sortBy={sortBy}
-                descending={descending}
-                setDescending={setDescending}
               />
             ) : (
               <>
@@ -268,9 +230,7 @@ export default function ProductPage() {
             )}
           </>
         ) : (
-          <div className="w-full mt-4">
-            <ProductListSkeleton size={index} />
-          </div>
+          <ProductListSkeleton size={index} />
         )}
       </div>
       {/* <ProductOverview /> */}

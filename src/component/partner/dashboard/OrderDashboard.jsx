@@ -77,7 +77,7 @@ const OrderDashboard = () => {
       y: { beginAtZero: true },
     },
   };
-
+  console.log("@@")
   return (
     <div className="p-6">
       <h1 className="text-4xl font-bold mb-6">Order Dashboard</h1>
