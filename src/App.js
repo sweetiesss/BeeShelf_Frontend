@@ -61,8 +61,7 @@ function App() {
                 </RoleProvider>
               }
             />
-   
-   <Route
+            <Route
               path="/staff/*"
               element={
                 <RoleProvider allowedRoles={["Staff", "User"]}>
@@ -70,8 +69,6 @@ function App() {
                 </RoleProvider>
               }
             />
-
-
             <Route path="/*" element={<LayoutLogined />}>
               <Route path="working" element={<InventoryPage />} />
               <Route path="working2" element={<OrderPage />} />

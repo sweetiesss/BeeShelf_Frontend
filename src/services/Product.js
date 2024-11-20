@@ -32,7 +32,6 @@ export default function AxiosProduct() {
   };
   const createProductsWithUserId = async (data) => {
     try {
-      toast.dismiss();
       const fetching = fetchDataBearer({
         url: `product/create-products`,
         method: "POST",
@@ -42,21 +41,30 @@ export default function AxiosProduct() {
         pending: "Request in progress...",
         success: {
           render() {
-            return `Products created`;
+            return `Product created`;
           },
-          theme: "colored",
-          autoClose: true,
-          closeOnClick: true,
         },
         error: {
           render({ data }) {
             console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
-          theme: "colored",
-          autoClose: false,
-          closeOnClick: true,
         },
+      });
+      return await fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
+
+  const getProductByUserId = async (userId, pageIndex, Size) => {
+    try {
+      const fetching = await fetchDataBearer({
+        url: `product/get-products/${userId}?pageIndex=${
+          pageIndex ? pageIndex : 0
+        }&pageSize=${Size ? Size : 10}`,
+        method: "GET",
       });
       return fetching;
     } catch (e) {
@@ -64,36 +72,6 @@ export default function AxiosProduct() {
       return e;
     }
   };
-
-  const getProductByUserId = async (
-    userId,
-    pageIndex,
-    size,
-    search,
-    sortBy,
-    descending
-  ) => {
-    try {
-      const queryParams = new URLSearchParams();
-      if (search) queryParams.append("search", search);
-      if (sortBy) queryParams.append("sortBy", sortBy);
-      if (descending) queryParams.append("descending", descending);
-      queryParams.append("pageIndex", pageIndex || 0);
-      queryParams.append("pageSize", size || 10);
-      const url = `product/get-products/${userId}?${queryParams.toString()}`;
-
-      const fetching = await fetchDataBearer({
-        url: url,
-        method: "GET",
-      });
-
-      return fetching;
-    } catch (e) {
-      console.error(e);
-      return e;
-    }
-  };
-
   const deleteProductById = async (productId) => {
     try {
       const fetching = fetchDataBearer({
@@ -125,7 +103,7 @@ export default function AxiosProduct() {
       const fetching = fetchDataBearer({
         url: `product/update-product/${productId}`,
         method: "PUT",
-        data: data,
+        data:data,
       });
       await toast.promise(fetching, {
         pending: "Request in progress...",

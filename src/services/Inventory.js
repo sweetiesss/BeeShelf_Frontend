@@ -17,17 +17,5 @@ export default function AxiosInventory() {
       return e;
     }
   };
-  const getInventoryById = async (id) => {
-    try {
-      const fetching = await fetchDataBearer({
-        url: `inventory/get-inventory/`+id,
-        method: "GET",
-      });
-      return fetching;
-    } catch (e) {
-      console.log(e);
-      return e;
-    }
-  };
-  return{getInventory100,getInventoryById};
+  return{getInventory100};
 }

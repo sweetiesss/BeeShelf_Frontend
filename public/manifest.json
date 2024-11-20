@@ -1,6 +1,6 @@
 {
-  "short_name": "BeeShelf",
-  "name": "A system to support OCOP businesses in storing and delivering goods using dark store model",
+  "short_name": "React App",
+  "name": "Create React App Sample",
   "icons": [
     {
       "src": "favicon.ico",
