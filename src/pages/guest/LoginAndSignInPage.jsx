@@ -4,10 +4,9 @@ import SignUp from "../../component/guest/SignUp";
 import ForgotPassword from "../../component/guest/ForgotPassword";
 
 
-export default function LoginAndSignInPage() {
-  const [action, setAction] = useState("Login");
 
-
+export default function LoginAndSignInPage({toAction}) {
+  const [action, setAction] = useState(toAction);
 
   return (
     <div className="flex h-screen w-screen justify-between items-center  bg-gray-100">

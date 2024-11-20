@@ -16,7 +16,10 @@ export default function GuestRoutes() {
           <Route path="contact" element={<ContactPage />} />
           <Route path="package" element={<PackagePage />} />
         </Route>
-        <Route path="/authorize/*" element={<LoginAndSignInPage />} />
+        <Route path="/authorize/signin" element={<LoginAndSignInPage toAction="Login"/>} />
+        <Route path="/authorize/forgot-password" element={<LoginAndSignInPage toAction="Forgotpassword"/>} />
+        <Route path="/reset-password" element={<LoginAndSignInPage toAction="Forgotpassword"/>} />
+        <Route path="/authorize/signup" element={<LoginAndSignInPage toAction="SignUp"/>} />
         {/* <Route path="/signin" element={<SignIn/>}/> */}
       </Routes>
   )

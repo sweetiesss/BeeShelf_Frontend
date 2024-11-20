@@ -114,7 +114,7 @@ export default function SignIn({ action, setAction }) {
             <label className=" cursor-pointer text-black">Remember me</label>
           </div>
           <button
-            onClick={() => setAction("Forgotpassword")}
+            onClick={() => {nav("/authorize/forgot-password"); setAction("Forgotpassword")}}
             className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
           >
             Forgot password?
@@ -178,7 +178,7 @@ export default function SignIn({ action, setAction }) {
         <div className="flex justify-center">
           <p className="text-[#848a9f] mr-2">Don’t have an account?</p>{" "}
           <button
-            onClick={() => setAction("SignUp")}
+            onClick={() => {nav("/authorize/signup"); setAction("SignUp")}}
             className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
           >
             Create account
