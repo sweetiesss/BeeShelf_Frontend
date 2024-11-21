@@ -34,9 +34,6 @@ export default function OrderPage() {
     debouncedFetchOrders();
   }, []);
   useEffect(() => {
-    if (refresh == -1) debouncedFetchOrders();
-  }, [refresh]);
-  useEffect(() => {
     debouncedFetchOrders();
   }, [filterField]);
 
@@ -140,6 +137,7 @@ export default function OrderPage() {
             handleShowDetailOrder={handleShowDetailOrder}
           />
         </div>
+
       </div>
     </div>
   );

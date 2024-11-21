@@ -7,11 +7,13 @@ import Assign from "../component/staff/assign/Assign";
 
 export default function StaffRoutes() {
   const { dataDetail, typeDetail } = useDetail();
+
   return (
     <div className="relative">
       {typeDetail && <DetailSlide />}
       <Routes>
         <Route path="/*" element={<LayoutLogined />}>
+
           {/* <Route index element={<DashboardStaff />} /> */}
           {/* <Route path={"dashboardstaff"} element={<DashboardStaff />} /> */}
           <Route path="assign" element={<Assign />} />
@@ -22,6 +24,7 @@ export default function StaffRoutes() {
           {/* <Route path={"assignshipper"} element={<AssignShipper />} /> */}
 
           {/* <Route path="editProfile" element={<EditProfilePage />} /> */}
+
         </Route>
       </Routes>
     </div>
