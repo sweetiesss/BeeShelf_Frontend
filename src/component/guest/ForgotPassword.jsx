@@ -1,4 +1,3 @@
-
 import { CheckCircle, EnvelopeSimple, Password } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -11,7 +10,6 @@ export default function ForgotPassword({ setAction }) {
   const [loading, setLoading] = useState("");
   const [success, setSuccess] = useState(false);
   const nav = useNavigate();
-
   const location = useLocation();
   const { requestResetPassword, sendRequestResetPassword } = AxiosUser();
 
@@ -82,6 +80,7 @@ export default function ForgotPassword({ setAction }) {
     }
   };
   console.log(error);
+
   return (
     <div className="w-full p-4  overflow-hidden relative bg-white h-full">
       {!token ? (
@@ -93,6 +92,16 @@ export default function ForgotPassword({ setAction }) {
             </p>
           </header>
           <div className="flex flex-col space-y-4">
+            {/* <div>
+          <input
+            className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+            type="text"
+            onChange={handleInput}
+            name="Email"
+            placeholder="Email"
+            value={form?.Email || ""}
+          />
+        </div> */}
             {!success ? (
               <>
                 <div>

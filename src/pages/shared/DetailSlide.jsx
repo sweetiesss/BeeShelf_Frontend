@@ -7,7 +7,6 @@ import AxiosLot from "../../services/Lot";
 import AxiosRequest from "../../services/Request";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
-import AxiosOrder from "../../services/Order";
 
 export default function DetailSlide() {
   const { userInfor } = useContext(AuthContext);
@@ -247,14 +246,14 @@ export default function DetailSlide() {
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50"></div>
             <div
-              className="absolute bg-white border border-gray-300 text-black shadow-md rounded-lg p-4 w-[20rem] h-fit"
+              className="absolute bg-white border border-gray-300 text-black shadow-md rounded-lg p-4 w-fit h-fit"
               style={{
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <p><span className="text-[var(--en-vu-600)]">Are you sure you want to update:</span> <span className="font-semibold">{dataDetail?.name}</span>?</p>
+              <p>{`Are you sure you want to update ${dataDetail?.name}?`}</p>
               <div className="flex justify-end gap-4 mt-4">
                 <button
                   onClick={() => setShowUpdateConfirm(false)}
@@ -278,15 +277,10 @@ export default function DetailSlide() {
 
   const RequestDetail = () => {
     const { getLotById } = AxiosLot();
-    const { sendRequestById, updateRequestStatus, deleteRequestById } =
-      AxiosRequest();
+    const { sendRequestById, updateRequestStatus,deleteRequestById } = AxiosRequest();
     const [lotData, setLotData] = useState();
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
     const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
-    const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
-
-    const [inputField, setInputField] = useState();
-    const [errors, setErrors] = useState();
 
     useEffect(() => {
       const handleClickOutSide = (event) => {
@@ -325,21 +319,18 @@ export default function DetailSlide() {
 
     const confirmDelete = async () => {
       try {
-        setRefresh(0);
         const res = await deleteRequestById(showDeleteConfirmation?.id);
         console.log(res);
       } catch (e) {
       } finally {
         setRefresh(-1);
         updateDataDetail();
-        updateTypeDetail();
         cancelDelete();
       }
     };
     const cancelDelete = () => {
       setShowDeleteConfirmation(null);
     };
-
     const handleUpdateStatusClick = (e, request, status) => {
       e.stopPropagation();
       setShowUpdateConfirmation([request, status]);
@@ -360,79 +351,6 @@ export default function DetailSlide() {
     };
     const exitUpdateStatus = () => {
       setShowUpdateConfirmation(null);
-    };
-
-    const [form, setForm] = useState({
-      ocopPartnerId: userInfor?.id,
-      name: dataDetail?.name,
-      description: dataDetail?.description,
-      sendToInventoryId: dataDetail?.sendToInventoryId,
-      lot: {
-        lotNumber: "string",
-        name: "string",
-        amount: 0,
-        productId: 0,
-        productAmount: 0,
-      },
-    });
-
-    const { updateProductById } = AxiosProduct();
-    useEffect(() => {
-      const handleClickOutSide = (event) => {
-        if (
-          detailComponent.current &&
-          !detailComponent.current.contains(event.target) &&
-          !createRequest
-        ) {
-          handleCloseDetail();
-        }
-      };
-      document.addEventListener("mousedown", handleClickOutSide);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutSide);
-      };
-    }, [createRequest]);
-    const handleEdit = () => {
-      dataDetail?.isInInv
-        ? setInputField({
-            price: true,
-            weight: false,
-            pictureLink: true,
-            barcode: false,
-            name: false,
-            productCategoryId: false,
-            origin: false,
-          })
-        : setInputField({
-            barcode: true,
-            name: true,
-            price: true,
-            weight: true,
-            productCategoryId: false,
-            pictureLink: true,
-            origin: true,
-          });
-    };
-    const handleInput = (e) => {
-      const { name, value } = e.target;
-      value === ""
-        ? setForm(() => ({ ...form, [name]: "" }))
-        : setForm(() => ({ ...form, [name]: value }));
-    };
-    const handeUpdate = () => {
-      setShowUpdateConfirm(true);
-    };
-    const confirmUpdate = async () => {
-      try {
-        const res = await updateProductById(dataDetail?.id, form);
-        console.log(res);
-        if (res.status === 200) {
-          setRefresh(dataDetail?.id);
-        }
-      } catch (e) {
-      } finally {
-        setShowUpdateConfirm(false);
-      }
     };
 
     return (
@@ -603,12 +521,12 @@ export default function DetailSlide() {
   };
 
   const OrderDetail = () => {
-    const { sendOrderById, deleteOrderById } = AxiosOrder();
+    const { sendRequestById, updateRequestStatus,deleteRequestById } = AxiosRequest();
     const [lotData, setLotData] = useState();
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
     const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
 
-    console.log("dataDetail", dataDetail);
+console.log("dataDetail",dataDetail);
 
     useEffect(() => {
       const handleClickOutSide = (event) => {
@@ -626,7 +544,7 @@ export default function DetailSlide() {
     }, []);
 
     const handleSendRequest = async () => {
-      await sendOrderById(dataDetail?.id);
+      await sendRequestById(dataDetail?.id);
       setRefresh(dataDetail?.id);
     };
 
@@ -637,42 +555,39 @@ export default function DetailSlide() {
 
     const confirmDelete = async () => {
       try {
-        setRefresh(0);
-        const res = await deleteOrderById(showDeleteConfirmation?.id);
+        const res = await deleteRequestById(showDeleteConfirmation?.id);
         console.log(res);
       } catch (e) {
       } finally {
         setRefresh(-1);
         updateDataDetail();
-        updateTypeDetail();
         cancelDelete();
       }
     };
     const cancelDelete = () => {
       setShowDeleteConfirmation(null);
     };
+    const handleUpdateStatusClick = (e, request, status) => {
+      e.stopPropagation();
+      setShowUpdateConfirmation([request, status]);
+    };
 
-    // const handleUpdateStatusClick = (e, request, status) => {
-    //   e.stopPropagation();
-    //   setShowUpdateConfirmation([request, status]);
-    // };
-
-    // const confirmUpdateStatus = async () => {
-    //   try {
-    //     const res = await updateRequestStatus(
-    //       showUpdateConfirmation[0]?.id,
-    //       showUpdateConfirmation[1]
-    //     );
-    //     console.log(res);
-    //   } catch (e) {
-    //   } finally {
-    //     setRefresh(showUpdateConfirmation[0]?.id);
-    //     cancelDelete();
-    //   }
-    // };
-    // const exitUpdateStatus = () => {
-    //   setShowUpdateConfirmation(null);
-    // };
+    const confirmUpdateStatus = async () => {
+      try {
+        const res = await updateRequestStatus(
+          showUpdateConfirmation[0]?.id,
+          showUpdateConfirmation[1]
+        );
+        console.log(res);
+      } catch (e) {
+      } finally {
+        setRefresh(showUpdateConfirmation[0]?.id);
+        cancelDelete();
+      }
+    };
+    const exitUpdateStatus = () => {
+      setShowUpdateConfirmation(null);
+    };
 
     return (
       <>
@@ -731,51 +646,33 @@ export default function DetailSlide() {
             {/* Product Info Table */}
             <div className="w-full flex flex-col gap-4">
               {[
-                {
-                  label: "Receiver Address:",
-                  value: dataDetail?.receiverAddress,
-                },
+                { label: "Receiver Address:", value: dataDetail?.receiverAddress },
                 { label: "Receiver Phone:", value: dataDetail?.receiverPhone },
                 { label: "Create date:", value: dataDetail?.createDate },
                 { label: "Description:", value: dataDetail?.description },
+
+     
               ].map((item, index) => (
                 <div key={index} className="flex justify-between ">
                   <span className="text-gray-600">{item.label}</span>
                   <span className="text-black">{item.value}</span>
                 </div>
               ))}
-              <div className="w-full h-[0.2rem] bg-gray-200" />
-              <label className="font-medium text-lg flex justify-between items-center">
-                Order Details
-              </label>
+              <div className="w-full h-[0.2rem] bg-gray-200"/>
+              <label className="font-medium text-lg flex justify-between items-center">Order Details</label>
               {dataDetail?.orderDetails.map((item, index) => (
                 <div key={index} className="flex justify-between items-center">
-                  <div className="w-16 h-16 bg-gray-300 rounded-lg relative"></div>
+                   <div className="w-16 h-16 bg-gray-300 rounded-lg relative"></div>
                   <span className="text-gray-600">{item.productName}</span>
-                  <span className="text-black">
-                    {item.productPrice}$*{item.productAmount}
-                  </span>
-                  <span className="text-black">
-                    {item.productPrice * item.productAmount}
-                  </span>
+                  <span className="text-black">{item.productPrice}$*{item.productAmount}</span>
+                  <span className="text-black">{item.productPrice*item.productAmount}</span>
                 </div>
               ))}
-              <label className="font-medium text-lg flex justify-between items-center">
-                Order Fees
-              </label>
+              <label className="font-medium text-lg flex justify-between items-center">Order Fees</label>
               {[
-                {
-                  label: "Additional Fee:",
-                  value: dataDetail?.orderFees?.[0]?.additionalFee || 0,
-                },
-                {
-                  label: "Delivery Fee:",
-                  value: dataDetail?.orderFees?.[0]?.deliveryFee || 0,
-                },
-                {
-                  label: "Storage Fee:",
-                  value: dataDetail?.orderFees?.[0]?.storageFee || 0,
-                },
+                { label: "Additional Fee:", value: dataDetail?.orderFees?.[0]?.additionalFee||0 },
+                { label: "Delivery Fee:", value: dataDetail?.orderFees?.[0]?.deliveryFee||0 },
+                { label: "Storage Fee:", value: dataDetail?.orderFees?.[0]?.storageFee||0 },
                 { label: "Total Price:", value: dataDetail?.totalPrice },
               ].map((item, index) => (
                 <div key={index} className="flex justify-between ">
@@ -800,7 +697,9 @@ export default function DetailSlide() {
                   Delete
                 </button>
                 <button
-                // onClick={(e) =>handleUpdateStatusClick(e, dataDetail, "Canceled")}
+                  onClick={(e) =>
+                    handleUpdateStatusClick(e, dataDetail, "Canceled")
+                  }
                 >
                   Cancel
                 </button>
@@ -821,7 +720,7 @@ export default function DetailSlide() {
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <p>{`Are you sure you want to delete order ${dataDetail?.id} ?`}</p>
+              <p>{`Are you sure you want to delete ${dataDetail?.name}?`}</p>
               <div className="flex justify-end gap-4">
                 <button
                   onClick={() => confirmDelete(showDeleteConfirmation)}
@@ -839,8 +738,6 @@ export default function DetailSlide() {
             </div>
           </>
         )}
-
-        {/*
         {showUpdateConfirmation && (
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50"></div>
@@ -871,7 +768,7 @@ export default function DetailSlide() {
               </div>
             </div>
           </>
-        )} */}
+        )}
       </>
     );
   };
@@ -967,7 +864,7 @@ export default function DetailSlide() {
   };
 
   return (
-    <div className="detail-slider">
+    <div className="detail-slider z-10 text-white">
       <div ref={detailComponent} className="h-full">
         {typeDetail == "request" && RequestDetail()}
         {typeDetail == "product" && ProductDetail()}

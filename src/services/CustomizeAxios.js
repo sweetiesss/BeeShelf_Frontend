@@ -69,7 +69,6 @@ export default function useAxiosBearer() {
   instance.interceptors.response.use(
     function (response) {
       console.log("response", response);
-
       return response;
     },
     function (error) {

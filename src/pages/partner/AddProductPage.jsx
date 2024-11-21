@@ -8,16 +8,16 @@ import { toast } from "react-toastify";
 
 export default function AddProductPage() {
   const { userInfor } = useContext(AuthContext);
-  const { createProductWithUserId } = AxiosProduct();
+  const {createProductWithUserId}=AxiosProduct();
   const defaultForm = {
     ocopPartnerId: userInfor.id,
-    barcode: "",
-    name: "",
-    price: null,
-    weight: null,
-    productCategoryId: null,
-    pictureLink: "",
-    origin: "",
+    barcode: "string",
+    name: "string",
+    price: 0,
+    weight: 0,
+    productCategoryId: 0,
+    pictureLink: "string",
+    origin: "string",
   };
   const [product, setProduct] = useState(defaultForm);
   const { t } = useTranslation();
@@ -38,8 +38,7 @@ export default function AddProductPage() {
   const validateField = (name, value) => {
     let errorMessage = "";
 
-    switch (
-      name
+    switch (name) {
       // case "image":
       //   if (!value || !isValidURL(value)) {
       //     errorMessage = "Please enter a valid image URL.";
@@ -84,7 +83,6 @@ export default function AddProductPage() {
       //   break;
       // default:
       //   break;
-    ) {
     }
 
     // Update the errors state
@@ -104,7 +102,7 @@ export default function AddProductPage() {
     return urlPattern.test(url);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit =async (e) => {
     e.preventDefault();
 
     const newErrors = {};
@@ -122,11 +120,8 @@ export default function AddProductPage() {
     // }
     try {
       console.log(product);
-      const result = await createProductWithUserId(product);
+     const result=await createProductWithUserId(product);
       console.log(result);
-      if (result?.status == 200) {
-        setProduct(defaultForm);
-      }
     } catch (error) {
       console.error("Error in handleConfirm:", error);
     }

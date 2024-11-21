@@ -727,12 +727,10 @@ export default function SignUp({ setAction }) {
           <div className="flex justify-center">
             <p className="text-[#848a9f] mr-2">Already have an account?</p>{" "}
             <button
-
               onClick={() => {
                 nav("/authorize/signin");
                 setAction("Login");
               }}
-
               className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
             >
               Login

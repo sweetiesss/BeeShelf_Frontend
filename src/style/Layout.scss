@@ -21,14 +21,13 @@
   padding-top: 0.9rem;
   transition: all 0.4s ease;
 
-
   .sidebar-navigate {
     margin-top: 3.2rem;
     .active {
-      //  background-color: var(--en-vu-200);
-      color: var(--Xanh-Base);
+      // background-color: var(--main-project-color);
+      color: var(--text-main-color);
       .sidebar-menu-container {
-        background-color: var(--Xanh-10);
+        background-color: var(--gray-menu-color);
         border-radius: 0.5rem;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
@@ -53,13 +52,13 @@
         justify-content: start;
         align-items: center;
         transition: all 0.4s ease;
-        transition: color 0.05s ease;
+        transition: color 0.15s ease;
         overflow: hidden;
 
         .icon {
           font-size: 2rem;
           transition: all 0.4s ease;
-          transition: color 0.05s ease;
+          transition: color 0.15s ease;
           margin-right: 1rem;
           width: fit-content;
 
@@ -69,21 +68,21 @@
           opacity: 1;
           text-wrap: nowrap;
           text-align:start;
-          font-size: 1rem;
+          font-size: 0.87rem;
           width: fit-content;
           transition: all 0.4s ease;
-          transition: color 0.05s ease;
+          transition: color 0.15s ease;
         }
       }
     }
     .navigate-menu:hover {
       .sidebar-menu-container {
-        background-color: var(--Xanh-10);
+        background-color: var(--gray-menu-color);
         border-radius: 0.5rem;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         color: var(--text-main-color);
         transition: all 0.4s ease;
-        transition: color 0.05s ease;
+        transition: color 0.15s ease;
         .icon {
           font-size: 2rem;
         }
@@ -99,9 +98,9 @@
   .sidebar-navigate {
     .active {
       // background-color: var(--main-project-color);
-      color: var(--Xanh-Base);
+      color: var(--text-main-color);
       .sidebar-menu-container {
-        background-color: var(--Xanh-10);
+        background-color: var(--gray-menu-color);
         border-radius: 0.5rem;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
@@ -123,12 +122,12 @@
         align-items: center;
         padding: 0;
         transition: all 0.4s ease;
-        transition: color 0.05s ease;
+        transition: color 0.15s ease;
 
         .icon {
           font-size: 2rem;
           transition: all 0.4s ease;
-          transition: color 0.05s ease;
+          transition: color 0.15s ease;
           margin-right: 0;
         }
         .label {
@@ -141,7 +140,7 @@
           right: -15%;
           font-size: 0.87rem;
           transition: all 0.4s ease;
-          transition: color 0.05s ease;
+          transition: color 0.15s ease;
         }
       }
     }
@@ -153,7 +152,7 @@
       .sidebar-menu-container {
         width: 100%;
         height: 100%;
-        background-color: var(--Xanh-10);
+        background-color: var(--gray-menu-color);
         border-radius: 0.5rem;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         .icon {
