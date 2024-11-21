@@ -15,9 +15,10 @@ export function WarehouseHeader({
   products,
   warehouses,
   applyFilters,
+  setFiltersVisible,
+  filtersVisible,
 }) {
   const { t } = useTranslation();
-  const [filtersVisible, setFiltersVisible] = useState(true);
 
   // Filter state
   const [filters, setFilters] = useState({
@@ -65,7 +66,6 @@ export function WarehouseHeader({
             : "translate-x-full opacity-0 invisible"
         }`}
       >
-        
         <h2 className="text-2xl font-semibold mb-4">{t("Filters")}</h2>
         <div className="space-y-6">
           {/* Quick Search */}

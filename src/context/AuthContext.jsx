@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import AxiosOthers from "../services/Others";
+import AxiosCategory from "../services/Category";
 
 export const AuthContext = createContext();
 
@@ -29,13 +30,16 @@ export function AuthProvider({ children }) {
     return storedExpiry ? jwtDecode(storedExpiry).exp * 1000 : null;
   });
   const [authWallet, setAuthWallet] = useState(0);
-  const [banksList,setBanksList]=useState();
+  const [banksList, setBanksList] = useState();
+  const [ocopCategoriesList, setOcopCategoriesList] = useState();
   const [takeAuthWaller, needToTakeAuthWaller] = useState(false);
 
   const { getBanks } = AxiosOthers();
+  const { getOcopCategoryBy100 } = AxiosCategory();
 
   useEffect(() => {
     fetchBankList();
+    fetchOcopCategoriesList();
   }, []);
 
   useEffect(() => {
@@ -75,11 +79,20 @@ export function AuthProvider({ children }) {
     return () => clearInterval(interval);
   }, [expiryDate, isAuthenticated]);
 
+  const fetchOcopCategoriesList = async () => {
+    try {
+      const ocopCategories = await getOcopCategoryBy100(0);
+      setOcopCategoriesList(ocopCategories);
+      console.log("ocopCategories", ocopCategories);
+    } catch (e) {
+      console.log(e);
+    }
+  };
   const fetchBankList = async () => {
     try {
       const banks = await getBanks();
       setBanksList(banks);
-      console.log("banks",banks);
+      console.log("banks", banks);
     } catch (e) {
       console.log(e);
     }
@@ -153,7 +166,8 @@ export function AuthProvider({ children }) {
         handleLogout,
         authWallet,
         needToTakeAuthWaller,
-        banksList
+        banksList,
+        ocopCategoriesList,
       }}
     >
       {children}

@@ -1,9 +1,9 @@
 import { useContext } from "react";
-import useAxios from "./CustomizeAxios";
 import { AuthContext } from "../context/AuthContext";
+import useAxiosBearer from "./CustomizeAxios";
 
 export default function AxiosInventory() {
-  const { fetchDataBearer } = useAxios();
+  const { fetchDataBearer } = useAxiosBearer();
   const {userInfor}=useContext(AuthContext);
   const getInventory100 = async () => {
     try {

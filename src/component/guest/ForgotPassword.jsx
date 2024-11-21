@@ -38,7 +38,7 @@ export default function ForgotPassword({ setAction }) {
       setLoading(true);
       console.log({ sentToken, Password: form.newPassword });
       const submitForm = {
-        token: token.replace(" ", "+"),
+        token: token.replaceAll(" ", "+"),
         newPassword: form.newPassword,
       };
       const result = await requestResetPassword(submitForm);
@@ -95,7 +95,6 @@ export default function ForgotPassword({ setAction }) {
           <div className="flex flex-col space-y-4">
             {!success ? (
               <>
-                {" "}
                 <div>
                   {error?.field === "email" && (
                     <p className="text-red-500 text-md font-medium">
@@ -117,7 +116,7 @@ export default function ForgotPassword({ setAction }) {
                     </label>
                     <input
                       className="p-4 w-full rounded-lg outline-none"
-                      type="text"
+                      type="email"
                       onChange={handleInput}
                       name="email"
                       placeholder="Email"
@@ -190,6 +189,9 @@ export default function ForgotPassword({ setAction }) {
                   className={`mt-8 w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
                   onClick={() => {
                     nav("/authorize/signin");
+                    setError({});
+                    setSuccess(false);
+                    setForm({});
                     setAction("Login");
                   }}
                 >

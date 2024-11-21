@@ -9,7 +9,7 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
   return (
     <div
       className="bg-white shadow-lg rounded-lg p-6 mb-4 w-full max-w-lg mx-auto text-black"
-      onClick={() => setWareHouse(warehouse)}
+      // onClick={() => setWareHouse(warehouse)}
     >
       <div className="flex items-center gap-10">
         <div className="bg-gray-300 w-[8rem] h-[8rem] rounded-xl overflow-auto">

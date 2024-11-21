@@ -69,7 +69,7 @@ export default function SignIn({ action, setAction }) {
             </label>
             <input
               className="p-4 w-full rounded-lg outline-none"
-              type="text"
+              type="email"
               onChange={handleInput}
               name="email"
               placeholder="Email"
@@ -143,20 +143,6 @@ export default function SignIn({ action, setAction }) {
           </div>
           <div className="grow shrink basis-0 h-[0px] border border-[#c6c9d8]"></div>
         </div>
-        {/* <div id="buttonDiv" className="bg-black w-full h-fit"></div> */}
-        {/* <GoogleLogin
-          onSuccess={(token) => {
-            const decode=jwtDecode(token?.credential)
-            console.log(decode);
-          }}
-          onError={() => {
-            console.log("Login Failed");
-          }}
-          useOneTap
-          size="large"
-          text="continue_with"
-          auto_select={false}
-        /> */}
         <div
           className="h-16 px-[15px] py-5 rounded-[15px] border border-[#848a9f] justify-center items-center gap-4 inline-flex cursor-pointer hover:border-blue-500 hover:bg-blue-100 transition-all duration-200"
           onClick={loginByGoogle}

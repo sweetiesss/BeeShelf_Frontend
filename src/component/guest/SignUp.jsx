@@ -27,6 +27,9 @@ export default function SignUp({ setAction }) {
     businessName: "",
     bankName: "",
     bankAccountNumber: "",
+    categoryId: null,
+    ocopCategoryId: null,
+    provinceId: 1,
     pictureLink:
       "https://th.bing.com/th/id/R.8e2c571ff125b3531705198a15d3103c?rik=muXZvm3dsoQqwg&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fpng-user-icon-person-icon-png-people-person-user-icon-2240.png&ehk=MfHYkGonqy7I%2fGTKUAzUFpbYm9DhfXA9Q70oeFxWmH8%3d&risl=&pid=ImgRaw&r=0",
   };
@@ -35,14 +38,21 @@ export default function SignUp({ setAction }) {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
-  const { banksList } = useAuth();
+  const [ocopCategory, setOcopCategory] = useState();
+  const { banksList, ocopCategoriesList } = useAuth();
 
   const [step, setStep] = useState(1);
   const nav = useNavigate();
   const { requestSignUp } = AxiosUser();
   const handleInput = (e) => {
-    const value = e.target;
-    setForm(() => ({ ...form, [value.name]: value.value }));
+    const { name, value } = e.target;
+    setForm(() => ({ ...form, [name]: value }));
+    if (name === "ocopCategoryId" && value != null) {
+      const ocopCategoryFind = ocopCategoriesList?.data?.items?.find(
+        (item) => item.id == value
+      );
+      setOcopCategory(ocopCategoryFind);
+    }
   };
 
   const validateForm = () => {
@@ -113,7 +123,6 @@ export default function SignUp({ setAction }) {
       try {
         const submitFrom = {
           ...form,
-          password: "123456789",
         };
         setLoading(true);
         const result = await requestSignUp(submitFrom);
@@ -196,7 +205,7 @@ export default function SignUp({ setAction }) {
   const loginByGoogle = useGoogleLogin({
     onSuccess: (tokenResponse) => console.log(tokenResponse),
   });
-  console.log(banksList?.data?.data);
+  console.log(ocopCategory);
 
   return (
     <div className="w-full p-4  overflow-hidden relative bg-white h-full">
@@ -315,7 +324,7 @@ export default function SignUp({ setAction }) {
                   </label>
                   <input
                     className="p-4 w-full rounded-lg outline-none"
-                    type="text"
+                    type="email"
                     onChange={handleInput}
                     name="email"
                     placeholder="Email"
@@ -557,6 +566,77 @@ export default function SignUp({ setAction }) {
                     placeholder="Business Name"
                     value={form?.businessName || ""}
                   />
+                </div>
+              </div>
+              <div>
+                {errors.ocopCategoryId && (
+                  <p className="text-red-500 text-md font-medium">
+                    {errors.ocopCategoryId}
+                  </p>
+                )}
+                <div
+                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                    errors.ocopCategoryId
+                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
+                      : form?.ocopCategoryId
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  } "border-gray-300"
+                }`}
+                >
+                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
+                    <Buildings />
+                  </label>
+                  <select
+                    className="p-4 w-full rounded-lg outline-none"
+                    type="text"
+                    onChange={handleInput}
+                    name="ocopCategoryId"
+                    placeholder="Business Name"
+                    value={form?.ocopCategoryId || ""}
+                  >
+                    <option value={null}>Choose Ocop Category</option>
+                    {ocopCategoriesList?.data?.items?.map((ocopCategory) => (
+                      <option value={ocopCategory.id}>
+                        {ocopCategory.type}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                {errors.categoryId && (
+                  <p className="text-red-500 text-md font-medium">
+                    {errors.categoryId}
+                  </p>
+                )}
+                <div
+                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                    errors.categoryId
+                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
+                      : form?.categoryId
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  } "border-gray-300"
+                }`}
+                >
+                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
+                    <Buildings />
+                  </label>
+                  <select
+                    className="p-4 w-full rounded-lg outline-none"
+                    type="text"
+                    onChange={handleInput}
+                    name="categoryId"
+                    placeholder="Business Name"
+                    value={form?.categoryId || ""}
+                    disabled={!ocopCategory}
+                  >
+                    <option>Choose category</option>
+                    {ocopCategory?.categories?.map((category) => (
+                      <option value={category?.id}>{category?.type}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div
