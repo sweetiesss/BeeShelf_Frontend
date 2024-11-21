@@ -7,6 +7,8 @@ import {
   useLayoutEffect,
   useState,
 } from "react";
+import AxiosOthers from "../services/Others";
+import AxiosCategory from "../services/Category";
 
 export const AuthContext = createContext();
 
@@ -28,7 +30,17 @@ export function AuthProvider({ children }) {
     return storedExpiry ? jwtDecode(storedExpiry).exp * 1000 : null;
   });
   const [authWallet, setAuthWallet] = useState(0);
+  const [banksList, setBanksList] = useState();
+  const [ocopCategoriesList, setOcopCategoriesList] = useState();
   const [takeAuthWaller, needToTakeAuthWaller] = useState(false);
+
+  const { getBanks } = AxiosOthers();
+  const { getOcopCategoryBy100 } = AxiosCategory();
+
+  useEffect(() => {
+    fetchBankList();
+    fetchOcopCategoriesList();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("UserInfor", JSON.stringify(userInfor));
@@ -53,18 +65,6 @@ export function AuthProvider({ children }) {
     }
   }, [isAuthenticated]);
 
-
-  const handleLogin = (userData) => {
-    setUserInfor(userData);
-    needToTakeAuthWaller(true)
-  };
-  const handleLogout = () => {
-    localStorage.removeItem("UserInfor");
-    localStorage.removeItem("Authenticated");
-    localStorage.removeItem("UserExpiry");
-    setIsAuthenticated(null);
-    setUserInfor(null);
-  };
 
   useLayoutEffect(() => {
     const checkTokenExpiration = () => {
@@ -145,6 +145,18 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const handleLogin = (userData) => {
+    setUserInfor(userData);
+    needToTakeAuthWaller(true);
+  };
+  const handleLogout = () => {
+    localStorage.removeItem("UserInfor");
+    localStorage.removeItem("Authenticated");
+    localStorage.removeItem("UserExpiry");
+    setIsAuthenticated(null);
+    setUserInfor(null);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -156,6 +168,8 @@ export function AuthProvider({ children }) {
         handleLogout,
         authWallet,
         needToTakeAuthWaller,
+        banksList,
+        ocopCategoriesList,
       }}
     >
       {children}

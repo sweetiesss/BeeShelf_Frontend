@@ -1,11 +1,12 @@
 import { toast } from "react-toastify";
-import useAxios from "./CustomizeAxios";
+import { useAxios } from "./CustomizeAxios";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 export default function AxiosUser() {
   const { fetchData } = useAxios();
   const { setIsAuthenticated } = useContext(AuthContext);
+
   const requestGetUserByEmail = async (email, token) => {
     try {
       const fetching = await fetchData({
@@ -20,7 +21,7 @@ export default function AxiosUser() {
       return error;
     }
   };
-  // Get Employee
+
   const requestGetEmployeeByEmail = async (email, token) => {
     try {
       const fetching = await fetchData({
@@ -35,6 +36,26 @@ export default function AxiosUser() {
       return error;
     }
   };
+
+  // const requestGetUserByEmail = async (email, token, type = "employee") => {
+  //   try {
+  //     // Tạo URL dựa trên type
+  //     const url = type === "partner" ? `user/get-employee/${email}` : `partner/get-partner/${email}`;
+
+  //     const fetching = await fetchData({
+  //       url: url,
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     return fetching;
+  //   } catch (error) {
+  //     return error;
+  //   }
+  // };
+
+  //
   const getAuth = async (data) => {
     try {
       const fetching = await fetchData({
@@ -43,7 +64,7 @@ export default function AxiosUser() {
         data: data,
       });
       console.log("getAuth", fetching);
-
+  
       return fetching;
     } catch (error) {
       return error;
@@ -53,6 +74,7 @@ export default function AxiosUser() {
   const loginByEmailPassword = async (data) => {
     try {
       let name = "";
+      let nameEmployee= "";
       const fetching = async () => {
         const getToken = await getAuth(data);
         console.log("getToken", getToken);
@@ -61,6 +83,7 @@ export default function AxiosUser() {
           if (getToken?.data && getToken?.data.length > 0) {
             const successDataToken = getToken?.data;
             setIsAuthenticated(successDataToken);
+            //const for getAccount Partner
             const getAccount = await requestGetUserByEmail(
               data.email,
               successDataToken
@@ -68,6 +91,19 @@ export default function AxiosUser() {
             if (getAccount && getAccount?.status === 200 && getAccount?.data) {
               name = getAccount.data?.lastName;
               return getAccount.data;
+            }
+            // const for getEmployee 
+            const getEmployeeAccount = await requestGetEmployeeByEmail(
+              data.email,
+              successDataToken
+            );
+            if (
+              getEmployeeAccount &&
+              getEmployeeAccount?.status === 200 &&
+              getEmployeeAccount?.data
+            ) {
+              nameEmployee = getEmployeeAccount.data?.lastName;
+              return getEmployeeAccount.data;
             }
 
             throw new Error("Unable to fetch account details.");
@@ -85,7 +121,7 @@ export default function AxiosUser() {
         pending: "Request in progress...",
         success: {
           render() {
-            return `Welcome back ${name}`;
+            return `Welcome back ${name || nameEmployee}`;
           },
         },
         error: {
@@ -112,11 +148,6 @@ export default function AxiosUser() {
       await toast.promise(fetching, {
         pending: "Request in progress...",
         success: {
-          render() {
-            return `Your account created.`;
-          },
-        },
-        error: {
           render({ data }) {
             return `${data.response.data.message || "Something went wrong!"}`;
           },
@@ -191,10 +222,5 @@ export default function AxiosUser() {
     }
   };
 
-  return {
-    requestSignUp,
-    loginByEmailPassword,
-    requestResetPassword,
-    sendRequestResetPassword,
-  };
+  return { requestSignUp, loginByEmailPassword,requestResetPassword ,sendRequestResetPassword};
 }
