@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import { Bell } from "@phosphor-icons/react";
@@ -112,6 +112,7 @@ export function HeaderAuthenticated() {
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
   const { t } = useTranslation();
+
   useEffect(() => {
     document.addEventListener("mousedown", mouseDownEvent);
     return () => {
@@ -156,6 +157,11 @@ export function HeaderAuthenticated() {
     console.log(typeDetail);
   };
 
+  const handleAddingCoinsButton = () => {
+    nav("payment");
+  };
+
+
   return (
     <div className="flex items-center justify-end w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2 header">
       <div className="flex space-x-5 items-center">
@@ -189,7 +195,9 @@ export function HeaderAuthenticated() {
         >
           <Bell size={24} weight="fill" />
         </button>
-        <div>{authWallet?.totalAmount}</div>
+        <div className="w-[10rem] cursor-pointer">
+          {authWallet?.totalAmount}
+        </div>
         <button
           className="bg-white text-blue-500 border rounded-full overflow-hidden h-fit hover:bg-blue-600 hover:text-white transition duration-200"
           onClick={handleProfileDetail}
