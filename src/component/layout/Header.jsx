@@ -12,6 +12,7 @@ import { useDetail } from "../../context/DetailContext";
 
 export function HeaderUnauthenticated() {
   const nav = useNavigate();
+ 
   return (
     <div className="flex items-center justify-between h-20 w-full text-black px-4 font-light text-lg header">
       <div className="flex items-center text-2xl font-bold">
@@ -90,6 +91,7 @@ export function HeaderUnauthenticated() {
 }
 
 export function HeaderAuthenticated() {
+
   const [openNotification, setOpenNotification] = useState(false);
   const {
     userInfor,

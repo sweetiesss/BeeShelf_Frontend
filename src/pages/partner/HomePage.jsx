@@ -11,7 +11,7 @@ import {
 } from "../../component/partner/dashboard/DashboardChart";
 import SliderTabs from "../../component/shared/SliderTabs"; // Custom tab/slider component for charts
 import OrderDashboard from "../../component/partner/dashboard/OrderDashboard";
-
+console.log("AAAA")
 export function HomePage() {
   const [inventories, setInventories] = useState([]);
   const [requests, setRequests] = useState([]);

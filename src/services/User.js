@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 export default function AxiosUser() {
   const { fetchData } = useAxios();
   const { setIsAuthenticated } = useContext(AuthContext);
+
   const requestGetUserByEmail = async (email, token) => {
     try {
       const fetching = await fetchData({
@@ -21,6 +22,41 @@ export default function AxiosUser() {
       return error;
     }
   };
+
+  const requestGetEmployeeByEmail = async (email, token) => {
+    try {
+      const fetching = await fetchData({
+        url: `user/get-employee/${email}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return fetching;
+    } catch (error) {
+      return error;
+    }
+  };
+
+  // const requestGetUserByEmail = async (email, token, type = "employee") => {
+  //   try {
+  //     // Tạo URL dựa trên type
+  //     const url = type === "partner" ? `user/get-employee/${email}` : `partner/get-partner/${email}`;
+
+  //     const fetching = await fetchData({
+  //       url: url,
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     return fetching;
+  //   } catch (error) {
+  //     return error;
+  //   }
+  // };
+
+  //
   const getAuth = async (data) => {
     try {
       const fetching = await fetchData({
@@ -29,7 +65,7 @@ export default function AxiosUser() {
         data: data,
       });
       console.log("getAuth", fetching);
-
+  
       return fetching;
     } catch (error) {
       return error;
@@ -39,6 +75,7 @@ export default function AxiosUser() {
   const loginByEmailPassword = async (data) => {
     try {
       let name = "";
+      let nameEmployee= "";
       const fetching = async () => {
         const getToken = await getAuth(data);
         console.log("getToken", getToken);
@@ -110,7 +147,7 @@ export default function AxiosUser() {
         pending: "Request in progress...",
         success: {
           render() {
-            return `Welcome back ${name}`;
+            return `Welcome back ${name || nameEmployee}`;
           },
         },
         error: {
@@ -137,8 +174,8 @@ export default function AxiosUser() {
       await toast.promise(fetching, {
         pending: "Request in progress...",
         success: {
-          render() {
-            return `Your account created.`;
+          render({ data }) {
+            return `Welcome ${data?.data?.firstName}`;
           },
         },
         error: {
@@ -154,81 +191,7 @@ export default function AxiosUser() {
       return error;
     }
   };
-  const requestResetPassword = async (data) => {
-    try {
-      const fetching = fetchData({
-        url: "auth/reset-password",
-        method: "POST",
-        data,
-      });
-      console.log(fetching);
 
-      await toast.promise(fetching, {
-        pending: "Request in progress...",
-        success: {
-          render() {
-            return `Your new password updated.`;
-          },
-        },
-        error: {
-          render({ data }) {
-            if (data.response.data.message === "Invalid reset token.") {
-              return "The request is expired.";
-            } else {
-              return `${data.response.data.message || "Something went wrong!"}`;
-            }
-          },
-        },
-      });
-      const resultFetching = await fetching;
-
-      return resultFetching;
-    } catch (error) {
-      return error;
-    }
-  };
-  const sendRequestResetPassword = async (email) => {
-    try {
-      const fetching = fetchData({
-        url: "auth/forgot-password?email=" + email,
-        method: "POST",
-      });
-      console.log(fetching);
-
-      await toast.promise(fetching, {
-        pending: "Request in progress...",
-        success: {
-          render() {
-            return `Your request has been sent`;
-          },
-        },
-        error: {
-          render({ data }) {
-            return `${data.response.data.message || "Something went wrong!"}`;
-          },
-        },
-      });
-      const resultFetching = await fetching;
-
-      return resultFetching;
-    } catch (error) {
-      return error;
-    }
-  };
-  const requestGetEmployeeByEmail = async (email, token) => {
-    try {
-      const fetching = await fetchData({
-        url: `user/get-employee/${email}`,
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return fetching;
-    } catch (error) {
-      return error;
-    }
-  };
 
   return {
     requestSignUp,
@@ -237,4 +200,5 @@ export default function AxiosUser() {
     sendRequestResetPassword,
     requestGetEmployeeByEmail,
   };
+
 }
