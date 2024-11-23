@@ -14,7 +14,7 @@ const Assign = () => {
     const fetchData = async () => {
       try {
         const response = await fetchDataBearer({
-          url: `/order/get-orders`,
+          url: `/order/get-orders?descending=false&pageIndex=0&pageSize=100`,
           method: "GET",
         });
         setOrders(response.data.items);

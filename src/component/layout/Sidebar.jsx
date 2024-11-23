@@ -112,7 +112,7 @@ export function Sidebar() {
               </div>
             </NavLink>
 
-            <NavLink to="inventory" className="flex navigate-menu">
+            <NavLink to="warehouseinventory" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Package className="icon" weight="fill" />
                 <p className="label">{t("Inventory")}</p>
