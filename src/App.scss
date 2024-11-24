@@ -23,7 +23,7 @@
   --Xanh-200: #aee7d1;
   --Xanh-100: #d6f3e8;
   --Xanh-10: #f0fbf7;
-  
+
   --Do-Base: #f02656;
   ---100: #fcdae2;
 }
@@ -37,18 +37,18 @@
   --text-main-color: #f5f5f5; /* Light text for contrast */
   --text-second-color: #cccccc; /* Lighter secondary text */
 }
-thead,tbody tr{
-  display: table; 
+thead,
+tbody tr {
+  display: table;
   width: 100%;
   table-layout: fixed;
 }
-table tbody{
+table tbody {
   display: block;
 }
-tbody tr{
+tbody tr {
   border: none;
 }
-
 
 .profile {
   .active {
@@ -164,6 +164,9 @@ table {
     right: 0;
   }
 }
+.over-detail-slider {
+  z-index: 110;
+}
 
 .skeleton {
   background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
@@ -176,7 +179,6 @@ table {
   width: 100%;
   height: auto;
 }
-
 
 @keyframes shimmer {
   from {

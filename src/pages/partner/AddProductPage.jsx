@@ -20,6 +20,8 @@ export default function AddProductPage() {
     origin: "",
   };
   const [product, setProduct] = useState(defaultForm);
+  const [imagePreview, setImagePreview] = useState("");
+
   const { t } = useTranslation();
 
   const [errors, setErrors] = useState({});
@@ -133,6 +135,25 @@ export default function AddProductPage() {
 
     setErrors({});
   };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        setImagePreview(reader.result); // Set the preview to the file data
+      };
+
+      reader.readAsDataURL(file);
+
+      setProduct((prevProduct) => ({
+        ...prevProduct,
+        pictureLink: file, // Store the file for upload
+      }));
+    }
+  };
   return (
     <>
       <div className="flex space-x-4 font-semibold text-xl mb-10 ">
@@ -150,26 +171,21 @@ export default function AddProductPage() {
           <div className="form-group">
             <label htmlFor="image">Product Image URL</label>
             <input
-              type="text"
+              type="file"
               id="image"
               name="pictureLink"
-              value={product.pictureLink}
-              onChange={handleChange}
+              accept="image/*"
+              onChange={handleImageChange}
               className={`input-field ${
                 errors.pictureLink ? "input-error" : ""
               }`}
-              placeholder="Enter image URL"
             />
             {errors.pictureLink && (
               <p className="error-text">{errors.pictureLink}</p>
             )}
-            {product.pictureLink && !errors.pictureLink && (
+            {imagePreview && !errors.pictureLink && (
               <div className="image-preview">
-                <img
-                  src={product.pictureLink}
-                  alt="Product Preview"
-                  width="100"
-                />
+                <img src={imagePreview} alt="Product Preview" width="100" />
               </div>
             )}
           </div>
