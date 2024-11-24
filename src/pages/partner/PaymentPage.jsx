@@ -1,52 +1,54 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import AxiosPayment from "../../services/Payment";
-import { useNavigate } from "react-router-dom";
 
 export function PaymentPage() {
   const { userInfor } = useAuth();
   const [option, setOption] = useState("Custom_Amount");
   const [customeAmount, setCustomAmount] = useState();
-  const nav = useNavigate();
+  const [error, setError] = useState();
 
   const [form, setForm] = useState({
     buyerEmail: userInfor?.email || "",
-    cancelUrl: "https://www.beeshelf.com/Partner",
-    returnUrl: "https://www.beeshelf.com/Partner",
-    description: "test",
+    cancelUrl: "https://www.beeshelf.com/partner/payment/result",
+    returnUrl: "https://www.beeshelf.com/partner/payment/result",
+    description: userInfor?.lastName+" buy coins.",
   });
   const { createQrCode } = AxiosPayment();
 
-  const handleInput = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
   const handleSubmitPayment = async () => {
     console.log(option);
     console.log(customeAmount);
     console.log(form);
-  
+
     try {
-      const result = await createQrCode(option, customeAmount, form);
-  
-      if (result.status !== 400 && result.status !== 500) {
-        // Navigate directly to the checkout URL
-        const checkoutUrl = result?.data?.data?.checkoutUrl;
-        if (checkoutUrl) {
-          window.location.href = checkoutUrl; // Navigate the current tab
-        } else {
-          console.error("Checkout URL not found in response");
-        }
-      } else {
-        console.error("Invalid response status:", result.status);
+      let thisError = error;
+      if (customeAmount >= 2000) {
+        thisError = undefined;
       }
-  
-      console.log(result);
+
+      if (!thisError) {
+        const result = await createQrCode(option, customeAmount, form);
+
+        if (result.status !== 400 && result.status !== 500) {
+          // Navigate directly to the checkout URL
+          const checkoutUrl = result?.data?.data?.checkoutUrl;
+          if (checkoutUrl) {
+            window.location.href = checkoutUrl; // Navigate the current tab
+          } else {
+            console.error("Checkout URL not found in response");
+          }
+        } else {
+          console.error("Invalid response status:", result.status);
+        }
+
+        console.log(result);
+      }
     } catch (e) {
       console.error("Error during payment creation:", e);
     }
   };
-  
+
   console.log(form);
 
   return (
@@ -83,12 +85,20 @@ export function PaymentPage() {
           placeholder="Enter custom amount"
           value={customeAmount}
           onChange={(e) => {
-            setCustomAmount(e.target.value);
+            if (e.target.value < 2000) {
+              setError("The minimum amount must be 2000 vnđ");
+            } else {
+              setError();
+              setCustomAmount(e.target.value);
+            }
           }}
         />
         <span className="text-gray-500">₫</span>
       </div>
-      <div className="mt-8 text-center">
+      {error && (
+        <div className="text-red-500 text-center w-full mt-4">{error}</div>
+      )}
+      <div className="mt-8 text-center w-full">
         {/* Submit Button */}
         <button
           onClick={handleSubmitPayment}

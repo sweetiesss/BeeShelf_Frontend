@@ -12,7 +12,7 @@ export default function AxiosPayment() {
       if (typeof customAmount !== "undefined") {
         queryParams.append("custom_amount", customAmount);
       }
-      const fetching =  fetchData({
+      const fetching = fetchData({
         url: `payment/create-qrcode?${queryParams.toString()}`,
         method: "POST",
         data: data,
@@ -36,6 +36,19 @@ export default function AxiosPayment() {
       return e;
     }
   };
+  const confirmPayment = async (data) => {
+    try {
+      const fetching = await fetchData({
+        url: `payment/confirm-payment`,
+        method: "POST",
+        data: data,
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
 
-  return { createQrCode };
+  return { createQrCode,confirmPayment };
 }
