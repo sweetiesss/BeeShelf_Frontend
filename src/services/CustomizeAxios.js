@@ -81,7 +81,13 @@ export default function useAxiosBearer() {
   const [loading, setLoading] = useState(false);
   const { isAuthenticated } = useContext(AuthContext);
 
-  const fetchDataBearer = async ({ url, method, data = {}, params = {} }) => {
+  const fetchDataBearer = async ({
+    url,
+    method,
+    data = {},
+    params = {},
+    header = {},
+  }) => {
     console.log(isAuthenticated);
 
     setLoading(true);
@@ -90,6 +96,7 @@ export default function useAxiosBearer() {
         url,
         method,
         headers: {
+          ...header,
           Authorization: `Bearer ${isAuthenticated}`,
         },
         data,
