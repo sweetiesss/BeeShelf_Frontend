@@ -6,9 +6,11 @@ import {
   Package,
   Bag,
   AddressBook,
+  Archive,
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
+import { use } from "i18next";
 export function Sidebar() {
   const [isSlideOut, setSlideOut] = useState(false);
   const { t } = useTranslation();
@@ -79,51 +81,94 @@ export function Sidebar() {
             </NavLink>
           </>
         )}
-        {userInfor?.roleName != "Partner" && (
+
+        {userInfor?.roleName === "Staff" && (
           <>
-            <NavLink to="dashboard" className="flex navigate-menu">
+            <NavLink to="dashboardstaff" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <House className="icon" weight="bold" />
+                <House className="icon" weight="fill" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
 
-            <NavLink to="warehouse" className="flex navigate-menu">
+            <NavLink to="assign" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Warehouse className="icon" weight="bold" />
-                <p className="label">{t("Warehouse")}</p>
+                <Package className="icon" weight="fill" />
+                <p className="label">{t("Assign Order")}</p>
               </div>
             </NavLink>
 
-            <NavLink to="inventory" className="flex navigate-menu">
+            <NavLink to="orderstaff" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Package className="icon" weight="bold" />
-                <p className="label">{t("Inventory")}</p>
-              </div>
-            </NavLink>
-
-            <NavLink to="product" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <Bag className="icon" weight="bold" />
-                <p className="label">{t("Product")}</p>
-              </div>
-            </NavLink>
-
-            <NavLink to="order" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="bold" />
+                <Bag className="icon" weight="fill" />
                 <p className="label">{t("Order")}</p>
               </div>
             </NavLink>
 
-            <NavLink to="request" className="flex navigate-menu">
+            <NavLink to="requestmanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="bold" />
-                <p className="label">{t("Request")}</p>
+                <AddressBook className="icon" weight="fill" />
+                <p className="label">{t("Request Manage")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="warehouseinventory" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Package className="icon" weight="fill" />
+                <p className="label">{t("Inventory")}</p>
               </div>
             </NavLink>
           </>
         )}
+
+        {userInfor?.roleName !== "Partner" &&
+          userInfor?.roleName !== "Staff" &&
+          userInfor?.roleName !== "Admin" &&
+          userInfor?.roleName !== "Manager" && (
+            <>
+              <NavLink to="dashboard" className="flex navigate-menu">
+                <div className="sidebar-menu-container">
+                  <House className="icon" weight="bold" />
+                  <p className="label">{t("Dashboard")}</p>
+                </div>
+              </NavLink>
+
+              <NavLink to="warehouse" className="flex navigate-menu">
+                <div className="sidebar-menu-container">
+                  <Warehouse className="icon" weight="bold" />
+                  <p className="label">{t("Warehouse")}</p>
+                </div>
+              </NavLink>
+
+              <NavLink to="inventory" className="flex navigate-menu">
+                <div className="sidebar-menu-container">
+                  <Package className="icon" weight="bold" />
+                  <p className="label">{t("Inventory")}</p>
+                </div>
+              </NavLink>
+
+              <NavLink to="product" className="flex navigate-menu">
+                <div className="sidebar-menu-container">
+                  <Bag className="icon" weight="bold" />
+                  <p className="label">{t("Product")}</p>
+                </div>
+              </NavLink>
+
+              <NavLink to="order" className="flex navigate-menu">
+                <div className="sidebar-menu-container">
+                  <AddressBook className="icon" weight="bold" />
+                  <p className="label">{t("Order")}</p>
+                </div>
+              </NavLink>
+
+              <NavLink to="request" className="flex navigate-menu">
+                <div className="sidebar-menu-container">
+                  <AddressBook className="icon" weight="bold" />
+                  <p className="label">{t("Request")}</p>
+                </div>
+              </NavLink>
+            </>
+          )}
       </nav>
     </div>
   );
