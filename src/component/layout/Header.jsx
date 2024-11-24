@@ -118,8 +118,6 @@ export function HeaderAuthenticated() {
   const [theme, setTheme] = useState(settingInfor.theme);
   const { t } = useTranslation();
 
-  
-
   useEffect(() => {
     document.addEventListener("mousedown", mouseDownEvent);
     getAuthWalletMoney();
@@ -235,12 +233,14 @@ export function HeaderAuthenticated() {
         >
           <Bell size={24} weight="fill" />
         </button>
-        <div
-          className="w-[10rem] cursor-pointer"
-          onClick={handleAddingCoinsButton}
-        >
-          {authWallet?.totalAmount}
-        </div>
+        {authWallet && (
+          <div
+            className="w-[10rem] cursor-pointer"
+            onClick={handleAddingCoinsButton}
+          >
+            {authWallet?.totalAmount}
+          </div>
+        )}
         <button
           className="bg-white text-blue-500 border rounded-full overflow-hidden h-fit hover:bg-blue-600 hover:text-white transition duration-200"
           onClick={handleProfileDetail}
