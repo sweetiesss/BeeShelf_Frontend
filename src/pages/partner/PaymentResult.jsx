@@ -62,7 +62,7 @@ export default function PaymentResult() {
         <div className="mt-6 flex justify-center space-x-4">
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            onClick={() => (window.location.href = "../")}
+            onClick={() => (window.location.href = "/Partner")}
           >
             Go to Homepage
           </button>

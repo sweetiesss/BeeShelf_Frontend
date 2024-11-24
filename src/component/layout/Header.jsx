@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import { Bell } from "@phosphor-icons/react";
@@ -117,6 +117,8 @@ export function HeaderAuthenticated() {
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
   const { t } = useTranslation();
+
+  
 
   useEffect(() => {
     document.addEventListener("mousedown", mouseDownEvent);
