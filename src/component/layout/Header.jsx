@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import { Bell } from "@phosphor-icons/react";
@@ -233,12 +233,14 @@ export function HeaderAuthenticated() {
         >
           <Bell size={24} weight="fill" />
         </button>
-        <div
-          className="w-[10rem] cursor-pointer"
-          onClick={handleAddingCoinsButton}
-        >
-          {authWallet?.totalAmount}
-        </div>
+        {authWallet && (
+          <div
+            className="w-[10rem] cursor-pointer"
+            onClick={handleAddingCoinsButton}
+          >
+            {authWallet?.totalAmount}
+          </div>
+        )}
         <button
           className="bg-white text-blue-500 border rounded-full overflow-hidden h-fit hover:bg-blue-600 hover:text-white transition duration-200"
           onClick={handleProfileDetail}

@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import AxiosOthers from "../services/Others";
-import AxiosCategory from "../services/Category";
+
 
 export const AuthContext = createContext();
 
@@ -17,7 +17,7 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const storedAuth = localStorage.getItem("Authenticated");
-    return storedAuth ? JSON.parse(storedAuth) : false;
+    return storedAuth ? JSON.parse(storedAuth) : null;
   });
 
   const [userInfor, setUserInfor] = useState(() => {
@@ -29,12 +29,12 @@ export function AuthProvider({ children }) {
     const storedExpiry = localStorage.getItem("Authenticated");
     return storedExpiry ? jwtDecode(storedExpiry).exp * 1000 : null;
   });
-  const [authWallet, setAuthWallet] = useState(0);
+  const [authWallet, setAuthWallet] = useState();
   const [banksList, setBanksList] = useState();
   const [ocopCategoriesList, setOcopCategoriesList] = useState();
 
   const { getBanks } = AxiosOthers();
-  const { getOcopCategoryBy100 } = AxiosCategory();
+  const { getOcopCategoryBy100 } = AxiosOthers();
 
   const [refrestAuthWallet, setRefrestAuthWallet] = useState(false);
 

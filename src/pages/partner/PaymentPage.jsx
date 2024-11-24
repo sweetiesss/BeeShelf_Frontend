@@ -8,11 +8,12 @@ export function PaymentPage() {
   const [customeAmount, setCustomAmount] = useState();
   const [error, setError] = useState();
 
+
   const [form, setForm] = useState({
     buyerEmail: userInfor?.email || "",
     cancelUrl: "https://www.beeshelf.com/partner/payment/result",
     returnUrl: "https://www.beeshelf.com/partner/payment/result",
-    description: userInfor?.lastName+" buy coins.",
+    description: userInfor?.lastName + " buy coins.",
   });
   const { createQrCode } = AxiosPayment();
 
