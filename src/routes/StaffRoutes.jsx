@@ -18,7 +18,7 @@ export default function StaffRoutes() {
 
         <Route path="assign" element={<Assign />} />
         <Route path="warehouseinventory" element={<Inventory/>}/>
-        <Route path="ordermanage" element= {<Ordermanage/>} />
+        <Route path="ordermanage" element={<Ordermanage/>}/>
          
         </Route>
       </Routes>
