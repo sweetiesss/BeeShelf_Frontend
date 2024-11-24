@@ -104,10 +104,10 @@ export function Sidebar() {
               </div>
             </NavLink>
 
-            <NavLink to="orderstaff" className="flex navigate-menu">
+            <NavLink to="ordermanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Bag className="icon" weight="fill" />
-                <p className="label">{t("Order")}</p>
+                <p className="label">{t("Ordermanage")}</p>
               </div>
             </NavLink>
 
