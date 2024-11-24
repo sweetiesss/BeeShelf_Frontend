@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import { Bell } from "@phosphor-icons/react";
@@ -9,6 +9,7 @@ import { SettingContext } from "../../context/SettingContext";
 import { LanguageSelector } from "../shared/ChangeLanguages";
 import { useTranslation } from "react-i18next";
 import { useDetail } from "../../context/DetailContext";
+import axios from "axios";
 
 export function HeaderUnauthenticated() {
   const nav = useNavigate();
@@ -97,6 +98,10 @@ export function HeaderAuthenticated() {
     setIsAuthenticated,
     handleLogout,
     authWallet,
+    setAuthWallet,
+    isAuthenticated,
+    refrestAuthWallet,
+    setRefrestAuthWallet,
   } = useContext(AuthContext);
   const {
     dataDetail,
@@ -112,12 +117,17 @@ export function HeaderAuthenticated() {
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
   const { t } = useTranslation();
+
   useEffect(() => {
     document.addEventListener("mousedown", mouseDownEvent);
+    getAuthWalletMoney();
     return () => {
       document.removeEventListener("mousedown", mouseDownEvent);
     };
   }, []);
+  useEffect(() => {
+    getAuthWalletMoney();
+  }, [refrestAuthWallet]);
 
   const changeTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -156,6 +166,40 @@ export function HeaderAuthenticated() {
     console.log(typeDetail);
   };
 
+  const handleAddingCoinsButton = () => {
+    nav("payment");
+  };
+
+  const getAuthWalletMoney = async () => {
+    try {
+      if (userInfor?.roleName === "Partner" && userInfor?.roleId == 2) {
+        if (userInfor && isAuthenticated) {
+          console.log("check tokeen", isAuthenticated);
+
+          const response = await axios.get(
+            `${process.env.REACT_APP_BASE_URL_API}partner/get-wallet/${userInfor?.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${isAuthenticated}`,
+              },
+            }
+          );
+          console.log(response);
+
+          setAuthWallet(response.data);
+        }
+      } else {
+        return;
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching wallet:",
+        error.response?.data || error.message
+      );
+    } finally {
+    }
+  };
+
   return (
     <div className="flex items-center justify-end w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2 header">
       <div className="flex space-x-5 items-center">
@@ -189,7 +233,12 @@ export function HeaderAuthenticated() {
         >
           <Bell size={24} weight="fill" />
         </button>
-        <div>{authWallet?.totalAmount}</div>
+        <div
+          className="w-[10rem] cursor-pointer"
+          onClick={handleAddingCoinsButton}
+        >
+          {authWallet?.totalAmount}
+        </div>
         <button
           className="bg-white text-blue-500 border rounded-full overflow-hidden h-fit hover:bg-blue-600 hover:text-white transition duration-200"
           onClick={handleProfileDetail}
