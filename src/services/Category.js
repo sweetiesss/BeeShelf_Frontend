@@ -1,21 +1,18 @@
 import { toast } from "react-toastify";
-import {useAxios} from "./CustomizeAxios";
-
+import useAxiosBearer, { useAxios } from "./CustomizeAxios";
 
 export default function AxiosCategory() {
   // Simulate fetching data from API
-  const { fetchData } = useAxios();
-  // const { fetchDataBearer } = useAxiosBearer();
-
-  const getOcopCategoryBy100 = async (pageIndex, size = 100) => {
+  const { fetchDataBearer } = useAxiosBearer();
+  const getProductCategoryBy1000 = async (pageIndex = 0, size = 1000) => {
     try {
       const queryParams = new URLSearchParams();
 
       queryParams.append("pageIndex", pageIndex);
       queryParams.append("pageSize", size);
 
-      const fetching = await fetchData({
-        url: `productCategory/get-ocop-categories?${queryParams.toString()}`,
+      const fetching = await fetchDataBearer({
+        url: `productCategory/get-product-categories?${queryParams.toString()}`,
         method: "GET",
       });
       return fetching;
@@ -132,5 +129,5 @@ export default function AxiosCategory() {
   //   }
   // };
 
-  return { getOcopCategoryBy100 };
+  return { getProductCategoryBy1000 };
 }
