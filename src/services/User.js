@@ -2,6 +2,7 @@ import { toast } from "react-toastify";
 import { useAxios } from "./CustomizeAxios";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 export default function AxiosUser() {
   const { fetchData } = useAxios();
@@ -10,6 +11,20 @@ export default function AxiosUser() {
     try {
       const fetching = await fetchData({
         url: `partner/get-partner/${email}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return fetching;
+    } catch (error) {
+      return error;
+    }
+  };
+  const requestGetEmployeeByEmail = async (email, token) => {
+    try {
+      const fetching = await fetchData({
+        url: `user/get-employee/${email}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -38,6 +53,7 @@ export default function AxiosUser() {
   const loginByEmailPassword = async (data) => {
     try {
       let name = "";
+      let nameEmployee= "";
       const fetching = async () => {
         const getToken = await getAuth(data);
         console.log("getToken", getToken);
@@ -45,16 +61,55 @@ export default function AxiosUser() {
         if (getToken && getToken?.status === 200) {
           if (getToken?.data && getToken?.data.length > 0) {
             const successDataToken = getToken?.data;
-            setIsAuthenticated(successDataToken);
-            const getAccount = await requestGetUserByEmail(
-              data.email,
-              successDataToken
-            );
-            if (getAccount && getAccount?.status === 200 && getAccount?.data) {
-              name = getAccount.data?.lastName;
-              return getAccount.data;
-            }
+            const objectCheck = jwtDecode(successDataToken);
+            console.log("check",objectCheck);
 
+            setIsAuthenticated(successDataToken);
+            // const getAccount = await requestGetUserByEmail(
+            //   data.email,
+            //   successDataToken
+            // );
+            // if (getAccount && getAccount?.status === 200 && getAccount?.data) {
+            //   name = getAccount.data?.lastName;
+            //   return getAccount.data;
+            // }
+            if (
+              objectCheck &&
+              objectCheck?.[
+                "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+              ] === "Partner"
+            ) {
+              const getAccount = await requestGetUserByEmail(
+                data.email,
+                successDataToken
+              );
+              if (
+                getAccount &&
+                getAccount?.status === 200 &&
+                getAccount?.data
+              ) {
+                name = getAccount.data?.lastName;
+                return getAccount.data;
+              }
+            } else if (
+              objectCheck &&
+              objectCheck?.[
+                "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+              ] === "Staff"
+            ) {
+              const getEmployeeAccount = await requestGetEmployeeByEmail(
+                data.email,
+                successDataToken
+              );
+              if (
+                getEmployeeAccount &&
+                getEmployeeAccount?.status === 200 &&
+                getEmployeeAccount?.data
+              ) {
+                name = getEmployeeAccount.data?.lastName;
+                return getEmployeeAccount.data;
+              }
+            }
             throw new Error("Unable to fetch account details.");
           }
         }
@@ -70,7 +125,7 @@ export default function AxiosUser() {
         pending: "Request in progress...",
         success: {
           render() {
-            return `Welcome back ${name}`;
+            return `Welcome back ${name || nameEmployee}`;
           },
         },
         error: {
