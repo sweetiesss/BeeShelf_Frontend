@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
+import { message } from "antd";
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
@@ -11,84 +12,116 @@ import { useTranslation } from "react-i18next";
 import { useDetail } from "../../context/DetailContext";
 import axios from "axios";
 
+import React from "react";
+// import { NavLink, useNavigate } from "react-router-dom";
+
 export function HeaderUnauthenticated() {
   const nav = useNavigate();
+
   return (
-    <div className="flex items-center justify-between h-20 w-full text-black px-4 font-light text-lg header">
-      <div className="flex items-center text-2xl font-bold">
-        <p>BeShelf</p>
+    <header className="bg-white shadow-md sticky top-0 z-50 w-full">
+      <div className="flex justify-between items-center h-20 px-6 lg:px-20 max-w-screen-xl mx-auto">
+        {/* Logo */}
+        <div
+          className="text-3xl font-bold text-blue-600 cursor-pointer"
+          onClick={() => nav("/")}
+        >
+          BeShelf
+        </div>
+  
+        {/* Navigation Menu */}
+        <nav className="hidden md:flex space-x-10">
+          <NavLink
+            to="/about"
+            className={({ isActive }) =>
+              [
+                "text-lg font-medium transition-colors duration-200 hover:text-blue-600",
+                isActive ? "text-blue-600 underline decoration-2" : "text-gray-700",
+              ].join(" ")
+            }
+          >
+            ABOUT
+          </NavLink>
+          <NavLink
+            to="/service"
+            className={({ isActive }) =>
+              [
+                "text-lg font-medium transition-colors duration-200 hover:text-blue-600",
+                isActive ? "text-blue-600 underline decoration-2" : "text-gray-700",
+              ].join(" ")
+            }
+          >
+            SERVICE
+          </NavLink>
+          <NavLink
+            to="/package"
+            className={({ isActive }) =>
+              [
+                "text-lg font-medium transition-colors duration-200 hover:text-blue-600",
+                isActive ? "text-blue-600 underline decoration-2" : "text-gray-700",
+              ].join(" ")
+            }
+          >
+            PACKAGE
+          </NavLink>
+          <NavLink
+            to="/contact"
+            className={({ isActive }) =>
+              [
+                "text-lg font-medium transition-colors duration-200 hover:text-blue-600",
+                isActive ? "text-blue-600 underline decoration-2" : "text-gray-700",
+              ].join(" ")
+            }
+          >
+            CONTACT
+          </NavLink>
+        </nav>
+  
+        {/* Auth Buttons */}
+        <div className="flex space-x-5">
+          <button
+            className="bg-blue-500 text-white px-6 py-2 rounded-md shadow-md hover:bg-blue-600 transition-all duration-200"
+            onClick={() => nav("/authorize/signin")}
+          >
+            Sign In
+          </button>
+          <button
+            className="bg-blue-500 text-white px-6 py-2 rounded-md shadow-md hover:bg-blue-600 transition-all duration-200"
+            onClick={() => nav("/authorize/signup")}
+          >
+            Sign Up
+          </button>
+        </div>
+  
+        {/* Mobile Menu Toggle */}
+        <div className="md:hidden flex items-center">
+          <button
+            className="text-gray-700 focus:outline-none"
+            onClick={() => console.log("Toggle mobile menu")}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
-      <div className="flex space-x-24 navigate-menu">
-        <NavLink
-          to="about"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              "menu-item ",
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          ABOUT
-        </NavLink>
-        <NavLink
-          to="service"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              "menu-item ",
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          SERVICE
-        </NavLink>
-        <NavLink
-          to="package"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              "menu-item ",
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          PACKAGE
-        </NavLink>
-        <NavLink
-          to="contact"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              "menu-item ",
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          CONTACT
-        </NavLink>
-      </div>
-      <div className="flex space-x-4 font-semibold">
-        <button
-          className="bg-white text-blue-500 px-3 py-1 rounded hover:bg-blue-600 hover:text-white transition duration-200"
-          onClick={() => nav("/authorize/signin")}
-        >
-          Sign In
-        </button>
-        <button
-          className="bg-white text-blue-500 px-3 py-1 rounded hover:bg-blue-600 hover:text-white transition duration-200"
-          onClick={() => nav("/authorize/signup")}
-        >
-          Sign Up
-        </button>
-      </div>
-    </div>
+    </header>
   );
+  
 }
+
+
 
 export function HeaderAuthenticated() {
   const [openNotification, setOpenNotification] = useState(false);
