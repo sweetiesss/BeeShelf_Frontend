@@ -7,6 +7,7 @@ import Assign from "../component/staff/assign/Assign";
 import Inventory from "../pages/staff/InventoryStaff";
 import Ordermanage from "../component/staff/ordermanage/Ordermanage";
 import Batch from "../component/staff/batchflow/Batch";
+import RequestManagement from "../component/staff/requestmanage/RequestManage";
 
 export default function StaffRoutes() {
   const { dataDetail, typeDetail } = useDetail();  
@@ -21,7 +22,7 @@ export default function StaffRoutes() {
         <Route path="warehouseinventory" element={<Inventory/>}/>
         <Route path="ordermanage" element={<Ordermanage/>} />
         <Route path="batchflow" element={<Batch/>}/>
-         
+         <Route path="requestmanage" element={<RequestManagement/>}/>
         </Route>
       </Routes>
     </div>
