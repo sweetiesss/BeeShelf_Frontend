@@ -18,15 +18,24 @@ import AxiosWarehouse from "../../services/Warehouse";
 import { useAuth } from "../../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import Mapping from "../../component/shared/Mapping";
+import AxiosInventory from "../../services/Inventory";
 
 export default function InventoryPage() {
-  const [warehouse, setWareHouse] = useState();
   const [warehouses, setWareHouses] = useState();
   const [warehousesOwned, setWareHousesOwned] = useState();
   const [warehousesShowList, setWareHouseShowList] = useState();
+  const [warehouse, setWareHouse] = useState();
+
+  const [inventories, setInventories] = useState();
+  const [inventoriesOwned, setInventoriesOwned] = useState();
+  const [inventoriesShowList, setInventoriesShowList] = useState();
   const [inventory, setInventory] = useState();
+
+  const [checkBuyInventory, setCheckBuyInventory] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [refetching, setRefetching] = useState(false);
+  const [refetchingInventory, setRefetchingInventory] = useState(false);
   const [setFiltersVisible, filtersVisible] = useState(true);
 
   const [search, setSearch] = useState(null);
@@ -37,6 +46,8 @@ export default function InventoryPage() {
 
   const { userInfor } = useAuth();
   const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
+  const {getInventory1000ByWarehouseId, getInventory1000ByUserIdAndWareHouseId, buyInventory } =
+    AxiosInventory();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -48,7 +59,19 @@ export default function InventoryPage() {
     getWareHouseList();
   }, [warehousesOwned]);
 
-  useEffect(() => {}, [warehouse]);
+  useEffect(() => {
+    const fetching = async () => {
+      if (warehouse) {
+        await fetchingDataInventories();
+        await fetchingDataInventoriesByUserId();
+      }
+    };
+    fetching();
+  }, [warehouse, refetchingInventory]);
+
+  useEffect(() => {
+    getInventoriesList();
+  }, [inventoriesOwned]);
 
   const fetchingDataWarehouses = async () => {
     try {
@@ -99,6 +122,75 @@ export default function InventoryPage() {
     setWareHouseShowList(combinedList);
   };
 
+  const fetchingDataInventories = async () => {
+    try {
+      setLoading(true);
+      console.log(warehouse);
+      const res = await getInventory1000ByWarehouseId(warehouse?.id);
+      console.log("Inv", res);
+      if (res?.status == 200) {
+        setInventories(res);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchingDataInventoriesByUserId = async () => {
+    try {
+      setLoading(true);
+      const res = await getInventory1000ByUserIdAndWareHouseId(userInfor?.id, warehouse?.id);
+      console.log("ownedInv", res);
+      if (res?.status == 200) {
+        setInventoriesOwned(res);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getInventoriesList = () => {
+    const inventoriesOwnedList = inventoriesOwned?.data?.items || [];
+    const result =
+      inventories?.data?.items?.filter(
+        (inventory) =>
+          !inventoriesOwnedList.some((owned) => owned.id === inventory.id) &&
+          (inventory.ocopPartnerId === userInfor.id ||
+            inventory.ocopPartnerId === null)
+      ) || [];
+
+    const combinedList = [...inventoriesOwnedList, ...result];
+    console.log(combinedList);
+
+    setInventoriesShowList(combinedList);
+  };
+
+  const handleBuyClick = (inventory) => {
+    setCheckBuyInventory(true);
+    setInventory(inventory);
+  };
+  const handleConfirmBuyInventory = async () => {
+    try {
+      setLoading(true);
+      const result = await buyInventory(inventory.id, userInfor.id);
+      console.log("buy Inv", result);
+      if (result?.status == 200) {
+        handleCancelBuyInventory();
+        setRefetchingInventory((prev) => !prev);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleCancelBuyInventory = () => {
+    setCheckBuyInventory(false);
+    setInventory();
+  };
 
   // Filter state
   const [filters, setFilters] = useState({
@@ -189,15 +281,48 @@ export default function InventoryPage() {
                 ))}
             </div>
           </div>
-        ) : inventory ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center"></div>
         ) : (
-          // <InventoryProduct setInventory={setInventory} />
-          <div></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
+            {inventoriesShowList?.map((inventenry) => (
+              <InventoryCard
+                inventory={inventenry}
+                handleBuyClick={handleBuyClick}
+              />
+            ))}
+          </div>
         )}
+        {checkBuyInventory && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
+              style={{
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <p>{`Are you sure you want to buy ${inventory.name}?`}</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => handleCancelBuyInventory()}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmBuyInventory}
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* <Mapping showLocation="Hồ Chí Minh"></Mapping> */}
       </div>
-     <Mapping showLocation="Hồ Chí Minh"></Mapping>
-      
     </div>
   );
 }

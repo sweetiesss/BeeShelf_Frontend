@@ -9,9 +9,11 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
   return (
     <div
       className={` shadow-lg rounded-lg p-6 mb-4 w-full max-w-lg mx-auto text-black cursor-pointer ${
-        totalWeight ? "bg-[var(--Xanh-10)] hover:bg-[var(--Xanh-100)]" : "bg-white hover:bg-[var(--en-vu-100)]"
+        totalWeight
+          ? "bg-[var(--Xanh-10)] hover:bg-[var(--Xanh-100)]"
+          : "bg-white hover:bg-[var(--en-vu-100)]"
       }`}
-       onClick={() => setWareHouse(warehouse)}
+      onClick={() => setWareHouse(warehouse)}
     >
       <div className="flex items-start gap-10">
         <div className="overflow-auto w-[8rem] h-[10rem] ">
@@ -53,41 +55,34 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
     </div>
   );
 }
-export function InventoryCard({ inventory, setInventory }) {
-  const {
-    inventory_id,
-    max_weight,
-    current_weight,
-    warehouse,
-    bought_date,
-    expiration_date,
-    products,
-    distance,
-    estimated_time,
-  } = inventory;
-
+export function InventoryCard({ inventory, handleBuyClick }) {
   return (
     <div
-      className="bg-white shadow-md rounded-lg p-6 mb-4 w-full max-w-lg mx-auto  text-black"
-      onClick={() => setInventory(inventory)}
+      className={` shadow-lg rounded-lg p-6 mb-4 w-full max-w-lg mx-auto text-black cursor-pointer ${
+        inventory.ocopPartnerId
+          ? "bg-[var(--Xanh-10)] hover:bg-[var(--Xanh-100)]"
+          : "bg-white hover:bg-[var(--en-vu-100)]"
+      }`}
+      onClick={() => handleBuyClick(inventory)}
     >
-      <div className="font-bold text-xl text-left ">{warehouse?.name}</div>
+      <div className="font-bold text-xl text-left ">{inventory?.name}</div>
       <div className="flex items-center justify-between">
         {/* Right Side: Route Info */}
         <div className="flex-1 text-left">
-          <div className="text-gray-500">{warehouse?.location}</div>
+          <div className="text-gray-500">{}</div>
         </div>
         {/* Left Side: Status, ID, and Weight Info */}
         <div className="flex-1">
           <div className="text-gray-700 mb-1">
-            <span className="font-semibold">Max weight:</span> {max_weight}
+            <span className="font-semibold">Max weight:</span>{" "}
+            {inventory?.maxWeight}
           </div>
         </div>
       </div>
       <div className="text-gray-500 text-left">
         Date:
         <span className="text-black">
-          {bought_date} to {expiration_date}
+          {inventory?.boughtDate} to {inventory?.expirationDate}
         </span>
       </div>
     </div>
