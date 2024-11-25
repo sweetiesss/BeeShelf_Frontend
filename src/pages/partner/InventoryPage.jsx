@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   InventoryCard,
   WarehouseCard,
@@ -17,11 +17,14 @@ import InventoryProduct from "../../component/partner/inventory/InventoryProduct
 import AxiosWarehouse from "../../services/Warehouse";
 import { useAuth } from "../../context/AuthContext";
 import { useTranslation } from "react-i18next";
+import Mapping from "../../component/shared/Mapping";
 
 export default function InventoryPage() {
-  const [warehouse, setWareHouse] = useState("");
+  const [warehouse, setWareHouse] = useState();
   const [warehouses, setWareHouses] = useState();
-  const [inventory, setInventory] = useState("");
+  const [warehousesOwned, setWareHousesOwned] = useState();
+  const [warehousesShowList, setWareHouseShowList] = useState();
+  const [inventory, setInventory] = useState();
   const [loading, setLoading] = useState(false);
   const [refetching, setRefetching] = useState(false);
   const [setFiltersVisible, filtersVisible] = useState(true);
@@ -38,7 +41,14 @@ export default function InventoryPage() {
 
   useEffect(() => {
     fetchingDataWarehouses();
+    fetchingDataWarehousesByUserId();
   }, []);
+
+  useEffect(() => {
+    getWareHouseList();
+  }, [warehousesOwned]);
+
+  useEffect(() => {}, [warehouse]);
 
   const fetchingDataWarehouses = async () => {
     try {
@@ -48,7 +58,7 @@ export default function InventoryPage() {
         sortCriteria,
         descending,
         pageIndex,
-        pageSize
+        1000
       );
       console.log(res);
       if (res?.status == 200) {
@@ -60,6 +70,35 @@ export default function InventoryPage() {
       setLoading(false);
     }
   };
+  const fetchingDataWarehousesByUserId = async () => {
+    try {
+      setLoading(true);
+      const res = await getWarehouseByUserId(userInfor?.id);
+      console.log("owned", res);
+      if (res?.status == 200) {
+        setWareHousesOwned(res);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getWareHouseList = () => {
+    const warehousesOwnedList = warehousesOwned?.data || [];
+    const result =
+      warehouses?.data?.items?.filter(
+        (warehouse) =>
+          !warehousesOwnedList.some((owned) => owned.id === warehouse.id)
+      ) || [];
+
+    const combinedList = [...warehousesOwnedList, ...result];
+    console.log(combinedList);
+
+    setWareHouseShowList(combinedList);
+  };
+
 
   // Filter state
   const [filters, setFilters] = useState({
@@ -91,9 +130,27 @@ export default function InventoryPage() {
       <div className="text-left">
         {/* Responsive grid for the inventory cards */}
         <div>
-          <p className="text-3xl font-bold">{t("Warehouses")}</p>
+          <p className="text-2xl font-medium">
+            <span
+              className={`${
+                warehouse
+                  ? "text-[var(--en-vu-500-disable)]   cursor-pointer"
+                  : "text-[var(--en-vu)]"
+              }`}
+              onClick={() => warehouse && setWareHouse()}
+            >
+              {warehouse ? warehouse.name : t("Warehouses")}
+            </span>
+            <span
+              className={`${
+                !warehouse ? "text-[var(--en-vu)]" : "text-[var(--en-vu)]"
+              }`}
+            >
+              {!warehouse ? "" : " > " + t("Inventories")}
+            </span>
+          </p>
         </div>
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <div className="flex items-center">
             <p>{t("Filters")}</p>
             <div
@@ -119,12 +176,12 @@ export default function InventoryPage() {
             </div>
           </div>
           <div></div>
-        </div>
-        {warehouse === "" ? (
+        </div> */}
+        {!warehouse ? (
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {warehouses &&
-                warehouses?.data?.items.map((warehouse) => (
+              {warehousesShowList &&
+                warehousesShowList?.map((warehouse) => (
                   <WarehouseCard
                     warehouse={warehouse}
                     setWareHouse={setWareHouse}
@@ -132,33 +189,15 @@ export default function InventoryPage() {
                 ))}
             </div>
           </div>
-        ) : inventory === "" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
-            <div className="col-span-3 flex items-center space-x-3">
-              <div
-                className="font-bold text-2xl cursor-pointer"
-                onClick={() => setWareHouse("")}
-              >
-                <CaretLeft weight="bold" />
-              </div>
-              <InventoryHeader />
-            </div>
-            <div className="flex flex-col ml-5 col-span-3 text-left">
-              <span className="font-bold text-2xl">{warehouse.name}</span>
-              <span className="text-gray-500">{warehouse.location}</span>
-            </div>
-            {warehouse?.inventories.map((inventory) => (
-              <InventoryCard
-                key={inventory.inventory_id}
-                inventory={inventory}
-                setInventory={setInventory}
-              />
-            ))}
-          </div>
+        ) : inventory ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center"></div>
         ) : (
-          <InventoryProduct setInventory={setInventory} />
+          // <InventoryProduct setInventory={setInventory} />
+          <div></div>
         )}
       </div>
+     <Mapping showLocation="Hồ Chí Minh"></Mapping>
+      
     </div>
   );
 }
