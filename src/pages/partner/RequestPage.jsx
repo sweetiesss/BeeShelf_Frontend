@@ -24,7 +24,7 @@ export default function RequestPage() {
     useState();
 
   const { getProductByUserId } = AxiosProduct();
-  const { getInventory100 } = AxiosInventory();
+  const { getInventory1000ByUserId } = AxiosInventory();
   const [type, setType] = useState();
   const {
     dataDetail,
@@ -198,7 +198,7 @@ export default function RequestPage() {
 
   useEffect(() => {
     const fetchingData = async () => {
-      const result = await getInventory100();
+      const result = await getInventory1000ByUserId();
       console.log(result);
       setInventories(result);
     };
