@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import useAxiosBearer from "./CustomizeAxios";
 
 export default function AxiosInventory() {
@@ -63,5 +64,32 @@ export default function AxiosInventory() {
       return e;
     }
   };
-  return { getInventory1000ByWarehouseId, getInventory1000ByUserIdAndWareHouseId,getInventory1000ByUserId, getInventoryById ,buyInventory};
+  const createInventory=async(data)=>{
+    try {
+      const fetching = fetchDataBearer({
+        url: `inventory/create-inventory`,
+        method: "POST",
+        data: data,
+      });
+      await toast.promise(fetching, {
+        pending: "Inventory creating...",
+        success: {
+          render() {
+            return `Inventory created`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  }
+  return { getInventory1000ByWarehouseId, getInventory1000ByUserIdAndWareHouseId,getInventory1000ByUserId, getInventoryById ,buyInventory,createInventory};
 }
