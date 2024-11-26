@@ -105,9 +105,9 @@ export default function CreateRequestImport({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 over-detail-slider "></div>
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
       <div
-        className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit flex flex-col over-detail-slider "
+        className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit flex flex-col z-10"
         style={{
           top: "50%",
           left: "50%",
@@ -124,9 +124,9 @@ export default function CreateRequestImport({
           >
             <option value={null}>Select Type of Request</option>
             <option value={"Import"}>Import products to warehouse</option>
-            <option value={"Export"}>Export products</option>
-            {/* <option value={null}>Withdrawn money</option>
-            <option value={null}>Others</option> */}
+            <option value={null}>Export products</option>
+            <option value={null}>Withdrawn money</option>
+            <option value={null}>Others</option>
           </select>
         )}
         {type === "Import" && (

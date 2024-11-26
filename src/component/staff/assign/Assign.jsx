@@ -1,25 +1,47 @@
 import React, { useState, useEffect } from "react";
 import { SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { Drawer, Input } from "antd";
-import { Avatar } from "antd";
+import {
+  Drawer,
+  Input,
+  Typography,
+  Divider,
+  List,
+  Spin,
+  Avatar,
+  Button,
+} from "antd";
 import useAxios from "../../../services/CustomizeAxios";
+import AssignShipperForm from "./AssignShipperForm"; // Import the AssignShipperForm component
+import { message } from "antd";
 
 const Assign = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [open, setOpen] = useState(false);
+  const [assignModalVisible, setAssignModalVisible] = useState(false);
   const { fetchDataBearer } = useAxios();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true); // Start loading
       try {
         const response = await fetchDataBearer({
-          url: `/order/get-orders?descending=false&pageIndex=0&pageSize=100`,
+          url: `/order/get-orders`,
           method: "GET",
+          params: {
+            descending: true, // Sort descending for newest first
+            pageIndex: 0,
+            pageSize: 1000,
+            sortBy: "CreateDate", // Sort by CreateDate
+          },
         });
-        setOrders(response.data.items);
+        setOrders(response.data.items); // Save the data to state
       } catch (error) {
         console.error(error);
+        message.error("Failed to load orders!");
+      } finally {
+        setIsLoading(false); // End loading
       }
     };
     fetchData();
@@ -33,36 +55,41 @@ const Assign = () => {
     setOpen(true);
   };
 
+  const handleAssignClick = (order) => {
+    setSelectedOrder(order);
+    setAssignModalVisible(true);
+  };
+
   const onClose = () => setOpen(false);
+
+  const handleAssign = async (values) => {
+    try {
+      const { id, shipperId } = values; // Extract id and shipperId from values
+      await fetchDataBearer({
+        url: `/batch/assign-batch/${id}/${shipperId}`, // Inject id and shipperId into URL
+        method: "POST",
+        data: values, // Send data
+      });
+      message.success(`Order ${id} assigned to shipper ${shipperId}`);
+      setAssignModalVisible(false);
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to assign shipper!");
+    }
+  };
 
   return (
     <div className="bg-white p-6">
-      {/* Drawer để hiển thị chi tiết */}
-      <Drawer
-        title="Order Detail"
-        placement="right"
-        closable={true}
-        onClose={onClose}
-        open={open}
-      >
-        {selectedOrder && (
-          <>
-            <div className="flex justify-center">
-              <Avatar
-                shape="square"
-                src={selectedOrder.image || "default-image.jpg"}
-                size={96}
-              />
-            </div>
-            <h3 className="text-center font-bold mt-4">
-              {selectedOrder.productName}
-            </h3>
-            <p className="text-center text-gray-500">
-              ${selectedOrder.productPrice}
-            </p>
-          </>
-        )}
-      </Drawer>
+      {/* Assign Shipper Modal */}
+      <AssignShipperForm
+        open={assignModalVisible}
+        onClose={() => setAssignModalVisible(false)}
+        orderId={selectedOrder?.id}
+        onAssign={handleAssign}
+      />
+
+      {/* Drawer for displaying detailed order information */}
+      <OrderDetailDrawer order={selectedOrder} onClose={onClose} open={open} />
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-bold text-3xl">Today's Orders</h1>
@@ -75,52 +102,37 @@ const Assign = () => {
       </div>
 
       <div>
-        <div className="overflow-x-auto ">
-          <div className="flex space-x-4 w-max">
-            <OrderColumn
-              title="Unassigned"
-              orders={filterOrdersByStatus("Unassigned")}
-              color="gray"
-              onDetailClick={handleOrderClick}
-            />
-            <OrderColumn
-              title="Assigned"
-              orders={filterOrdersByStatus("Assigned")}
-              color="blue"
-              onDetailClick={handleOrderClick}
-            />
-            <OrderColumn
-              title="Processing"
-              orders={filterOrdersByStatus("Processing")}
-              color="green"
-              onDetailClick={handleOrderClick}
-            />
-            <OrderColumn
-              title="Pending"
-              orders={filterOrdersByStatus("Pending")}
-              color="yellow"
-              onDetailClick={handleOrderClick}
-            />
-            <OrderColumn
-              title="Canceled"
-              orders={filterOrdersByStatus("Canceled")}
-              color={getColorByStatus("Canceled")}
-              onDetailClick={handleOrderClick}
-            />
-            <OrderColumn
-              title="Deliveried"
-              orders={filterOrdersByStatus("Deliveried")}
-              color={getColorByStatus("Deliveried")}
-              onDetailClick={handleOrderClick}
-            />
-            <OrderColumn
-              title="Failed"
-              orders={filterOrdersByStatus("Failed")}
-              color={getColorByStatus("Failed")}
-              onDetailClick={handleOrderClick}
-            />
+        {isLoading ? (
+          <div className="flex justify-center items-center h-96">
+            <Spin size="large" tip="Loading orders..." />
           </div>
-        </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <div className="flex space-x-4 w-max">
+              {[
+                "Draft",
+                "Assigned",
+                "Pending",
+                "Processing",
+                "Shipping",
+                "Delivered",
+                "Returned",
+                "Refunded",
+                "Completed",
+                "Canceled",
+              ].map((status) => (
+                <OrderColumn
+                  key={status}
+                  title={status}
+                  orders={filterOrdersByStatus(status)}
+                  color={getColorByStatus(status)}
+                  onDetailClick={handleOrderClick}
+                  onAssignClick={handleAssignClick}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -128,53 +140,252 @@ const Assign = () => {
 
 export default Assign;
 
+// Add the other helper components like OrderColumn, OrderCard, and OrderDetailDrawer here
+const OrderDetailDrawer = ({ order, onClose, open }) => (
+  <Drawer
+    title={
+      <Typography.Title level={4} className="mb-0">
+        Order Details
+      </Typography.Title>
+    }
+    width={400}
+    onClose={onClose}
+    open={open}
+    bodyStyle={{ padding: "16px" }}
+    className="order-detail-drawer"
+  >
+    {order ? (
+      <>
+        <div className="flex items-center mb-4">
+          <Avatar
+            shape="square"
+            size={64}
+            src={order.orderDetails[0]?.imageUrl || "/default-image.png"}
+            alt={order.orderDetails[0]?.productName || "Product image"}
+          />
+          <div className="ml-4">
+            <h3 className="text-lg font-semibold text-gray-800">
+              {order.orderDetails[0]?.productName || "Unknown Product"} +{" "}
+              {order.orderDetails.length - 1} more
+            </h3>
+            <span className="text-sm text-gray-500">
+              {order.status || "Unassigned"}
+            </span>
+          </div>
+        </div>
+        <Typography.Title level={5} className="mt-4">
+          Receiver details
+        </Typography.Title>
+        <Divider />
+        <p>
+          <strong>Receiver address:</strong> {order.receiverAddress}
+        </p>
+        <p>
+          <strong>Receiver phone:</strong> {order.receiverPhone}
+        </p>
+        <p>
+          <strong>Create date:</strong>{" "}
+          {new Date(order.createDate).toLocaleDateString()}
+        </p>
+        <Typography.Title level={5} className="mt-4">
+          Order details
+        </Typography.Title>
+        <Divider />
+        <List
+          itemLayout="horizontal"
+          dataSource={order.orderDetails}
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    shape="square"
+                    size={48}
+                    src={item.imageUrl || "/default-image.png"}
+                    alt={item.productName || "Product image"}
+                  />
+                }
+                title={<span>{item.productName}</span>}
+                description={
+                  <>
+                    <span>Price: ${item.productPrice}</span> <br />
+                    <span>Quantity: {item.productAmount}</span>
+                  </>
+                }
+              />
+              <div>${(item.productPrice * item.productAmount).toFixed(2)}</div>
+            </List.Item>
+          )}
+        />
+        <Typography.Title level={5} className="mt-4">
+          Order fees
+        </Typography.Title>
+        <Divider />
+        <p>
+          <strong>Additional fee:</strong> $
+          {order.orderFees[0]?.additionalFee || 0}
+        </p>
+        <p>
+          <strong>Delivery fee:</strong> ${order.orderFees[0]?.deliveryFee || 0}
+        </p>
+        <p>
+          <strong>Storage fee:</strong> ${order.orderFees[0]?.storageFee || 0}
+        </p>
+        <div className="flex justify-end mt-6">
+          <Button
+            type="primary"
+            style={{
+              backgroundColor: "green",
+              borderColor: "green",
+            }}
+            onClick={() => console.log(`Assigning order ID: ${order.id}`)}
+          >
+            Assign
+          </Button>
+        </div>
+      </>
+    ) : (
+      <div className="flex justify-center items-center h-full">
+        <Spin size="large" tip="Loading order details..." />
+      </div>
+    )}
+  </Drawer>
+);
 const getColorByStatus = (status) => {
   switch (status) {
+    case "Draft":
+      return "gray";
     case "Pending":
-      return "yellow";
+      return "orange";
     case "Shipping":
       return "blue";
     case "Processing":
-      return "green";
-    case "Draft":
-      return "gray";
+      return "purple";
     case "Completed":
+      return "cyan";
+    case "Delivered":
       return "green";
+    case "Returned":
+      return "magenta";
     case "Refunded":
-      return "red";
+      return "gold";
     case "Canceled":
       return "red";
     default:
       return "gray";
   }
 };
-
-const OrderColumn = ({ title, orders, color, onDetailClick }) => (
-  <div
-    className={`w-[344px] rounded-lg shadow overflow-hidden bg-${color}-50 p-4 mb-4`}
-  >
-    <h2 className={`text-${color}-800 font-bold text-lg mb-4`}>
-      {title} <span className={`text-${color}-500`}>{orders.length}</span>
-    </h2>
+const OrderColumn = ({
+  title,
+  orders,
+  color,
+  onDetailClick,
+  onAssignClick,
+}) => (
+  <div className="w-[344px] rounded-lg shadow-md p-4 bg-white">
+    <div
+      className={`text-${color}-800 font-bold text-lg flex justify-between items-center mb-4`}
+      style={{
+        padding: "10px",
+        borderRadius: "8px",
+        backgroundColor: `${getBackgroundColorByStatus(color)}`,
+      }}
+    >
+      <span>{title}</span>
+      <span className={`text-${color}-500`}>{orders.length}</span>
+    </div>
     <div className="space-y-4">
       {orders.map((order) => (
-        <OrderCard key={order.id} order={order} onDetailClick={onDetailClick} />
+        <OrderCard
+          key={order.id}
+          order={order}
+          color={color}
+          onDetailClick={onDetailClick}
+          onAssignClick={onAssignClick}
+        />
       ))}
     </div>
   </div>
 );
-
-const OrderCard = ({ order, onDetailClick }) => (
-  <div className="flex items-center space-x-4 bg-white p-4 rounded-lg shadow">
-    <Avatar shape="square" src={order.image || "default-image.jpg"} size={64} />
-    <div className="flex-1">
-      <h3 className="font-semibold text-gray-700">{order.receiverAddress}</h3>
-      <p className="text-sm text-gray-500">${order.productPrice}</p>
-      <p className="text-xs text-gray-400">{order.shipper || "Unknown"}</p>
-    </div>
-    <InfoCircleOutlined
-      className="text-gray-400 hover:text-gray-600 cursor-pointer"
-      onClick={() => onDetailClick(order)}
+const getBackgroundColorByStatus = (color) => {
+  switch (color) {
+    case "gray":
+      return "#F5F5F5";
+    case "orange":
+      return "#FFF2E5";
+    case "blue":
+      return "#E5F3FF";
+    case "purple":
+      return "#F3E5FF";
+    case "cyan":
+      return "#E5FFFF";
+    case "green":
+      return "#E6FFED";
+    case "magenta":
+      return "#FFF0F6";
+    case "gold":
+      return "#FFF7E5";
+    case "red":
+      return "#FFE5E5";
+    default:
+      return "#F0F0F0";
+  }
+};
+const OrderCard = ({ order, onDetailClick, color, onAssignClick }) => (
+  <div
+    className="flex items-center space-x-4 rounded-lg p-4 shadow-md bg-white"
+    style={{
+      borderLeft: `4px solid ${getBorderColorByStatus(color)}`,
+    }}
+  >
+    <Avatar
+      shape="square"
+      size={64}
+      src={order.image || "/default-image.png"}
+      alt={order.productName || "Product image"}
     />
+    <div className="flex-1">
+      <h3 className="font-semibold text-gray-700">
+        OrderCode: {order.id || "Order"}
+      </h3>
+      <h3 className="font-semibold text-gray-700">
+        {order.orderDetails.length - 1} More Type
+      </h3>
+      <p className="text-gray-500 text-sm">${order.totalPrice}</p>
+      <p className="text-gray-400 text-xs">{order.shipper || "Shipper A"}</p>
+    </div>
+    <div className="flex flex-col space-y-2">
+      <Button type="primary" size="small" onClick={() => onAssignClick(order)}>
+        Assign
+      </Button>
+      <InfoCircleOutlined
+        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+        onClick={() => onDetailClick(order)}
+      />
+    </div>
   </div>
 );
+const getBorderColorByStatus = (color) => {
+  switch (color) {
+    case "gray":
+      return "#BDBDBD";
+    case "orange":
+      return "#FF9800";
+    case "blue":
+      return "#2196F3";
+    case "purple":
+      return "#9C27B0";
+    case "cyan":
+      return "#00BCD4";
+    case "green":
+      return "#4CAF50";
+    case "magenta":
+      return "#F06292";
+    case "gold":
+      return "#FFC107";
+    case "red":
+      return "#F44336";
+    default:
+      return "#BDBDBD";
+  }
+};

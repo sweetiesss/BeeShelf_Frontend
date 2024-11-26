@@ -14,7 +14,6 @@ import EditProfilePage from "../pages/shared/EditProfilePage";
 import DetailSlide from "../pages/shared/DetailSlide";
 import { useDetail } from "../context/DetailContext";
 import { PaymentPage } from "../pages/partner/PaymentPage";
-import PaymentResult from "../pages/partner/PaymentResult";
 export default function PartnerRoutes() {
   const { dataDetail, typeDetail } = useDetail();
 
@@ -39,7 +38,6 @@ export default function PartnerRoutes() {
           {/* <Route path="profile" element={<ProfilePage />} /> */}
           <Route path="editProfile" element={<EditProfilePage />} />
           <Route path="payment" element={<PaymentPage />} />
-          <Route path="payment/result" element={<PaymentResult />} />
         </Route>
       </Routes>
     </div>

@@ -1,4 +1,3 @@
-import { toast } from "react-toastify";
 import { useAxios } from "./CustomizeAxios";
 
 export default function AxiosPayment() {
@@ -12,34 +11,8 @@ export default function AxiosPayment() {
       if (typeof customAmount !== "undefined") {
         queryParams.append("custom_amount", customAmount);
       }
-      const fetching = fetchData({
-        url: `payment/create-qrcode?${queryParams.toString()}`,
-        method: "POST",
-        data: data,
-      });
-      const result = await toast.promise(fetching, {
-        pending: "Request in progress...",
-        success: {
-          render() {
-            return `Qr created`;
-          },
-        },
-        error: {
-          render({ data }) {
-            return `${data.response.data.message || "Something went wrong!"}`;
-          },
-        },
-      });
-      return result;
-    } catch (e) {
-      console.log(e);
-      return e;
-    }
-  };
-  const confirmPayment = async (data) => {
-    try {
       const fetching = await fetchData({
-        url: `payment/confirm-payment`,
+        url: `payment/create-qrcode?${queryParams.toString()}`,
         method: "POST",
         data: data,
       });
@@ -50,5 +23,5 @@ export default function AxiosPayment() {
     }
   };
 
-  return { createQrCode,confirmPayment };
+  return { createQrCode };
 }

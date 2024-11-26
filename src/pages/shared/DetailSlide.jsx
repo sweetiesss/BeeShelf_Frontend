@@ -932,7 +932,7 @@ export default function DetailSlide() {
               <div className="text-[var(--en-vu-600)]">Phone number:</div>
               <div className="text-[var(--en-vu-Base)]">{userInfor?.phone}</div>
               <div className="text-[var(--en-vu-600)]">Email:</div>
-              <div className="text-[var(--en-vu-Base)] w-[11rem] overflow-hidden" >{userInfor?.email}</div>
+              <div className="text-[var(--en-vu-Base)]">{userInfor?.email}</div>
             </div>
             <div className="w-full border-b-2 my-4"></div>
             <div className="font-medium mb-[16px] flex justify-between items-center">

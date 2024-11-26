@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import AxiosOthers from "../services/Others";
-
+import AxiosCategory from "../services/Category";
 
 export const AuthContext = createContext();
 
@@ -17,7 +17,7 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const storedAuth = localStorage.getItem("Authenticated");
-    return storedAuth ? JSON.parse(storedAuth) : null;
+    return storedAuth ? JSON.parse(storedAuth) : false;
   });
 
   const [userInfor, setUserInfor] = useState(() => {
@@ -29,14 +29,13 @@ export function AuthProvider({ children }) {
     const storedExpiry = localStorage.getItem("Authenticated");
     return storedExpiry ? jwtDecode(storedExpiry).exp * 1000 : null;
   });
-  const [authWallet, setAuthWallet] = useState();
+  const [authWallet, setAuthWallet] = useState(0);
   const [banksList, setBanksList] = useState();
   const [ocopCategoriesList, setOcopCategoriesList] = useState();
+  const [takeAuthWaller, needToTakeAuthWaller] = useState(false);
 
   const { getBanks } = AxiosOthers();
-  const { getOcopCategoryBy100 } = AxiosOthers();
-
-  const [refrestAuthWallet, setRefrestAuthWallet] = useState(false);
+  const { getOcopCategoryBy100 } = AxiosCategory();
 
   useEffect(() => {
     fetchBankList();
@@ -50,6 +49,10 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     localStorage.setItem("UserExpiry", expiryDate);
   }, [expiryDate]);
+
+  useEffect(() => {
+    getAuthWalletMoney();
+  }, [takeAuthWaller]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -109,8 +112,40 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const getAuthWalletMoney = async () => {
+    try {
+      if (userInfor?.roleName === "Partner" && userInfor?.roleId == 2) {
+        if (userInfor && isAuthenticated && takeAuthWaller) {
+          console.log("check tokeen", isAuthenticated);
+
+          const response = await axios.get(
+            `${process.env.REACT_APP_BASE_URL_API}partner/get-wallet/${userInfor?.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${isAuthenticated}`,
+              },
+            }
+          );
+          console.log(response);
+
+          setAuthWallet(response.data);
+        }
+      } else {
+        return;
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching wallet:",
+        error.response?.data || error.message
+      );
+    } finally {
+      needToTakeAuthWaller(false);
+    }
+  };
+
   const handleLogin = (userData) => {
     setUserInfor(userData);
+    needToTakeAuthWaller(true);
   };
   const handleLogout = () => {
     localStorage.removeItem("UserInfor");
@@ -130,11 +165,9 @@ export function AuthProvider({ children }) {
         handleLogin,
         handleLogout,
         authWallet,
+        needToTakeAuthWaller,
         banksList,
-        setAuthWallet,
         ocopCategoriesList,
-        refrestAuthWallet,
-        setRefrestAuthWallet,
       }}
     >
       {children}
