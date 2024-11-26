@@ -12,7 +12,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 
-export default function InventoryProduct({
+export default function ProductList({
   products,
   response,
   selectedProducts,
