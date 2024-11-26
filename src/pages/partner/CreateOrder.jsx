@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
+import AxiosInventory from "../../services/Inventory";
 
 export default function CreateOrderPage() {
   const { t } = useTranslation();
   const { userInfor } = useAuth();
+  const { getInventory1000ByUserId } = AxiosInventory();
+  const [inventories, setInventories] = useState();
+  const [loading, setLoading] = useState();
 
   const baseForm = {
     ocopPartnerId: userInfor?.id,
@@ -22,11 +26,23 @@ export default function CreateOrderPage() {
 
   const [item, setItem] = useState({ productName: "", quantity: 1, price: 0 });
 
-  const [lots,setLots]=useState();
+  const [lots, setLots] = useState();
 
-  useEffect(()=>{
+  useEffect(() => {
+    getInventoriesList();
+  }, []);
 
-  },[]);
+  const getInventoriesList = async () => {
+    try {
+      const result = await getInventory1000ByUserId(userInfor?.id);
+      if (result?.status == 200) {
+        setInventories(result?.data?.items);
+      }
+    } catch (e) {
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -60,6 +76,7 @@ export default function CreateOrderPage() {
     console.log("Order Created:", form);
     // Add your API call here
   };
+console.log("createPage",inventories);
 
   return (
     <div className="p-8 max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
@@ -120,6 +137,11 @@ export default function CreateOrderPage() {
             />
           </div>
         </div>
+        <select>
+          {inventories?.map((item) => (
+            <option></option>
+          ))}
+        </select>
 
         {/* Order Items */}
         <div>
