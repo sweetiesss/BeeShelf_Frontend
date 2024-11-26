@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { Drawer, Input, Typography, Divider, List, Spin, Avatar } from "antd";
+import { Drawer, Input, Typography, Divider, List, Spin, Avatar, Button } from "antd";
 import useAxios from "../../../services/CustomizeAxios";
-import { Button } from "antd";
+import AssignShipperForm from "./AssignShipperForm"; // Import the AssignShipperForm component
+import { message } from "antd";
 
 const Assign = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [open, setOpen] = useState(false);
+  const [assignModalVisible, setAssignModalVisible] = useState(false);
   const { fetchDataBearer } = useAxios();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,10 +39,39 @@ const Assign = () => {
     setOpen(true);
   };
 
+  const handleAssignClick = (order) => {
+    setSelectedOrder(order);
+    setAssignModalVisible(true);
+  };
+
   const onClose = () => setOpen(false);
+
+  const handleAssign = async (values) => {
+    try {
+      const { id, shipperId } = values; // Extract id and shipperId from values
+      await fetchDataBearer({
+        url: `/batch/assign-batch/${id}/${shipperId}`, // Inject id and shipperId into URL
+        method: "POST",
+        data: values, // Send data
+      });
+      message.success(`Order ${id} assigned to shipper ${shipperId}`);
+      setAssignModalVisible(false);
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to assign shipper!");
+    }
+  };
 
   return (
     <div className="bg-white p-6">
+      {/* Assign Shipper Modal */}
+      <AssignShipperForm
+        open={assignModalVisible}
+        onClose={() => setAssignModalVisible(false)}
+        orderId={selectedOrder?.id}
+        onAssign={handleAssign}
+      />
+
       {/* Drawer for displaying detailed order information */}
       <OrderDetailDrawer order={selectedOrder} onClose={onClose} open={open} />
 
@@ -69,6 +100,7 @@ const Assign = () => {
                   orders={filterOrdersByStatus(status)}
                   color={getColorByStatus(status)}
                   onDetailClick={handleOrderClick}
+                  onAssignClick={handleAssignClick}
                 />
               ))}
             </div>
@@ -81,137 +113,7 @@ const Assign = () => {
 
 export default Assign;
 
-const getColorByStatus = (status) => {
-  switch (status) {
-    case "Draft":
-      return "gray";
-    case "Pending":
-      return "orange";
-    case "Shipping":
-      return "blue";
-    case "Processing":
-      return "purple";
-    case "Completed":
-      return "cyan";
-    case "Delivered":
-      return "green";
-    case "Returned":
-      return "magenta";
-    case "Refunded":
-      return "gold";
-    case "Canceled":
-      return "red";
-    default:
-      return "gray";
-  }
-};
-
-const OrderColumn = ({ title, orders, color, onDetailClick }) => (
-  <div className="w-[344px] rounded-lg shadow-md p-4 bg-white">
-    <div
-      className={`text-${color}-800 font-bold text-lg flex justify-between items-center mb-4`}
-      style={{
-        padding: "10px",
-        borderRadius: "8px",
-        backgroundColor: `${getBackgroundColorByStatus(color)}`,
-      }}
-    >
-      <span>{title}</span>
-      <span className={`text-${color}-500`}>{orders.length}</span>
-    </div>
-    <div className="space-y-4">
-      {orders.map((order) => (
-        <OrderCard
-          key={order.id}
-          order={order}
-          color={color}
-          onDetailClick={onDetailClick}
-        />
-      ))}
-    </div>
-  </div>
-);
-
-const OrderCard = ({ order, onDetailClick, color }) => (
-  <div
-    className="flex items-center space-x-4 rounded-lg p-4 shadow-md bg-white"
-    style={{
-      borderLeft: `4px solid ${getBorderColorByStatus(color)}`,
-    }}
-  >
-    <Avatar
-      shape="square"
-      size={64}
-      src={order.image || "/default-image.png"}
-      alt={order.productName || "Product image"}
-    />
-    <div className="flex-1">
-      <h3 className="font-semibold text-gray-700">
-        OrderCode:  {order.id || "Order"}       
-      </h3>
-      <h3 className="font-semibold text-gray-700">
-        {order.orderDetails.length - 1} More Type
-      </h3>
-      <p className="text-gray-500 text-sm">${order.totalPrice}</p>
-      <p className="text-gray-400 text-xs">{order.shipper || "Shipper A"}</p>
-    </div>
-    <InfoCircleOutlined
-      className="text-gray-400 hover:text-gray-600 cursor-pointer"
-      onClick={() => onDetailClick(order)}
-    />
-  </div>
-);
-
-const getBackgroundColorByStatus = (color) => {
-  switch (color) {
-    case "gray":
-      return "#F5F5F5";
-    case "orange":
-      return "#FFF2E5";
-    case "blue":
-      return "#E5F3FF";
-    case "purple":
-      return "#F3E5FF";
-    case "cyan":
-      return "#E5FFFF";
-    case "green":
-      return "#E6FFED";
-    case "magenta":
-      return "#FFF0F6";
-    case "gold":
-      return "#FFF7E5";
-    case "red":
-      return "#FFE5E5";
-    default:
-      return "#F0F0F0";
-  }
-};
-
-const getBorderColorByStatus = (color) => {
-  switch (color) {
-    case "gray":
-      return "#BDBDBD";
-    case "orange":
-      return "#FF9800";
-    case "blue":
-      return "#2196F3";
-    case "purple":
-      return "#9C27B0";
-    case "cyan":
-      return "#00BCD4";
-    case "green":
-      return "#4CAF50";
-    case "magenta":
-      return "#F06292";
-    case "gold":
-      return "#FFC107";
-    case "red":
-      return "#F44336";
-    default:
-      return "#BDBDBD";
-  }
-};
-
+// Add the other helper components like OrderColumn, OrderCard, and OrderDetailDrawer here
 const OrderDetailDrawer = ({ order, onClose, open }) => (
   <Drawer
     title={<Typography.Title level={4} className="mb-0">Order Details</Typography.Title>}
@@ -301,3 +203,139 @@ const OrderDetailDrawer = ({ order, onClose, open }) => (
     )}
   </Drawer>
 );
+const getColorByStatus = (status) => {
+  switch (status) {
+    case "Draft":
+      return "gray";
+    case "Pending":
+      return "orange";
+    case "Shipping":
+      return "blue";
+    case "Processing":
+      return "purple";
+    case "Completed":
+      return "cyan";
+    case "Delivered":
+      return "green";
+    case "Returned":
+      return "magenta";
+    case "Refunded":
+      return "gold";
+    case "Canceled":
+      return "red";
+    default:
+      return "gray";
+  }
+};
+const OrderColumn = ({ title, orders, color, onDetailClick, onAssignClick }) => (
+  <div className="w-[344px] rounded-lg shadow-md p-4 bg-white">
+    <div
+      className={`text-${color}-800 font-bold text-lg flex justify-between items-center mb-4`}
+      style={{
+        padding: "10px",
+        borderRadius: "8px",
+        backgroundColor: `${getBackgroundColorByStatus(color)}`,
+      }}
+    >
+      <span>{title}</span>
+      <span className={`text-${color}-500`}>{orders.length}</span>
+    </div>
+    <div className="space-y-4">
+      {orders.map((order) => (
+        <OrderCard
+          key={order.id}
+          order={order}
+          color={color}
+          onDetailClick={onDetailClick}
+          onAssignClick={onAssignClick}
+        />
+      ))}
+    </div>
+  </div>
+);
+const getBackgroundColorByStatus = (color) => {
+  switch (color) {
+    case "gray":
+      return "#F5F5F5";
+    case "orange":
+      return "#FFF2E5";
+    case "blue":
+      return "#E5F3FF";
+    case "purple":
+      return "#F3E5FF";
+    case "cyan":
+      return "#E5FFFF";
+    case "green":
+      return "#E6FFED";
+    case "magenta":
+      return "#FFF0F6";
+    case "gold":
+      return "#FFF7E5";
+    case "red":
+      return "#FFE5E5";
+    default:
+      return "#F0F0F0";
+  }
+};
+const OrderCard = ({ order, onDetailClick, color, onAssignClick }) => (
+  <div
+    className="flex items-center space-x-4 rounded-lg p-4 shadow-md bg-white"
+    style={{
+      borderLeft: `4px solid ${getBorderColorByStatus(color)}`,
+    }}
+  >
+    <Avatar
+      shape="square"
+      size={64}
+      src={order.image || "/default-image.png"}
+      alt={order.productName || "Product image"}
+    />
+    <div className="flex-1">
+      <h3 className="font-semibold text-gray-700">
+        OrderCode: {order.id || "Order"}
+      </h3>
+      <h3 className="font-semibold text-gray-700">
+        {order.orderDetails.length - 1} More Type
+      </h3>
+      <p className="text-gray-500 text-sm">${order.totalPrice}</p>
+      <p className="text-gray-400 text-xs">{order.shipper || "Shipper A"}</p>
+    </div>
+    <div className="flex flex-col space-y-2">
+      <Button
+        type="primary"
+        size="small"
+        onClick={() => onAssignClick(order)}
+      >
+        Assign
+      </Button>
+      <InfoCircleOutlined
+        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+        onClick={() => onDetailClick(order)}
+      />
+    </div>
+  </div>
+);
+const getBorderColorByStatus = (color) => {
+  switch (color) {
+    case "gray":
+      return "#BDBDBD";
+    case "orange":
+      return "#FF9800";
+    case "blue":
+      return "#2196F3";
+    case "purple":
+      return "#9C27B0";
+    case "cyan":
+      return "#00BCD4";
+    case "green":
+      return "#4CAF50";
+    case "magenta":
+      return "#F06292";
+    case "gold":
+      return "#FFC107";
+    case "red":
+      return "#F44336";
+    default:
+      return "#BDBDBD";
+  }
+};
