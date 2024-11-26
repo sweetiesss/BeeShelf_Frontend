@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Tag, Input, Space, Button, message, Select } from "antd";
 import useAxios from "../../../services/CustomizeAxios";
+import { useAuth } from "../../../context/AuthContext";
 
 const { Option } = Select;
 
@@ -18,20 +19,26 @@ const RequestManagement = () => {
   const [employeeDetails, setEmployeeDetails] = useState(null);
   const { fetchDataBearer } = useAxios();
 
+  useEffect(() => {
+    fetchRequests(0);
+  }, []);
+
+  //getStaffInformationUnderLocalStorage
+  const { userInfor } = useAuth();
+
+
+  
   // Fetch requests by warehouseId
   const fetchRequests = async (pageIndex = 0) => {
-    if (!warehouseId) {
-      message.error("Please enter a Warehouse ID!");
-      return;
-    }
-
     setLoading(true);
     try {
+      console.log(userInfor?.workAtWarehouseId);
+
       const response = await fetchDataBearer({
         url: `/request/get-requests`,
         method: "GET",
         params: {
-          warehouseId,
+          warehouseId: userInfor?.workAtWarehouseId,
           pageIndex,
           pageSize: pagination.pageSize,
         },
@@ -226,7 +233,7 @@ const RequestManagement = () => {
         />
         <Button
           type="primary"
-          onClick={() => fetchRequests(0)}
+          // onClick={() => fetchRequests(0)}
           loading={loading}
         >
           Load Requests
