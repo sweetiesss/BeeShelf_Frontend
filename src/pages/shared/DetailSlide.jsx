@@ -8,7 +8,7 @@ import AxiosRequest from "../../services/Request";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import AxiosOrder from "../../services/Order";
-
+import { format } from "date-fns";
 export default function DetailSlide() {
   const { userInfor } = useContext(AuthContext);
   const {
@@ -61,9 +61,9 @@ export default function DetailSlide() {
     const handleEdit = () => {
       dataDetail?.isInInv
         ? setInputField({
-            price: true,
+            price: false,
             weight: false,
-            pictureLink: true,
+            pictureLink: false,
             barcode: false,
             name: false,
             productCategoryId: false,
@@ -227,7 +227,9 @@ export default function DetailSlide() {
               </div>
             </div>
             <div className="flex justify-between items-center w-full px-20">
-              {inputField ? (
+              {dataDetail?.isInInv ? (
+                <div></div>
+              ) : inputField ? (
                 <>
                   <button onClick={() => setInputField()}>Cancel</button>
                   <button onClick={handeUpdate}>Update</button>
@@ -254,7 +256,12 @@ export default function DetailSlide() {
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <p><span className="text-[var(--en-vu-600)]">Are you sure you want to update:</span> <span className="font-semibold">{dataDetail?.name}</span>?</p>
+              <p>
+                <span className="text-[var(--en-vu-600)]">
+                  Are you sure you want to update:
+                </span>{" "}
+                <span className="font-semibold">{dataDetail?.name}</span>?
+              </p>
               <div className="flex justify-end gap-4 mt-4">
                 <button
                   onClick={() => setShowUpdateConfirm(false)}
@@ -503,7 +510,7 @@ export default function DetailSlide() {
                 { label: "Export date:", value: "NotYet" },
                 { label: "Expiration date:", value: "NotYet" },
                 { label: "To Warehouse:", value: dataDetail?.warehouseName },
-              ].map((item, index) => (
+              ]?.map((item, index) => (
                 <div key={index} className="flex justify-between text-lg">
                   <span className="text-gray-600">{item.label}</span>
                   <span className="text-black">{item.value}</span>
@@ -738,7 +745,7 @@ export default function DetailSlide() {
                 { label: "Receiver Phone:", value: dataDetail?.receiverPhone },
                 { label: "Create date:", value: dataDetail?.createDate },
                 { label: "Description:", value: dataDetail?.description },
-              ].map((item, index) => (
+              ]?.map((item, index) => (
                 <div key={index} className="flex justify-between ">
                   <span className="text-gray-600">{item.label}</span>
                   <span className="text-black">{item.value}</span>
@@ -748,7 +755,7 @@ export default function DetailSlide() {
               <label className="font-medium text-lg flex justify-between items-center">
                 Order Details
               </label>
-              {dataDetail?.orderDetails.map((item, index) => (
+              {dataDetail?.orderDetails?.map((item, index) => (
                 <div key={index} className="flex justify-between items-center">
                   <div className="w-16 h-16 bg-gray-300 rounded-lg relative"></div>
                   <span className="text-gray-600">{item.productName}</span>
@@ -777,7 +784,7 @@ export default function DetailSlide() {
                   value: dataDetail?.orderFees?.[0]?.storageFee || 0,
                 },
                 { label: "Total Price:", value: dataDetail?.totalPrice },
-              ].map((item, index) => (
+              ]?.map((item, index) => (
                 <div key={index} className="flex justify-between ">
                   <span className="text-gray-600">{item.label}</span>
                   <span className="text-black">{item.value}</span>
@@ -875,6 +882,303 @@ export default function DetailSlide() {
       </>
     );
   };
+  const InventoryDetail = () => {
+    // const { sendOrderById, deleteOrderById } = AxiosOrder();
+    // const [lotData, setLotData] = useState();
+    // const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+    // const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
+    const [lotsCleanData, setLotsCleanData] = useState();
+
+    const cleanLotsData = () => {
+      if (dataDetail?.lots) {
+        // Aggregate product data and initialize lot information
+        const arrayOfProduct = Array.from(
+          new Map(
+            dataDetail?.lots.map((item) => [
+              item.productId,
+              {
+                productId: item.productId,
+                productName: item.productName,
+                totalLot: item.amount, // Initialize totalLot with item's amount
+                productAmount: item.productAmount, // Initialize productAmount with item's productAmount
+                lots: [], // Initialize lots as an empty array
+              },
+            ])
+          ).values()
+        );
+
+        console.log("arrayOfProduct", arrayOfProduct);
+
+        // Map through aggregated products and associate detailed lot information
+        const cleanLots = arrayOfProduct.map((pro) => {
+          const data = dataDetail?.lots.filter(
+            (lot) => lot.productId === pro.productId
+          );
+
+          return {
+            productId: pro.productId,
+            productName: pro.productName,
+            totalLot: data.reduce((sum, lot) => sum + lot.amount, 0), // Calculate totalLot
+            productAmount: data.reduce(
+              (sum, lot) => sum + lot.productAmount,
+              0
+            ), // Calculate total productAmount
+            lots: data.map((lot) => ({
+              name: lot.name,
+              lotNumber: lot.lotNumber,
+              importDate: lot.importDate,
+              expirationDate: lot.expirationDate,
+              amount: lot.amount,
+              productAmount: lot.productAmount,
+            })),
+          };
+        });
+
+        console.log("cleanLots", cleanLots);
+        return cleanLots; // Return the cleaned lot data
+      }
+      return [];
+    };
+
+    console.log("dataDetail", dataDetail);
+    console.log("lotsCleanData", lotsCleanData);
+
+    useEffect(() => {
+      const handleClickOutSide = (event) => {
+        if (
+          detailComponent.current &&
+          !detailComponent.current.contains(event.target)
+        ) {
+          handleCloseDetail();
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutSide);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutSide);
+      };
+    }, []);
+
+    // const handleSendRequest = async () => {
+    //   await sendOrderById(dataDetail?.id);
+    //   setRefresh(dataDetail?.id);
+    // };
+
+    // const handleDeleteClick = (e, request) => {
+    //   e.stopPropagation();
+    //   setShowDeleteConfirmation(request);
+    // };
+
+    // const confirmDelete = async () => {
+    //   try {
+    //     setRefresh(0);
+    //     const res = await deleteOrderById(showDeleteConfirmation?.id);
+    //     console.log(res);
+    //   } catch (e) {
+    //   } finally {
+    //     setRefresh(-1);
+    //     updateDataDetail();
+    //     updateTypeDetail();
+    //     cancelDelete();
+    //   }
+    // };
+    // const cancelDelete = () => {
+    //   setShowDeleteConfirmation(null);
+    // };
+
+    // const handleUpdateStatusClick = (e, request, status) => {
+    //   e.stopPropagation();
+    //   setShowUpdateConfirmation([request, status]);
+    // };
+
+    // const confirmUpdateStatus = async () => {
+    //   try {
+    //     const res = await updateRequestStatus(
+    //       showUpdateConfirmation[0]?.id,
+    //       showUpdateConfirmation[1]
+    //     );
+    //     console.log(res);
+    //   } catch (e) {
+    //   } finally {
+    //     setRefresh(showUpdateConfirmation[0]?.id);
+    //     cancelDelete();
+    //   }
+    // };
+    // const exitUpdateStatus = () => {
+    //   setShowUpdateConfirmation(null);
+    // };
+
+    return (
+      <>
+        <div className="w-[32rem] h-full bg-white p-6 flex flex-col gap-8 text-black">
+          {/* Header */}
+          <div className="w-full flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <h2 className="text-2xl font-semibold text-black">
+                  Inventory information
+                </h2>
+              </div>
+              <div
+                className="text-3xl cursor-pointer text-gray-500 hover:text-black"
+                // onClick={handleCloseDetail}
+              >
+                <X weight="bold" />
+              </div>
+            </div>
+            <div className="w-full h-px bg-gray-300"></div>
+          </div>
+
+          <div className="w-full flex flex-col items-center gap-8">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-32 h-32 bg-gray-300 rounded-lg relative"></div>
+              <div className="text-center">
+                <p className="text-xl font-medium">{dataDetail?.name}</p>
+                <p
+                  className={`text-gray-600 text-lg ${
+                    dataDetail?.requestType === "Import"
+                      ? "text-green-500"
+                      : "text-blue-500"
+                  }`}
+                >
+                  {dataDetail?.requestType}
+                </p>
+              </div>
+            </div>
+
+            {/* Product Info Table */}
+            <div className="w-full flex flex-col gap-4">
+              {[
+                {
+                  label: "Warehouse:",
+                  value: dataDetail?.warehouseName,
+                },
+                { label: "Bought date", value: dataDetail?.boughtDate },
+                {
+                  label: "Expiration date:",
+                  value: dataDetail?.expirationDate,
+                },
+                {
+                  label: "Weight:",
+                  value:
+                    dataDetail.weight + " / " + dataDetail?.maxWeight + " kg",
+                },
+              ]?.map((item, index) => (
+                <div key={index} className="flex justify-between ">
+                  <span className="text-gray-600">{item.label}</span>
+                  <span className="text-black">{item.value}</span>
+                </div>
+              ))}
+              <div className="w-full h-[0.2rem] bg-gray-200" />
+              <label className="font-medium text-lg flex justify-between items-center">
+                Products Amount
+              </label>
+              <div className=" items-center grid-cols-9 grid gap-4 text-gray-500 font-medium border-b-2 border-gray-400 pb-2">
+                <span className=" col-span-4">Product</span>
+                <span className=" text-end col-span-2">Total Lots</span>
+                <span className=" text-end col-span-3">Total Products</span>
+              </div>
+              {cleanLotsData()?.map((item, index) => (
+                <div>
+                  <div>
+                    <div
+                      key={index}
+                      className=" items-center grid-cols-9 grid gap-4 text-black font-medium"
+                    >
+                      <span className=" col-span-4">{item.productName}</span>
+                      <span className=" text-end col-span-2">
+                        {item.totalLot}
+                      </span>
+                      <span className=" text-end col-span-3">
+                        {item.productAmount}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <div></div>
+                    {item?.lots.map((lot) => (
+                      <div className=" items-center grid  grid-cols-9 gap-4 text-gray-500 ">
+                        <span className="col-span-2 text-start overflow-auto text-clip">{lot.name}</span>
+                        <span className="text-end">{lot.number}</span>
+                        <span className=" col-span-4 text-end">
+                          {format(new Date(lot.importDate), "dd/MM")}-
+                          {format(new Date(lot.expirationDate), "dd/MM/yy")}
+                        </span>
+
+                        <span className=" text-end">{lot.amount}</span>
+                        <span className=" text-end">{lot.productAmount}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* {showDeleteConfirmation && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              style={{
+                top: "50%",
+                left: "-100%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <p>{`Are you sure you want to delete order ${dataDetail?.id} ?`}</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => confirmDelete(showDeleteConfirmation)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={cancelDelete}
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </>
+        )} */}
+
+        {/*
+        {showUpdateConfirmation && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              style={{
+                top: "50%",
+                left: "-100%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <p>{`Are you sure you want to ${
+                showUpdateConfirmation[1] === "Canceled" ? "cancel:" : ""
+              } ${dataDetail?.name}?`}</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={confirmUpdateStatus}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={exitUpdateStatus}
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                >
+                  Exist
+                </button>
+              </div>
+            </div>
+          </>
+        )} */}
+      </>
+    );
+  };
   const ProfileDetail = () => {
     const { handleLogout, userInfor } = useContext(AuthContext);
 
@@ -932,7 +1236,9 @@ export default function DetailSlide() {
               <div className="text-[var(--en-vu-600)]">Phone number:</div>
               <div className="text-[var(--en-vu-Base)]">{userInfor?.phone}</div>
               <div className="text-[var(--en-vu-600)]">Email:</div>
-              <div className="text-[var(--en-vu-Base)] w-[11rem] overflow-hidden" >{userInfor?.email}</div>
+              <div className="text-[var(--en-vu-Base)] w-[11rem] overflow-hidden">
+                {userInfor?.email}
+              </div>
             </div>
             <div className="w-full border-b-2 my-4"></div>
             <div className="font-medium mb-[16px] flex justify-between items-center">
@@ -973,6 +1279,7 @@ export default function DetailSlide() {
         {typeDetail == "product" && ProductDetail()}
         {typeDetail == "profile" && ProfileDetail()}
         {typeDetail == "order" && OrderDetail()}
+        {typeDetail == "inventory" && InventoryDetail()}
       </div>
     </div>
   );

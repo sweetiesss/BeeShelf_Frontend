@@ -19,6 +19,9 @@ import { useAuth } from "../../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import Mapping from "../../component/shared/Mapping";
 import AxiosInventory from "../../services/Inventory";
+import AxiosPartner from "../../services/Partner";
+import { useDetail } from "../../context/DetailContext";
+import AxiosProduct from "../../services/Product";
 
 export default function InventoryPage() {
   const [warehouses, setWareHouses] = useState();
@@ -30,6 +33,8 @@ export default function InventoryPage() {
   const [inventoriesOwned, setInventoriesOwned] = useState();
   const [inventoriesShowList, setInventoriesShowList] = useState();
   const [inventory, setInventory] = useState();
+
+  const [allProductsInWarehouse, setAllProductsInWarehouse] = useState();
 
   const [checkBuyInventory, setCheckBuyInventory] = useState(false);
 
@@ -46,8 +51,16 @@ export default function InventoryPage() {
 
   const { userInfor } = useAuth();
   const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
-  const {getInventory1000ByWarehouseId, getInventory1000ByUserIdAndWareHouseId, buyInventory } =
-    AxiosInventory();
+  const { getAllProduct } = AxiosPartner();
+  const { getProductByUserId } = AxiosProduct();
+  const { updateDataDetail, updateTypeDetail } = useDetail();
+
+  const {
+    getInventory1000ByWarehouseId,
+    getInventory1000ByUserIdAndWareHouseId,
+    buyInventory,
+    getInventoryById,
+  } = AxiosInventory();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -57,13 +70,14 @@ export default function InventoryPage() {
 
   useEffect(() => {
     getWareHouseList();
-  }, [warehousesOwned]);
+  }, [warehousesOwned, warehouses]);
 
   useEffect(() => {
     const fetching = async () => {
       if (warehouse) {
-        await fetchingDataInventories();
-        await fetchingDataInventoriesByUserId();
+        fetchingDataInventories();
+        fetchingDataInventoriesByUserId();
+        fetchingDataProductByUserIdAndWareHouseId();
       }
     };
     fetching();
@@ -71,7 +85,7 @@ export default function InventoryPage() {
 
   useEffect(() => {
     getInventoriesList();
-  }, [inventoriesOwned]);
+  }, [inventoriesOwned, inventories]);
 
   const fetchingDataWarehouses = async () => {
     try {
@@ -83,7 +97,6 @@ export default function InventoryPage() {
         pageIndex,
         1000
       );
-      console.log(res);
       if (res?.status == 200) {
         setWareHouses(res);
       }
@@ -97,7 +110,6 @@ export default function InventoryPage() {
     try {
       setLoading(true);
       const res = await getWarehouseByUserId(userInfor?.id);
-      console.log("owned", res);
       if (res?.status == 200) {
         setWareHousesOwned(res);
       }
@@ -117,7 +129,6 @@ export default function InventoryPage() {
       ) || [];
 
     const combinedList = [...warehousesOwnedList, ...result];
-    console.log(combinedList);
 
     setWareHouseShowList(combinedList);
   };
@@ -125,9 +136,7 @@ export default function InventoryPage() {
   const fetchingDataInventories = async () => {
     try {
       setLoading(true);
-      console.log(warehouse);
       const res = await getInventory1000ByWarehouseId(warehouse?.id);
-      console.log("Inv", res);
       if (res?.status == 200) {
         setInventories(res);
       }
@@ -140,8 +149,10 @@ export default function InventoryPage() {
   const fetchingDataInventoriesByUserId = async () => {
     try {
       setLoading(true);
-      const res = await getInventory1000ByUserIdAndWareHouseId(userInfor?.id, warehouse?.id);
-      console.log("ownedInv", res);
+      const res = await getInventory1000ByUserIdAndWareHouseId(
+        userInfor?.id,
+        warehouse?.id
+      );
       if (res?.status == 200) {
         setInventoriesOwned(res);
       }
@@ -163,9 +174,23 @@ export default function InventoryPage() {
       ) || [];
 
     const combinedList = [...inventoriesOwnedList, ...result];
-    console.log(combinedList);
+    console.log("inventory list", combinedList);
 
     setInventoriesShowList(combinedList);
+  };
+  const fetchingDataProductByUserIdAndWareHouseId = async () => {
+    try {
+      setLoading(true);
+      const res = await getAllProduct(userInfor?.id, warehouse?.id);
+      console.log("owned", res);
+      if (res?.status == 200) {
+        setAllProductsInWarehouse(res);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBuyClick = (inventory) => {
@@ -176,7 +201,6 @@ export default function InventoryPage() {
     try {
       setLoading(true);
       const result = await buyInventory(inventory.id, userInfor.id);
-      console.log("buy Inv", result);
       if (result?.status == 200) {
         handleCancelBuyInventory();
         setRefetchingInventory((prev) => !prev);
@@ -190,6 +214,39 @@ export default function InventoryPage() {
   const handleCancelBuyInventory = () => {
     setCheckBuyInventory(false);
     setInventory();
+  };
+
+  const handleShowProductDetail = async (e, productName) => {
+    try {
+      e.stopPropagation();
+      const productResult = await getProductByUserId(
+        userInfor?.id,
+        0,
+        1,
+        productName
+      );
+      console.log(productResult);
+      if (productResult?.status === 200) {
+        updateDataDetail(productResult?.data?.items[0]);
+        updateTypeDetail("product");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleShowInventoryDetail = async (e, inventoryId) => {
+    try {
+      e.stopPropagation();
+      const result = await getInventoryById(inventoryId);
+      console.log(result);
+      if (result?.status === 200) {
+        updateDataDetail(result?.data);
+        updateTypeDetail("inventory");
+      }
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   // Filter state
@@ -238,7 +295,7 @@ export default function InventoryPage() {
                 !warehouse ? "text-[var(--en-vu)]" : "text-[var(--en-vu)]"
               }`}
             >
-              {!warehouse ? "" : " > " + t("Inventories")}
+              {!warehouse ? "" : " > " + t("DetailInformation")}
             </span>
           </p>
         </div>
@@ -282,13 +339,33 @@ export default function InventoryPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
-            {inventoriesShowList?.map((inventenry) => (
-              <InventoryCard
-                inventory={inventenry}
-                handleBuyClick={handleBuyClick}
-              />
-            ))}
+          <div className="h-[70vh] grid grid-cols-4 mt-10 gap-y-4">
+            <p className="text-2xl font-semibold mb-4 ">
+              {t("ProductsInWarehouse")}
+            </p>
+            <p className="text-2xl font-semibold mb-4 col-span-3">
+              {t("InventoriesInWareHouse")}
+            </p>
+            <div className="">
+              {allProductsInWarehouse?.data?.products?.map((pro) => (
+                <div
+                  className="flex gap-10 my-4 text-lg cursor-pointer"
+                  onClick={(e) => handleShowProductDetail(e, pro.productName)}
+                >
+                  <div>{pro?.productName}</div>
+                  <div>{pro?.stock}</div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center col-span-3 overflow-auto">
+              {inventoriesShowList?.map((inventenry) => (
+                <InventoryCard
+                  inventory={inventenry}
+                  handleBuyClick={handleBuyClick}
+                  handleShowInventoryDetail={handleShowInventoryDetail}
+                />
+              ))}
+            </div>
           </div>
         )}
         {checkBuyInventory && (

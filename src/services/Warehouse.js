@@ -97,10 +97,10 @@ export default function AxiosWarehouse() {
       return e;
     }
   };
-  const getWarehouseById = async (userId) => {
+  const getWarehouseById = async (warehouseId) => {
     try {
       const fetching = await fetchDataBearer({
-        url: `warehouse/get-warehouse-by-user/${userId}`,
+        url: `warehouse/get-warehouse//${warehouseId}`,
         method: "GET",
       });
       return fetching;
@@ -165,5 +165,6 @@ export default function AxiosWarehouse() {
   return {
     getWarehouseByUserId,
     getWarehouses,
+    getWarehouseById,
   };
 }

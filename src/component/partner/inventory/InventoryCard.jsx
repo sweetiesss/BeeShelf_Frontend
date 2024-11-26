@@ -55,15 +55,23 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
     </div>
   );
 }
-export function InventoryCard({ inventory, handleBuyClick }) {
+export function InventoryCard({
+  inventory,
+  handleBuyClick,
+  handleShowInventoryDetail,
+}) {
   return (
     <div
-      className={` shadow-lg rounded-lg p-6 mb-4 w-full max-w-lg mx-auto text-black cursor-pointer ${
+      className={` shadow-lg rounded-lg p-6 mb-4 w-full max-w-lg mx-auto text-black cursor-pointer h-fit ${
         inventory.ocopPartnerId
           ? "bg-[var(--Xanh-10)] hover:bg-[var(--Xanh-100)]"
           : "bg-white hover:bg-[var(--en-vu-100)]"
       }`}
-      onClick={() => handleBuyClick(inventory)}
+      onClick={(e) =>
+        !inventory.ocopPartnerId
+          ? handleBuyClick(inventory)
+          : handleShowInventoryDetail(e,inventory?.id)
+      }
     >
       <div className="font-bold text-xl text-left ">{inventory?.name}</div>
       <div className="flex items-center justify-between">

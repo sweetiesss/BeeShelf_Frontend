@@ -3,9 +3,9 @@ import { LayoutLogined } from "../component/shared/Layout";
 import DetailSlide from "../pages/shared/DetailSlide";
 import { useDetail } from "../context/DetailContext";
 
-import PaymentResult from "../pages/partner/PaymentResult";
+import EmployeePage from "../pages/manager/EmployeePage";
 
-export default function PartnerRoutes() {
+export default function ManagerRoutes() {
   const { dataDetail, typeDetail } = useDetail();
 
   return (
@@ -13,8 +13,8 @@ export default function PartnerRoutes() {
       {typeDetail && <DetailSlide />}
       <Routes>
         <Route path="/*" element={<LayoutLogined />}>
-          
-          <Route path="payment/result" element={<PaymentResult />} />
+          <Route path="employee" element={<EmployeePage />} />
+          {/* <Route path="payment/result" element={<PaymentResult />} /> */}
         </Route>
       </Routes>
     </div>
