@@ -41,7 +41,7 @@ export default function ProductPage() {
     createRequest,
     setCreateRequest,
   } = useDetail();
-  const { getInventory100 } = AxiosInventory();
+  const { getInventory1000ByUserId } = AxiosInventory();
 
   const { t } = useTranslation();
   const debounce = (func, delay) => {
@@ -69,7 +69,7 @@ export default function ProductPage() {
   );
   useEffect(() => {
     const fetchingData = async () => {
-      const result = await getInventory100();
+      const result = await getInventory1000ByUserId(userInfor?.id);
       console.log(result);
       setInventory(result);
     };

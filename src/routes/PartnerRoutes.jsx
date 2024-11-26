@@ -15,6 +15,7 @@ import DetailSlide from "../pages/shared/DetailSlide";
 import { useDetail } from "../context/DetailContext";
 import { PaymentPage } from "../pages/partner/PaymentPage";
 import PaymentResult from "../pages/partner/PaymentResult";
+import CreateOrderPage from "../pages/partner/CreateOrder";
 export default function PartnerRoutes() {
   const { dataDetail, typeDetail } = useDetail();
 
@@ -28,6 +29,7 @@ export default function PartnerRoutes() {
           <Route path={"inventory"} element={<InventoryPage />} />
           <Route path={"product"} element={<ProductPage />} />
           <Route path={"order"} element={<OrderPage />} />
+          <Route path={"order/create-order"} element={<CreateOrderPage />} />
 
           <Route path={"request"} element={<RequestPage />} />
 

@@ -5,13 +5,19 @@ import AxiosOrder from "../../services/Order";
 import { AuthContext } from "../../context/AuthContext";
 import { OrderDetailCard } from "../../component/partner/order/OrderCard";
 import { useDetail } from "../../context/DetailContext";
+import { useNavigate } from "react-router-dom";
+import AxiosInventory from "../../services/Inventory";
 
 export default function OrderPage() {
   const { userInfor } = useContext(AuthContext);
   const { getOrderByUserId } = AxiosOrder();
-  const [orders, setOrders] = useState([]);
+  const { getInventory1000ByUserId } = AxiosInventory();
+  const [orders, setOrders] = useState();
+  const [inventories, setInventories] = useState();
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [isShowDetailOrder, setShowDetailOrder] = useState(null);
+  const nav = useNavigate();
   const {
     dataDetail,
     updateDataDetail,
@@ -32,6 +38,7 @@ export default function OrderPage() {
   });
   useEffect(() => {
     debouncedFetchOrders();
+    getInventoriesList();
   }, []);
   useEffect(() => {
     if (refresh == -1) debouncedFetchOrders();
@@ -64,6 +71,17 @@ export default function OrderPage() {
     }, 500),
     [filterField]
   );
+  const getInventoriesList =async () => {
+    try {
+      const result=await getInventory1000ByUserId(userInfor?.id);
+      if(result?.status==200){
+        setInventories(result?.data?.items);
+      }
+    } catch (e) {
+    } finally {
+      setLoading(false);
+    }
+  };
 
   console.log(filterField);
 
@@ -126,7 +144,7 @@ export default function OrderPage() {
         <option value={"Completed"}>Completed</option>
       </select>
 
-      <button onClick={() => setCreateOrder(true)}>Create Order</button>
+      <button onClick={() => nav("create-order")}>Create Order</button>
 
       <div className="flex justify-left gap-4 mt-6 ">
         <div className="w-full">

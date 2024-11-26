@@ -53,7 +53,7 @@ export default function AxiosUser() {
   const loginByEmailPassword = async (data) => {
     try {
       let name = "";
-      let nameEmployee= "";
+      let nameEmployee = "";
       const fetching = async () => {
         const getToken = await getAuth(data);
         console.log("getToken", getToken);
@@ -62,7 +62,7 @@ export default function AxiosUser() {
           if (getToken?.data && getToken?.data.length > 0) {
             const successDataToken = getToken?.data;
             const objectCheck = jwtDecode(successDataToken);
-            console.log("check",objectCheck);
+            console.log("check", objectCheck);
 
             setIsAuthenticated(successDataToken);
             // const getAccount = await requestGetUserByEmail(
@@ -93,9 +93,12 @@ export default function AxiosUser() {
               }
             } else if (
               objectCheck &&
-              objectCheck?.[
+              (objectCheck?.[
                 "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-              ] === "Staff"
+              ] === "Staff" ||
+                objectCheck?.[
+                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                ] === "Manager")
             ) {
               const getEmployeeAccount = await requestGetEmployeeByEmail(
                 data.email,
@@ -230,7 +233,7 @@ export default function AxiosUser() {
       return error;
     }
   };
-//????
+  //????
   return {
     requestSignUp,
     loginByEmailPassword,

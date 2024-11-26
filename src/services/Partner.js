@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import useAxiosBearer from "./CustomizeAxios";
 
 export default function AxiosPartner() {
-const { fetchDataBearer } = useAxiosBearer();
+  const { fetchDataBearer } = useAxiosBearer();
 
   const updateProfile = async (data) => {
     try {
@@ -34,5 +34,25 @@ const { fetchDataBearer } = useAxiosBearer();
       return error;
     }
   };
-  return {updateProfile};
+  const getAllProduct = async (userId, warehouseId) => {
+    try {
+      const url = warehouseId
+        ? `partner/get-partner-total-products/${userId}?warehouseId=${warehouseId}`
+        : `partner/get-partner-total-products/${userId}`;
+
+      const fetching = await fetchDataBearer({
+        url,
+        method: "GET",
+      });
+
+      console.log(fetching);
+
+      return fetching;
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return error;
+    }
+  };
+
+  return { updateProfile, getAllProduct };
 }
