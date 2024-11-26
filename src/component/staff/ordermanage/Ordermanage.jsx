@@ -16,6 +16,7 @@ import {
 } from "antd";
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import useAxios from "../../../services/CustomizeAxios";
+import { useAuth } from "../../../context/AuthContext";
 
 const { Option } = Select;
 
@@ -27,6 +28,7 @@ const Ordermanage = () => {
   const [selectedOrder, setSelectedOrder] = useState(null); // Selected order for drawer
   const { fetchDataBearer } = useAxios(); // Custom Axios hook
 
+
   const [warehouseId, setWarehouseId] = useState("");
   const [requests, setRequests] = useState([]);
   const [pagination, setPagination] = useState({
@@ -37,15 +39,25 @@ const Ordermanage = () => {
   });
   const [email, setEmail] = useState("");
   const [employeeDetails, setEmployeeDetails] = useState(null);
+  const { userInfor } = useAuth();
+  useEffect(() => {
+    fetchRequests(0);
+  }, []);
 
   // Fetch data from API
-  useEffect(() => {
+  useEffect((pageIndex =0 ) => {
     const fetchOrders = async () => {
       setLoading(true); // Start loading
       try {
+        console.log(userInfor?.workAtWarehouseId);
         const response = await fetchDataBearer({
-          url: `/order/get-orders?descending=false&pageIndex=0&pageSize=1000`,
+          url: `/order/get-warehouse-orders`,
           method: "GET",
+          params: {
+            warehouseId: userInfor?.workAtWarehouseId,
+            pageIndex,
+            pageSize: pagination.pageSize,
+          },
         });
         const formattedData = response.data.items.map((item) => ({
           key: item.id, // Unique key for table row
@@ -70,10 +82,6 @@ const Ordermanage = () => {
   }, []);
 
   const updateRequestStatus = async (id, newStatus) => {
-    if (!newStatus) {
-      message.error("Please select a new status!");
-      return;
-    }
 
     setLoading(true);
     try {
@@ -218,18 +226,20 @@ const Ordermanage = () => {
 
   // Fetch requests by warehouseId
   const fetchRequests = async (pageIndex = 0) => {
-    if (!warehouseId) {
-      message.error("Please enter a Warehouse ID!");
-      return;
-    }
+    // if (!warehouseId) {
+    //   message.error("Please enter a Warehouse ID!");
+    //   return;
+    // }
 
     setLoading(true);
+
     try {
+      console.log(userInfor?.workAtWarehouseId);
       const response = await fetchDataBearer({
         url: `/order/get-warehouse-orders`,
         method: "GET",
         params: {
-          warehouseId,
+          warehouseId: userInfor?.workAtWarehouseId,
           pageIndex,
           pageSize: pagination.pageSize,
         },
@@ -265,45 +275,45 @@ const Ordermanage = () => {
     }
   };
 
-  const handleEmailSubmit = async () => {
-    if (!email) {
-      message.error("Please enter an email!");
-      return;
-    }
+  // const handleEmailSubmit = async () => {
+  //   if (!email) {
+  //     message.error("Please enter an email!");
+  //     return;
+  //   }
 
-    setLoading(true);
-    try {
-      const response = await fetchDataBearer({
-        url: `/user/get-employee/${email}`,
-        method: "GET",
-      });
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetchDataBearer({
+  //       url: `/user/get-employee/${email}`,
+  //       method: "GET",
+  //     });
 
-      if (response && response.data) {
-        const {
-          workAtWarehouseId,
-          workAtWarehouseName,
-          lastName,
-          email: employeeEmail,
-        } = response.data;
-        setEmployeeDetails({
-          workAtWarehouseId,
-          workAtWarehouseName,
-          lastName,
-          email: employeeEmail,
-        });
-        message.success("Employee details fetched successfully!");
-      } else {
-        message.error("No data returned from the server.");
-      }
-    } catch (error) {
-      console.error("Error fetching employee details:", error);
-      message.error(
-        "Failed to fetch employee details. Please check the email."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     if (response && response.data) {
+  //       const {
+  //         workAtWarehouseId,
+  //         workAtWarehouseName,
+  //         lastName,
+  //         email: employeeEmail,
+  //       } = response.data;
+  //       setEmployeeDetails({
+  //         workAtWarehouseId,
+  //         workAtWarehouseName,
+  //         lastName,
+  //         email: employeeEmail,
+  //       });
+  //       message.success("Employee details fetched successfully!");
+  //     } else {
+  //       message.error("No data returned from the server.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching employee details:", error);
+  //     message.error(
+  //       "Failed to fetch employee details. Please check the email."
+  //     );
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Dropdown menu for filtering by status
   const statusMenu = (
@@ -337,7 +347,7 @@ const Ordermanage = () => {
             justifyContent: "flex-start",
           }}
         >
-          <Input
+          {/* <Input
             placeholder="Enter Email"
             style={{ width: 300 }}
             value={email}
@@ -345,7 +355,7 @@ const Ordermanage = () => {
           />
           <Button type="primary" onClick={handleEmailSubmit} loading={loading}>
             Submit Email
-          </Button>
+          </Button> */}
         </Space>
         <Space style={{ marginBottom: 16 }}>
           <Dropdown overlay={statusMenu}>
@@ -396,19 +406,8 @@ const Ordermanage = () => {
           justifyContent: "flex-start",
         }}
       >
-        <Input
-          placeholder="Enter Warehouse ID"
-          style={{ width: 300 }}
-          value={warehouseId}
-          onChange={(e) => setWarehouseId(e.target.value)}
-        />
-        <Button
-          type="primary"
-          onClick={() => fetchRequests(0)}
-          loading={loading}
-        >
-          Load Requests
-        </Button>
+   
+
       </Space>
       <Table
         dataSource={requests}

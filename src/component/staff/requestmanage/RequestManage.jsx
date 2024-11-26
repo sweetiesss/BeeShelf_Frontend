@@ -78,46 +78,6 @@ const RequestManagement = () => {
     fetchRequests(page - 1);
   };
 
-  const handleEmailSubmit = async () => {
-    if (!email) {
-      message.error("Please enter an email!");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetchDataBearer({
-        url: `/user/get-employee/${email}`,
-        method: "GET",
-      });
-
-      if (response && response.data) {
-        const {
-          workAtWarehouseId,
-          workAtWarehouseName,
-          lastName,
-          email: employeeEmail,
-        } = response.data;
-        setEmployeeDetails({
-          workAtWarehouseId,
-          workAtWarehouseName,
-          lastName,
-          email: employeeEmail,
-        });
-        message.success("Employee details fetched successfully!");
-      } else {
-        message.error("No data returned from the server.");
-      }
-    } catch (error) {
-      console.error("Error fetching employee details:", error);
-      message.error(
-        "Failed to fetch employee details. Please check the email."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const updateRequestStatus = async (id, newStatus) => {
     if (!newStatus) {
       message.error("Please select a new status!");
@@ -176,15 +136,6 @@ const RequestManagement = () => {
           justifyContent: "flex-start",
         }}
       >
-        <Input
-          placeholder="Enter Email"
-          style={{ width: 300 }}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Button type="primary" onClick={handleEmailSubmit} loading={loading}>
-          Submit Email
-        </Button>
       </Space>
 
       {/* Display Employee Details */}
@@ -225,19 +176,6 @@ const RequestManagement = () => {
           justifyContent: "flex-start",
         }}
       >
-        <Input
-          placeholder="Enter Warehouse ID"
-          style={{ width: 300 }}
-          value={warehouseId}
-          onChange={(e) => setWarehouseId(e.target.value)}
-        />
-        <Button
-          type="primary"
-          // onClick={() => fetchRequests(0)}
-          loading={loading}
-        >
-          Load Requests
-        </Button>
       </Space>
 
       {/* Request Table */}
