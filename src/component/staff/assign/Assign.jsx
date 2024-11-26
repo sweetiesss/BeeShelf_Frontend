@@ -18,12 +18,19 @@ const Assign = () => {
       setIsLoading(true); // Start loading
       try {
         const response = await fetchDataBearer({
-          url: `/order/get-orders?descending=false&pageIndex=0&pageSize=1000`,
+          url: `/order/get-orders`,
           method: "GET",
+          params: {
+            descending: true, // Sort descending for newest first
+            pageIndex: 0,
+            pageSize: 1000,
+            sortBy: "CreateDate", // Sort by CreateDate
+          },
         });
         setOrders(response.data.items); // Save the data to state
       } catch (error) {
         console.error(error);
+        message.error("Failed to load orders!");
       } finally {
         setIsLoading(false); // End loading
       }
@@ -93,7 +100,18 @@ const Assign = () => {
         ) : (
           <div className="overflow-x-auto">
             <div className="flex space-x-4 w-max">
-              {["Draft", "Assigned", "Pending", "Processing", "Shipping", "Delivered", "Returned", "Refunded", "Completed", "Canceled"].map((status) => (
+              {[
+                "Draft",
+                "Assigned",
+                "Pending",
+                "Processing",
+                "Shipping",
+                "Delivered",
+                "Returned",
+                "Refunded",
+                "Completed",
+                "Canceled",
+              ].map((status) => (
                 <OrderColumn
                   key={status}
                   title={status}

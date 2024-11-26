@@ -7,6 +7,7 @@ import {
   Bag,
   AddressBook,
   Archive,
+  Aperture,
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
@@ -98,7 +99,7 @@ export function Sidebar() {
             </NavLink>
             <NavLink to="assign" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Package className="icon" weight="fill" />
+                <Aperture className="icon" weight="fill" />
                 <p className="label">{t("Assign Order")}</p>
               </div>
             </NavLink>
