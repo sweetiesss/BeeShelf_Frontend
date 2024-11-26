@@ -1,46 +1,116 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
-import AxiosInventory from "../../services/Inventory";
+import AxiosPartner from "../../services/Partner";
+import axios from "axios";
+import Mapping from "../../component/shared/Mapping";
+import AxiosOrder from "../../services/Order";
 
 export default function CreateOrderPage() {
   const { t } = useTranslation();
   const { userInfor } = useAuth();
-  const { getInventory1000ByUserId } = AxiosInventory();
+  const { getAllProduct } = AxiosPartner();
+  const { createOrder } = AxiosOrder();
+
   const [inventories, setInventories] = useState();
+  const [inventoriesShowList, setInventoriesShowList] = useState();
   const [loading, setLoading] = useState();
+  const [warehouseFilter, setWareHouseFilter] = useState();
+  const [step, setStep] = useState(1);
+  const [distance, setDistance] = useState(null); // State for storing calculated distance
+  const [item, setItem] = useState({ productId: null, productAmount: null });
+  const [warehouses, setWarehouses] = useState();
+  const [warehouse, setWarehouse] = useState();
 
   const baseForm = {
     ocopPartnerId: userInfor?.id,
     receiverPhone: "",
     receiverAddress: "",
     distance: null,
-    products: [
-      {
-        productId: null,
-        productAmount: null,
-      },
-    ],
+    products: [],
   };
   const [form, setForm] = useState(baseForm);
 
-  const [item, setItem] = useState({ productName: "", quantity: 1, price: 0 });
-
-  const [lots, setLots] = useState();
-
   useEffect(() => {
-    getInventoriesList();
+    getProductsInWareHouse();
   }, []);
 
-  const getInventoriesList = async () => {
+  useEffect(() => {
+    if (form.receiverAddress) {
+      calculateDistance();
+    }
+  }, [form.receiverAddress]);
+
+  useEffect(() => {
+    filterWarehouse();
+  }, [warehouse]);
+
+  useEffect(() => {
+    if (inventories) {
+      const uniqueWarehouses = Array.from(
+        new Map(
+          inventories.map((item) => [
+            item.warehouseId,
+            {
+              warehouseId: item.warehouseId,
+              warehouseName: item.warehouseName,
+            },
+          ])
+        ).values()
+      );
+
+      setWarehouses(uniqueWarehouses);
+    }
+  }, [inventories]);
+
+  const filterWarehouse = () => {
+    if (inventories) {
+      console.log("here0", inventories);
+      console.log("here1/2", warehouse);
+      console.log("here2", warehouses);
+
+      const result = inventories.filter(
+        (a) => parseInt(a.warehouseId) === parseInt(warehouse)
+      );
+      console.log("here", result);
+
+      setInventoriesShowList(result);
+    }
+  };
+
+  const getProductsInWareHouse = async () => {
     try {
-      const result = await getInventory1000ByUserId(userInfor?.id);
-      if (result?.status == 200) {
-        setInventories(result?.data?.items);
+      setLoading(true);
+      const result = await getAllProduct(userInfor?.id, warehouseFilter);
+      if (result?.status === 200) {
+        setInventories(result?.data?.products);
       }
     } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const calculateDistance = async () => {
+    const API_KEY = process.env.REACT_APP_MAP_API_KEY;
+    const warehouseAddress =
+      "39 P. Cát Linh, Cát Linh, Đống Đa, Hà Nội, Vietnam"; // Replace with your actual warehouse address
+    const receiverAddress = form.receiverAddress;
+
+    try {
+      const response = await axios.get(
+        `https://www.mapquestapi.com/directions/v2/route?key=${API_KEY}&from=${encodeURIComponent(
+          warehouseAddress
+        )}&to=${encodeURIComponent(receiverAddress)}`
+      );
+
+      const distanceInMiles = response.data.route.distance; // Distance in miles
+      const distanceInKilometers = (distanceInMiles * 1.6125).toFixed(2); // Convert to kilometers
+      setDistance(distanceInKilometers);
+      setForm((prev) => ({ ...prev, distance: distanceInKilometers })); // Update the form
+    } catch (error) {
+      console.error("Error calculating distance:", error);
     }
   };
 
@@ -51,175 +121,217 @@ export default function CreateOrderPage() {
 
   const handleItemChange = (e) => {
     const { name, value } = e.target;
-    setItem((prev) => ({ ...prev, [name]: value }));
+    setItem((prev) => ({ ...prev, [name]: parseInt(value) }));
   };
 
   const addItem = () => {
-    if (item.productName && item.quantity > 0 && item.price > 0) {
-      setForm((prev) => ({
-        ...prev,
-        items: [...prev.items, item],
-      }));
-      setItem({ productName: "", quantity: 1, price: 0 });
+    console.log("item", item);
+
+    if (item.productId && item.productAmount > 0) {
+      const productFounded = form?.products?.find(
+        (pro) => parseInt(pro.productId) === parseInt(item.productId)
+      );
+      console.log("founded", productFounded);
+      if (productFounded) {
+        const newProducts = form?.products?.filter(
+          (pro) => parseInt(pro.productId) !== parseInt(item.productId)
+        );
+        const newPro = {
+          productId: productFounded.productId,
+          productAmount: productFounded.productAmount + item.productAmount,
+        };
+        setForm((prev) => ({
+          ...prev,
+          products: [...newProducts, newPro],
+        }));
+      } else {
+        setForm((prev) => ({
+          ...prev,
+          products: [...prev.products, item],
+        }));
+      }
+      setItem({ productId: 0, productAmount: 0 });
     }
   };
 
   const removeItem = (index) => {
     setForm((prev) => ({
       ...prev,
-      items: prev.items.filter((_, i) => i !== index),
+      products: prev.products.filter(
+        (pro) => parseInt(pro.productId) !== parseInt(index)
+      ),
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Order Created:", form);
-    // Add your API call here
+  const handleSubmit = async (e) => {
+    try {
+      setLoading(true);
+      e.preventDefault();
+      console.log("Order Created:", form);
+      const result = await createOrder(form, warehouse);
+      console.log(result);
+      setForm(baseForm);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
   };
-console.log("createPage",inventories);
 
   return (
-    <div className="p-8 max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
-      <h1 className="text-2xl font-semibold mb-4">{t("Create Order")}</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Customer Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
+      <div className="flex gap-40 h-full text-lg">
+        <form onSubmit={handleSubmit} className="space-y-6 w-[40%]">
+          <p className="text-2xl font-semibold mb-4">{t("Create Order")}</p>
+          <p className="text-xl font-semibold mb-4">
+            {t("CustomerInformation")}
+          </p>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              {t("Customer Name")}
+            <label className="block  font-medium text-gray-700">
+              {t("Receiver Phone")}
             </label>
             <input
               type="text"
-              name="customerName"
-              value={form.customerName}
+              name="receiverPhone"
+              value={form.receiverPhone}
               onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 border-b-2 focus:ring-blue-500 focus:border-blue-500 px-2 py-1"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              {t("Customer Email")}
-            </label>
-            <input
-              type="email"
-              name="customerEmail"
-              value={form.customerEmail}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              {t("Customer Phone")}
+            <label className="block  font-medium text-gray-700">
+              {t("Receiver Address")}
             </label>
             <input
               type="text"
-              name="customerPhone"
-              value={form.customerPhone}
+              name="receiverAddress"
+              value={form.receiverAddress}
               onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 border-b-2 focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              {t("Order Date")}
-            </label>
-            <input
-              type="date"
-              name="orderDate"
-              value={form.orderDate}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
-        </div>
-        <select>
-          {inventories?.map((item) => (
-            <option></option>
-          ))}
-        </select>
-
-        {/* Order Items */}
-        <div>
-          <h2 className="text-lg font-semibold mb-2">{t("Order Items")}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-            <input
-              type="text"
-              name="productName"
-              placeholder={t("Product Name")}
-              value={item.productName}
-              onChange={handleItemChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-            <input
-              type="number"
-              name="quantity"
-              placeholder={t("Quantity")}
-              value={item.quantity}
-              onChange={handleItemChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-            <input
-              type="number"
-              name="price"
-              placeholder={t("Price")}
-              value={item.price}
-              onChange={handleItemChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-            <button
-              type="button"
-              onClick={addItem}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
-            >
-              {t("Add Item")}
-            </button>
-          </div>
-          <ul className="mt-4 space-y-2">
-            {form?.items?.map((item, index) => (
-              <li
-                key={index}
-                className="flex justify-between items-center border-b pb-2"
+          <div className="space-y-6 w-full">
+            <h2 className="text-lg font-semibold">{t("OrderInformation")}</h2>
+            <div>
+              <label className="block  font-medium text-gray-700">
+                {t("Warehouse")}
+              </label>
+              <select
+                className="text-black border border-gray-300 p-2 rounded-md w-full"
+                onChange={(e) => {
+                  setWarehouse(e.target.value);
+                }}
+                value={warehouse}
               >
-                <span>
-                  {item.productName} - {item.quantity} x ${item.price}
-                </span>
+                <option key={0} value={null}>
+                  Select Warehouse
+                </option>
+                {warehouses?.map((item) => (
+                  <option key={item?.warehouseId} value={item?.warehouseId}>
+                    {item?.warehouseName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block  font-medium text-gray-700">
+                {t("Products")}
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <select
+                  className="text-black border border-gray-300 p-2 rounded-md"
+                  onChange={handleItemChange}
+                  name="productId"
+                  value={item.productId}
+                >
+                  <option key={0} value={null}>
+                    Select products
+                  </option>
+                  {inventoriesShowList?.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.productName}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  name="productAmount"
+                  placeholder={t("productAmount")}
+                  value={item.productAmount}
+                  onChange={handleItemChange}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
+                  required
+                />
                 <button
                   type="button"
-                  onClick={() => removeItem(index)}
-                  className="text-red-500 hover:text-red-700"
+                  onClick={addItem}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
                 >
-                  {t("Remove")}
+                  {t("Add Item")}
                 </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+              </div>
+            </div>
+            <ul className="mt-10 space-y-2 overflow-auto h-[10rem]">
+              {form?.products &&
+                form?.products?.map((item) => {
+                  console.log(item);
+                  const product = inventoriesShowList.find((pro) => {
+                    console.log("pro", pro);
+                    return parseInt(pro.id) === parseInt(item.productId);
+                  });
+                  return (
+                    <>
+                      <li
+                        key={item.productId}
+                        className="flex justify-between items-center border-b pb-2"
+                      >
+                        <span>
+                          {product?.productName} - {item.productAmount}/
+                          {product?.stock} stock
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.productId)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          {t("Remove")}
+                        </button>
+                      </li>
+                    </>
+                  );
+                })}
+            </ul>
+          </div>
+          <div className="flex justify-end space-x-4 mt-6">
+            <button
+              type="button"
+              onClick={() => {
+                setForm(baseForm);
+              }} // Reset form
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md shadow hover:bg-gray-300 transition"
+            >
+              {t("Reset")}
+            </button>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
+            >
+              {t("CreateOrder")}
+            </button>
+          </div>
+        </form>
+        <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
+          <Mapping showLocation={form.receiverAddress} height="90%" />
 
-        {/* Submit Button */}
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={() => setForm(baseForm)} // Reset form
-            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md shadow hover:bg-gray-300 transition"
-          >
-            {t("Reset")}
-          </button>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
-          >
-            {t("Create Order")}
-          </button>
+          {distance && (
+            <p className="mt-4 text-lg">
+              {t("Distance")}: {distance} {t("km")}
+            </p>
+          )}
         </div>
-      </form>
+      </div>
     </div>
   );
 }

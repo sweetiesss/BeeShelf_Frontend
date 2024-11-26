@@ -78,7 +78,17 @@ export default function CreateRequestImport({
   };
   const handleConfirm = async () => {
     console.log(form);
-    const fetching = await createRequest(form, type, true);
+
+    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Format date-time
+    let submitForm = {
+      ...form,
+      lot: {
+        ...form.lot,
+        lotNumber: `${form.lot.productId}-${currentDateTime}`, // Product ID + Date-Time
+        name: `${product.name}-${userInfor?.name || "User"}`, // Product Name + User's Name
+      },
+    };
+    const fetching = await createRequest(submitForm, type, true);
     handleClose();
   };
   const handleSaveDraft = async () => {
@@ -93,18 +103,7 @@ export default function CreateRequestImport({
     );
 
     if (selectedProduct) {
-      const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Format date-time
       setProduct(selectedProduct); // Update selected product in parent
-
-      setForm((prev) => ({
-        ...prev,
-        lot: {
-          ...prev.lot,
-          productId: selectedProductId,
-          lotNumber: `${selectedProduct.id}-${currentDateTime}`, // Product ID + Date-Time
-          name: `${selectedProduct.name}-${userInfor?.name || "User"}`, // Product Name + User's Name
-        },
-      }));
     }
   };
 
@@ -239,9 +238,22 @@ export default function CreateRequestImport({
                     min="1"
                   />
                 </div>
+                {/* <div className="flex flex-col w-full gap-2">
+                  <label className="text-[var(--en-vu-600)] font-normal">
+                    {t("AmountofProductPerLot")}
+                  </label>
+                  <input
+                    className="outline-none border-b-2 focus-within:border-black"
+                    type="number"
+                    name="lot.productAmount"
+                    value={form?.lot?.productAmount / form?.lot?.amount}
+                    onChange={handleInput}
+                    disabled={true}
+                  />
+                </div> */}
                 <div className="flex flex-col w-full gap-2">
                   <label className="text-[var(--en-vu-600)] font-normal">
-                    {t("AmountofProduct")}
+                    {t("TotalAmountofProduct")}
                   </label>
                   <input
                     className="outline-none border-b-2 focus-within:border-black"

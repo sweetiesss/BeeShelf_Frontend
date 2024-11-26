@@ -16,12 +16,14 @@ export default function AxiosOrder() {
   ) => {
     try {
       const queryParams = new URLSearchParams();
-      if (typeof filterByStatus !== 'undefined') queryParams.append("filterByStatus", filterByStatus);
-      if (typeof sortBy !== 'undefined') queryParams.append("sortBy", sortBy);
-      if (typeof descending !== 'undefined') queryParams.append("descending", descending);
+      if (typeof filterByStatus !== "undefined")
+        queryParams.append("filterByStatus", filterByStatus);
+      if (typeof sortBy !== "undefined") queryParams.append("sortBy", sortBy);
+      if (typeof descending !== "undefined")
+        queryParams.append("descending", descending);
       queryParams.append("pageIndex", pageIndex);
       queryParams.append("pageSize", Size);
-    
+
       const fetching = await fetchDataBearer({
         url: `order/get-orders/${userId}?${queryParams.toString()}`,
         method: "GET",
@@ -32,37 +34,37 @@ export default function AxiosOrder() {
       return e;
     }
   };
-  // const createRequest = async (data, type, send) => {
-  //   try {
-  //     const fetching = fetchDataBearer({
-  //       url: `request/create-request?${type && "type=" + type + "&"}${
-  //         send && "send=" + send
-  //       }`,
-  //       method: "POST",
-  //       data: data,
-  //     });
-  //     const result = await toast.promise(fetching, {
-  //       pending: "Request in progress...",
-  //       success: {
-  //         render() {
-  //           return `Request created`;
-  //         },
-  //       },
-  //       error: {
-  //         render({ data }) {
-  //           return `${data.response.data.message || "Something went wrong!"}`;
-  //         },
-  //       },
-  //     });
-  //     return result;
-  //   } catch (e) {
-  //     console.log(e);
-  //     return {
-  //       error: true,
-  //       message: e.response?.data?.message || "Something went wrong!",
-  //     };
-  //   }
-  // };
+  const createOrder = async (data, warehouseId) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `order/create-order?${
+          warehouseId && "warehouseId=" + warehouseId
+        }`,
+        method: "POST",
+        data: data,
+      });
+      const result = await toast.promise(fetching, {
+        pending: "Order is creating...",
+        success: {
+          render() {
+            return `Order created`;
+          },
+        },
+        error: {
+          render({ data }) {
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return result;
+    } catch (e) {
+      console.log(e);
+      return {
+        error: true,
+        message: e.response?.data?.message || "Something went wrong!",
+      };
+    }
+  };
 
   const sendOrderById = async (id) => {
     try {
@@ -140,5 +142,5 @@ export default function AxiosOrder() {
     }
   };
 
-  return { getOrderByUserId ,sendOrderById,deleteOrderById};
+  return { getOrderByUserId,createOrder, sendOrderById, deleteOrderById };
 }
