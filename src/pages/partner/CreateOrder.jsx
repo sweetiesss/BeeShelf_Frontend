@@ -5,12 +5,14 @@ import AxiosPartner from "../../services/Partner";
 import axios from "axios";
 import Mapping from "../../component/shared/Mapping";
 import AxiosOrder from "../../services/Order";
+import AxiosWarehouse from "../../services/Warehouse";
 
 export default function CreateOrderPage() {
   const { t } = useTranslation();
   const { userInfor } = useAuth();
   const { getAllProduct } = AxiosPartner();
   const { createOrder } = AxiosOrder();
+  const { getWarehouseById } = AxiosWarehouse();
 
   const [inventories, setInventories] = useState();
   const [inventoriesShowList, setInventoriesShowList] = useState();
@@ -39,7 +41,7 @@ export default function CreateOrderPage() {
     if (form.receiverAddress) {
       calculateDistance();
     }
-  }, [form.receiverAddress]);
+  }, [form.receiverAddress, warehouse]);
 
   useEffect(() => {
     filterWarehouse();
@@ -91,11 +93,31 @@ export default function CreateOrderPage() {
       setLoading(false);
     }
   };
+  const getWarehouses= async () => {
+    try {
+      setLoading(true);
+      const result = await getWarehouseById(warehouse);
+      if (result?.status === 200) {
+        setWarehouse(result?.data?.products);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const calculateDistance = async () => {
     const API_KEY = process.env.REACT_APP_MAP_API_KEY;
-    const warehouseAddress =
-      "39 P. Cát Linh, Cát Linh, Đống Đa, Hà Nội, Vietnam"; // Replace with your actual warehouse address
+    const warehouseLocation = warehouses.find(
+      (item) => parseInt(item.id) === parseInt(warehouse)
+    );
+    console.log("warehouses", warehouses);
+    console.log("warehouse",warehouse);
+
+    console.log("location", warehouseLocation);
+
+    const warehouseAddress = warehouseLocation?.location; // Replace with your actual warehouse address
     const receiverAddress = form.receiverAddress;
 
     try {
