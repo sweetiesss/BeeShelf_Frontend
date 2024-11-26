@@ -18,6 +18,8 @@ import {
 } from "antd";
 import useAxios from "../../../services/CustomizeAxios";
 import { useAuth } from "../../../context/AuthContext";
+
+
 const { Option } = Select;
 
 const BatchManage = () => {
@@ -29,7 +31,7 @@ const BatchManage = () => {
   const [selectedBatchIds, setSelectedBatchIds] = useState([]); // Selected batch IDs for deletion
   const [createBatchModalVisible, setCreateBatchModalVisible] = useState(false); // Modal visibility
   const { fetchDataBearer } = useAxios(); // Custom Axios hook
-
+  const { userInfor } = useAuth();
   const [form] = Form.useForm();
 
   // Fetch batches data from API
@@ -61,6 +63,42 @@ const BatchManage = () => {
 
     fetchBatches();
   }, []);
+
+  //fetchDeliveryZones
+  const [deliveryZones, setDeliveryZones] = useState([]);
+  useEffect(() => {
+    // Hàm gọi API để lấy danh sách delivery zones
+    const fetchDeliveryZones = async () => {
+      
+      try {
+        console.log(userInfor?.workAtWarehouseId);
+        setLoading(true);
+        const warehouseId = userInfor?.workAtWarehouseId;
+
+        if (!warehouseId) {
+          console.error("Warehouse ID is not available");
+          setLoading(false);
+          return;
+        }
+        const response = await fetchDataBearer({
+          url: `/warehouse/get-warehouse/${warehouseId}`,
+          method: "GET",
+        });
+        
+        if (response.status === 200 && response.data) {
+          setDeliveryZones(response.data.deliveryZones || []); // Giả sử API trả về mảng deliveryZones
+        } else {
+          console.error("Failed to fetch delivery zones");
+        }
+      } catch (error) {
+        console.error("Error fetching delivery zones:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDeliveryZones();
+  }, [userInfor]);
 
   // Fetch orders for Order IDs field
   useEffect(() => {
@@ -127,7 +165,9 @@ const BatchManage = () => {
       }
 
       message.success("Selected batches deleted successfully.");
-      setBatches((prev) => prev.filter((batch) => !selectedBatchIds.includes(batch.id)));
+      setBatches((prev) =>
+        prev.filter((batch) => !selectedBatchIds.includes(batch.id))
+      );
       setSelectedBatchIds([]);
     } catch (error) {
       console.error("Error deleting batches:", error);
@@ -192,7 +232,11 @@ const BatchManage = () => {
         <Button type="primary" onClick={() => setCreateBatchModalVisible(true)}>
           Create Batch
         </Button>
-        <Button type="danger" onClick={handleDelete} disabled={selectedBatchIds.length === 0}>
+        <Button
+          type="danger"
+          onClick={handleDelete}
+          disabled={selectedBatchIds.length === 0}
+        >
           Delete Selected Batches
         </Button>
       </Space>
@@ -211,7 +255,9 @@ const BatchManage = () => {
                   if (e.target.checked) {
                     setSelectedBatchIds((prev) => [...prev, record.id]);
                   } else {
-                    setSelectedBatchIds((prev) => prev.filter((id) => id !== record.id));
+                    setSelectedBatchIds((prev) =>
+                      prev.filter((id) => id !== record.id)
+                    );
                   }
                 }}
               />
@@ -225,14 +271,24 @@ const BatchManage = () => {
             key: "status",
             render: renderStatusTag,
           },
-          { title: "Completion Date", dataIndex: "completeDate", key: "completeDate" },
+          {
+            title: "Completion Date",
+            dataIndex: "completeDate",
+            key: "completeDate",
+          },
           { title: "Assign To", dataIndex: "assignTo", key: "assignTo" },
-          { title: "Delivery Zone ID", dataIndex: "deliveryZoneId", key: "deliveryZoneId" },
+          {
+            title: "Delivery Zone ID",
+            dataIndex: "deliveryZoneId",
+            key: "deliveryZoneId",
+          },
           {
             title: "Action",
             key: "action",
             render: (_, record) => (
-              <Button onClick={() => setSelectedBatch(record)}>View Details</Button>
+              <Button onClick={() => setSelectedBatch(record)}>
+                View Details
+              </Button>
             ),
           },
         ]}
@@ -268,23 +324,52 @@ const BatchManage = () => {
               {shippers.map((shipper) => (
                 <Option key={shipper.employeeId} value={shipper.employeeId}>
                   {`ID: ${shipper.employeeId} - Email: ${shipper.email}`}
+                
                 </Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             label="Delivery Zone ID"
             name="deliveryZoneId"
             rules={[{ required: true, message: "Please enter a delivery zone ID!" }]}
           >
             <Input type="number" placeholder="Enter delivery zone ID" />
+          </Form.Item> */}
+          <Form.Item
+            label="Delivery Zone ID"
+            name="deliveryZoneId"
+            rules={[
+              { required: true, message: "Please select a delivery zone ID!" },
+            ]}
+          >
+            <Select
+              placeholder="Select a delivery zone ID"
+              loading={loading}
+              allowClear
+            >
+              {deliveryZones.map((zone) => (
+                <Option key={zone.id} value={zone.id}>
+                  {/* {zone.id}
+                  {zone.name}   */}
+                  {/* Hiển thị tên hoặc thông tin zone */}
+                  {`ID: ${zone.id} - ZoneName: ${zone.name}`}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             label="Order IDs"
             name="orders"
-            rules={[{ required: true, message: "Please select at least one order!" }]}
+            rules={[
+              { required: true, message: "Please select at least one order!" },
+            ]}
           >
-            <Select mode="multiple" placeholder="Select orders" loading={loading}>
+            <Select
+              mode="multiple"
+              placeholder="Select orders"
+              loading={loading}
+            >
               {orders.map((order) => (
                 <Option key={order.id} value={order.id}>
                   {`ID: ${order.id} - Email: ${order.partnerEmail}`}
