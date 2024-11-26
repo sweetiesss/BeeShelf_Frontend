@@ -221,7 +221,7 @@ export default function ProductList({
                   key={product.id}
                   className={`
                 border-t-2 
-                  ${chooice ? "bg-[var(--Xanh-100)]" : ""} font-medium ${
+                  ${chooice ? "bg-[var(--Xanh-100)]" : ""}  ${
                     checkError
                       ? "bg-red-200 hover:bg-red-100"
                       : "     hover:bg-[var(--Xanh-100)]"

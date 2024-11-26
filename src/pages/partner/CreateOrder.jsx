@@ -6,6 +6,7 @@ import axios from "axios";
 import Mapping from "../../component/shared/Mapping";
 import AxiosOrder from "../../services/Order";
 import AxiosWarehouse from "../../services/Warehouse";
+import { toast } from "react-toastify";
 
 export default function CreateOrderPage() {
   const { t } = useTranslation();
@@ -21,6 +22,7 @@ export default function CreateOrderPage() {
   const [step, setStep] = useState(1);
   const [distance, setDistance] = useState(null); // State for storing calculated distance
   const [item, setItem] = useState({ productId: null, productAmount: null });
+
   const [warehouses, setWarehouses] = useState();
   const [warehouse, setWarehouse] = useState();
 
@@ -60,7 +62,6 @@ export default function CreateOrderPage() {
           ])
         ).values()
       );
-
       setWarehouses(uniqueWarehouses);
     }
   }, [inventories]);
@@ -93,13 +94,14 @@ export default function CreateOrderPage() {
       setLoading(false);
     }
   };
-  const getWarehouses= async () => {
+  const getWarehouses = async () => {
     try {
       setLoading(true);
       const result = await getWarehouseById(warehouse);
       if (result?.status === 200) {
-        setWarehouse(result?.data?.products);
+        return result;
       }
+      return undefined;
     } catch (e) {
       console.error(e);
     } finally {
@@ -109,15 +111,8 @@ export default function CreateOrderPage() {
 
   const calculateDistance = async () => {
     const API_KEY = process.env.REACT_APP_MAP_API_KEY;
-    const warehouseLocation = warehouses.find(
-      (item) => parseInt(item.id) === parseInt(warehouse)
-    );
-    console.log("warehouses", warehouses);
-    console.log("warehouse",warehouse);
-
-    console.log("location", warehouseLocation);
-
-    const warehouseAddress = warehouseLocation?.location; // Replace with your actual warehouse address
+    const dataLocation = await getWarehouses(warehouse);
+    const warehouseAddress = dataLocation?.data?.location; // Replace with your actual warehouse address
     const receiverAddress = form.receiverAddress;
 
     try {
@@ -148,31 +143,40 @@ export default function CreateOrderPage() {
 
   const addItem = () => {
     console.log("item", item);
+    console.log("invnt", inventories);
+    const checkFoundDataStock = inventories.find(
+      (a) => parseInt(a.id) === parseInt(item.productId)
+    );
+    console.log("checkFoundDataStock", checkFoundDataStock);
 
     if (item.productId && item.productAmount > 0) {
-      const productFounded = form?.products?.find(
-        (pro) => parseInt(pro.productId) === parseInt(item.productId)
-      );
-      console.log("founded", productFounded);
-      if (productFounded) {
-        const newProducts = form?.products?.filter(
-          (pro) => parseInt(pro.productId) !== parseInt(item.productId)
+      if (checkFoundDataStock?.stock >= item.productAmount) {
+        const productFounded = form?.products?.find(
+          (pro) => parseInt(pro.productId) === parseInt(item.productId)
         );
-        const newPro = {
-          productId: productFounded.productId,
-          productAmount: productFounded.productAmount + item.productAmount,
-        };
-        setForm((prev) => ({
-          ...prev,
-          products: [...newProducts, newPro],
-        }));
+        console.log("founded", productFounded);
+        if (productFounded) {
+          const newProducts = form?.products?.filter(
+            (pro) => parseInt(pro.productId) !== parseInt(item.productId)
+          );
+          const newPro = {
+            productId: productFounded.productId,
+            productAmount: productFounded.productAmount + item.productAmount,
+          };
+          setForm((prev) => ({
+            ...prev,
+            products: [...newProducts, newPro],
+          }));
+        } else {
+          setForm((prev) => ({
+            ...prev,
+            products: [...prev.products, item],
+          }));
+        }
+        setItem({ productId: 0, productAmount: 0 });
       } else {
-        setForm((prev) => ({
-          ...prev,
-          products: [...prev.products, item],
-        }));
+        toast.warning("Stock in warehouse is not enough");
       }
-      setItem({ productId: 0, productAmount: 0 });
     }
   };
 
@@ -247,7 +251,7 @@ export default function CreateOrderPage() {
                 }}
                 value={warehouse}
               >
-                <option key={0} value={null}>
+                <option key={0} value={0}>
                   Select Warehouse
                 </option>
                 {warehouses?.map((item) => (
@@ -268,12 +272,12 @@ export default function CreateOrderPage() {
                   name="productId"
                   value={item.productId}
                 >
-                  <option key={0} value={null}>
+                  <option key={0} value={0}>
                     Select products
                   </option>
                   {inventoriesShowList?.map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.productName}
+                      {item.productName}/{item.stock}
                     </option>
                   ))}
                 </select>
@@ -330,7 +334,7 @@ export default function CreateOrderPage() {
             <button
               type="button"
               onClick={() => {
-                setForm(baseForm);
+                setForm(baseForm);setItem({productId:0,productAmount:0});setWarehouse(0)
               }} // Reset form
               className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md shadow hover:bg-gray-300 transition"
             >
