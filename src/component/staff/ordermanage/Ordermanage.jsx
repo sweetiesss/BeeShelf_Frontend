@@ -1,7 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Input, Dropdown, Button, Menu, Space, Drawer, Typography, Divider, List } from "antd";
+import {
+  Table,
+  Tag,
+  Input,
+  Dropdown,
+  Button,
+  Menu,
+  Space,
+  Drawer,
+  Typography,
+  Divider,
+  message,
+  List,
+  Select,
+} from "antd";
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import useAxios from "../../../services/CustomizeAxios";
+import { useAuth } from "../../../context/AuthContext";
+
+const { Option } = Select;
 
 const Ordermanage = () => {
   const [filter, setFilter] = useState("All"); // Default filter is "All"
@@ -11,25 +28,50 @@ const Ordermanage = () => {
   const [selectedOrder, setSelectedOrder] = useState(null); // Selected order for drawer
   const { fetchDataBearer } = useAxios(); // Custom Axios hook
 
+  const [warehouseId, setWarehouseId] = useState("");
+  const [requests, setRequests] = useState([]);
+  const [pagination, setPagination] = useState({
+    totalItemsCount: 0,
+    pageSize: 10,
+    totalPagesCount: 0,
+    pageIndex: 0,
+  });
+  const [email, setEmail] = useState("");
+  const [employeeDetails, setEmployeeDetails] = useState(null);
+  const { userInfor } = useAuth();
+  useEffect(() => {
+    fetchRequests(0);
+  }, []);
+
   // Fetch data from API
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true); // Start loading
       try {
+        console.log(userInfor?.workAtWarehouseId);
         const response = await fetchDataBearer({
-          url: `/order/get-orders?descending=false&pageIndex=0&pageSize=1000`,
+          url: `/order/get-warehouse-orders`,
           method: "GET",
+          params: {
+            warehouseId: userInfor?.workAtWarehouseId,
+            pageIndex: 0,
+            pageSize: pagination.pageSize,
+          },
         });
-        const formattedData = response.data.items.map((item) => ({
-          key: item.id, // Unique key for table row
-          order: item, // Store full order data
-          orderName: item.partner_email, // Use partner email as the "order name"
-          status: item.status,
-          receiverPhone: item.receiverPhone,
-          receiverAddress: item.receiverAddress,
-          date: item.createDate.split("T")[0], // Extract date from ISO format
-          totalPrice: `$${item.totalPrice}`, // Format total price
-        }));
+
+        const formattedData = response.data.items
+          .filter((item) => item.status !== "Draft") // Lọc bỏ trạng thái Draft
+          .map((item) => ({
+            key: item.id, // Unique key for table row
+            order: item, // Store full order data
+            orderName: item.partner_email, // Use partner email as the "order name"
+            status: item.status,
+            receiverPhone: item.receiverPhone,
+            receiverAddress: item.receiverAddress,
+            date: item.createDate.split("T")[0], // Extract date from ISO format
+            totalPrice: `$${item.totalPrice}`, // Format total price
+          }));
+
         setData(formattedData);
         setFilteredData(formattedData); // Initialize filtered data
       } catch (error) {
@@ -42,6 +84,35 @@ const Ordermanage = () => {
     fetchOrders();
   }, []);
 
+  const updateRequestStatus = async (id, newStatus) => {
+    setLoading(true);
+    try {
+      // Log dữ liệu trước khi gửi
+      console.log("Updating status for ID:", id, "to new status:", newStatus);
+
+      const response = await fetchDataBearer({
+        url: `/order/update-order-status/${id}?orderStatus=${newStatus}`,
+        method: "PUT",
+      });
+
+      if (response && response.status === 200) {
+        message.success("Status updated successfully!");
+        fetchRequests(pagination.pageIndex); // Làm mới bảng sau khi cập nhật
+      } else {
+        const errorMessage =
+          response?.data?.message || "Failed to update status.";
+        message.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      message.error(
+        error.response?.data?.message ||
+          "Failed to update status. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
   // Filter data based on selected status
   useEffect(() => {
     if (filter === "All") {
@@ -106,7 +177,23 @@ const Ordermanage = () => {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: renderStatusTag,
+      render: (status, record) => (
+        <Space direction="vertical">
+          {renderStatusTag(status)}
+          <Select
+            style={{ width: 75, padding: 0 }}
+            placeholder="Update Status"
+            onChange={(newStatus) => updateRequestStatus(record.id, newStatus)}
+            defaultValue={status}
+          >
+            <Option value="Pending">Pending</Option>
+            <Option value="Processing">Processing</Option>
+            <Option value="Delivered">Delivered</Option>
+            <Option value="Completed">Completed</Option>
+            <Option value="Refunded">Refunded</Option>
+          </Select>
+        </Space>
+      ),
     },
     {
       title: "Receiver Phone",
@@ -132,10 +219,103 @@ const Ordermanage = () => {
       title: "Action",
       key: "action",
       render: (_, record) => (
-        <Button onClick={() => setSelectedOrder(record.order)}>View Details</Button>
+        <Button onClick={() => setSelectedOrder(record.order)}>
+          View Details
+        </Button>
       ),
     },
   ];
+
+  // Fetch requests by warehouseId
+  const fetchRequests = async (pageIndex = 0) => {
+    // if (!warehouseId) {
+    //   message.error("Please enter a Warehouse ID!");
+    //   return;
+    // }
+
+    setLoading(true);
+
+    try {
+      console.log(userInfor?.workAtWarehouseId);
+      const response = await fetchDataBearer({
+        url: `/order/get-warehouse-orders`,
+        method: "GET",
+        params: {
+          warehouseId: userInfor?.workAtWarehouseId,
+          pageIndex,
+          pageSize: pagination.pageSize,
+        },
+      });
+
+      if (response && response.data) {
+        const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
+          response.data;
+
+        setRequests(
+          items.map((item) => ({
+            key: item.id,
+            ...item,
+          }))
+        );
+
+        setPagination({
+          totalItemsCount,
+          pageSize,
+          totalPagesCount,
+          pageIndex,
+        });
+
+        message.success("Data loaded successfully!");
+      } else {
+        message.error("No data returned from the server.");
+      }
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+      message.error("Failed to fetch requests. Please check the Warehouse ID.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // const handleEmailSubmit = async () => {
+  //   if (!email) {
+  //     message.error("Please enter an email!");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetchDataBearer({
+  //       url: `/user/get-employee/${email}`,
+  //       method: "GET",
+  //     });
+
+  //     if (response && response.data) {
+  //       const {
+  //         workAtWarehouseId,
+  //         workAtWarehouseName,
+  //         lastName,
+  //         email: employeeEmail,
+  //       } = response.data;
+  //       setEmployeeDetails({
+  //         workAtWarehouseId,
+  //         workAtWarehouseName,
+  //         lastName,
+  //         email: employeeEmail,
+  //       });
+  //       message.success("Employee details fetched successfully!");
+  //     } else {
+  //       message.error("No data returned from the server.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching employee details:", error);
+  //     message.error(
+  //       "Failed to fetch employee details. Please check the email."
+  //     );
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Dropdown menu for filtering by status
   const statusMenu = (
@@ -150,7 +330,6 @@ const Ordermanage = () => {
       <Menu.Item key="Delivered">Delivered</Menu.Item>
       <Menu.Item key="Canceled">Canceled</Menu.Item>
       <Menu.Item key="Shipping">Shipping</Menu.Item>
-      <Menu.Item key="Draft">Draft</Menu.Item>
       <Menu.Item key="Returned">Returned</Menu.Item>
       <Menu.Item key="Refunded">Refunded</Menu.Item>
       <Menu.Item key="Completed">Completed</Menu.Item>
@@ -160,20 +339,76 @@ const Ordermanage = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h1>Order Management</h1>
-      <Space style={{ marginBottom: 16 }}>
-        <Dropdown overlay={statusMenu}>
-          <Button>
-            Filter by: {filter} <DownOutlined />
-          </Button>
-        </Dropdown>
-        <Input
-          prefix={<SearchOutlined />}
-          placeholder="Search for order"
-          style={{ width: 300 }}
+
+      <div className="flex items-center justify-between">
+        <Space
+          style={{
+            marginBottom: "20px",
+            display: "flex",
+            justifyContent: "flex-start",
+          }}
+        >
+          {/* <Input
+            placeholder="Enter Email"
+            style={{ width: 300 }}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Button type="primary" onClick={handleEmailSubmit} loading={loading}>
+            Submit Email
+          </Button> */}
+        </Space>
+        <Space style={{ marginBottom: 16 }}>
+          <Dropdown overlay={statusMenu}>
+            <Button>
+              Filter by: {filter} <DownOutlined />
+            </Button>
+          </Dropdown>
+          <Input
+            prefix={<SearchOutlined />}
+            placeholder="Search for order"
+            style={{ width: 300 }}
+          />
+        </Space>
+      </div>
+      {employeeDetails && (
+        <Table
+          dataSource={[{ key: 1, ...employeeDetails }]}
+          columns={[
+            {
+              title: "Warehouse ID",
+              dataIndex: "workAtWarehouseId",
+              key: "workAtWarehouseId",
+            },
+            {
+              title: "Warehouse Name",
+              dataIndex: "workAtWarehouseName",
+              key: "workAtWarehouseName",
+            },
+            {
+              title: "Last Name",
+              dataIndex: "lastName",
+              key: "lastName",
+            },
+            {
+              title: "Email",
+              dataIndex: "email",
+              key: "email",
+            },
+          ]}
+          pagination={false}
         />
-      </Space>
-      <Table
-        dataSource={filteredData}
+      )}
+
+      <Space
+        style={{
+          marginBottom: "20px",
+          display: "flex",
+          justifyContent: "flex-start",
+        }}
+      ></Space>
+      {/* <Table
+        dataSource={requests}
         columns={columns}
         loading={loading} // Show loading spinner while fetching data
         pagination={{
@@ -183,7 +418,20 @@ const Ordermanage = () => {
         rowSelection={{
           type: "checkbox",
         }}
+      /> */}
+      <Table
+        dataSource={data.filter((item) => item.status !== "Draft")} // Lọc bỏ Draft
+        columns={columns}
+        loading={loading}
+        pagination={{
+          pageSize: 10,
+          position: ["bottomCenter"],
+        }}
+        rowSelection={{
+          type: "checkbox",
+        }}
       />
+
       {selectedOrder && (
         <OrderDetailDrawer
           order={selectedOrder}

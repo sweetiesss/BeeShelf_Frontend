@@ -29,11 +29,18 @@ const AssignShipperForm = ({ open, onClose, onAssign }) => {
         ]);
 
         // Process batch and shipper data
-        setBatches(batchResponse.data.items.map((batch) => ({ id: batch.id, name: batch.name })));
-        setShippers(shipperResponse.data.items.map((shipper) => ({
-          id: shipper.employeeId,
-          email: shipper.email,
-        })));
+        setBatches(
+          batchResponse.data.items.map((batch) => ({
+            id: batch.id,
+            name: batch.name,
+          }))
+        );
+        setShippers(
+          shipperResponse.data.items.map((shipper) => ({
+            id: shipper.employeeId,
+            email: shipper.email,
+          }))
+        );
       } catch (error) {
         console.error("Error fetching options:", error);
         message.error("Failed to fetch options for assignment.");
@@ -73,12 +80,21 @@ const AssignShipperForm = ({ open, onClose, onAssign }) => {
         <Button key="cancel" onClick={onClose} disabled={loading}>
           Cancel
         </Button>,
-        <Button key="assign" type="primary" onClick={handleAssign} loading={loading}>
+        <Button
+          key="assign"
+          type="primary"
+          onClick={handleAssign}
+          loading={loading}
+        >
           Assign
         </Button>,
       ]}
     >
-      <Form form={form} layout="vertical" initialValues={{ shipperId: "", batchId: "" }}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={{ shipperId: "", batchId: "" }}
+      >
         <Form.Item
           label="Batch ID"
           name="batchId"
