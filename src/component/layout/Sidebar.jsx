@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   House,
   Warehouse,
@@ -16,6 +16,7 @@ export function Sidebar() {
   const [isSlideOut, setSlideOut] = useState(false);
   const { t } = useTranslation();
   const { userInfor } = useContext(AuthContext);
+  const location=useLocation();
   return (
     <div
       className={`${
