@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { Drawer, Input, Typography, Divider, List, Spin, Avatar, Button } from "antd";
+import {
+  Drawer,
+  Input,
+  Typography,
+  Divider,
+  List,
+  Spin,
+  Avatar,
+  Button,
+} from "antd";
 import useAxios from "../../../services/CustomizeAxios";
 import AssignShipperForm from "./AssignShipperForm"; // Import the AssignShipperForm component
 import { message } from "antd";
@@ -18,12 +27,19 @@ const Assign = () => {
       setIsLoading(true); // Start loading
       try {
         const response = await fetchDataBearer({
-          url: `/order/get-orders?descending=false&pageIndex=0&pageSize=1000`,
+          url: `/order/get-orders`,
           method: "GET",
+          params: {
+            descending: true, // Sort descending for newest first
+            pageIndex: 0,
+            pageSize: 1000,
+            sortBy: "CreateDate", // Sort by CreateDate
+          },
         });
         setOrders(response.data.items); // Save the data to state
       } catch (error) {
         console.error(error);
+        message.error("Failed to load orders!");
       } finally {
         setIsLoading(false); // End loading
       }
@@ -93,7 +109,18 @@ const Assign = () => {
         ) : (
           <div className="overflow-x-auto">
             <div className="flex space-x-4 w-max">
-              {["Draft", "Assigned", "Pending", "Processing", "Shipping", "Delivered", "Returned", "Refunded", "Completed", "Canceled"].map((status) => (
+              {[
+                "Draft",
+                "Assigned",
+                "Pending",
+                "Processing",
+                "Shipping",
+                "Delivered",
+                "Returned",
+                "Refunded",
+                "Completed",
+                "Canceled",
+              ].map((status) => (
                 <OrderColumn
                   key={status}
                   title={status}
@@ -116,11 +143,15 @@ export default Assign;
 // Add the other helper components like OrderColumn, OrderCard, and OrderDetailDrawer here
 const OrderDetailDrawer = ({ order, onClose, open }) => (
   <Drawer
-    title={<Typography.Title level={4} className="mb-0">Order Details</Typography.Title>}
+    title={
+      <Typography.Title level={4} className="mb-0">
+        Order Details
+      </Typography.Title>
+    }
     width={400}
     onClose={onClose}
     open={open}
-    bodyStyle={{ padding: '16px' }}
+    bodyStyle={{ padding: "16px" }}
     className="order-detail-drawer"
   >
     {order ? (
@@ -134,18 +165,28 @@ const OrderDetailDrawer = ({ order, onClose, open }) => (
           />
           <div className="ml-4">
             <h3 className="text-lg font-semibold text-gray-800">
-              {order.orderDetails[0]?.productName || "Unknown Product"} + {order.orderDetails.length - 1} more
+              {order.orderDetails[0]?.productName || "Unknown Product"} +{" "}
+              {order.orderDetails.length - 1} more
             </h3>
-            <span className="text-sm text-gray-500">{order.status || "Unassigned"}</span>
+            <span className="text-sm text-gray-500">
+              {order.status || "Unassigned"}
+            </span>
           </div>
         </div>
         <Typography.Title level={5} className="mt-4">
           Receiver details
         </Typography.Title>
         <Divider />
-        <p><strong>Receiver address:</strong> {order.receiverAddress}</p>
-        <p><strong>Receiver phone:</strong> {order.receiverPhone}</p>
-        <p><strong>Create date:</strong> {new Date(order.createDate).toLocaleDateString()}</p>
+        <p>
+          <strong>Receiver address:</strong> {order.receiverAddress}
+        </p>
+        <p>
+          <strong>Receiver phone:</strong> {order.receiverPhone}
+        </p>
+        <p>
+          <strong>Create date:</strong>{" "}
+          {new Date(order.createDate).toLocaleDateString()}
+        </p>
         <Typography.Title level={5} className="mt-4">
           Order details
         </Typography.Title>
@@ -180,9 +221,16 @@ const OrderDetailDrawer = ({ order, onClose, open }) => (
           Order fees
         </Typography.Title>
         <Divider />
-        <p><strong>Additional fee:</strong> ${order.orderFees[0]?.additionalFee || 0}</p>
-        <p><strong>Delivery fee:</strong> ${order.orderFees[0]?.deliveryFee || 0}</p>
-        <p><strong>Storage fee:</strong> ${order.orderFees[0]?.storageFee || 0}</p>
+        <p>
+          <strong>Additional fee:</strong> $
+          {order.orderFees[0]?.additionalFee || 0}
+        </p>
+        <p>
+          <strong>Delivery fee:</strong> ${order.orderFees[0]?.deliveryFee || 0}
+        </p>
+        <p>
+          <strong>Storage fee:</strong> ${order.orderFees[0]?.storageFee || 0}
+        </p>
         <div className="flex justify-end mt-6">
           <Button
             type="primary"
@@ -227,7 +275,13 @@ const getColorByStatus = (status) => {
       return "gray";
   }
 };
-const OrderColumn = ({ title, orders, color, onDetailClick, onAssignClick }) => (
+const OrderColumn = ({
+  title,
+  orders,
+  color,
+  onDetailClick,
+  onAssignClick,
+}) => (
   <div className="w-[344px] rounded-lg shadow-md p-4 bg-white">
     <div
       className={`text-${color}-800 font-bold text-lg flex justify-between items-center mb-4`}
@@ -301,11 +355,7 @@ const OrderCard = ({ order, onDetailClick, color, onAssignClick }) => (
       <p className="text-gray-400 text-xs">{order.shipper || "Shipper A"}</p>
     </div>
     <div className="flex flex-col space-y-2">
-      <Button
-        type="primary"
-        size="small"
-        onClick={() => onAssignClick(order)}
-      >
+      <Button type="primary" size="small" onClick={() => onAssignClick(order)}>
         Assign
       </Button>
       <InfoCircleOutlined

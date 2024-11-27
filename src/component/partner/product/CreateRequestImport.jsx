@@ -110,7 +110,7 @@ export default function CreateRequestImport({
   const handleReset = () => {};
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 over-detail-slider "></div>
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
       <div
         className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 h-fit flex flex-col over-detail-slider gap-10 w-[50vw]"
         style={{
@@ -132,9 +132,9 @@ export default function CreateRequestImport({
           >
             <option value={null}>Select Type of Request</option>
             <option value={"Import"}>Import products to warehouse</option>
-            <option value={"Export"}>Export products</option>
-            {/* <option value={null}>Withdrawn money</option>
-            <option value={null}>Others</option> */}
+            <option value={null}>Export products</option>
+            <option value={null}>Withdrawn money</option>
+            <option value={null}>Others</option>
           </select>
         )}
         {type === "Import" && (

@@ -4,60 +4,34 @@ import useAxiosBearer from "./CustomizeAxios";
 
 export default function AxiosWarehouse() {
   const { fetchDataBearer } = useAxiosBearer();
-  //   const createProductWithUserId = async (data) => {
-  //     try {
-  //       const fetching = fetchDataBearer({
-  //         url: `product/create-product  `,
-  //         method: "POST",
-  //         data: data,
-  //       });
-  //       await toast.promise(fetching, {
-  //         pending: "Request in progress...",
-  //         success: {
-  //           render() {
-  //             return `Product created`;
-  //           },
-  //         },
-  //         error: {
-  //           render({ data }) {
-  //             console.log("data Error", data.response.data.message);
-  //             return `${data.response.data.message || "Something went wrong!"}`;
-  //           },
-  //         },
-  //       });
-  //       return await fetching;
-  //     } catch (e) {
-  //       console.log(e);
-  //       return e;
-  //     }
-  //   };
-  //   const createProductsWithUserId = async (data) => {
-  //     try {
-  //       const fetching = fetchDataBearer({
-  //         url: `product/create-products`,
-  //         method: "POST",
-  //         data: data,
-  //       });
-  //       await toast.promise(fetching, {
-  //         pending: "Request in progress...",
-  //         success: {
-  //           render() {
-  //             return `Product created`;
-  //           },
-  //         },
-  //         error: {
-  //           render({ data }) {
-  //             console.log("data Error", data.response.data.message);
-  //             return `${data.response.data.message || "Something went wrong!"}`;
-  //           },
-  //         },
-  //       });
-  //       return await fetching;
-  //     } catch (e) {
-  //       console.log(e);
-  //       return e;
-  //     }
-  //   };
+
+  const createWarehouse = async (data) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `warehouse/create-warehouse`,
+        method: "POST",
+        data: data,
+      });
+      await toast.promise(fetching, {
+        pending: "Warehouse creating...",
+        success: {
+          render() {
+            return `Warehouse created`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
 
   const getWarehouses = async (
     search,
@@ -109,6 +83,69 @@ export default function AxiosWarehouse() {
       return e;
     }
   };
+  const assignStaff = async (warehouseId, staffId) => {
+    try {
+      const submitForm = [
+        {
+          employeeId: staffId,
+          warehouseId: warehouseId,
+        },
+      ];
+      console.log(submitForm);
+      
+      const fetching = fetchDataBearer({
+        url: `warehouse/add-staffs-to-warehouse`,
+        method: "POST",
+        data: submitForm, // Array of staff IDs to assign
+      });
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `Delete data successfully `;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return fetching;
+    } catch (e) {
+      console.error("Error assigning staff:", e);
+      return e;
+    }
+  };
+  const assignShipper = async (shipperIds) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `warehouse/add-shippers-to-warehouse`,
+        method: "POST",
+        data: shipperIds, // Array of staff IDs to assign
+      });
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `Delete data successfully `;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return fetching;
+    } catch (e) {
+      console.error("Error assigning staff:", e);
+      return e;
+    }
+  };
+
   const deleteProductById = async (productId) => {
     try {
       const fetching = fetchDataBearer({
@@ -163,8 +200,11 @@ export default function AxiosWarehouse() {
     }
   };
   return {
+    createWarehouse,
     getWarehouseByUserId,
     getWarehouses,
     getWarehouseById,
+    assignStaff,
+    assignShipper,
   };
 }
