@@ -49,6 +49,10 @@ export default function CreateOrderPage() {
     filterWarehouse();
   }, [warehouse]);
 
+  console.log("t",window.process.env.REACT_APP_MAP_API_KEY);
+  console.log("t",process.env.REACT_APP_MAP_API_KEY);
+  
+
   useEffect(() => {
     if (inventories) {
       const uniqueWarehouses = Array.from(
