@@ -169,7 +169,7 @@ const Ordermanage = () => {
     },
     {
       title: "Partner Email",
-      dataIndex: "partner_email",
+      dataIndex: "orderName",
       key: "orderName",
       render: (text) => <span>{text}</span>,
     },
@@ -207,7 +207,7 @@ const Ordermanage = () => {
     },
     {
       title: "Date",
-      dataIndex: "createDate",
+      dataIndex: "date",
       key: "date",
     },
     {
