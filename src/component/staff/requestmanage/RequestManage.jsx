@@ -29,11 +29,55 @@ const RequestManagement = () => {
 
   
   // Fetch requests by warehouseId
+  // const fetchRequests = async (pageIndex = 0) => {
+  //   setLoading(true);
+  //   try {
+  //     console.log(userInfor?.workAtWarehouseId);
+
+  //     const response = await fetchDataBearer({
+  //       url: `/request/get-requests`,
+  //       method: "GET",
+  //       params: {
+  //         warehouseId: userInfor?.workAtWarehouseId,
+  //         pageIndex,
+  //         pageSize: pagination.pageSize,
+  //       },
+  //     });
+
+  //     if (response && response.data) {
+  //       const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
+  //         response.data;
+
+  //       setRequests(
+  //         items.map((item) => ({
+  //           key: item.id,
+  //           ...item,
+  //         }))
+  //       );
+
+  //       setPagination({
+  //         totalItemsCount,
+  //         pageSize,
+  //         totalPagesCount,
+  //         pageIndex,
+  //       });
+
+  //       message.success("Data loaded successfully!");
+  //     } else {
+  //       message.error("No data returned from the server.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching requests:", error);
+  //     message.error("Failed to fetch requests. Please check the Warehouse ID.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const fetchRequests = async (pageIndex = 0) => {
     setLoading(true);
     try {
       console.log(userInfor?.workAtWarehouseId);
-
+  
       const response = await fetchDataBearer({
         url: `/request/get-requests`,
         method: "GET",
@@ -43,25 +87,28 @@ const RequestManagement = () => {
           pageSize: pagination.pageSize,
         },
       });
-
+  
       if (response && response.data) {
         const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
           response.data;
-
+  
+        // Lọc các yêu cầu không có trạng thái Draft
+        const filteredItems = items.filter((item) => item.status !== "Draft");
+  
         setRequests(
-          items.map((item) => ({
+          filteredItems.map((item) => ({
             key: item.id,
             ...item,
           }))
         );
-
+  
         setPagination({
           totalItemsCount,
           pageSize,
           totalPagesCount,
           pageIndex,
         });
-
+  
         message.success("Data loaded successfully!");
       } else {
         message.error("No data returned from the server.");
@@ -73,6 +120,7 @@ const RequestManagement = () => {
       setLoading(false);
     }
   };
+  
 
   const handlePageChange = (page) => {
     fetchRequests(page - 1);

@@ -28,7 +28,6 @@ const Ordermanage = () => {
   const [selectedOrder, setSelectedOrder] = useState(null); // Selected order for drawer
   const { fetchDataBearer } = useAxios(); // Custom Axios hook
 
-
   const [warehouseId, setWarehouseId] = useState("");
   const [requests, setRequests] = useState([]);
   const [pagination, setPagination] = useState({
@@ -45,7 +44,7 @@ const Ordermanage = () => {
   }, []);
 
   // Fetch data from API
-  useEffect((pageIndex =0 ) => {
+  useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true); // Start loading
       try {
@@ -55,20 +54,24 @@ const Ordermanage = () => {
           method: "GET",
           params: {
             warehouseId: userInfor?.workAtWarehouseId,
-            pageIndex,
+            pageIndex: 0,
             pageSize: pagination.pageSize,
           },
         });
-        const formattedData = response.data.items.map((item) => ({
-          key: item.id, // Unique key for table row
-          order: item, // Store full order data
-          orderName: item.partner_email, // Use partner email as the "order name"
-          status: item.status,
-          receiverPhone: item.receiverPhone,
-          receiverAddress: item.receiverAddress,
-          date: item.createDate.split("T")[0], // Extract date from ISO format
-          totalPrice: `$${item.totalPrice}`, // Format total price
-        }));
+
+        const formattedData = response.data.items
+          .filter((item) => item.status !== "Draft") // Lọc bỏ trạng thái Draft
+          .map((item) => ({
+            key: item.id, // Unique key for table row
+            order: item, // Store full order data
+            orderName: item.partner_email, // Use partner email as the "order name"
+            status: item.status,
+            receiverPhone: item.receiverPhone,
+            receiverAddress: item.receiverAddress,
+            date: item.createDate.split("T")[0], // Extract date from ISO format
+            totalPrice: `$${item.totalPrice}`, // Format total price
+          }));
+
         setData(formattedData);
         setFilteredData(formattedData); // Initialize filtered data
       } catch (error) {
@@ -82,7 +85,6 @@ const Ordermanage = () => {
   }, []);
 
   const updateRequestStatus = async (id, newStatus) => {
-
     setLoading(true);
     try {
       // Log dữ liệu trước khi gửi
@@ -328,7 +330,6 @@ const Ordermanage = () => {
       <Menu.Item key="Delivered">Delivered</Menu.Item>
       <Menu.Item key="Canceled">Canceled</Menu.Item>
       <Menu.Item key="Shipping">Shipping</Menu.Item>
-      <Menu.Item key="Draft">Draft</Menu.Item>
       <Menu.Item key="Returned">Returned</Menu.Item>
       <Menu.Item key="Refunded">Refunded</Menu.Item>
       <Menu.Item key="Completed">Completed</Menu.Item>
@@ -405,11 +406,8 @@ const Ordermanage = () => {
           display: "flex",
           justifyContent: "flex-start",
         }}
-      >
-   
-
-      </Space>
-      <Table
+      ></Space>
+      {/* <Table
         dataSource={requests}
         columns={columns}
         loading={loading} // Show loading spinner while fetching data
@@ -420,7 +418,20 @@ const Ordermanage = () => {
         rowSelection={{
           type: "checkbox",
         }}
+      /> */}
+      <Table
+        dataSource={data.filter((item) => item.status !== "Draft")} // Lọc bỏ Draft
+        columns={columns}
+        loading={loading}
+        pagination={{
+          pageSize: 10,
+          position: ["bottomCenter"],
+        }}
+        rowSelection={{
+          type: "checkbox",
+        }}
       />
+
       {selectedOrder && (
         <OrderDetailDrawer
           order={selectedOrder}
