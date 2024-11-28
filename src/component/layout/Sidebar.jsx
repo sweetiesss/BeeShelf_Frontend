@@ -121,12 +121,12 @@ export function Sidebar() {
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
-            <NavLink to="batchflow" className="flex navigate-menu">
+            {/* <NavLink to="batchflow" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Package className="icon" weight="fill" />
                 <p className="label">{t("Create Batch")}</p>
               </div>
-            </NavLink>
+            </NavLink> */}
             <NavLink to="batchflow" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Package className="icon" weight="fill" />
