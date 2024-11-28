@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
-  const { i18n, t } = useTranslation();
+  const {  t } = useTranslation();
 
   const nav = useNavigate();
   return (
@@ -197,12 +197,12 @@ export default function HomePage() {
           </div>
         </div>
         <div className="flex-col justify-start items-center gap-3 flex mouse">
-          <div className="w-[38px] h-[62px] relative ">
+          <div className="w-[38px] h-[50px] relative ">
             <div className="w-[38px] h-[62px] left-0 top-0 absolute rounded-2xl border border-[#86dcbb]" />
             <div className="w-1 h-4 left-[17px] top-[17px] absolute bg-[#0db977] rounded-[14px]" />
           </div>
           <div className="flex-col justify-start items-center gap-[5px] flex">
-            <div className="text-[#0db977] text-sm font-semibold font-['Lexend']">
+            <div className="text-[#0db977] text-sm font-semibold font-['Lexend'] mt-4">
               {t("SCROLLTOEXPLORE")}
             </div>
             <div></div>

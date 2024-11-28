@@ -1,8 +1,10 @@
+import { EnvelopeSimple, MapPin, Phone } from "@phosphor-icons/react";
+
 export default function ContactPage() {
   return (
     <>
       <div className="w-[1920px] h-[55vh] px-[300px] pt-16 pb-[130px] justify-start items-start gap-6 inline-flex">
-        <div className="w-[648px] flex-col justify-start items-start gap-12 inline-flex">
+        <div className="w-[648px] flex-col justify-start items-start gap-12 inline-flex mt-[4rem]">
           <div className="self-stretch h-40 flex-col justify-start items-start gap-8 flex">
             <div className="self-stretch h-[78px] flex-col justify-start items-start gap-2 flex">
               <div className="self-stretch text-[#0db977] text-xl font-semibold font-['Lexend']">
@@ -18,13 +20,11 @@ export default function ContactPage() {
             </div>
           </div>
           <div className="w-[424px] h-[47px] relative">
-            <div className="w-[424px] px-[18px] py-3 left-0 top-0 absolute rounded-[15px] border border-[#848a9f] justify-start items-center gap-2 inline-flex">
+            <div className="w-[424px] pl-[18px] pr-[10px] py-3 left-0 top-0 absolute rounded-[15px] border border-[#848a9f] justify-between items-center gap-2 inline-flex">
               <div className="text-[#adb1bf] text-lg font-normal font-['Lexend']">
                 Enter your email
               </div>
-            </div>
-            <div className="w-[123px] left-[301px] top-0 absolute justify-start items-start inline-flex">
-              <div className="grow shrink basis-0 h-[47px] px-[18px] py-3 bg-[#0db977] rounded-[15px] justify-center items-center gap-2 flex">
+              <div className="px-14 h-[48px] w-[4rem] py-2 bg-[#0db977] rounded-[15px] justify-center items-center gap-2 flex">
                 <div className="text-white text-lg font-normal font-['Lexend']">
                   Submit
                 </div>
@@ -32,7 +32,7 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
-        <div className="w-[648px] pt-11 flex-col justify-start items-start gap-12 inline-flex">
+        <div className="w-[648px] pt-11 flex-col justify-start items-start gap-12 inline-flex mt-[4rem]">
           <div className="self-stretch text-[#091540] text-xl font-semibold font-['Lexend']">
             Maybe your question is have been answer, check this out.
           </div>
@@ -69,34 +69,34 @@ export default function ContactPage() {
                   <div className="w-[31.78px] h-[14.58px] left-[8.45px] top-0 absolute"></div>
                 </div>
               </div>
-              <div className="w-[133.82px] text-[#aee7d1] text-[35.17px] font-black font-['SVN-Neue Helvetica']">
+              <div className="w-[133.82px] text-white text-[35.17px] font-black font-['SVN-Neue Helvetica']">
                 BeeShelf
               </div>
             </div>
-            <div className="w-[312px] text-white text-lg font-normal font-['Lexend']">
+            <div className="w-[400px] text-[#aee7d1] text-lg font-normal font-['Lexend']">
               Một dịch vụ cung cấp các công cụ để người dùng quản lý sản phẩm,
-              đơn hàng.{" "}
+              đơn hàng.
             </div>
           </div>
-          <div className="w-[310px] flex-col justify-center items-start gap-8 inline-flex">
+          <div className=" flex-col justify-center items-start gap-8 inline-flex">
             <div className="text-white text-xl font-semibold font-['Lexend']">
               Contact information
             </div>
             <div className="self-stretch h-[140px] flex-col justify-start items-start gap-6 flex">
               <div className="self-stretch justify-start items-center gap-2 inline-flex">
-                <div className="w-5 h-5 relative" />
+                <Phone className="text-[#aee7d1] text-3xl" />
                 <div className="text-right text-[#aee7d1] text-lg font-normal font-['Lexend']">
                   0123 312 234
                 </div>
               </div>
               <div className="self-stretch justify-start items-center gap-2 inline-flex">
-                <div className="w-5 h-5 relative" />
+                <EnvelopeSimple className="text-[#aee7d1] text-3xl" />
                 <div className="text-right text-[#aee7d1] text-lg font-normal font-['Lexend']">
                   beeshelf@example.com
                 </div>
               </div>
               <div className="self-stretch justify-start items-start gap-2 inline-flex">
-                <div className="w-5 h-5 relative" />
+                <MapPin className="text-[#aee7d1] text-3xl" />
                 <div className="grow shrink basis-0 text-[#aee7d1] text-lg font-normal font-['Lexend']">
                   Lô E2a-7, Đường D1, Đ. D1, Long Thạnh Mỹ, Thủ Đức, TP.HCM
                 </div>
@@ -104,8 +104,8 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
-        <div className="text-[#86dcbb] text-lg font-normal font-['Karla'] leading-[27px]">
-          © 2024 BeeShelf. All rights reserved.
+        <div className="text-[#86dcbb] text-lg font-normal leading-[27px] items-center text-center">
+         <span className="text-2xl"> ©</span> 2024 BeeShelf. All rights reserved.
         </div>
       </div>
     </>
