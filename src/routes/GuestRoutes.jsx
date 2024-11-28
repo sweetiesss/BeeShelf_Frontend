@@ -10,12 +10,7 @@ import LoginAndSignInPage from "../pages/guest/LoginAndSignInPage";
 export default function GuestRoutes() {
   return (
       <Routes>
-        <Route path="/*" element={<LayoutGuest />}>
-          <Route index path="about" element={<HomePage />} />
-          <Route path="service" element={<ServicePage />} />
-          <Route path="contact" element={<ContactPage />} />
-          <Route path="package" element={<PackagePage />} />
-        </Route>
+        <Route path="" index element={<LayoutGuest />}/>
         <Route path="/authorize/signin" element={<LoginAndSignInPage toAction="Login"/>} />
         <Route path="/authorize/forgot-password" element={<LoginAndSignInPage toAction="Forgotpassword"/>} />
         <Route path="/reset-password" element={<LoginAndSignInPage toAction="Forgotpassword"/>} />
