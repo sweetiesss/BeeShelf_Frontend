@@ -14,7 +14,10 @@ export default function AxiosOthers() {
   };
   const getProvinces = async () => {
     try {
-      const fetching = await axios.get("https://vn-public-apis.fpo.vn/provinces/getAll?limit=-1");
+      const fetching = await fetchData({
+        url:"partner/get-provinces",
+        method:"GET"
+      });
       return fetching;
     } catch (e) {
       console.log(e);

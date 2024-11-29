@@ -64,6 +64,7 @@ export default function SignUp({ setAction }) {
       if (!form?.firstName) {
         formErrors.firstName = "First name is required.";
       }
+
       if (!form?.lastName) {
         formErrors.lastName = "Last name is required.";
       }
@@ -697,7 +698,6 @@ export default function SignUp({ setAction }) {
                         className="flex justify-between"
                       >
                         <span>{province?.subDivisionName}</span>
-                        <span>{province?.code}</span>
                       </option>
                     ))}
                   </select>
