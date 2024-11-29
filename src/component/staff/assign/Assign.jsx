@@ -11,7 +11,7 @@ import {
   Button,
 } from "antd";
 import useAxios from "../../../services/CustomizeAxios";
-import AssignShipperForm from "./AssignShipperForm"; // Import the AssignShipperForm component
+// import AssignShipperForm from "./AssignShipperForm"; // Import the AssignShipperForm component
 import { message } from "antd";
 
 const Assign = () => {
@@ -81,12 +81,12 @@ const Assign = () => {
   return (
     <div className="bg-white p-6">
       {/* Assign Shipper Modal */}
-      <AssignShipperForm
+      {/* <AssignShipperForm
         open={assignModalVisible}
         onClose={() => setAssignModalVisible(false)}
         orderId={selectedOrder?.id}
         onAssign={handleAssign}
-      />
+      /> */}
 
       {/* Drawer for displaying detailed order information */}
       <OrderDetailDrawer order={selectedOrder} onClose={onClose} open={open} />
@@ -231,7 +231,7 @@ const OrderDetailDrawer = ({ order, onClose, open }) => (
         <p>
           <strong>Storage fee:</strong> ${order.orderFees[0]?.storageFee || 0}
         </p>
-        <div className="flex justify-end mt-6">
+        {/* <div className="flex justify-end mt-6">
           <Button
             type="primary"
             style={{
@@ -242,7 +242,7 @@ const OrderDetailDrawer = ({ order, onClose, open }) => (
           >
             Assign
           </Button>
-        </div>
+        </div> */}
       </>
     ) : (
       <div className="flex justify-center items-center h-full">
@@ -355,9 +355,9 @@ const OrderCard = ({ order, onDetailClick, color, onAssignClick }) => (
       <p className="text-gray-400 text-xs">{order.shipper || "Shipper A"}</p>
     </div>
     <div className="flex flex-col space-y-2">
-      <Button type="primary" size="small" onClick={() => onAssignClick(order)}>
+      {/* <Button type="primary" size="small" onClick={() => onAssignClick(order)}>
         Assign
-      </Button>
+      </Button> */}
       <InfoCircleOutlined
         className="text-gray-400 hover:text-gray-600 cursor-pointer"
         onClick={() => onDetailClick(order)}

@@ -8,6 +8,7 @@ import Inventory from "../pages/staff/InventoryStaff";
 import Ordermanage from "../component/staff/ordermanage/Ordermanage";
 import Batch from "../component/staff/batchflow/Batch";
 import RequestManagement from "../component/staff/requestmanage/RequestManage";
+import Payment from "../component/staff/payment/Payment";
 
 export default function StaffRoutes() {
   const { dataDetail, typeDetail } = useDetail();  
@@ -23,7 +24,10 @@ export default function StaffRoutes() {
         <Route path="ordermanage" element={<Ordermanage/>} />
         <Route path="batchflow" element={<Batch/>}/>
          <Route path="requestmanage" element={<RequestManagement/>}/>
+         <Route path="payment" element={<Payment/>}/>
+         
         </Route>
+        {/* <Route path="payment" element={<Payment/>}/> */}
       </Routes>
     </div>
   );
