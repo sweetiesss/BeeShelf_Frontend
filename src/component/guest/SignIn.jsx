@@ -9,12 +9,11 @@ import ggIcon from "../../assets/img/googleIcon.png";
 export default function SignIn({ action, setAction }) {
   const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({});
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState();
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
 
-  const { setIsAuthenticated, setUserInfor, handleLogin } =
-    useContext(AuthContext);
+  const { handleLogin } = useContext(AuthContext);
   const { loginByEmailPassword } = AxiosUser();
 
   const handleInput = (e) => {
@@ -25,21 +24,58 @@ export default function SignIn({ action, setAction }) {
   const checkLogin = async () => {
     try {
       setLoading(true);
-      const findData = await loginByEmailPassword(form);
-      console.log("here", findData);
-      if (findData && typeof findData === "object") {
-        console.log("userInfor", findData);
-        handleLogin(findData, rememberMe);
-        nav("/" + findData?.roleName);
-      } else {
-        console.log(rememberMe);
-        console.log("sign in", findData);
-        setError(findData);
+      const checkValidate = validateForm();
+      if (checkValidate) {
+        const findData = await loginByEmailPassword(form);
+        console.log("here", findData);
+        if (findData) {
+          if (findData?.status === 200) {
+            console.log("userInfor", findData?.data);
+            handleLogin(findData?.data, rememberMe);
+            nav("/" + findData?.data?.roleName);
+            // } else {
+            //   console.log(rememberMe);
+            //   console.log("sign in", findData);
+            //   setErrors((prev) => ({ ...prev, others: "not found" }));
+            // }
+          } else {
+            console.log("here2");
+
+            console.log(findData?.response?.data?.message);
+
+            const resultError = findData?.response?.data?.message;
+            console.log(resultError);
+            if (
+              resultError.replace(/\s+/g, "").toLowerCase().includes("password")
+            ) {
+              setErrors((prev) => ({ ...prev, password: resultError }));
+            }
+            if (
+              resultError.replace(/\s+/g, "").toLowerCase().includes("email")
+            ) {
+              setErrors((prev) => ({ ...prev, email: resultError }));
+            }
+          }
+        }
       }
     } catch (ex) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const validateForm = () => {
+    let formErrors = {};
+
+    if (!form?.email || !/\S+@\S+\.\S+/.test(form.email)) {
+      formErrors.email = "Please enter a valid email address.";
+    }
+    if (!form?.password) {
+      formErrors.password = "Please enter password.";
+    }
+
+    setErrors(formErrors);
+    return Object.keys(formErrors).length === 0;
   };
 
   const loginByGoogle = useGoogleLogin({
@@ -54,9 +90,11 @@ export default function SignIn({ action, setAction }) {
           Enter your email and password to login
         </p>
       </header>
-      {error !== "" && <div>{error}</div>}
       <div className="flex flex-col space-y-5 mt-[4rem]">
         <div>
+          {errors?.email && (
+            <p className="text-red-500 text-lg font-medium">{errors?.email}</p>
+          )}
           <div
             className={`flex items-center border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
               form?.email
@@ -78,7 +116,11 @@ export default function SignIn({ action, setAction }) {
           </div>
         </div>
         <div>
-          <div className="flex justify-between"></div>
+          {errors?.password && (
+            <p className="text-red-500 text-lg font-medium">
+              {errors?.password}
+            </p>
+          )}
           <div
             className={`flex items-center border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
               form?.password
@@ -114,7 +156,10 @@ export default function SignIn({ action, setAction }) {
             <label className=" cursor-pointer text-black">Remember me</label>
           </div>
           <button
-            onClick={() => {nav("/authorize/forgot-password"); setAction("Forgotpassword")}}
+            onClick={() => {
+              nav("/authorize/forgot-password");
+              setAction("Forgotpassword");
+            }}
             className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
           >
             Forgot password?
@@ -178,7 +223,10 @@ export default function SignIn({ action, setAction }) {
         <div className="flex justify-center">
           <p className="text-[#848a9f] mr-2">Don’t have an account?</p>{" "}
           <button
-            onClick={() => {nav("/authorize/signup"); setAction("SignUp")}}
+            onClick={() => {
+              nav("/authorize/signup");
+              setAction("SignUp");
+            }}
             className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
           >
             Create account

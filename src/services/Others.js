@@ -12,6 +12,16 @@ export default function AxiosOthers() {
       return e;
     }
   };
+  const getProvinces = async () => {
+    try {
+      const fetching = await axios.get("https://vn-public-apis.fpo.vn/provinces/getAll?limit=-1");
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
+
   const getOcopCategoryBy100 = async (pageIndex = 0, size = 100) => {
     try {
       const queryParams = new URLSearchParams();
@@ -30,5 +40,5 @@ export default function AxiosOthers() {
     }
   };
 
-  return { getBanks,getOcopCategoryBy100 };
+  return { getBanks, getOcopCategoryBy100, getProvinces };
 }

@@ -23,11 +23,26 @@ export default function AxiosUser() {
   };
   const requestGetEmployeeByEmail = async (email, token) => {
     try {
-      const fetching = await fetchData({
+      const fetching =  fetchData({
         url: `user/get-employee/${email}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
+        },
+      });
+      await toast.promise(fetchData, {
+        pending: "Request in progress...",
+        success: {
+          render({ data }) {
+            "Welcome back ";
+          },
+        },
+        error: {
+          render({ data }) {
+            return `${
+              data?.response?.data?.message || "Something went wrong!"
+            }`;
+          },
         },
       });
       return fetching;
@@ -37,12 +52,26 @@ export default function AxiosUser() {
   };
   const getAuth = async (data) => {
     try {
-      const fetching = await fetchData({
+      const fetching = fetchData({
         url: "auth/login",
         method: "POST",
         data: data,
       });
-      console.log("getAuth", fetching);
+      await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return "Correct email and password!";
+          },
+        },
+        error: {
+          render({ data }) {
+            return `${
+              data?.response?.data?.message || "Something went wrong!"
+            }`;
+          },
+        },
+      });
 
       return fetching;
     } catch (error) {
@@ -54,90 +83,56 @@ export default function AxiosUser() {
     try {
       let name = "";
       let nameEmployee = "";
-      const fetching = async () => {
-        const getToken = await getAuth(data);
-        console.log("getToken", getToken);
+      const getToken = await getAuth(data);
+      if (getToken && getToken?.status === 200) {
+        if (getToken?.data && getToken?.data.length > 0) {
+          const successDataToken = getToken?.data;
+          const objectCheck = jwtDecode(successDataToken);
+          console.log("check", objectCheck);
 
-        if (getToken && getToken?.status === 200) {
-          if (getToken?.data && getToken?.data.length > 0) {
-            const successDataToken = getToken?.data;
-            const objectCheck = jwtDecode(successDataToken);
-            console.log("check", objectCheck);
-
-            setIsAuthenticated(successDataToken);
-            // const getAccount = await requestGetUserByEmail(
-            //   data.email,
-            //   successDataToken
-            // );
-            // if (getAccount && getAccount?.status === 200 && getAccount?.data) {
-            //   name = getAccount.data?.lastName;
-            //   return getAccount.data;
-            // }
-            if (
-              objectCheck &&
+          setIsAuthenticated(successDataToken);
+          if (
+            objectCheck &&
+            objectCheck?.[
+              "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            ] === "Partner"
+          ) {
+            const getAccount = await requestGetUserByEmail(
+              data.email,
+              successDataToken
+            );
+            console.log(getAccount);
+            if (getAccount && getAccount?.status === 200 && getAccount?.data) {
+              name = getAccount.data?.lastName;
+              return getAccount;
+            }
+          } else if (
+            objectCheck &&
+            (objectCheck?.[
+              "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            ] === "Staff" ||
               objectCheck?.[
                 "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-              ] === "Partner"
+              ] === "Manager")
+          ) {
+            const getEmployeeAccount = await requestGetEmployeeByEmail(
+              data.email,
+              successDataToken
+            );
+            if (
+              getEmployeeAccount &&
+              getEmployeeAccount?.status === 200 &&
+              getEmployeeAccount?.data
             ) {
-              const getAccount = await requestGetUserByEmail(
-                data.email,
-                successDataToken
-              );
-              if (
-                getAccount &&
-                getAccount?.status === 200 &&
-                getAccount?.data
-              ) {
-                name = getAccount.data?.lastName;
-                return getAccount.data;
-              }
-            } else if (
-              objectCheck &&
-              (objectCheck?.[
-                "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-              ] === "Staff" ||
-                objectCheck?.[
-                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                ] === "Manager")
-            ) {
-              const getEmployeeAccount = await requestGetEmployeeByEmail(
-                data.email,
-                successDataToken
-              );
-              if (
-                getEmployeeAccount &&
-                getEmployeeAccount?.status === 200 &&
-                getEmployeeAccount?.data
-              ) {
-                name = getEmployeeAccount.data?.lastName;
-                return getEmployeeAccount.data;
-              }
+              name = getEmployeeAccount.data?.lastName;
+              return getEmployeeAccount;
             }
-            throw new Error("Unable to fetch account details.");
           }
+          throw new Error("Unable to fetch account details.");
         }
+      }
 
-        throw new Error(
-          getToken?.response?.data?.errors?.password?.[0] ||
-            getToken?.response?.data?.message ||
-            "Authentication failed."
-        );
-      };
-
-      const result = await toast.promise(fetching(), {
-        pending: "Request in progress...",
-        success: {
-          render() {
-            return `Welcome back ${name || nameEmployee}`;
-          },
-        },
-        error: {
-          render({ data }) {
-            return `${data?.message || "Something went wrong!"}`;
-          },
-        },
-      });
-      return result;
+      return getToken;
     } catch (e) {
       return Promise.reject(e);
     }
