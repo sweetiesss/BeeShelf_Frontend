@@ -79,7 +79,6 @@ export default function ForgotPassword({ setAction }) {
       setLoading(false);
     }
   };
-  console.log(error);
 
   return (
     <div className="w-full p-4  overflow-hidden relative bg-white h-full">

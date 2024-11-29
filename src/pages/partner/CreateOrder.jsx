@@ -7,6 +7,7 @@ import Mapping from "../../component/shared/Mapping";
 import AxiosOrder from "../../services/Order";
 import AxiosWarehouse from "../../services/Warehouse";
 import { toast } from "react-toastify";
+import AxiosOthers from "../../services/Others";
 
 export default function CreateOrderPage() {
   const { t } = useTranslation();
@@ -14,6 +15,7 @@ export default function CreateOrderPage() {
   const { getAllProduct } = AxiosPartner();
   const { createOrder } = AxiosOrder();
   const { getWarehouseById } = AxiosWarehouse();
+  const { getAddressProvincesStressWard } = AxiosOthers();
 
   const [inventories, setInventories] = useState();
   const [inventoriesShowList, setInventoriesShowList] = useState();
@@ -22,6 +24,13 @@ export default function CreateOrderPage() {
   const [step, setStep] = useState(1);
   const [distance, setDistance] = useState(null); // State for storing calculated distance
   const [item, setItem] = useState({ productId: null, productAmount: null });
+
+  const [provinceList, setProvinencesList] = useState();
+  const [province, setProvinences] = useState(0);
+  const [strictList, setStrictList] = useState();
+  const [strict, setStrict] = useState(0);
+  const [wardList, setWardList] = useState();
+  const [ward, setWard] = useState(0);
 
   const [warehouses, setWarehouses] = useState();
   const [warehouse, setWarehouse] = useState();
@@ -37,7 +46,35 @@ export default function CreateOrderPage() {
 
   useEffect(() => {
     getProductsInWareHouse();
+    getProvinces();
   }, []);
+
+  useEffect(() => {
+    getDistricts();
+  }, [province]);
+  useEffect(() => {
+    getWard();
+  }, [strict]);
+
+  const getProvinces = async () => {
+    const result = await getAddressProvincesStressWard(1, 0);
+    setProvinencesList(result?.data?.data);
+    console.log(result);
+  };
+  const getDistricts = async () => {
+    if (province !== 0 && province) {
+      const result = await getAddressProvincesStressWard(2, province);
+      setStrictList(result?.data?.data);
+      console.log("district", result);
+    }
+  };
+  const getWard = async () => {
+    if (strict !== 0 && strict) {
+      const result = await getAddressProvincesStressWard(3, strict);
+      setWardList(result?.data?.data);
+      console.log("ward", result);
+    }
+  };
 
   useEffect(() => {
     if (form.receiverAddress) {
@@ -49,8 +86,7 @@ export default function CreateOrderPage() {
     filterWarehouse();
   }, [warehouse]);
 
-  console.log("t",process.env.REACT_APP_MAP_API_KEY);
-  
+  console.log("t", process.env.REACT_APP_MAP_API_KEY);
 
   useEffect(() => {
     if (inventories) {
@@ -207,6 +243,8 @@ export default function CreateOrderPage() {
     }
   };
 
+  console.log(province);
+
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
       <div className="flex gap-40 h-full text-lg">
@@ -232,14 +270,28 @@ export default function CreateOrderPage() {
             <label className="block  font-medium text-gray-700">
               {t("Receiver Address")}
             </label>
-            <input
-              type="text"
-              name="receiverAddress"
-              value={form.receiverAddress}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 border-b-2 focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
-              required
-            />
+
+            <select
+              value={province}
+              onChange={(e) => setProvinences(e.target.value)}
+            >
+              <option value={0}>Select Province</option>
+              {provinceList?.map((pro) => (
+                <option value={pro?.id}>{pro?.full_name}</option>
+              ))}
+            </select>
+            <select value={strict} onChange={(e) => setStrict(e.target.value)}>
+              <option value={0}>Select Districts</option>
+              {strictList?.map((pro) => (
+                <option value={pro?.id}>{pro?.full_name}</option>
+              ))}
+            </select>
+            <select value={ward} onChange={(e) => setWard(e.target.value)}>
+              <option value={0}>Select Ward</option>
+              {wardList?.map((pro) => (
+                <option value={pro?.id}>{pro?.full_name}</option>
+              ))}
+            </select>
           </div>
           <div className="space-y-6 w-full">
             <h2 className="text-lg font-semibold">{t("OrderInformation")}</h2>
@@ -337,7 +389,9 @@ export default function CreateOrderPage() {
             <button
               type="button"
               onClick={() => {
-                setForm(baseForm);setItem({productId:0,productAmount:0});setWarehouse(0)
+                setForm(baseForm);
+                setItem({ productId: 0, productAmount: 0 });
+                setWarehouse(0);
               }} // Reset form
               className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md shadow hover:bg-gray-300 transition"
             >

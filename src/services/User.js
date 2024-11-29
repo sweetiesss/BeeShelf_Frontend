@@ -23,26 +23,11 @@ export default function AxiosUser() {
   };
   const requestGetEmployeeByEmail = async (email, token) => {
     try {
-      const fetching =  fetchData({
+      const fetching = await fetchData({
         url: `user/get-employee/${email}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
-        },
-      });
-      await toast.promise(fetchData, {
-        pending: "Request in progress...",
-        success: {
-          render({ data }) {
-            "Welcome back ";
-          },
-        },
-        error: {
-          render({ data }) {
-            return `${
-              data?.response?.data?.message || "Something went wrong!"
-            }`;
-          },
         },
       });
       return fetching;
