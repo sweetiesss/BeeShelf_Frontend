@@ -9,7 +9,6 @@ import {
 } from "react";
 import AxiosOthers from "../services/Others";
 
-
 export const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
@@ -31,16 +30,18 @@ export function AuthProvider({ children }) {
   });
   const [authWallet, setAuthWallet] = useState();
   const [banksList, setBanksList] = useState();
+  const [provinces, setProvinences] = useState();
   const [ocopCategoriesList, setOcopCategoriesList] = useState();
 
   const { getBanks } = AxiosOthers();
-  const { getOcopCategoryBy100 } = AxiosOthers();
+  const { getOcopCategoryBy100, getProvinces } = AxiosOthers();
 
   const [refrestAuthWallet, setRefrestAuthWallet] = useState(false);
 
   useEffect(() => {
     fetchBankList();
     fetchOcopCategoriesList();
+    fetchgetProvincesList();
   }, []);
 
   useEffect(() => {
@@ -81,6 +82,15 @@ export function AuthProvider({ children }) {
       const ocopCategories = await getOcopCategoryBy100(0);
       setOcopCategoriesList(ocopCategories);
       console.log("ocopCategories", ocopCategories);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const fetchgetProvincesList = async () => {
+    try {
+      const provinces = await getProvinces();
+      setProvinences(provinces);
+      console.log("provinces", provinces);
     } catch (e) {
       console.log(e);
     }
@@ -135,6 +145,7 @@ export function AuthProvider({ children }) {
         ocopCategoriesList,
         refrestAuthWallet,
         setRefrestAuthWallet,
+        provinces,
       }}
     >
       {children}

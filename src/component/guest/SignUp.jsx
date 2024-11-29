@@ -27,9 +27,9 @@ export default function SignUp({ setAction }) {
     businessName: "",
     bankName: "",
     bankAccountNumber: "",
-    categoryId: null,
-    ocopCategoryId: null,
-    provinceId: 1,
+    categoryId: 0,
+    ocopCategoryId: 0,
+    provinceId: 0,
     pictureLink:
       "https://th.bing.com/th/id/R.8e2c571ff125b3531705198a15d3103c?rik=muXZvm3dsoQqwg&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fpng-user-icon-person-icon-png-people-person-user-icon-2240.png&ehk=MfHYkGonqy7I%2fGTKUAzUFpbYm9DhfXA9Q70oeFxWmH8%3d&risl=&pid=ImgRaw&r=0",
   };
@@ -39,7 +39,7 @@ export default function SignUp({ setAction }) {
   const [loading, setLoading] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
   const [ocopCategory, setOcopCategory] = useState();
-  const { banksList, ocopCategoriesList } = useAuth();
+  const { banksList, ocopCategoriesList, provinces } = useAuth();
 
   const [step, setStep] = useState(1);
   const nav = useNavigate();
@@ -64,6 +64,7 @@ export default function SignUp({ setAction }) {
       if (!form?.firstName) {
         formErrors.firstName = "First name is required.";
       }
+
       if (!form?.lastName) {
         formErrors.lastName = "Last name is required.";
       }
@@ -101,6 +102,15 @@ export default function SignUp({ setAction }) {
       if (!form?.businessName) {
         formErrors.businessName = "Business Name is required.";
       }
+      if (!form?.categoryId) {
+        formErrors.categoryId = "Your Product Category is required.";
+      }
+      if (!form?.ocopCategoryId) {
+        formErrors.ocopCategoryId = "Your Ocop Category is required.";
+      }
+      if (!form?.provinceId) {
+        formErrors.provinceId = "Your Province Location is required.";
+      }
       if (!agree) {
         formErrors.agree = "You must agree to the terms and conditions.";
       }
@@ -127,15 +137,21 @@ export default function SignUp({ setAction }) {
         setLoading(true);
         const result = await requestSignUp(submitFrom);
         console.log("????", result);
-        if (result?.status === 400) {
+        if (result?.status === 400 || result?.status === 404) {
           const resultError = result?.response?.data?.message;
           const resultErrors = result?.response?.data?.errors;
+          console.log(resultError);
+
           console.log("check", resultErrors);
-          console.log(Object.keys(resultErrors).length > 0);
 
           if (resultError) {
             Object.keys(defaulform).forEach((field) => {
-              if (resultError.toLowerCase().includes(field.toLowerCase())) {
+              if (
+                resultError
+                  .replace(/\s+/g, "")
+                  .toLowerCase()
+                  .includes(field.toLowerCase())
+              ) {
                 setErrors((prev) => ({ ...prev, [field]: resultError }));
                 if (
                   field === "email" ||
@@ -151,7 +167,12 @@ export default function SignUp({ setAction }) {
                   field === "bankName"
                 ) {
                   setStep(2);
-                } else if (field === "businessName") {
+                } else if (
+                  field === "businessName" ||
+                  field === "categoryid" ||
+                  field === "ocopCategoryid" ||
+                  field === "provinceid"
+                ) {
                   setStep(3);
                 }
               }
@@ -182,7 +203,12 @@ export default function SignUp({ setAction }) {
                 fieldError === "bankName"
               ) {
                 setStep(2);
-              } else if (fieldError === "businessName") {
+              } else if (
+                fieldError === "businessName" ||
+                field === "categoryid" ||
+                field === "ocopCategoryid" ||
+                field === "provinceid"
+              ) {
                 setStep(3);
               }
             });
@@ -205,7 +231,6 @@ export default function SignUp({ setAction }) {
   const loginByGoogle = useGoogleLogin({
     onSuccess: (tokenResponse) => console.log(tokenResponse),
   });
-  console.log(ocopCategory);
 
   return (
     <div className="w-full p-4  overflow-hidden relative bg-white h-full">
@@ -593,9 +618,9 @@ export default function SignUp({ setAction }) {
                     onChange={handleInput}
                     name="ocopCategoryId"
                     placeholder="Business Name"
-                    value={form?.ocopCategoryId || ""}
+                    value={form?.ocopCategoryId || 0}
                   >
-                    <option value={null}>Choose Ocop Category</option>
+                    <option value={0}>Choose Ocop Category</option>
                     {ocopCategoriesList?.data?.items?.map((ocopCategory) => (
                       <option value={ocopCategory.id}>
                         {ocopCategory.type}
@@ -629,12 +654,51 @@ export default function SignUp({ setAction }) {
                     onChange={handleInput}
                     name="categoryId"
                     placeholder="Business Name"
-                    value={form?.categoryId || ""}
+                    value={form?.categoryId || 0}
                     disabled={!ocopCategory}
                   >
-                    <option>Choose category</option>
+                    <option value={0}>Choose category</option>
                     {ocopCategory?.categories?.map((category) => (
                       <option value={category?.id}>{category?.type}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                {errors.provinceId && (
+                  <p className="text-red-500 text-md font-medium">
+                    {errors.provinceId}
+                  </p>
+                )}
+                <div
+                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                    errors.provinceId
+                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
+                      : form?.provinceId
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  } "border-gray-300"
+                }`}
+                >
+                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
+                    <Buildings />
+                  </label>
+                  <select
+                    className="p-4 w-full rounded-lg outline-none"
+                    type="text"
+                    onChange={handleInput}
+                    name="provinceId"
+                    placeholder="Province"
+                    value={form?.provinceId || 0}
+                  >
+                    <option value={0}>Choose provinces code</option>
+                    {provinces?.data?.map((province) => (
+                      <option
+                        value={province?.id}
+                        className="flex justify-between"
+                      >
+                        <span>{province?.subDivisionName}</span>
+                      </option>
                     ))}
                   </select>
                 </div>
