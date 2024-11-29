@@ -36,6 +36,9 @@ export default function CreateOrderPage() {
   const [warehouses, setWarehouses] = useState();
   const [warehouse, setWarehouse] = useState();
   const debounceTimeoutRef = useRef(null);
+  const [validLocation, setValidLocation] = useState("");
+
+  const [startLocation, setStartLocation] = useState();
 
   const baseForm = {
     ocopPartnerId: userInfor?.id,
@@ -57,6 +60,33 @@ export default function CreateOrderPage() {
   const [form, setForm] = useState(baseForm);
 
   useEffect(() => {
+    const validateAndFormatLocation = async () => {
+      const {
+        receiverAddress,
+        receiverWard,
+        receiverStrict,
+        receiverProvince,
+      } = form;
+      if (
+        receiverProvince.length > 0 &&
+        receiverStrict.length > 0 &&
+        receiverWard.length > 0
+      ) {
+        setValidLocation(
+          ` ${receiverWard} ${receiverStrict} ${receiverProvince}`
+        );
+      } else setValidLocation();
+    };
+
+    validateAndFormatLocation();
+  }, [
+    form.receiverAddress,
+    form.receiverWard,
+    form.receiverStrict,
+    form.receiverProvince,
+  ]);
+
+  useEffect(() => {
     getProductsInWareHouse();
     getProvinces();
   }, []);
@@ -75,6 +105,8 @@ export default function CreateOrderPage() {
   };
   const getDistricts = async () => {
     setForm((prev) => ({ ...prev, receiverStrict: "" }));
+    setForm((prev) => ({ ...prev, receiverWard: "" }));
+
     if (province !== 0 && province) {
       const result = await getAddressProvincesStressWard(2, province);
       setStrictList(result?.data?.data);
@@ -93,7 +125,7 @@ export default function CreateOrderPage() {
 
   useEffect(() => {
     if (form.receiverAddress) {
-   
+      calculateDistance();
     }
   }, [form.receiverAddress, warehouse]);
 
@@ -164,11 +196,12 @@ export default function CreateOrderPage() {
   };
 
   const calculateDistance = async () => {
+    setStartLocation();
     const API_KEY = process.env.REACT_APP_MAP_API_KEY;
     const dataLocation = await getWarehouses(warehouse);
     const warehouseAddress = dataLocation?.data?.location; // Replace with your actual warehouse address
     const receiverAddress = form.receiverAddress;
-
+    setStartLocation("Hoa Lac Hi-tech Park, km 29, Đại lộ, Thăng Long, Hà Nội");
     try {
       const response = await axios.get(
         `https://www.mapquestapi.com/directions/v2/route?key=${API_KEY}&from=${encodeURIComponent(
@@ -311,6 +344,12 @@ export default function CreateOrderPage() {
                   className="border-b-2 border-[var(--en-vu-500-disable)]"
                   value={province}
                   onChange={(e) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverProvince: "",
+                      receiverStrict: "",
+                      receiverWard: "",
+                    }));
                     setProvinences(e.target.value);
                     const provinceName = provinceList.find(
                       (item) => item?.id == e.target.value
@@ -484,8 +523,16 @@ export default function CreateOrderPage() {
           </div>
         </form>
         <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
-          {/* <Mapping showLocation={form.receiverAddress+" "+form.receiverWard+" "+form.strict+" "+form.province} height="90%" /> */}
-          <Mapping showLocation={form.receiverAddress+" "+form.receiverWard+" "+form.receiverStrict+" "+form.receiverProvince}  height="90%" />
+          <Mapping
+            showLocation={validLocation}
+            toLocation={"Xã Bình Giã Huyện Châu Đức Tỉnh Bà Rịa - Vũng Tàu"}
+          />
+          {/* <Mapping
+              showLocation="123 Main St, New York, NY"
+  startLocation="456 Elm St, Boston, MA"
+            height="90%"
+          /> */}
+          {/* <Mapping showLocation="Xã Phước Tỉnh, Huyện Long Điền, Tỉnh Bà Rịa Vũng Tàu" /> */}
 
           {distance && (
             <p className="mt-4 text-lg">

@@ -1,104 +1,113 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine";
 
-export default function Mapping({ showLocation, height }) {
-  const [locationMapping, setLocationMapping] = useState(null);
+// Fix default marker icon issue
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { toast } from "react-toastify";
+
+// Define the custom icon globally
+const customIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41], // Default size
+  iconAnchor: [12, 41], // Anchor point of the icon
+  popupAnchor: [1, -34], // Anchor point for popups
+  shadowSize: [41, 41], // Shadow size
+});
+
+export default function Mapping({ showLocation, toLocation }) {
   const mapRef = useRef(null);
-  const mapInstance = useRef(null); // To store the MapQuest map instance
-  const markerRef = useRef(null);
-  useEffect(() => {
-    if (showLocation) {
-      getMap();
-    }
-  }, [showLocation]);
+  const routingControlRef = useRef(null);
 
-  const getMap = async () => {
-    const API_KEY = process.env.REACT_APP_MAP_API_KEY;
-    const address = showLocation;
-
+  const fetchCoordinates = async (address) => {
     try {
       const response = await axios.get(
-        `https://www.mapquestapi.com/geocoding/v1/address?key=${API_KEY}&location=${address}`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          address
+        )}`
       );
-      const location = response.data.results[0].locations[0].latLng;
-      console.log(`Latitude: ${location.lat}, Longitude: ${location.lng}`);
-      setLocationMapping({ lat: location.lat, lng: location.lng });
+      if (response.data && response.data.length > 0) {
+        const { lat, lon } = response.data[0];
+        return { lat, lon };
+      } else {
+        console.error(`Location not found: ${address}`);
+        toast.error(`Location not found: ${address}`)
+        return null;
+      }
     } catch (error) {
-      console.error("Error fetching geocoding data:", error);
+      console.error(`Error fetching location data for ${address}:`, error);
+      return null;
     }
   };
 
   useEffect(() => {
-    if (locationMapping) {
-      initializeOrUpdateMap();
-    }
-  }, [locationMapping]);
+    const initializeRoute = async () => {
+      const fromCoordinates = await fetchCoordinates(showLocation);
+      const toCoordinates = await fetchCoordinates(toLocation);
 
-  // const initializeOrUpdateMap = () => {
-  //   console.log("location", locationMapping);
+      if (!fromCoordinates || !toCoordinates) {
+        console.error("Invalid locations for routing");
+        return;
+      }
 
-  //   if (window.L && mapRef.current) {
-  //     window.L.mapquest.key = process.env.REACT_APP_MAP_API_KEY;
-
-  //     if (!mapInstance.current) {
-  //       // Initialize the map if not already initialized
-  //       mapInstance.current = window.L.mapquest.map(mapRef.current, {
-  //         center: [locationMapping.lat, locationMapping.lng],
-  //         layers: window.L.mapquest.tileLayer("map"),
-  //         zoom: 12,
-  //       });
-  //       mapInstance.current.addControl(window.L.mapquest.control());
-  //     } else {
-  //       // Update the existing map instance
-  //       mapInstance.current.setView(
-  //         [locationMapping.lat, locationMapping.lng],
-  //         12 // Optional: Set zoom level
-  //       );
-  //     }
-  //   }
-  // };
-
-  const initializeOrUpdateMap = () => {
-    if (window.L && mapRef.current) {
-      window.L.mapquest.key = process.env.REACT_APP_MAP_API_KEY;
-
-      if (!mapInstance.current) {
-        // Initialize the map if not already initialized
-        mapInstance.current = window.L.mapquest.map(mapRef.current, {
-          center: [locationMapping.lat, locationMapping.lng],
-          layers: window.L.mapquest.tileLayer("map"),
-          zoom: 12,
-        });
-        mapInstance.current.addControl(window.L.mapquest.control());
-      } else {
-        // Update the existing map instance
-        mapInstance.current.setView(
-          [locationMapping.lat, locationMapping.lng],
-          12 // Optional: Set zoom level
+      // Initialize the map if not already initialized
+      if (!mapRef.current) {
+        mapRef.current = L.map("map").setView(
+          [fromCoordinates.lat, fromCoordinates.lon],
+          13
         );
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution:
+            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(mapRef.current);
       }
 
-      // Add or update the marker using Leaflet's L.marker
-      if (markerRef.current) {
-        // If marker exists, update its position
-        markerRef.current.setLatLng([locationMapping.lat, locationMapping.lng]);
-      } else {
-        // Add a new marker
-        markerRef.current = window.L.marker(
-          [locationMapping.lat, locationMapping.lng],
-          {
-            icon: window.L.mapquest.icons.marker({
-              primaryColor: "#1C76BC",
-              secondaryColor: "#FFFFFF",
-              shadow: true,
-              size: "md",
-            }),
-          }
-        ).addTo(mapInstance.current);
+      // Remove the existing routing control if it exists
+      if (routingControlRef.current) {
+        routingControlRef.current.getPlan().setWaypoints([]);
+        mapRef.current.removeControl(routingControlRef.current);
+        routingControlRef.current = null;
       }
-    }
-  };
-  return (
-    <div id="map" ref={mapRef} style={{ width: "100%", height: height }}></div>
-  );
+
+      // Add a new routing control
+      routingControlRef.current = L.Routing.control({
+        waypoints: [
+          L.latLng(fromCoordinates.lat, fromCoordinates.lon),
+          L.latLng(toCoordinates.lat, toCoordinates.lon),
+        ],
+        routeWhileDragging: true,
+        show: false, // Hides the direction description
+        addWaypoints: false, // Disables adding new waypoints
+        createMarker: (i, waypoint) =>
+          L.marker(waypoint.latLng, { icon: customIcon }),
+      }).addTo(mapRef.current);
+      const routingContainer = document.querySelector(
+        ".leaflet-routing-container"
+      );
+      if (routingContainer) {
+        routingContainer.style.display = "none";
+      }
+    };
+    initializeRoute();
+
+    // Cleanup function to safely remove the map and routing control
+    return () => {
+      if (routingControlRef.current) {
+        routingControlRef.current.getPlan().setWaypoints([]);
+        mapRef.current.removeControl(routingControlRef.current);
+        routingControlRef.current = null;
+      }
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [showLocation, toLocation]);
+
+  return <div id="map" className="h-[90%] w-full"></div>;
 }

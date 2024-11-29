@@ -10,19 +10,17 @@ import Batch from "../component/staff/batchflow/Batch";
 import RequestManagement from "../component/staff/requestmanage/RequestManage";
 
 export default function StaffRoutes() {
-  const { dataDetail, typeDetail } = useDetail();  
+  const { dataDetail, typeDetail } = useDetail();
   return (
     <div className="relative">
       {typeDetail && <DetailSlide />}
       <Routes>
         <Route path="/*" element={<LayoutLogined />}>
-
-
-        <Route path="assign" element={<Assign />} />
-        <Route path="warehouseinventory" element={<Inventory/>}/>
-        <Route path="ordermanage" element={<Ordermanage/>} />
-        <Route path="batchflow" element={<Batch/>}/>
-         <Route path="requestmanage" element={<RequestManagement/>}/>
+          <Route path="assign" element={<Assign />} />
+          <Route path="warehouseinventory" element={<Inventory />} />
+          <Route path="ordermanage" element={<Ordermanage />} />
+          <Route path="batchflow" element={<Batch />} />
+          <Route path="requestmanage" element={<RequestManagement />} />
         </Route>
       </Routes>
     </div>

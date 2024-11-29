@@ -19,6 +19,9 @@ import OrderDashboard from "./component/partner/dashboard/OrderDashboard";
 import { DetailProvider } from "./context/DetailContext";
 import StaffRoutes from "./routes/StaffRoutes";
 import ManagerRoutes from "./routes/ManagerRoutes";
+import Mapping from "./component/shared/Mapping";
+import "leaflet/dist/leaflet.css";
+
 function App() {
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
@@ -80,7 +83,7 @@ function App() {
               }
             />
             <Route path="/*" element={<LayoutLogined />}>
-              <Route path="working" element={<InventoryPage />} />
+              <Route path="working" element={<Mapping />} />
               <Route path="working2" element={<OrderPage />} />
               <Route path="working3" element={<HomePage />} />
               <Route path="working4" element={<OrderDashboard />} />
