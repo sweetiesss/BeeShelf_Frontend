@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import AxiosPartner from "../../services/Partner";
@@ -31,11 +31,23 @@ export default function CreateOrderPage() {
   const [strict, setStrict] = useState(0);
   const [wardList, setWardList] = useState();
   const [ward, setWard] = useState(0);
+  const [location, setLocation] = useState();
 
   const [warehouses, setWarehouses] = useState();
   const [warehouse, setWarehouse] = useState();
+  const debounceTimeoutRef = useRef(null);
 
   const baseForm = {
+    ocopPartnerId: userInfor?.id,
+    receiverPhone: "",
+    receiverAddress: "",
+    receiverWard: "",
+    receiverStrict: "",
+    receiverProvince: "",
+    distance: null,
+    products: [],
+  };
+  const defaultForm = {
     ocopPartnerId: userInfor?.id,
     receiverPhone: "",
     receiverAddress: "",
@@ -62,6 +74,7 @@ export default function CreateOrderPage() {
     console.log(result);
   };
   const getDistricts = async () => {
+    setForm((prev) => ({ ...prev, receiverStrict: "" }));
     if (province !== 0 && province) {
       const result = await getAddressProvincesStressWard(2, province);
       setStrictList(result?.data?.data);
@@ -69,6 +82,8 @@ export default function CreateOrderPage() {
     }
   };
   const getWard = async () => {
+    setForm((prev) => ({ ...prev, receiverWard: "" }));
+
     if (strict !== 0 && strict) {
       const result = await getAddressProvincesStressWard(3, strict);
       setWardList(result?.data?.data);
@@ -78,7 +93,7 @@ export default function CreateOrderPage() {
 
   useEffect(() => {
     if (form.receiverAddress) {
-      calculateDistance();
+   
     }
   }, [form.receiverAddress, warehouse]);
 
@@ -172,7 +187,17 @@ export default function CreateOrderPage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    if (name === "receiverAdress") {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      debounceTimeoutRef.current = setTimeout(() => {
+        setForm((prev) => ({ ...prev, [name]: value }));
+      }, 500);
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleItemChange = (e) => {
@@ -243,7 +268,7 @@ export default function CreateOrderPage() {
     }
   };
 
-  console.log(province);
+  console.log(form);
 
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
@@ -262,7 +287,7 @@ export default function CreateOrderPage() {
               name="receiverPhone"
               value={form.receiverPhone}
               onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 border-b-2 focus:ring-blue-500 focus:border-blue-500 px-2 py-1"
+              className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
               required
             />
           </div>
@@ -271,27 +296,80 @@ export default function CreateOrderPage() {
               {t("Receiver Address")}
             </label>
 
-            <select
-              value={province}
-              onChange={(e) => setProvinences(e.target.value)}
-            >
-              <option value={0}>Select Province</option>
-              {provinceList?.map((pro) => (
-                <option value={pro?.id}>{pro?.full_name}</option>
-              ))}
-            </select>
-            <select value={strict} onChange={(e) => setStrict(e.target.value)}>
-              <option value={0}>Select Districts</option>
-              {strictList?.map((pro) => (
-                <option value={pro?.id}>{pro?.full_name}</option>
-              ))}
-            </select>
-            <select value={ward} onChange={(e) => setWard(e.target.value)}>
-              <option value={0}>Select Ward</option>
-              {wardList?.map((pro) => (
-                <option value={pro?.id}>{pro?.full_name}</option>
-              ))}
-            </select>
+            <input
+              type="text"
+              name="receiverAddress"
+              placeholder={t("receiverAddress")}
+              value={form.receiverAddress}
+              onChange={handleInputChange}
+              className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
+              required
+            />
+            <div className="flex justify-between mt-4 items-center">
+              <div>
+                <select
+                  className="border-b-2 border-[var(--en-vu-500-disable)]"
+                  value={province}
+                  onChange={(e) => {
+                    setProvinences(e.target.value);
+                    const provinceName = provinceList.find(
+                      (item) => item?.id == e.target.value
+                    );
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverProvince: provinceName?.full_name,
+                    }));
+                  }}
+                >
+                  <option value={0}>Select Province</option>
+                  {provinceList?.map((pro) => (
+                    <option value={pro?.id}>{pro?.full_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <select
+                  className="border-b-2 border-[var(--en-vu-500-disable)]"
+                  value={strict}
+                  onChange={(e) => {
+                    setStrict(e.target.value);
+                    const stirctName = strictList.find(
+                      (item) => item?.id == e.target.value
+                    );
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverStrict: stirctName?.full_name,
+                    }));
+                  }}
+                >
+                  <option value={0}>Select Districts</option>
+                  {strictList?.map((pro) => (
+                    <option value={pro?.id}>{pro?.full_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <select
+                  className="border-b-2 border-[var(--en-vu-500-disable)]"
+                  value={ward}
+                  onChange={(e) => {
+                    setWard(e.target.value);
+                    const wardName = wardList.find(
+                      (item) => item?.id == e.target.value
+                    );
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverWard: wardName?.full_name,
+                    }));
+                  }}
+                >
+                  <option value={0}>Select Ward</option>
+                  {wardList?.map((pro) => (
+                    <option value={pro?.id}>{pro?.full_name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
           <div className="space-y-6 w-full">
             <h2 className="text-lg font-semibold">{t("OrderInformation")}</h2>
@@ -406,7 +484,8 @@ export default function CreateOrderPage() {
           </div>
         </form>
         <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
-          <Mapping showLocation={form.receiverAddress} height="90%" />
+          {/* <Mapping showLocation={form.receiverAddress+" "+form.receiverWard+" "+form.strict+" "+form.province} height="90%" /> */}
+          <Mapping showLocation={form.receiverAddress+" "+form.receiverWard+" "+form.receiverStrict+" "+form.receiverProvince}  height="90%" />
 
           {distance && (
             <p className="mt-4 text-lg">
