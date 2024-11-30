@@ -1,4 +1,3 @@
-// export default Payment;
 import React, { useEffect, useState } from "react";
 import { Table, message, Spin, Button, Input, Modal, Form, Select } from "antd";
 import { useParams } from "react-router-dom";
@@ -67,26 +66,32 @@ const Payment = () => {
   const createPayment = async () => {
     setLoading(true);
     try {
+      // Kiểm tra thông tin trước khi gọi API
+      console.log("Creating payment with paymentId:", paymentId, "and staffId:", userInfor?.id);
+
       const response = await fetchDataBearer({
-        url: `/payment/create-money-transfer/${paymentId}`, // Chuyển paymentId vào URL
+        // url: `/payment/create-money-transfer/${paymentId}`, // Chuyển paymentId vào URL
+        url: `/payment/create-money-transfer/${paymentId}?staffId=${userInfor?.id}`,
         method: "POST",
         data: {
-          staffId: userInfor?.id, // Sử dụng userInfor?.id cho staffId
-          paymentId,
+        //   staffId: userInfor?.id, // Sử dụng userInfor?.id cho staffId
+        //   paymentId,
+        paymentId,
         },
       });
+
       if (response && response.status === 200) {
         message.success("Payment created successfully!");
-        fetchPayments();
+        fetchPayments(); // Cập nhật lại danh sách thanh toán
         setVisible(false); // Đóng modal khi tạo payment thành công
       } else {
         const errorMessage =
-          response?.data?.message || "Failed to create payment.";
+          response?.data?.message || "Failed to create money transfer.";
         message.error(errorMessage);
       }
     } catch (error) {
       console.error("Error creating payment:", error);
-      message.error("Failed to create payment.");
+      message.error("Failed to create money transfer.");
     } finally {
       setLoading(false);
     }
@@ -131,7 +136,7 @@ const Payment = () => {
       <h1>Payments List</h1>
       {/* Modal hiển thị form nhập staffId và paymentId */}
       <Modal
-        title="Create Payment"
+        title="Create Money Transfer"
         visible={visible}
         onCancel={() => setVisible(false)} // Đóng modal khi nhấn cancel
         footer={[
@@ -144,7 +149,7 @@ const Payment = () => {
             loading={loading}
             onClick={createPayment}
           >
-            Create Payment
+            Create Money Transfer 
           </Button>,
         ]}
       >
