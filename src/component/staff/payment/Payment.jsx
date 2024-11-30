@@ -48,7 +48,10 @@ const Payment = () => {
         // Map the response data to paymentId options for the Select component
         const options = response.data.map((payment) => ({
           value: payment.id, // ID của payment sẽ là value
-          label: `Payment ID: ${payment.id}`, // Hiển thị Payment ID trong label
+          label: `Payment ID: ${payment.id} - 
+          Order ID: ${payment.orderId} - 
+          ShipperName: ${payment.shipperName}`,
+           // Hiển thị Payment ID trong label
         }));
         setPaymentIdOptions(options);
       } else {
