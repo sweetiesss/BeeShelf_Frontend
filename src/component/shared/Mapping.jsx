@@ -19,7 +19,11 @@ const customIcon = L.icon({
   shadowSize: [41, 41], // Shadow size
 });
 
-export default function Mapping({ showLocation, toLocation }) {
+export default function Mapping({
+  showLocation,
+  toLocation,
+  cloneWarehouseData,
+}) {
   const mapRef = useRef(null);
   const routingControlRef = useRef(null);
 
@@ -35,7 +39,7 @@ export default function Mapping({ showLocation, toLocation }) {
         return { lat, lon };
       } else {
         console.error(`Location not found: ${address}`);
-        toast.error(`Location not found: ${address}`)
+        toast.error(`Location not found: ${address}`);
         return null;
       }
     } catch (error) {
@@ -45,6 +49,7 @@ export default function Mapping({ showLocation, toLocation }) {
   };
 
   useEffect(() => {
+    const { location, coordinates, deliveryZones } = cloneWarehouseData;
     const initializeRoute = async () => {
       const fromCoordinates = await fetchCoordinates(showLocation);
       const toCoordinates = await fetchCoordinates(toLocation);
@@ -66,6 +71,17 @@ export default function Mapping({ showLocation, toLocation }) {
             '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         }).addTo(mapRef.current);
       }
+
+      deliveryZones.forEach((zone) => {
+        L.circle([zone.coordinates.lat, zone.coordinates.lon], {
+          color: "blue",
+          fillColor: "lightblue",
+          fillOpacity: 0.5,
+          radius: 100, // Adjust the radius as needed (in meters)
+        })
+          .addTo(mapRef.current)
+          .bindPopup(`<b>${zone.name}</b>`);
+      });
 
       // Remove the existing routing control if it exists
       if (routingControlRef.current) {
@@ -94,6 +110,7 @@ export default function Mapping({ showLocation, toLocation }) {
       }
     };
     initializeRoute();
+   
 
     // Cleanup function to safely remove the map and routing control
     return () => {

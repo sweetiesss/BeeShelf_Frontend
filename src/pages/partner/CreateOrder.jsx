@@ -9,6 +9,21 @@ import AxiosWarehouse from "../../services/Warehouse";
 import { toast } from "react-toastify";
 import AxiosOthers from "../../services/Others";
 
+const cloneWarehouseData = {
+  id: 1,
+  name: "Ha Noi Main Warehouse",
+  capacity: 500000,
+  provinceId: 23,
+  provinceName: "Hà Nội",
+  location: "178A Đ. Bưởi, Hà Nội",
+  coordinates: { lat: 21.028511, lon: 105.804817 }, // Example coordinates
+  deliveryZones: [
+    { id: 1, name: "Ba Đình", coordinates: { lat: 21.03333, lon: 105.8145 } },
+    { id: 2, name: "Cầu Giấy", coordinates: { lat: 21.02858, lon: 105.7886 } },
+    // Add more delivery zones as needed
+  ],
+};
+
 export default function CreateOrderPage() {
   const { t } = useTranslation();
   const { userInfor } = useAuth();
@@ -526,6 +541,7 @@ export default function CreateOrderPage() {
           <Mapping
             showLocation={validLocation}
             toLocation={"Xã Bình Giã Huyện Châu Đức Tỉnh Bà Rịa - Vũng Tàu"}
+            cloneWarehouseData={cloneWarehouseData}
           />
           {/* <Mapping
               showLocation="123 Main St, New York, NY"
