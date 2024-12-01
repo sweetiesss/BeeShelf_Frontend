@@ -145,19 +145,3 @@ const Inventory = () => {
 
 export default Inventory;
 
-
-              {/* <Paragraph>
-                Information about current orders and their statuses.
-              </Paragraph> */}
-                            {/* <Paragraph>
-                Details about payments, including total amounts and status.
-              </Paragraph> */}
-                          {/* <Paragraph>
-              This is a brief description of the project or section.
-            </Paragraph> */}
-                        {/* <Button type="primary" size="large">
-              Create Payment
-            </Button> */}
-                        {/* <Button type="danger" size="large">
-              Cancel Operation
-            </Button> */}
