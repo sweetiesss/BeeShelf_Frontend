@@ -118,7 +118,7 @@ export function Sidebar() {
           <>
             <NavLink to="dashboardstaff" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <House className="icon" weight="fill" />
+                <House className="icon" weight="fill"  />
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
@@ -128,25 +128,12 @@ export function Sidebar() {
                 <p className="label">{t("Payment")}</p>
               </div>
             </NavLink>
-            {/* <NavLink to="batchflow" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <Package className="icon" weight="fill" />
-                <p className="label">{t("Create Batch")}</p>
-              </div>
-            </NavLink> */}
             <NavLink to="batchflow" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Package className="icon" weight="fill" />
                 <p className="label">{t("Create Batch")}</p>
               </div>
             </NavLink>
-            {/* <NavLink to="assign" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <Aperture className="icon" weight="fill" />
-                <p className="label">{t("Assign Order")}</p>
-              </div>
-            </NavLink> */}
-
             <NavLink to="ordermanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Bag className="icon" weight="fill" />
@@ -161,7 +148,7 @@ export function Sidebar() {
               </div>
             </NavLink>
 
-            <NavLink to="warehouseinventory" className="flex navigate-menu">
+            <NavLink to="inventory" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Package className="icon" weight="fill" />
                 <p className="label">{t("Inventory")}</p>
