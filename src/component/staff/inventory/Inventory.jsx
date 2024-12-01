@@ -16,11 +16,15 @@ const Inventory = () => {
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
               borderRadius: "10px",
             }}
-            title={<Title level={4}>Inventory 1</Title>}
+            title={<Title level={4}>Inventory 1 </Title>}
           >
             <Space direction="vertical" style={{ width: "100%" }}>
               <Typography>
-                <Title level={5}>Overview</Title>
+                <Title level={5}>Overview Inventory</Title>
+                <Paragraph>name</Paragraph>
+                <Paragraph>maxWeight</Paragraph>
+                <Paragraph>totalProduct</Paragraph>
+                <Paragraph>warehouseName</Paragraph>
                 <Paragraph>Overview about inventory details.</Paragraph>
               </Typography>
               <Button type="primary" size="small">
