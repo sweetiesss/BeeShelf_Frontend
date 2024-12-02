@@ -1,11 +1,8 @@
-
-
 // export default Ordermanage;
-import React, { useState, useEffect } from "react";
-import { Table, Tag, Select, Button, Space, message } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-import useAxios from "../../../services/CustomizeAxios"; // Giả sử bạn đang sử dụng Axios hook
+import { Button, Image, Modal, Select, Table, Tag, message } from "antd";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
+import useAxios from "../../../services/CustomizeAxios"; // Giả sử bạn đang sử dụng Axios hook
 
 const { Option } = Select;
 
@@ -36,7 +33,8 @@ const Ordermanage = () => {
       });
 
       if (response && response.data) {
-        const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } = response.data;
+        const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
+          response.data;
 
         // Cập nhật dữ liệu vào state
         setData(items);
@@ -63,14 +61,25 @@ const Ordermanage = () => {
   const updateRequestStatus = async (id, newStatus) => {
     setLoading(true);
     try {
+      const currentOrder = data.find(order => order.id === id);
+      const validTransitions = getValidStatusTransitions(currentOrder.status);
+      
+      if (!validTransitions.includes(newStatus)) {
+        message.error(`Invalid status transition from ${currentOrder.status} to ${newStatus}`);
+        return;
+      }
+  
       const response = await fetchDataBearer({
         url: `/order/update-order-status/${id}?orderStatus=${newStatus}`,
         method: "PUT",
       });
-
+  
       if (response && response.status === 200) {
         message.success("Status updated successfully!");
-        GetOrderWarehouse(); // Làm mới danh sách đơn hàng sau khi cập nhật
+        GetOrderWarehouse(); // Refresh order list
+        if (selectedOrder?.id === id) {
+          setSelectedOrder({ ...selectedOrder, status: newStatus }); // Update modal if open
+        }
       } else {
         const errorMessage = response?.data?.message || "Failed to update status.";
         message.error(errorMessage);
@@ -79,7 +88,7 @@ const Ordermanage = () => {
       console.error("Error updating status:", error);
       message.error(
         error.response?.data?.message ||
-          "Failed to update status. Please try again."
+        "Failed to update status. Please try again."
       );
     } finally {
       setLoading(false);
@@ -117,7 +126,46 @@ const Ordermanage = () => {
       default:
         color = "default";
     }
-    return <Tag color={color}>{status}</Tag>;
+    return (
+      <Tag color={color} className="m-0 w-full text-center">
+        {status}
+      </Tag>
+    );
+  };
+
+  // Delete order
+  const deleteOrder = async (id) => {
+    try {
+      const response = await fetchDataBearer({
+        url: `/order/delete-order/${id}`,
+        method: "DELETE",
+      });
+      if (response && response.status === 200) {
+        message.success("Order deleted successfully!");
+        GetOrderWarehouse(); // Làm mới danh sách đơn hàng sau khi cập nhật
+      } else {
+        const errorMessage =
+          response?.data?.message || "Failed to delete order.";
+        message.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      message.error("Failed to delete order. Please try again.");
+    }
+  };
+
+  // Show order detail
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  const showOrderDetail = (order) => {
+    setSelectedOrder(order);
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedOrder(null);
   };
 
   // Cột trong bảng
@@ -139,22 +187,9 @@ const Ordermanage = () => {
       dataIndex: "status",
       key: "status",
       render: (status, record) => (
-        <Space direction="vertical">
+        <div className="flex flex-col gap-2 items-center">
           {renderStatusTag(status)} {/* Hiển thị status tag */}
-          <Select
-            // style={{ width: 120 }}
-            style={{ width: 65, padding: 0 }}
-            defaultValue={status}
-            onChange={(newStatus) => updateRequestStatus(record.id, newStatus)} // Cập nhật trạng thái khi chọn
-          >
-            <Option value="Pending">Pending</Option>
-            <Option value="Processing">Processing</Option>
-            <Option value="Delivered">Delivered</Option>
-            <Option value="Canceled">Canceled</Option>
-            <Option value="Completed">Completed</Option>
-            <Option value="Refunded">Refunded</Option>
-          </Select>
-        </Space>
+        </div>
       ),
     },
     {
@@ -179,7 +214,50 @@ const Ordermanage = () => {
       key: "totalPrice",
       render: (text) => `$${text}`,
     },
+    {
+      title: "Action",
+      dataIndex: "",
+      key: "x",
+      render: (_, record) => (
+        <div className="flex flex-col gap-2 items-center">
+          <Button
+            className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+            onClick={() => showOrderDetail(record)}
+          >
+            View Details
+          </Button>
+          <Button
+            className="px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700"
+            onClick={() => deleteOrder(record.id)} // Xóa order
+          >
+            Delete
+          </Button>
+        </div>
+      ),
+    },
   ];
+
+  // Add this function to check valid status transitions
+const getValidStatusTransitions = (currentStatus) => {
+  switch (currentStatus) {
+    case "Pending":
+      return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
+    case "Processing":
+      return ["Shipping", "Cancelled"]; // Shipper delivery or Out of stock
+    case "Shipping":
+      return ["Delivered", "Cancelled"]; // Shipping Finish delivery or OCOP Partner Cancelled
+    case "Delivered":
+      return ["Returned", "Completed"]; // Receiver returns or Return window expire
+    case "Returned":
+      return ["Refunded"]; // Refund processed
+    case "Completed":
+    case "Cancelled":
+    case "Refunded":
+      return []; // Final states - no further transitions allowed
+    default:
+      return [];
+  }
+};
 
   // Sử dụng useEffect để tự động lấy dữ liệu khi component được render
   useEffect(() => {
@@ -187,28 +265,106 @@ const Ordermanage = () => {
   }, []); // Chạy một lần khi component mount
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Order Management</h1>
-      <Table
-        dataSource={data}
-        columns={columns}
-        loading={loading}
-        pagination={{
-          current: pagination.pageIndex + 1,
-          pageSize: pagination.pageSize,
-          total: pagination.totalItemsCount,
-          onChange: (page) => {
-            setPagination((prev) => ({
-              ...prev,
-              pageIndex: page - 1,
-            }));
-            GetOrderWarehouse();
-          },
-        }}
-      />
-    </div>
+    <>
+      <div style={{ padding: "20px" }}>
+        <h1>Order Management</h1>
+        <Table
+          className="overflow-x-scroll min-w-[800px] w-full"
+          dataSource={data}
+          columns={columns}
+          loading={loading}
+          pagination={{
+            current: pagination.pageIndex + 1,
+            pageSize: pagination.pageSize,
+            total: pagination.totalItemsCount,
+            onChange: (page) => {
+              setPagination((prev) => ({
+                ...prev,
+                pageIndex: page - 1,
+              }));
+              GetOrderWarehouse();
+            },
+          }}
+        />
+      </div>
+      <Modal
+        title="Order Details"
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button key="close" onClick={handleModalClose}>
+            Close
+          </Button>,
+        ]}
+      >
+        {selectedOrder && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Image
+                src={selectedOrder.pictureLink}
+                alt="Order Image"
+                className="w-full"
+              />
+              <label htmlFor="statusSelect" className="font-bold">Update Status:</label>
+              <Select
+  id="statusSelect"
+  className="w-full"
+  value={selectedOrder.status}
+  onChange={(newStatus) => updateRequestStatus(selectedOrder.id, newStatus)}
+  disabled={getValidStatusTransitions(selectedOrder.status).length === 0}
+>
+  {getValidStatusTransitions(selectedOrder.status).map(status => (
+    <Option key={status} value={status}>
+      {status}
+    </Option>
+  ))}
+</Select>
+            </div>
+            <div>
+              <div className="grid grid-cols-1 gap-2">
+                <div>
+                  <p className="font-bold">Order ID:</p>
+                  <p>{selectedOrder.id}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Partner Email:</p>
+                  <p>{selectedOrder.partner_email}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Status:</p>
+                  <p>{renderStatusTag(selectedOrder.status)}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Receiver Phone:</p>
+                  <p>{selectedOrder.receiverPhone}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Receiver Address:</p>
+                  <p>{selectedOrder.receiverAddress}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Date:</p>
+                  <p>{selectedOrder.createDate.split("T")[0]}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Total Price:</p>
+                  <p>${selectedOrder.totalPrice}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Warehouse Name:</p>
+                  <p>{selectedOrder.warehouseName}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Warehouse Location:</p>
+                  <p>{selectedOrder.warehouseLocation}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+    </>
   );
 };
 
 export default Ordermanage;
-
