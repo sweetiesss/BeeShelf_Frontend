@@ -136,27 +136,6 @@ const Ordermanage = () => {
     );
   };
 
-  // Delete order
-  const deleteOrder = async (id) => {
-    try {
-      const response = await fetchDataBearer({
-        url: `/order/delete-order/${id}`,
-        method: "DELETE",
-      });
-      if (response && response.status === 200) {
-        message.success("Order deleted successfully!");
-        GetOrderWarehouse(); // Làm mới danh sách đơn hàng sau khi cập nhật
-      } else {
-        const errorMessage =
-          response?.data?.message || "Failed to delete order.";
-        message.error(errorMessage);
-      }
-    } catch (error) {
-      console.error("Error deleting order:", error);
-      message.error("Failed to delete order. Please try again.");
-    }
-  };
-
   // Show order detail
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
