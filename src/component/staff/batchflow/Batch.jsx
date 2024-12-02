@@ -24,6 +24,7 @@ const BatchManage = () => {
   const [batches, setBatches] = useState([]); // All batch data
   const [orders, setOrders] = useState([]); // Orders data for Order IDs field
   const [shippers, setShippers] = useState([]); // Shippers data
+  const [deliveryZones, setDeliveryZones] = useState([]); // Delivery zones
   const [loading, setLoading] = useState(false); // Loading state
   const [selectedBatch, setSelectedBatch] = useState(null); // Selected batch for the drawer
   const [selectedBatchIds, setSelectedBatchIds] = useState([]); // Selected batch IDs for deletion
@@ -40,44 +41,43 @@ const BatchManage = () => {
   });
 
   // Fetch batches data from API
-  useEffect(() => {
-    const fetchBatches = async () => {
-      setLoading(true);
-      try {
-        const response = await fetchDataBearer({
-          url: `/batch/get-batches?pageIndex=0&pageSize=100`,
-          method: "GET",
-        });
-        if (!response || !response.data || !response.data.items) {
-          console.error("Failed to fetch batches data");
-          return;
-        }
-        const formattedBatches = response.data.items.map((batch) => ({
-          key: batch.id,
-          id: batch.id,
-          name: batch.name,
-          status: batch.status,
-          completeDate: batch.completeDate || "Not Completed",
-          assignTo: batch.assignTo,
-          deliveryZoneId: batch.deliveryZoneId,
-          orders: batch.orders,
-        }));
-        setBatches(formattedBatches);
-      } catch (error) {
-        console.error("Error fetching batches:", error);
-      } finally {
-        setLoading(false);
+  const fetchBatches = async () => {
+    setLoading(true);
+    try {
+      const response = await fetchDataBearer({
+        url: `/batch/get-batches?pageIndex=0&pageSize=100`,
+        method: "GET",
+      });
+      if (!response || !response.data || !response.data.items) {
+        console.error("Failed to fetch batches data");
+        return;
       }
-    };
-
+      const formattedBatches = response.data.items.map((batch) => ({
+        key: batch.id,
+        id: batch.id,
+        name: batch.name,
+        status: batch.status,
+        completeDate: batch.completeDate || "Not Completed",
+        assignTo: batch.assignTo,
+        deliveryZoneId: batch.deliveryZoneId,
+        orders: batch.orders,
+        shipperId: batch.shipperId,
+        shipperName: batch.shipperName,
+      }));
+      setBatches(formattedBatches);
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchBatches();
   }, []);
 
   // Fetch delivery zones
-  const [deliveryZones, setDeliveryZones] = useState([]);
   useEffect(() => {
     const fetchDeliveryZones = async () => {
-      setLoading(true);
       try {
         const response = await fetchDataBearer({
           url: `/warehouse/get-warehouse/${userInfor?.workAtWarehouseId}`,
@@ -91,8 +91,6 @@ const BatchManage = () => {
         }
       } catch (error) {
         console.error("Error fetching delivery zones:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -104,7 +102,6 @@ const BatchManage = () => {
   // Fetch orders for Order IDs field
   useEffect(() => {
     const fetchOrders = async () => {
-      setLoading(true);
       try {
         const response = await fetchDataBearer({
           url: `/order/get-warehouse-orders`,
@@ -130,8 +127,6 @@ const BatchManage = () => {
         setOrders(formattedOrders);
       } catch (error) {
         console.error("Error fetching orders:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -142,17 +137,12 @@ const BatchManage = () => {
 
   // Fetch shippers
   useEffect(() => {
-    console.log("userInfor:", userInfor); // Kiểm tra giá trị của userInfor
-
     const fetchShippers = async () => {
-      console.log("Fetching shippers...");
-      setLoading(true);
       try {
         const warehouseId = userInfor?.workAtWarehouseId;
 
         if (!warehouseId) {
           console.error("Warehouse ID is not available");
-          setLoading(false);
           return;
         }
 
@@ -175,8 +165,6 @@ const BatchManage = () => {
         }
       } catch (error) {
         console.error("Error fetching shippers data:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -233,9 +221,10 @@ const BatchManage = () => {
 
       if (response.status === 200 || response.status === 201) {
         message.success("Batch created successfully.");
-        setBatches((prev) => [...prev, { ...payload, id: response.data.id }]);
+        // setBatches((prev) => [...prev, { ...payload, id: response.data.id }]);
         form.resetFields();
         setCreateBatchModalVisible(false);
+        fetchBatches();
       } else {
         throw new Error("Failed to create batch.");
       }
@@ -246,6 +235,53 @@ const BatchManage = () => {
       setLoading(false);
     }
   };
+
+  const columns = [
+    {
+      title: "Select",
+      dataIndex: "select",
+      key: "select",
+      render: (_, record) => (
+        <input
+          type="checkbox"
+          checked={selectedBatchIds.includes(record.id)}
+          onChange={(e) => {
+            const selectedId = record.id;
+            setSelectedBatchIds((prev) =>
+              e.target.checked
+                ? [...prev, selectedId]
+                : prev.filter((id) => id !== selectedId)
+            );
+          }}
+        />
+      ),
+    },
+    {
+      title: "Batch Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => (
+        <Tag color={status === "completed" ? "green" : "red"}>{status}</Tag>
+      ),
+    },
+    {
+      title: "Shipper",
+      dataIndex: "shipperName",
+      key: "shipperName",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Button onClick={() => setSelectedBatch(record)}>View Details</Button>
+      ),
+    },
+  ];
 
   return (
     <div style={{ padding: "20px" }}>
@@ -264,56 +300,7 @@ const BatchManage = () => {
       </Space>
       <Table
         dataSource={batches}
-        columns={[
-          {
-            title: "Select",
-            dataIndex: "select",
-            key: "select",
-            render: (_, record) => (
-              <input
-                type="checkbox"
-                checked={selectedBatchIds.includes(record.id)}
-                onChange={(e) => {
-                  const selectedId = record.id;
-                  setSelectedBatchIds((prev) =>
-                    e.target.checked
-                      ? [...prev, selectedId]
-                      : prev.filter((id) => id !== selectedId)
-                  );
-                }}
-              />
-            ),
-          },
-          {
-            title: "Batch Name",
-            dataIndex: "name",
-            key: "name",
-          },
-          {
-            title: "Status",
-            dataIndex: "status",
-            key: "status",
-            render: (status) => (
-              <Tag color={status === "completed" ? "green" : "red"}>
-                {status}
-              </Tag>
-            ),
-          },
-          {
-            title: "Shipper",
-            dataIndex: "shipperName",
-            key: "shipperName",
-          },
-          {
-            title: "Actions",
-            key: "actions",
-            render: (_, record) => (
-              <Button onClick={() => setSelectedBatch(record)}>
-                View Details
-              </Button>
-            ),
-          },
-        ]}
+        columns={columns}
         rowKey="id"
         pagination={{
           pageSize: pagination.pageSize,
