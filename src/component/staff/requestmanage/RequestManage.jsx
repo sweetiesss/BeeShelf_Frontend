@@ -1,6 +1,16 @@
 // export default RequestManagement;
 import React, { useEffect, useState } from "react";
-import { Table, Tag, Input, Space, Button, message, Select } from "antd";
+import {
+  Table,
+  Tag,
+  Input,
+  Space,
+  Button,
+  message,
+  Select,
+  Modal,
+  Image,
+} from "antd";
 import useAxios from "../../../services/CustomizeAxios";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -78,25 +88,111 @@ const RequestManagement = () => {
     fetchRequests(page - 1);
   };
 
-  const updateRequestStatus = async (id, newStatus) => {
-    if (!newStatus) {
-      message.error("Please select a new status!");
-      return;
-    }
+  // const updateRequestStatus = async (id, newStatus) => {
+  //   if (!newStatus) {
+  //     message.error("Please select a new status!");
+  //     return;
+  //   }
 
+  //   setLoading(true);
+  //   try {
+  //     // Log dữ liệu trước khi gửi
+  //     console.log("Updating status for ID:", id, "to new status:", newStatus);
+
+  //     const response = await fetchDataBearer({
+  //       url: `/request/update-request-status/${id}?status=${newStatus}`,
+  //       method: "PUT",
+  //     });
+
+  //     if (response && response.status === 200) {
+  //       message.success("Status updated successfully!");
+  //       fetchRequests(pagination.pageIndex); // Làm mới bảng sau khi cập nhật
+  //     } else {
+  //       const errorMessage =
+  //         response?.data?.message || "Failed to update status.";
+  //       message.error(errorMessage);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating status:", error);
+  //     message.error(
+  //       error.response?.data?.message ||
+  //         "Failed to update status. Please try again."
+  //     );
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const renderStatusTag = (status) => {
+    const colorMap = {
+      Processing: "blue",
+      Delivered: "cyan",
+      Completed: "green",
+      Failed: "red",
+      Canceled: "orange",
+    };
+    return <Tag color={colorMap[status] || "default"}>{status}</Tag>;
+  };
+
+  // Show request detail
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+
+  const showRequestDetail = (request) => {
+    setSelectedRequest(request);
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedRequest(null);
+  };
+
+  // Add this function to check valid status transitions for requests
+  const getValidStatusTransitions = (currentStatus) => {
+    switch (currentStatus) {
+      case "Draft":
+        return ["Pending"]; // Request Created
+      case "Pending":
+        return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
+      case "Processing":
+        return ["Delivered", "Failed"]; // OCOP Partner Delivered or Deliver window expire
+      case "Delivered":
+        return ["Completed"]; // Item stored
+      case "Failed":
+      case "Completed":
+      case "Cancelled":
+        return []; // Final states - no further transitions allowed
+      default:
+        return [];
+    }
+  };
+
+  // Update the status update function to validate transitions
+  const updateRequestStatus = async (id, newStatus) => {
     setLoading(true);
     try {
-      // Log dữ liệu trước khi gửi
-      console.log("Updating status for ID:", id, "to new status:", newStatus);
+      const currentRequest = requests.find((request) => request.id === id);
+      const validTransitions = getValidStatusTransitions(currentRequest.status);
+
+      if (!validTransitions.includes(newStatus)) {
+        message.error(
+          `Invalid status transition from ${currentRequest.status} to ${newStatus}`
+        );
+        return;
+      }
 
       const response = await fetchDataBearer({
-        url: `/request/update-request-status/${id}?status=${newStatus}`,
+        url: `/request/update-request-status/${id}?requestStatus=${newStatus}`,
         method: "PUT",
       });
 
       if (response && response.status === 200) {
         message.success("Status updated successfully!");
-        fetchRequests(pagination.pageIndex); // Làm mới bảng sau khi cập nhật
+        fetchRequests(); // Refresh request list
+        if (selectedRequest?.id === id) {
+          setSelectedRequest({ ...selectedRequest, status: newStatus }); // Update modal if open
+        }
       } else {
         const errorMessage =
           response?.data?.message || "Failed to update status.";
@@ -113,99 +209,182 @@ const RequestManagement = () => {
     }
   };
 
-  const renderStatusTag = (status) => {
-    const colorMap = {
-      Processing: "blue",
-      Delivered: "cyan",
-      Completed: "green",
-      Failed: "red",
-      Canceled: "orange",
-    };
-    return <Tag color={colorMap[status] || "default"}>{status}</Tag>;
-  };
-
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Request Management</h1>
+    <>
+      <div style={{ padding: "20px" }}>
+        <h1>Request Management</h1>
 
-      {/* Request Table */}
-      <Table
-        dataSource={requests}
-        columns={[
-          { title: "Request ID", dataIndex: "id", key: "id" },
-          {
-            title: "Partner Email",
-            dataIndex: "partner_email",
-            key: "partner_email",
-          },
-          { title: "Request Name", dataIndex: "name", key: "name" },
-          {
-            title: "Description",
-            dataIndex: "description",
-            key: "description",
-          },
-          {
-            title: "Product Name",
-            dataIndex: "productName",
-            key: "productName",
-          },
-          {
-            title: "Request Type",
-            dataIndex: "requestType",
-            key: "requestType",
-          },
-          {
-            title: "Warehouse Name",
-            dataIndex: "warehouseName",
-            key: "warehouseName",
-          },
-          {
-            title: "Status",
-            dataIndex: "status",
-            key: "status",
-            render: (status, record) => (
-              <Space direction="vertical">
-                {renderStatusTag(status)}
-                <Select
-                  // style={{ width: 150 }}
-                  style={{ width: 75, padding: 0 }}
-                  placeholder="Update Status"
-                  onChange={(newStatus) =>
-                    updateRequestStatus(record.id, newStatus)
-                  }
-                  defaultValue={status}
-                >
-                  {/* Chỉ hiển thị các trạng thái khác "Draft" */}
-                  <Option value="Processing">Processing</Option>
-                  <Option value="Delivered">Delivered</Option>
-                  <Option value="Completed">Completed</Option>
-                  <Option value="Canceled">Canceled</Option>
-                  <Option value="Failed">Failed</Option>
-                </Select>
-              </Space>
-            ),
-          },
-          { title: "Create Date", dataIndex: "createDate", key: "createDate" },
-          {
-            title: "Approve Date",
-            dataIndex: "approveDate",
-            key: "approveDate",
-          },
-          {
-            title: "Deliver Date",
-            dataIndex: "deliverDate",
-            key: "deliverDate",
-          },
+        {/* Request Table */}
+        <Table
+          dataSource={requests}
+          columns={[
+            { title: "Request ID", dataIndex: "id", key: "id" },
+            {
+              title: "Partner Email",
+              dataIndex: "partner_email",
+              key: "partner_email",
+            },
+            { title: "Request Name", dataIndex: "name", key: "name" },
+            {
+              title: "Description",
+              dataIndex: "description",
+              key: "description",
+            },
+            {
+              title: "Product Name",
+              dataIndex: "productName",
+              key: "productName",
+            },
+            {
+              title: "Request Type",
+              dataIndex: "requestType",
+              key: "requestType",
+            },
+            {
+              title: "Warehouse Name",
+              dataIndex: "warehouseName",
+              key: "warehouseName",
+            },
+            {
+              title: "Status",
+              dataIndex: "status",
+              key: "status",
+              render: (status, record) => (
+                <div className="flex flex-col gap-2 items-center">
+                  {renderStatusTag(status)} {/* Hiển thị status tag */}
+                </div>
+              ),
+            },
+            {
+              title: "Create Date",
+              dataIndex: "createDate",
+              key: "createDate",
+              render: (text) => text?.split("T")[0], // Chỉ hiển thị ngày
+            },
+            {
+              title: "Approve Date",
+              dataIndex: "approveDate",
+              key: "approveDate",
+              render: (text) => text?.split("T")[0], // Chỉ hiển thị ngày
+            },
+            {
+              title: "Deliver Date",
+              dataIndex: "deliverDate",
+              key: "deliverDate",
+              render: (text) => text?.split("T")[0], // Chỉ hiển thị ngày
+            },
+            {
+              title: "Action",
+              dataIndex: "",
+              key: "x",
+              render: (_, record) => (
+                <div className="flex flex-col gap-2 items-center">
+                  <Button
+                    className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+                    onClick={() => showRequestDetail(record)} // Hien thi chi tiet
+                  >
+                    View Details
+                  </Button>
+                </div>
+              ),
+            },
+          ]}
+          loading={loading}
+          pagination={{
+            current: pagination.pageIndex + 1,
+            pageSize: pagination.pageSize,
+            total: pagination.totalItemsCount,
+            onChange: handlePageChange,
+          }}
+        />
+      </div>
+      <Modal
+        title="Request Details"
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button key="close" onClick={handleModalClose}>
+            Close
+          </Button>,
         ]}
-        loading={loading}
-        pagination={{
-          current: pagination.pageIndex + 1,
-          pageSize: pagination.pageSize,
-          total: pagination.totalItemsCount,
-          onChange: handlePageChange,
-        }}
-      />
-    </div>
+      >
+        {selectedRequest && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div>
+                <Image
+                  src={selectedRequest.productImage}
+                  alt="Request Image"
+                  className="w-full"
+                />
+              </div>
+              <label htmlFor="statusSelect" className="font-bold">
+                Update Status:
+              </label>
+              <Select
+                id="statusSelect"
+                className="w-full"
+                value={selectedRequest.status}
+                onChange={(newStatus) =>
+                  updateRequestStatus(selectedRequest.id, newStatus)
+                }
+                disabled={
+                  getValidStatusTransitions(selectedRequest.status).length === 0
+                }
+              >
+                {getValidStatusTransitions(selectedRequest.status).map(
+                  (status) => (
+                    <Option key={status} value={status}>
+                      {status}
+                    </Option>
+                  )
+                )}
+              </Select>
+            </div>
+            <div>
+              <div className="grid grid-cols-1 gap-2">
+                <div>
+                  <p className="font-bold">Request ID:</p>
+                  <p>{selectedRequest.id}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Partner Email:</p>
+                  <p>{selectedRequest.partner_email}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Status:</p>
+                  <p>{renderStatusTag(selectedRequest.status)}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Receiver Phone:</p>
+                  <p>{selectedRequest.receiverPhone}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Receiver Address:</p>
+                  <p>{selectedRequest.receiverAddress}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Date:</p>
+                  <p>{selectedRequest.createDate.split("T")[0]}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Total Price:</p>
+                  <p>${selectedRequest.totalPrice}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Warehouse Name:</p>
+                  <p>{selectedRequest.warehouseName}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Warehouse Location:</p>
+                  <p>{selectedRequest.warehouseLocation}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+    </>
   );
 };
 

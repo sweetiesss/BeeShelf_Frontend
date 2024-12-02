@@ -17,7 +17,7 @@ export function Sidebar() {
   const [isSlideOut, setSlideOut] = useState(false);
   const { t } = useTranslation();
   const { userInfor } = useContext(AuthContext);
-  const location=useLocation();
+  const location = useLocation();
   return (
     <div
       className={`${
@@ -34,7 +34,7 @@ export function Sidebar() {
           <div className="bg-[var(--main-project-color)] w-2 h-4 "></div>
         </div>
       </button>
-      <div className="w-full flex items-center justify-center text-4xl font-bold h-20">
+      <div className="flex justify-center items-center w-full h-20 text-4xl font-bold">
         {isSlideOut ? (
           <p>
             <span className="text-[var(--main-project-color)]">Bee</span>Shelf
@@ -87,30 +87,32 @@ export function Sidebar() {
         {userInfor?.roleName === "Manager" && (
           <>
             <NavLink
-              to={location.pathname.toLocaleLowerCase() === "/manager" ? "" : "dashboard"}
+              to={
+                location.pathname.toLocaleLowerCase() === "/manager"
+                  ? ""
+                  : "dashboard"
+              }
               className="flex navigate-menu"
             >
               <div className="sidebar-menu-container">
-                <House className="icon"  />
+                <House className="icon" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
 
             <NavLink to="warehouse" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Bag className="icon"  />
+                <Bag className="icon" />
                 <p className="label">{t("Warehouse")}</p>
               </div>
             </NavLink>
 
             <NavLink to="employee" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon"  />
+                <AddressBook className="icon" />
                 <p className="label">{t("Employee")}</p>
               </div>
             </NavLink>
-
-           
           </>
         )}
 
@@ -118,7 +120,7 @@ export function Sidebar() {
           <>
             <NavLink to="dashboardstaff" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <House className="icon" weight="fill"  />
+                <House className="icon" weight="fill" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
@@ -137,7 +139,7 @@ export function Sidebar() {
             <NavLink to="ordermanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Bag className="icon" weight="fill" />
-                <p className="label">{t("Ordermanage")}</p>
+                <p className="label">{t("Order Manage")}</p>
               </div>
             </NavLink>
 

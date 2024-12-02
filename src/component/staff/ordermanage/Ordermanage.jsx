@@ -61,19 +61,21 @@ const Ordermanage = () => {
   const updateRequestStatus = async (id, newStatus) => {
     setLoading(true);
     try {
-      const currentOrder = data.find(order => order.id === id);
+      const currentOrder = data.find((order) => order.id === id);
       const validTransitions = getValidStatusTransitions(currentOrder.status);
-      
+
       if (!validTransitions.includes(newStatus)) {
-        message.error(`Invalid status transition from ${currentOrder.status} to ${newStatus}`);
+        message.error(
+          `Invalid status transition from ${currentOrder.status} to ${newStatus}`
+        );
         return;
       }
-  
+
       const response = await fetchDataBearer({
         url: `/order/update-order-status/${id}?orderStatus=${newStatus}`,
         method: "PUT",
       });
-  
+
       if (response && response.status === 200) {
         message.success("Status updated successfully!");
         GetOrderWarehouse(); // Refresh order list
@@ -81,14 +83,15 @@ const Ordermanage = () => {
           setSelectedOrder({ ...selectedOrder, status: newStatus }); // Update modal if open
         }
       } else {
-        const errorMessage = response?.data?.message || "Failed to update status.";
+        const errorMessage =
+          response?.data?.message || "Failed to update status.";
         message.error(errorMessage);
       }
     } catch (error) {
       console.error("Error updating status:", error);
       message.error(
         error.response?.data?.message ||
-        "Failed to update status. Please try again."
+          "Failed to update status. Please try again."
       );
     } finally {
       setLoading(false);
@@ -226,38 +229,34 @@ const Ordermanage = () => {
           >
             View Details
           </Button>
-          <Button
-            className="px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700"
-            onClick={() => deleteOrder(record.id)} // Xóa order
-          >
-            Delete
-          </Button>
         </div>
       ),
     },
   ];
 
   // Add this function to check valid status transitions
-const getValidStatusTransitions = (currentStatus) => {
-  switch (currentStatus) {
-    case "Pending":
-      return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
-    case "Processing":
-      return ["Shipping", "Cancelled"]; // Shipper delivery or Out of stock
-    case "Shipping":
-      return ["Delivered", "Cancelled"]; // Shipping Finish delivery or OCOP Partner Cancelled
-    case "Delivered":
-      return ["Returned", "Completed"]; // Receiver returns or Return window expire
-    case "Returned":
-      return ["Refunded"]; // Refund processed
-    case "Completed":
-    case "Cancelled":
-    case "Refunded":
-      return []; // Final states - no further transitions allowed
-    default:
-      return [];
-  }
-};
+  const getValidStatusTransitions = (currentStatus) => {
+    switch (currentStatus) {
+      case "Draft":
+        return ["Pending"];
+      case "Pending":
+        return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
+      case "Processing":
+        return ["Shipping", "Cancelled"]; // Shipper delivery or Out of stock
+      case "Shipping":
+        return ["Delivered", "Cancelled"]; // Shipping Finish delivery or OCOP Partner Cancelled
+      case "Delivered":
+        return ["Returned", "Completed"]; // Receiver returns or Return window expire
+      case "Returned":
+        return ["Refunded"]; // Refund processed
+      case "Completed":
+      case "Cancelled":
+      case "Refunded":
+        return []; // Final states - no further transitions allowed
+      default:
+        return [];
+    }
+  };
 
   // Sử dụng useEffect để tự động lấy dữ liệu khi component được render
   useEffect(() => {
@@ -300,25 +299,35 @@ const getValidStatusTransitions = (currentStatus) => {
         {selectedOrder && (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Image
-                src={selectedOrder.pictureLink}
-                alt="Order Image"
-                className="w-full"
-              />
-              <label htmlFor="statusSelect" className="font-bold">Update Status:</label>
+              <div>
+                <Image
+                  src={selectedOrder.pictureLink}
+                  alt="Order Image"
+                  className="w-full"
+                />
+              </div>
+              <label htmlFor="statusSelect" className="font-bold">
+                Update Status:
+              </label>
               <Select
-  id="statusSelect"
-  className="w-full"
-  value={selectedOrder.status}
-  onChange={(newStatus) => updateRequestStatus(selectedOrder.id, newStatus)}
-  disabled={getValidStatusTransitions(selectedOrder.status).length === 0}
->
-  {getValidStatusTransitions(selectedOrder.status).map(status => (
-    <Option key={status} value={status}>
-      {status}
-    </Option>
-  ))}
-</Select>
+                id="statusSelect"
+                className="w-full"
+                value={selectedOrder.status}
+                onChange={(newStatus) =>
+                  updateRequestStatus(selectedOrder.id, newStatus)
+                }
+                disabled={
+                  getValidStatusTransitions(selectedOrder.status).length === 0
+                }
+              >
+                {getValidStatusTransitions(selectedOrder.status).map(
+                  (status) => (
+                    <Option key={status} value={status}>
+                      {status}
+                    </Option>
+                  )
+                )}
+              </Select>
             </div>
             <div>
               <div className="grid grid-cols-1 gap-2">
