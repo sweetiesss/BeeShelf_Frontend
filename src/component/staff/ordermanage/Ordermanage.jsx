@@ -35,7 +35,7 @@ const Ordermanage = () => {
       if (response && response.data) {
         const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
           response.data;
-
+          const filteredItems = items.filter((item) => item.status !== "Draft");
         // Cập nhật dữ liệu vào state
         setData(items);
         setPagination({
