@@ -8,7 +8,9 @@ import Ordermanage from "../component/staff/ordermanage/Ordermanage";
 import Batch from "../component/staff/batchflow/Batch";
 import RequestManagement from "../component/staff/requestmanage/RequestManage";
 import Payment from "../component/staff/payment/Payment";
-import { Dashboard } from "../pages/partner/HomePage";
+// import { Dashboard } from "../pages/partner/HomePage";
+import Dashboard from "../component/staff/dashboard/Dashboard";
+// import Inventory from "../component/staff/inventory/Inventory";
 import Inventory from "../component/staff/inventory/Inventory";
 
 export default function StaffRoutes() {

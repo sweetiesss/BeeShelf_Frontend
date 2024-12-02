@@ -35,7 +35,7 @@ const Ordermanage = () => {
       if (response && response.data) {
         const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
           response.data;
-
+        const filteredItems = items.filter((item) => item.status !== "Draft");
         // Cập nhật dữ liệu vào state
         setData(items);
         setPagination({
@@ -240,17 +240,17 @@ const Ordermanage = () => {
       case "Draft":
         return ["Pending"];
       case "Pending":
-        return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
+        return ["Processing", "Canceled"]; // Staff confirmed or OCOP Partner Cancelled
       case "Processing":
-        return ["Shipping", "Cancelled"]; // Shipper delivery or Out of stock
-      case "Shipping":
-        return ["Delivered", "Cancelled"]; // Shipping Finish delivery or OCOP Partner Cancelled
-      case "Delivered":
-        return ["Returned", "Completed"]; // Receiver returns or Return window expire
+        return ["Canceled"]; // Shipper delivery or Out of stock
+      // case "Shipping":
+      //   return ["Delivered", "Canceled"]; // Shipping Finish delivery or OCOP Partner Cancelled
+      // case "Delivered":
+      //   return ["Returned", "Completed"]; // Receiver returns or Return window expire
       case "Returned":
         return ["Refunded"]; // Refund processed
       case "Completed":
-      case "Cancelled":
+      case "Canceled":
       case "Refunded":
         return []; // Final states - no further transitions allowed
       default:

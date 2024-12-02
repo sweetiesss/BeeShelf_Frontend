@@ -6,8 +6,8 @@ import { useAuth } from "../../../context/AuthContext";
 
 const Payment = () => {
   const { userInfor } = useAuth(); // Lấy thông tin user từ hook useAuth
-  const { paymentId: urlPaymentId } = useParams(); // Lấy paymentId từ URL
-  const [paymentId, setPaymentId] = useState(urlPaymentId || ""); // Trạng thái cho paymentId (lấy từ URL nếu có)
+  const { moneyTransferId: urlPaymentId } = useParams(); // Lấy paymentId từ URL
+  const [moneyTransferId, setPaymentId] = useState(urlPaymentId || ""); // Trạng thái cho paymentId (lấy từ URL nếu có)
   const [visible, setVisible] = useState(false); // Trạng thái hiển thị modal
   const [payments, setPayments] = useState([]);
   const [paymentIdOptions, setPaymentIdOptions] = useState([]); // Trạng thái cho danh sách paymentId options
@@ -33,7 +33,7 @@ const Payment = () => {
       }
 
       const response = await fetchDataBearer({
-        url: `/payment/get-payments/${warehouseId}`, // Sử dụng URL với warehouseId động
+        url: `/payment/get-money-transfers/${warehouseId}`, // Sử dụng URL với warehouseId động
         method: "GET",
         params: {
           pageIndex: pagination.pageIndex,
@@ -46,11 +46,11 @@ const Payment = () => {
         message.success("Data loaded successfully!");
 
         // Map the response data to paymentId options for the Select component
-        const options = response.data.map((payment) => ({
-          value: payment.id, // ID của payment sẽ là value
-          label: `Payment ID: ${payment.id} - 
-          Order ID: ${payment.orderId} - 
-          ShipperName: ${payment.shipperName}`,
+        const options = response.data.map((moneyTransferId) => ({
+          value: moneyTransferId.id, // ID của payment sẽ là value
+          label: `MoneyTransferId: ${moneyTransferId.id} - 
+          OCOP Partner ID: ${moneyTransferId.ocopPartnerId} - 
+          Amount: ${moneyTransferId.amount}`,
            // Hiển thị Payment ID trong label
         }));
         setPaymentIdOptions(options);
@@ -70,31 +70,30 @@ const Payment = () => {
     setLoading(true);
     try {
       // Kiểm tra thông tin trước khi gọi API
-      console.log("Creating payment with paymentId:", paymentId, "and staffId:", userInfor?.id);
+      console.log("Creating payment with moneyTransferId:", moneyTransferId, "and staffId:", userInfor?.id);
 
       const response = await fetchDataBearer({
-        // url: `/payment/create-money-transfer/${paymentId}`, // Chuyển paymentId vào URL
-        url: `/payment/create-money-transfer/${paymentId}?staffId=${userInfor?.id}`,
+
+        // url: `/payment/create-money-transfer-request/${paymentId}?staffId=${userInfor?.id}`,
+        url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}`,
         method: "POST",
         data: {
-        //   staffId: userInfor?.id, // Sử dụng userInfor?.id cho staffId
-        //   paymentId,
-        paymentId,
+          moneyTransferId,
         },
       });
+      
 
       if (response && response.status === 200) {
-        message.success("Payment created successfully!");
+        message.success("Payment Confirm successfully!");
         fetchPayments(); // Cập nhật lại danh sách thanh toán
         setVisible(false); // Đóng modal khi tạo payment thành công
       } else {
         const errorMessage =
-          response?.data?.message || "Failed to create money transfer.";
+          response?.data?.message || "Failed to Confirm money transfer.";
         message.error(errorMessage);
       }
     } catch (error) {
-      console.error("Error creating payment:", error);
-      message.error("Failed to create money transfer.");
+      message.error(error.response.data.message);
     } finally {
       setLoading(false);
     }
@@ -108,16 +107,18 @@ const Payment = () => {
       dataIndex: "ocopPartnerId",
       key: "ocopPartnerId",
     },
-    { title: "Order ID", dataIndex: "orderId", key: "orderId" },
-    { title: "Collected By", dataIndex: "collectedBy", key: "collectedBy" },
-    { title: "Shipper Email", dataIndex: "shipperEmail", key: "shipperEmail" },
-    { title: "Shipper Name", dataIndex: "shipperName", key: "shipperName" },
-    {
-      title: "Total Amount",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
-      render: (text) => `$${text}`,
-    },
+    {title: "Transfer By", dataIndex: "transferBy", key:"transferBy"},
+    { title: "TransferByStaffEmail", dataIndex: "transferByStaffEmail", key: "transferByStaffEmail" },
+    // { title: "Collected By", dataIndex: "collectedBy", key: "collectedBy" },
+    {title: "Amount", dataIndex: "amount", key:"amount"},
+    // { title: "Shipper Email", dataIndex: "shipperEmail", key: "shipperEmail" },
+    { title: "CreateDate", dataIndex: "createDate", key: "createDate" ,  render: (text) => text.split("T")[0], },
+    // {
+    //   title: "Total Amount",
+    //   dataIndex: "totalAmount",
+    //   key: "totalAmount",
+    //   render: (text) => `$${text}`,
+    // },
   ];
 
   // Lấy dữ liệu thanh toán khi component mount
@@ -134,12 +135,12 @@ const Payment = () => {
         loading={loading}
         style={{ marginBottom: 20 }}
       >
-        Create Money Transfer
+        Confirm Money Transfer
       </Button>
-      <h1>Payments List</h1>
+      <h1>Transfer Money Request List</h1>
       {/* Modal hiển thị form nhập staffId và paymentId */}
       <Modal
-        title="Create Money Transfer"
+        title="Confirm Money Transfer Request"
         visible={visible}
         onCancel={() => setVisible(false)} // Đóng modal khi nhấn cancel
         footer={[
@@ -152,7 +153,7 @@ const Payment = () => {
             loading={loading}
             onClick={createPayment}
           >
-            Create Money Transfer 
+            Confirm Money Transfer Request 
           </Button>,
         ]}
       >
@@ -169,7 +170,7 @@ const Payment = () => {
           {/* Trường input cho paymentId */}
           <Form.Item label="Payment ID" required>
             <Select
-              value={paymentId} // Đảm bảo paymentId là state hoặc prop đang lưu trữ giá trị đã chọn
+              value={moneyTransferId} // Đảm bảo paymentId là state hoặc prop đang lưu trữ giá trị đã chọn
               onChange={(value) => setPaymentId(value)} // Cập nhật giá trị khi người dùng chọn
               placeholder="Select Payment ID"
             >
