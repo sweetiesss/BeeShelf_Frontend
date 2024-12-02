@@ -23,10 +23,11 @@ const { Option } = Select;
 const BatchManage = () => {
   const [batches, setBatches] = useState([]); // All batch data
   const [orders, setOrders] = useState([]); // Orders data for Order IDs field
-  // const [shippers, setShippers] = useState([]); // Shippers data
+  const [shippers, setShippers] = useState([]); // Shippers data
   const [loading, setLoading] = useState(false); // Loading state
   const [selectedBatch, setSelectedBatch] = useState(null); // Selected batch for the drawer
   const [selectedBatchIds, setSelectedBatchIds] = useState([]); // Selected batch IDs for deletion
+  const [selectedDeliveryZone, setSelectedDeliveryZone] = useState(null);
   const [createBatchModalVisible, setCreateBatchModalVisible] = useState(false); // Modal visibility
   const { fetchDataBearer } = useAxios(); // Custom Axios hook
   const { userInfor } = useAuth(); // Get user info
@@ -47,7 +48,11 @@ const BatchManage = () => {
           url: `/batch/get-batches?pageIndex=0&pageSize=100`,
           method: "GET",
         });
-        const formattedBatches = response.items.map((batch) => ({
+        if (!response || !response.data || !response.data.items) {
+          console.error("Failed to fetch batches data");
+          return;
+        }
+        const formattedBatches = response.data.items.map((batch) => ({
           key: batch.id,
           id: batch.id,
           name: batch.name,
@@ -96,60 +101,72 @@ const BatchManage = () => {
     }
   }, [userInfor]);
 
-
-  
-
   // Fetch orders for Order IDs field
-  // useEffect(() => {
-  //   const fetchOrders = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const response = await fetchDataBearer({
-  //         url: `/order/get-orders?descending=false&pageIndex=0&pageSize=1000`,
-  //         method: "GET",
-  //       });
-  //       const formattedOrders = response.items.map((order) => ({
-  //         id: order.id,
-  //         partnerEmail: order.partner_email,
-  //       }));
-  //       setOrders(formattedOrders);
-  //     } catch (error) {
-  //       console.error("Error fetching orders:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+      try {
+        const response = await fetchDataBearer({
+          url: `/order/get-warehouse-orders`,
+          method: "GET",
+          params: {
+            warehouseId: userInfor?.workAtWarehouseId,
+            pageIndex: 0,
+            pageSize: 100,
+            orderFilterBy: "DeliveryZoneId",
+            filterQuery: selectedDeliveryZone,
+          },
+        });
+        console.log("Orders data:", response);
+        if (!response || !response.data) {
+          console.error("Failed to fetch orders data");
+          return;
+        }
+        const formattedOrders = response.data.items.map((order) => ({
+          id: order.id,
+          partnerEmail: order.partner_email,
+        }));
+        console.log("Formatted orders:", formattedOrders);
+        setOrders(formattedOrders);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   fetchOrders();
-  // }, []);
+    if (userInfor?.workAtWarehouseId && selectedDeliveryZone) {
+      fetchOrders();
+    }
+  }, [userInfor, selectedDeliveryZone]);
 
- 
-  const [shippers, setShippers] = useState([]);
-
- 
-
+  // Fetch shippers
   useEffect(() => {
     console.log("userInfor:", userInfor); // Kiểm tra giá trị của userInfor
-  
+
     const fetchShippers = async () => {
-      
       console.log("Fetching shippers...");
       setLoading(true);
       try {
         const warehouseId = userInfor?.workAtWarehouseId;
-  
+
         if (!warehouseId) {
           console.error("Warehouse ID is not available");
           setLoading(false);
           return;
         }
-  
+
         const response = await fetchDataBearer({
-     
-          url: `/warehouse/get-warehouse-shippers?filterBy=WarehouseId&filterQuery=${warehouseId}`,
+          url: `/warehouse/get-warehouse-shippers`,
           method: "GET",
+          params: {
+            pageIndex: 0,
+            pageSize: 100,
+            filterBy: "DeliveryZoneId",
+            filterQuery: selectedDeliveryZone,
+          },
         });
-      
+
         if (response.status === 200 && response.data) {
           console.log("Shippers data:", response.data);
           setShippers(response.data.items || []); // Ensure this is correct
@@ -162,12 +179,11 @@ const BatchManage = () => {
         setLoading(false);
       }
     };
-  
-    if (userInfor?.workAtWarehouseId) {
+
+    if (userInfor?.workAtWarehouseId && selectedDeliveryZone) {
       fetchShippers();
     }
-  }, [userInfor]);
-  
+  }, [userInfor, selectedDeliveryZone]);
 
   // Handle delete action
   const handleDelete = async () => {
@@ -208,6 +224,7 @@ const BatchManage = () => {
         deliveryZoneId: values.deliveryZoneId,
         orders: values.orders.map((id) => ({ id })),
       };
+      console.log("Payload:", payload);
       const response = await fetchDataBearer({
         url: `/batch/create-batch`,
         method: "POST",
@@ -224,7 +241,7 @@ const BatchManage = () => {
       }
     } catch (error) {
       console.error("Error creating batch:", error);
-      message.error("Failed to create batch.");
+      message.error(error.response?.data?.message || "Failed to create batch.");
     } finally {
       setLoading(false);
     }
@@ -284,8 +301,8 @@ const BatchManage = () => {
           },
           {
             title: "Shipper",
-            dataIndex: "assignTo",
-            key: "assignTo",
+            dataIndex: "shipperName",
+            key: "shipperName",
           },
           {
             title: "Actions",
@@ -310,7 +327,7 @@ const BatchManage = () => {
       {/* Create Batch Modal */}
       <Modal
         title="Create Batch"
-        visible={createBatchModalVisible}
+        open={createBatchModalVisible}
         onCancel={() => setCreateBatchModalVisible(false)}
         onOk={() => form.submit()}
       >
@@ -325,6 +342,7 @@ const BatchManage = () => {
             orders: [],
           }}
         >
+          {/* Batch Name */}
           <Form.Item
             name="name"
             label="Batch Name"
@@ -332,6 +350,26 @@ const BatchManage = () => {
           >
             <Input />
           </Form.Item>
+
+          {/* Delivery Zone */}
+          <Form.Item
+            name="deliveryZoneId"
+            label="Delivery Zone"
+            rules={[{ required: true }]}
+          >
+            <Select
+              placeholder="Select a delivery zone"
+              onChange={(value) => setSelectedDeliveryZone(value)}
+            >
+              {deliveryZones.map((zone) => (
+                <Option key={zone.id} value={zone.id}>
+                  DeliveryZoneId: {zone.id} - Name Zone: {zone.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          {/* Shipper */}
           <Form.Item
             name="shipperId"
             label="Shipper"
@@ -351,24 +389,12 @@ const BatchManage = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="deliveryZoneId"
-            label="Delivery Zone"
-            rules={[{ required: true }]}
-          >
-            <Select placeholder="Select a delivery zone">
-              {deliveryZones.map((zone) => (
-                <Option key={zone.id} value={zone.id}>
-                  DeliveryZoneId: {zone.id} - Name Zone: {zone.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+          {/* Orders */}
           <Form.Item name="orders" label="Orders" rules={[{ required: true }]}>
             <Select mode="multiple" placeholder="Select orders" allowClear>
               {orders.map((order) => (
                 <Option key={order.id} value={order.id}>
-                  {order.partnerEmail}
+                  id: {order.id} - email: {order.partnerEmail}
                 </Option>
               ))}
             </Select>
@@ -379,7 +405,7 @@ const BatchManage = () => {
       {/* Batch Details Drawer */}
       <Drawer
         title={`Batch Details - ${selectedBatch?.name}`}
-        visible={!!selectedBatch}
+        open={!!selectedBatch}
         onClose={() => setSelectedBatch(null)}
         width={500}
       >
