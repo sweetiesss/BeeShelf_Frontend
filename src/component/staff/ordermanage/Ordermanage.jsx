@@ -241,17 +241,17 @@ const Ordermanage = () => {
 const getValidStatusTransitions = (currentStatus) => {
   switch (currentStatus) {
     case "Pending":
-      return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
+      return ["Processing", "Canceled"]; // Staff confirmed or OCOP Partner Cancelled
     case "Processing":
-      return ["Shipping", "Cancelled"]; // Shipper delivery or Out of stock
-    case "Shipping":
-      return ["Delivered", "Cancelled"]; // Shipping Finish delivery or OCOP Partner Cancelled
-    case "Delivered":
-      return ["Returned", "Completed"]; // Receiver returns or Return window expire
+      return ["Canceled"]; // Shipper delivery or Out of stock
+    // case "Shipping":
+    //   return ["Delivered", "Canceled"]; // Shipping Finish delivery or OCOP Partner Cancelled
+    // case "Delivered":
+    //   return ["Returned", "Completed"]; // Receiver returns or Return window expire
     case "Returned":
       return ["Refunded"]; // Refund processed
     case "Completed":
-    case "Cancelled":
+    case "Canceled":
     case "Refunded":
       return []; // Final states - no further transitions allowed
     default:
