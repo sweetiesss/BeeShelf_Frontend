@@ -74,10 +74,36 @@ const Inventory = () => {
         url: `/inventory/get-inventory/${id}`,
         method: "GET",
       });
-      if (response && response.data) {
-        setSelectedInventory(response.data);
-        setIsModalVisible(true);
-      } else {
+    //   if (response && response.data) {
+    //     setSelectedInventory(response.data);
+    //     setIsModalVisible(true);
+    //   }
+    if (response && response.data) {
+        // Assuming the first element of the 'lots' array contains the inventory lot details
+        const lotData = response.data.lots[0];
+  
+        if (lotData) {
+          // Now, setting the inventory lot details
+          setSelectedInventory({
+            id: lotData.id,
+            lotNumber: lotData.lotNumber,
+            name: lotData.name,
+            createDate: lotData.createDate,
+            lotAmount: lotData.lotAmount,
+            productId: lotData.productId,
+            productName: lotData.productName,
+            productPerLot: lotData.productPerLot,
+            totalProductAmount: lotData.totalProductAmount,
+            importDate: lotData.importDate,
+            exportDate: lotData.exportDate,
+            expirationDate: lotData.expirationDate,
+            inventoryId: lotData.inventoryId
+          });
+  
+          setIsModalVisible(true);
+        } }
+      
+    else {
         message.error("No data returned from the server.");
       }
     } catch (error) {
@@ -133,7 +159,7 @@ const Inventory = () => {
       </Row>
 
       <Modal
-        title="Inventory Details"
+        title="Inventory Details" 
         open={isModalVisible}
         onCancel={handleModalClose}
         footer={[
@@ -144,38 +170,43 @@ const Inventory = () => {
       >
         {selectedInventory && (
           <div className="grid grid-cols-1 gap-4">
+           <p className="font-bold">Lot ID:</p> <p>{selectedInventory.inventoryId}</p>
             <div>
-              <p className="font-bold">Inventory ID:</p>
+              <p className="font-bold">Lot ID:</p>
               <p>{selectedInventory.id}</p>
             </div>
+            {/* <div>
+              <p className="font-bold">Inventory ID:</p>
+              <p>{selectedInventory.id}</p>
+            </div> */}
             <div>
-              <p className="font-bold">Name:</p>
+              <p className="font-bold">Lot Number:</p>
+              <p>{selectedInventory.lotNumber}</p>
+            </div>
+            <div>
+              <p className="font-bold">Lot Name:</p>
               <p>{selectedInventory.name}</p>
             </div>
             <div>
-              <p className="font-bold">Max Weight:</p>
-              <p>{selectedInventory.maxWeight}</p>
+              <p className="font-bold">Lot Amount:</p>
+              <p>{selectedInventory.lotAmount}</p>
             </div>
             <div>
-              <p className="font-bold">OCOP Partner ID:</p>
-              <p>{selectedInventory.ocopPartnerId}</p>
-            </div>
-            <div>
-              <p className="font-bold">Current Weight:</p>
-              <p>{selectedInventory.weight}</p>
-            </div>
-            <div>
-              <p className="font-bold">Total Products:</p>
-              <p>{selectedInventory.totalProduct}</p>
-            </div>
-            <div>
-              <p className="font-bold">Warehouse Name:</p>
-              <p>{selectedInventory.warehouseName}</p>
+              <p className="font-bold">Product PerLot:</p>
+              <p>{selectedInventory.productPerLot}</p>
             </div>
             {/* <div>
-              <p className="font-bold">Status:</p>
-              <p>{selectedInventory.status}</p>
+              <p className="font-bold">Total Products:</p>
+              <p>{selectedInventory.totalProduct}</p>
             </div> */}
+            <div>
+              <p className="font-bold"> Product Name:</p>
+              <p>{selectedInventory.productName}</p>
+            </div>
+            <div>
+              <p className="font-bold">Total Product Amount:</p>
+              <p>{selectedInventory.totalProductAmount}</p>
+            </div>
           </div>
         )}
       </Modal>
