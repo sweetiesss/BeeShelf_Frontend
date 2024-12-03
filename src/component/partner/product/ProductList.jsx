@@ -11,6 +11,7 @@ import {
   ExclamationMark,
   X,
 } from "@phosphor-icons/react";
+import Select from "react-select";
 
 export default function ProductList({
   products,
@@ -35,10 +36,33 @@ export default function ProductList({
   hanldeEditChange,
   handleUpdateEdit,
   errorList,
+  productCategories,
 }) {
   const { t } = useTranslation();
   const [openAction, setOpenAction] = useState();
   const [thisIsTheLastItem, IsThisIsTheLastItem] = useState(false);
+  const unitOptions = [
+    { value: "", label: "Choose unit" },
+    { value: "Liter", label: "Liter" },
+    { value: "Milliliter", label: "Milliliter" },
+    { value: "Pieces", label: "Pieces" },
+    { value: "Box", label: "Box" },
+    { value: "Bottle", label: "Bottle" },
+    { value: "Package", label: "Package" },
+    { value: "Carton", label: "Carton" },
+    { value: "Meter", label: "Meter" },
+    { value: "Centimeter", label: "Centimeter" },
+    { value: "Square Meter", label: "Square Meter" },
+    { value: "Kilometer", label: "Kilometer" },
+    { value: "Bag", label: "Bag" },
+    { value: "Sheet", label: "Sheet" },
+    { value: "Roll", label: "Roll" },
+    { value: "Jar", label: "Jar" },
+    { value: "Pot", label: "Pot" },
+    { value: "Tablet", label: "Tablet" },
+    { value: "Can", label: "Can" },
+  ];
+
   const handleOpenActionTab = async (e, product) => {
     e.stopPropagation();
     if (openAction === product) {
@@ -104,13 +128,11 @@ export default function ProductList({
                 <span>#</span>
               )}
             </th>
-            <th className="border-b-2 text-left py-4 w-[7vw]">{t("Image")}</th>
-            <th className="border-b-2 text-left py-4 w-[10vw]">
-              {t("Barcode")}
-            </th>
+            <th className="border-b-2 text-left py-4 ">{t("Image")}</th>
+            <th className="border-b-2 text-left py-4">{t("Barcode")}</th>
 
             <th
-              className={`border-b-2 text-left py-4 w-[14vw] cursor-pointer hover:text-[var(--en-vu-600)] ${
+              className={`border-b-2 text-left py-4  cursor-pointer hover:text-[var(--en-vu-600)] ${
                 sortBy === "Name" && "text-black"
               }`}
               onClick={() => {
@@ -127,15 +149,11 @@ export default function ProductList({
               </span>
             </th>
 
-            <th className="border-b-2 text-left py-4 w-[10vw]">
-              {t("Category")}
-            </th>
-            <th className="border-b-2 text-left py-4 w-[5vw]">
-              {t("isCold")}
-            </th>
+            <th className="border-b-2 text-left py-4 ">{t("Category")}</th>
+            <th className="border-b-2 text-left py-4">{t("isCold")}</th>
 
             <th
-              className={`border-b-2 text-left py-4 w-[10vw] cursor-pointer hover:text-[var(--en-vu-600)] ${
+              className={`border-b-2 text-left py-4 cursor-pointer hover:text-[var(--en-vu-600)] ${
                 sortBy === "Origin" && "text-black"
               }`}
               onClick={() => {
@@ -153,7 +171,7 @@ export default function ProductList({
             </th>
 
             <th
-              className={`border-b-2 text-left py-4 w-[7vw] cursor-pointer hover:text-[var(--en-vu-600)] ${
+              className={`border-b-2 text-left py-4 cursor-pointer hover:text-[var(--en-vu-600)] ${
                 sortBy === "Price" && "text-black"
               }`}
               onClick={() => {
@@ -170,7 +188,12 @@ export default function ProductList({
               </span>
             </th>
             <th
-              className={`border-b-2 text-left py-4 cursor-pointer w-[8vw] hover:text-[var(--en-vu-600)] ${
+              className={`border-b-2 text-left py-4 cursor-pointer hover:text-[var(--en-vu-600)] `}
+            >
+              <span className="flex items-center gap-1">{t("Unit")}</span>
+            </th>
+            <th
+              className={`border-b-2 text-left py-4 cursor-pointer hover:text-[var(--en-vu-600)] ${
                 sortBy === "CreateDate" && "text-black"
               }`}
               onClick={() => {
@@ -204,7 +227,7 @@ export default function ProductList({
               </span>
             </th>
             {!notInDataBase && (
-              <th className="border-b-2  py-4 w-[6vw] text-center">
+              <th className="border-b-2  py-4  text-center">
                 {t("InInventory")}
               </th>
             )}
@@ -218,11 +241,12 @@ export default function ProductList({
               let checkError = errorList?.find((p) => p.item.id === product.id);
               console.log(checkError);
               let editAble = editProduct === product;
+              // let category=cate
               return (
                 <tr
                   key={product.id}
                   className={`
-                border-t-2 
+                border-t-2 ${editAble ? "bg-gray-100" : ""}
                   ${chooice ? "bg-[var(--Xanh-100)]" : ""}  ${
                     checkError
                       ? "bg-red-200 hover:bg-red-100"
@@ -230,7 +254,7 @@ export default function ProductList({
                   }`}
                   onClick={() => toggleProductSelection(product)}
                 >
-                  <td className="w-10 px-2">
+                  <td className="px-2">
                     <div
                       className={`w-4 h-4 rounded-sm ${
                         isProductSelected(product)
@@ -242,15 +266,15 @@ export default function ProductList({
                       onClick={(e) => e.stopPropagation()}
                     />
                   </td>
-                  <td className="w-[7vw] h-[6rem]">
+                  <td className=" h-[6rem]">
                     <img
                       src={product.pictureLink}
                       alt={product.name}
-                      className="w-[4vw] h-[4rem] rounded-xl"
+                      className=" h-[4rem] rounded-xl"
                     />
                   </td>
                   <td
-                    className={`w-[10vw]  ${
+                    className={`  ${
                       checkError?.error?.includes("barcode") &&
                       "text-red-500 font-bold"
                     }`}
@@ -266,7 +290,7 @@ export default function ProductList({
                     ) : (
                       <>
                         <div
-                          className={`overflow-hidden text-nowrap max-w-[9vw] flex items-center `}
+                          className={`overflow-hidden text-nowrap  flex items-center `}
                         >
                           {product.barcode}
                           {checkError?.error?.includes("barcode") &&
@@ -280,7 +304,7 @@ export default function ProductList({
                     )}
                   </td>
                   <td
-                    className={`w-[14vw] ${
+                    className={` ${
                       checkError?.error?.includes("name") &&
                       "text-red-500 font-bold"
                     }`}
@@ -295,7 +319,7 @@ export default function ProductList({
                       />
                     ) : (
                       <div
-                        className={`overflow-hidden text-nowrap max-w-[13vw] flex items-center `}
+                        className={`overflow-hidden text-wrap  flex items-center `}
                       >
                         {product.name}
                         {checkError?.error?.includes("name") &&
@@ -307,36 +331,74 @@ export default function ProductList({
                       </div>
                     )}
                   </td>
-                  <td className="w-[10vw]">
-                    <div
-                      className={`overflow-hidden text-nowrap max-w-[9vw] flex items-center${
-                        checkError?.error?.includes("name") && "text-red-500"
-                      }`}
-                    >
-                      {product.productCategoryName}
-                      {checkError?.error?.includes("productCategoryId") && (
-                        <span className="bg-red-500 text-white text-lg rounded-md">
-                          <ExclamationMark weight="bold" />
-                        </span>
-                      )}
-                    </div>
+                  <td
+                    className={` ${
+                      checkError?.error?.includes("productCategoryId") &&
+                      "text-red-500 font-bold"
+                    }`}
+                  >
+                    {editAble ? (
+                      <select
+                        value={editForm?.productCategoryId}
+                        name="productCategoryId"
+                        className="w-[80%] px-2 py-1"
+                        onChange={hanldeEditChange}
+                      >
+                        <option value={0}>Select Category</option>
+                        {productCategories?.map((item) => (
+                          <option value={item?.id}>{item?.typeName}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div
+                        className={`overflow-hidden text-wrap  flex items-center `}
+                      >
+                        {product?.productCategoryName}
+                        {checkError?.error?.includes("productCategoryId") &&
+                          !product.productCategoryId && (
+                            <span className="bg-red-500 text-white text-lg rounded-md">
+                              <ExclamationMark weight="bold" />
+                            </span>
+                          )}
+                      </div>
+                    )}
                   </td>
-                  <td className="w-[5vw]">
-                    <div
-                      className={`overflow-hidden text-nowrap max-w-[9vw] flex items-center${
-                        checkError?.error?.includes("isCold") && "text-red-500"
-                      }`}
-                    >
-                      {product.isCold === 1 ? "Yes" : "No"}
-                      {checkError?.error?.includes("isCold") && (
-                        <span className="bg-red-500 text-white text-lg rounded-md">
-                          <ExclamationMark weight="bold" />
-                        </span>
-                      )}
-                    </div>
+                  <td className="">
+                    {editAble ? (
+                      <>
+                        <label
+                          htmlFor="isCold"
+                          className="cursor-pointer underline font-semibold"
+                        >
+                          {editForm.isCold === 1 ? "Yes" : "No"}
+                        </label>
+                        <input
+                          type="checkbox"
+                          checked={editForm.isCold === 1}
+                          name="isCold"
+                          id="isCold"
+                          className="w-[80%] px-2 py-1 hidden"
+                          onChange={hanldeEditChange}
+                        />
+                      </>
+                    ) : (
+                      <div
+                        className={`overflow-hidden text-nowrap  flex items-center${
+                          checkError?.error?.includes("isCold") &&
+                          "text-red-500"
+                        }`}
+                      >
+                        {product.isCold === 1 ? "Yes" : "No"}
+                        {checkError?.error?.includes("isCold") && (
+                          <span className="bg-red-500 text-white text-lg rounded-md">
+                            <ExclamationMark weight="bold" />
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </td>
                   <td
-                    className={`w-[10vw] ${
+                    className={` ${
                       checkError?.error?.includes("origin") &&
                       "text-red-500 font-bold"
                     }`}
@@ -350,7 +412,7 @@ export default function ProductList({
                         onChange={hanldeEditChange}
                       />
                     ) : (
-                      <div className="overflow-hidden text-nowrap max-w-[9vw] flex items-center">
+                      <div className="overflow-hidden text-nowrap  flex items-center">
                         {product.origin}
                         {checkError?.error?.includes("origin") &&
                           !product.origin && (
@@ -362,7 +424,7 @@ export default function ProductList({
                     )}
                   </td>
                   <td
-                    className={`w-[7vw] ${
+                    className={` ${
                       checkError?.error?.includes("price") &&
                       "text-red-500 font-bold"
                     }`}
@@ -378,9 +440,9 @@ export default function ProductList({
                       />
                     ) : (
                       <div
-                        className={`overflow-hidden text-nowrap max-w-[6vw] flex items-center `}
+                        className={`overflow-hidden text-nowrap  flex items-center `}
                       >
-                        {product.price} / {product.unit}
+                        {product.price} VND
                         {checkError?.error?.includes("price") &&
                           !product.price && (
                             <span className="bg-red-500 text-white text-lg rounded-md">
@@ -390,7 +452,74 @@ export default function ProductList({
                       </div>
                     )}
                   </td>
-                  <td className="w-[8vw]">
+                  <td
+                    className={` ${
+                      checkError?.error?.includes("unit") &&
+                      "text-red-500 font-bold"
+                    }`}
+                  >
+                    {editAble ? (
+                      // <input
+                      //   placeholder="unit"
+                      //   type="number"
+                      //   value={editForm?.unit}
+                      //   name="unit"
+                      //   className="w-[80%] px-2 py-1"
+                      //   onChange={hanldeEditChange}
+                      // />
+                      <Select
+                        value={unitOptions.find(
+                          (option) => option.value === editForm?.unit
+                        )}
+                        onChange={(selectedOption) =>
+                          hanldeEditChange({
+                            target: {
+                              name: "unit",
+                              value: selectedOption.value,
+                            },
+                          })
+                        }
+                        name="unit"
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        options={unitOptions}
+                        styles={{
+                          menu: (provided) => ({
+                            ...provided,
+                            width: "fit",
+                          }),
+                          control: (provided) => ({
+                            ...provided,
+                            borderColor: "#ccc", // Custom border color
+                            boxShadow: "none", // Remove default focus outline
+                            "&:hover": { borderColor: "#aaa" }, // Border on hover
+                          }),
+                          option: (provided, state) => ({
+                            ...provided,
+                            backgroundColor: state.isSelected
+                              ? "#0056b3"
+                              : state.isFocused
+                              ? "#e6f7ff"
+                              : "white",
+                            color: state.isSelected ? "white" : "black",
+                          }),
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className={`overflow-hidden text-nowrap  flex items-center `}
+                      >
+                        {product.unit}
+                        {checkError?.error?.includes("unit") &&
+                          !product.unit && (
+                            <span className="bg-red-500 text-white text-lg rounded-md">
+                              <ExclamationMark weight="bold" />
+                            </span>
+                          )}
+                      </div>
+                    )}
+                  </td>
+                  <td className="">
                     {notInDataBase
                       ? new Date().toLocaleDateString("en-GB", {
                           month: "2-digit",
@@ -419,14 +548,14 @@ export default function ProductList({
                         type="number"
                         value={editForm?.weight}
                         name="weight"
-                        className="w-[80%] px-2 py-1"
+                        className="w-[5rem] px-2 py-1"
                         onChange={hanldeEditChange}
                       />
                     ) : (
                       <div
-                        className={`overflow-hidden text-nowrap max-w-[6vw] flex items-center`}
+                        className={`overflow-hidden text-nowrap  flex items-center`}
                       >
-                        {product.weight}
+                        {product.weight} kg
                         {checkError?.error?.includes("weight") &&
                           !product.weight && (
                             <span className="bg-red-500 text-white text-lg rounded-md">
@@ -437,7 +566,7 @@ export default function ProductList({
                     )}
                   </td>
                   {!notInDataBase ? (
-                    <td className="w-[6vw] text-center">
+                    <td className="text-center">
                       {product.isInInv ? (
                         <span className="px-5 py-1 rounded-xl bg-green-300 ">
                           Yes
@@ -449,7 +578,7 @@ export default function ProductList({
                       )}
                     </td>
                   ) : editAble ? (
-                    <td className="w-[6vw] text-center">
+                    <td className="text-center">
                       <button
                         className="px-5 py-1 rounded-xl bg-green-300 "
                         onClick={handleUpdateEdit}
@@ -458,7 +587,7 @@ export default function ProductList({
                       </button>
                     </td>
                   ) : (
-                    <td className="w-[6vw] text-center">
+                    <td className=" text-center">
                       <button
                         className="px-5 py-1 rounded-xl bg-green-300 "
                         onClick={(e) => handleShowDetailProduct(e, product)}

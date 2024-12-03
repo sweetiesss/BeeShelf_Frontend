@@ -228,9 +228,7 @@ export default function DetailSlide() {
               </div>
             </div>
             <div className="flex justify-between items-center w-full px-20">
-              {dataDetail?.isInInv ? (
-                <div></div>
-              ) : inputField ? (
+              { inputField ? (
                 <>
                   <button onClick={() => setInputField()}>Cancel</button>
                   <button onClick={handeUpdate}>Update</button>
@@ -242,7 +240,7 @@ export default function DetailSlide() {
                     Create Request
                   </button>
                 </>
-              )}
+              )} 
             </div>
           </div>
         </div>

@@ -13,6 +13,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import ProductList from "../../component/partner/product/ProductList";
+import AxiosCategory from "../../services/Category";
 
 export default function ImportProductExcel({ result, setResult }) {
   const [excelDataBase, setExcelDataBase] = useState([]);
@@ -27,17 +28,30 @@ export default function ImportProductExcel({ result, setResult }) {
   const [editProduct, setEditProduct] = useState();
   const [sortBy, setSortBy] = useState("Id");
   const [descending, setDescending] = useState(false);
+  const [productCategories, setProductCategories] = useState();
   const [errorList, setErrorList] = useState([]);
   const [overall, setOverall] = useState({
     checked: false,
     indeterminate: false,
   });
   const { userInfor } = useContext(AuthContext);
+  const { getProductCategoryBy1000 } = AxiosCategory();
   const { createProductsWithUserId } = AxiosProduct();
   const { t } = useTranslation();
 
-  useEffect(() => {}, []);
-
+  useEffect(() => {
+    fetchingBeginData();
+  }, []);
+  const fetchingBeginData = async () => {
+    try {
+      const productCategoriesResult = await getProductCategoryBy1000();
+      if (productCategoriesResult?.status === 200) {
+        setProductCategories(productCategoriesResult?.data?.items);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
   useEffect(() => {
     const checkCount = selectedProducts.length;
     if (checkCount == 1) {
@@ -60,8 +74,6 @@ export default function ImportProductExcel({ result, setResult }) {
 
     checkIsDuplicated(hasDuplicates);
   }, [excelData]);
-
-  const getProductCategory = async () => {};
 
   const toggleProductSelection = (product) => {
     if (!editProduct) {
@@ -114,23 +126,7 @@ export default function ImportProductExcel({ result, setResult }) {
       },
     ];
 
-    const ProductCategory = [
-      {
-        id: 1,
-        name: "Fresh Vegetables",
-        expire_in: 7,
-      },
-      {
-        id: 2,
-        name: "Packaged Foods",
-        expire_in: 180,
-      },
-      {
-        id: 3,
-        name: "Certified organic products",
-        expire_in: 14,
-      },
-    ];
+    const ProductCategory = [...productCategories];
 
     const formattedData = data.map((item) => ({
       ...item,
@@ -147,7 +143,7 @@ export default function ImportProductExcel({ result, setResult }) {
     XLSX.utils.book_append_sheet(
       workbook,
       categoryWorksheet,
-      "ProductCategory"
+      "ProductCategories"
     );
 
     const excelBuffer = XLSX.write(workbook, {
@@ -192,13 +188,21 @@ export default function ImportProductExcel({ result, setResult }) {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
       // Update state with the JSON data
-      const updateData = jsonData.map((item, index) => ({
-        ...item,
-        id: index,
-        isCold:
-          item?.isCold.replace(/\s+/g, "").toLowerCase() === "yes" ? 1 : 0,
-        ocopPartnerId: userInfor.id,
-      }));
+      const updateData = jsonData.map((item, index) => {
+        const category = productCategories.find(
+          (cate) => cate.id === item.productCategoryId
+        );
+        console.log("cate", category);
+
+        return {
+          ...item,
+          id: index,
+          isCold:
+            item?.isCold?.replace(/\s+/g, "").toLowerCase() === "yes" ? 1 : 0,
+          ocopPartnerId: userInfor?.id,
+          productCategoryName: category?.typeName,
+        };
+      });
       const result = validateExcelData(updateData);
       setErrorList(result.inValid);
 
@@ -368,10 +372,13 @@ export default function ImportProductExcel({ result, setResult }) {
     setEditForm(product);
   };
   const hanldeEditChange = (e) => {
-    e.stopPropagation();
-    let { name, value } = e.target;
+
+    let { name, value, checked, type } = e.target;
     if (name === "price" && value <= 0) value = 1;
     if (name === "weight" && value <= 0) value = 0.1;
+    if (name === "isCold" && type === "checkbox") value = checked ? 1 : 0;
+    console.log("iscold", value);
+
     setEditForm((prev) => ({ ...prev, [name]: value }));
   };
   const handleUpdateEdit = (e) => {
@@ -662,6 +669,7 @@ export default function ImportProductExcel({ result, setResult }) {
               sortBy={sortBy}
               descending={descending}
               errorList={errorList}
+              productCategories={productCategories}
             />
           </>
         ) : (

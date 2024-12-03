@@ -32,7 +32,6 @@ export default function AddProductPage() {
   const [imagePreview, setImagePreview] = useState("");
 
   const [errors, setErrors] = useState({});
-
   const { t } = useTranslation();
   const { getProductCategoryBy1000 } = AxiosCategory();
 
@@ -43,8 +42,7 @@ export default function AddProductPage() {
   const fetchingBeginData = async () => {
     try {
       const productCategoriesResult = await getProductCategoryBy1000();
-      console.log(productCategoriesResult);
-      if (productCategoriesResult?.status == 200) {
+      if (productCategoriesResult?.status === 200) {
         setProductCategories(productCategoriesResult?.data?.items);
       }
     } catch (e) {
@@ -54,371 +52,272 @@ export default function AddProductPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setProduct((prevProduct) => ({
       ...prevProduct,
       [name]: value,
     }));
-
-    validateField(name, value);
-  };
-
-  const validateField = (name, value) => {
-    let errorMessage = "";
-
-    switch (
-      name
-      // case "image":
-      //   if (!value || !isValidURL(value)) {
-      //     errorMessage = "Please enter a valid image URL.";
-      //   }
-      //   break;
-      // case "sku":
-      //   if (!value) {
-      //     errorMessage = "SKU is required.";
-      //   }
-      //   break;
-      // case "group":
-      //   if (!value) {
-      //     errorMessage = "Group is required.";
-      //   }
-      //   break;
-      // case "tags":
-      //   if (!value) {
-      //     errorMessage = "Tags are required.";
-      //   }
-      //   break;
-      // case "name":
-      //   if (!value) {
-      //     errorMessage = "";
-      //   } else if (!/^[A-Z]/.test(value)) {
-      //     errorMessage = "Product name must start with a capital letter.";
-      //   }
-      //   break;
-      // case "price":
-      //   if (!value || isNaN(value) || value <= 0) {
-      //     errorMessage = "Please enter a valid price.";
-      //   }
-      //   break;
-      // case "category":
-      //   if (!value) {
-      //     errorMessage = "Category is required.";
-      //   }
-      //   break;
-      // case "stock":
-      //   if (!value || isNaN(value) || value < 0) {
-      //     errorMessage = "Please enter a valid stock number.";
-      //   }
-      //   break;
-      // default:
-      //   break;
-    ) {
-    }
-
-    // Update the errors state
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: errorMessage,
-    }));
-  };
-
-  const isValidURL = (url) => {
-    const urlPattern = new RegExp(
-      "^(https?:\\/\\/)?" + // Protocol
-        "((([a-zA-Z0-9$_.+!*'(),-]+)(:[a-zA-Z0-9$_.+!*'(),-]+)?@)?)" + // Authentication
-        "([a-zA-Z0-9.-]+)(:[0-9]{2,5})?" + // Host and port
-        "(\\/[-a-zA-Z0-9@:%_+.~#?&//=]*)?" // Path
-    );
-    return urlPattern.test(url);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = {};
     try {
-      console.log(product);
-      const result = await createProductWithUserId(product);
-      console.log(result);
-      if (result?.status == 200) {
+      const uploadImg = await uploadImage(imageLink);
+      const submitForm = { ...product, pictureLink: uploadImg };
+
+      const result = await createProductWithUserId(submitForm);
+      if (result?.status === 200) {
         setProduct(defaultForm);
+        toast.success("Product added successfully!");
       }
     } catch (error) {
-      console.error("Error in handleConfirm:", error);
+      console.error("Error in handleSubmit:", error);
+      toast.error("Failed to add product.");
     }
-
-    setErrors({});
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    setImageLink(file);
 
     if (file) {
       const reader = new FileReader();
-
-      reader.onload = () => {
-        setImagePreview(reader.result); // Set the preview to the file data
-      };
-
+      reader.onload = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
-      setImageLink(file);
-
-      setProduct((prevProduct) => ({
-        ...prevProduct,
-        pictureLink: file, // Store the file for upload
-      }));
     }
   };
+
   return (
-    <>
-      <div className="flex space-x-4 font-semibold text-xl mb-10 ">
-        <NavLink to="../product" className="opacity-50">
+    <div className="p-6">
+      <div className="flex space-x-4 font-semibold text-xl mb-10">
+        <NavLink to="../product" className="opacity-50 hover:underline">
           {t("Product")}
         </NavLink>
-        <p>/</p>
-        <NavLink to="../product" className="font-bold">
+        <span>/</span>
+        <NavLink to="../product" className="font-bold hover:underline">
           {t("AddProduct")}
         </NavLink>
       </div>
-      <div className="container">
-        <h1 className="title">Add New Product</h1>
-        <form onSubmit={handleSubmit} className="product-form">
-          <div className="form-group">
-            <label htmlFor="image">Product Image URL</label>
+      <div className="bg-white rounded-lg shadow-lg p-8">
+        <h1 className="text-2xl font-semibold mb-6">{t("Add New Product")}</h1>
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-10"
+        >
+          <div>
+            {/* Product Name */}
+            <div className="form-group">
+              <label className="font-medium text-lg" htmlFor="name">
+                {t("Product Name")}
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={product.name}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="Enter product name"
+              />
+            </div>
 
-            {/*             
-            <input
-              type="file"
-              id="image"
-              name="pictureLink"
-              accept="image/*"
-              onChange={handleImageChange}
-              className={`input-field ${
-                errors.pictureLink ? "input-error" : ""
-              }`}
-            />
-            {errors.pictureLink && (
-              <p className="error-text">{errors.pictureLink}</p>
-            )}
-            {imagePreview && !errors.pictureLink && (
-              <div className="image-preview">
-                <img src={imagePreview} alt="Product Preview" width="100" />
-              </div>
-            )} */}
+            {/* Price */}
+            <div className="form-group mt-4">
+              <label className="font-medium text-lg" htmlFor="price">
+                {t("Price")}
+              </label>
+              <input
+                type="number"
+                id="price"
+                name="price"
+                value={product.price}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="Enter product price"
+              />
+            </div>
 
-            <input
-              type="text"
-              id="image"
-              name="pictureLink"
-              value={product.pictureLink}
-              onChange={handleChange}
-              className={`input-field ${
-                errors.pictureLink ? "input-error" : ""
-              }`}
-              placeholder="Enter image URL"
-            />
-            {errors.pictureLink && (
-              <p className="error-text">{errors.pictureLink}</p>
-            )}
-            {product.pictureLink && !errors.pictureLink && (
-              <div className="image-preview">
-                <img
-                  src={product.pictureLink}
-                  alt="Product Preview"
-                  width="100"
-                />
-              </div>
-            )}
-          </div>
+            {/* Unit */}
+            <div className="form-group mt-4">
+              <label className="font-medium text-lg" htmlFor="unit">
+                {t("Unit")}
+              </label>
+              <select
+                id="unit"
+                name="unit"
+                value={product.unit}
+                onChange={handleChange}
+                className="input-field"
+              >
+                <option value="">{t("Choose Unit")}</option>
+                <option value="package">{t("Package")}</option>
+                <option value="box">{t("Box")}</option>
+                <option value="lit">{t("Liter")}</option>
+              </select>
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="name">Product Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={product.name}
-              onChange={handleChange}
-              className={`input-field ${errors.name ? "input-error" : ""}`}
-              placeholder="Enter product name"
-            />
-            {errors.name && <p className="error-text">{errors.name}</p>}
-          </div>
+            {/* Is Cold */}
+            <div className="form-group mt-4">
+              <label className="font-medium text-lg" htmlFor="isCold">
+                {t("Cold Storage")}
+              </label>
+              <input
+                type="checkbox"
+                id="isCold"
+                name="isCold"
+                checked={product.isCold === 1}
+                onChange={(e) =>
+                  setProduct((prevProduct) => ({
+                    ...prevProduct,
+                    isCold: e.target.checked ? 1 : 0,
+                  }))
+                }
+                className="ml-2"
+              />
+            </div>
 
-          {/* Price */}
-          <div className="form-group">
-            <label htmlFor="price">Price</label>
-            <input
-              type="number"
-              id="price"
-              name="price"
-              value={product.price}
-              onChange={handleChange}
-              className={`input-field ${errors.price ? "input-error" : ""}`}
-              placeholder="Enter product price"
-            />
-            {errors.price && <p className="error-text">{errors.price}</p>}
-          </div>
-          <div className="form-group">
-            <label htmlFor="unit">Unit</label>
-            <select
-              id="unit"
-              name="unit"
-              value={product.unit}
-              onChange={handleChange}
-              className={`input-field ${errors.unit ? "input-error" : ""}`}
-              placeholder="Enter product unit"
-            >
-              <option value={""}>Choose Units</option>
-              <option value={"package"}>Package</option>
-              <option value={"box"}>Box</option>
-              <option value={"lit"}>lit</option>
-              {/* <option value={"kg"}>""</option>
-              <option value={""}>""</option>
-              <option value={""}>""</option>
-              <option value={""}>""</option>
-              <option value={""}>""</option> */}
-            </select>
-         
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="isCold">IsCold</label>
-            <input
-              type="checkbox"
-              id="isCold"
-              name="isCold"
-              checked={product.isCold === 1} // Determines if the checkbox is checked
-              onChange={(e) =>
-                setProduct((prevProduct) => ({
-                  ...prevProduct,
-                  isCold: e.target.checked ? 1 : 0, // Update isCold based on checkbox state
-                }))
-              }
-            />
-          </div>
-
-          {/* Category */}
-          <div className="form-group">
-            <label htmlFor="productCategoryId">productCategoryId</label>
-            <Select
-              className="w-full"
-              styles={{
-                control: (baseStyles) => ({
-                  ...baseStyles,
-                  border: "none",
-                  boxShadow: "none",
-                  width: "100%",
-                }),
-                dropdownIndicator: (baseStyles) => ({
-                  ...baseStyles,
-                  color: "inherit", // Optional: matches text color
-                  width: "100%",
-                }),
-                menu: (baseStyles) => ({
-                  ...baseStyles,
-                  border: "none",
-                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                  width: "100%",
-                }),
-                option: (baseStyles, { isFocused, isSelected }) => ({
-                  ...baseStyles,
-                  backgroundColor: isSelected
-                    ? "var(--Xanh-Base)" // Selected background color
-                    : isFocused
-                    ? "var(--Xanh-100)" // Hover background color
-                    : "transparent", // Default background color
-                  color: isSelected ? "white" : isFocused && "black", // Text color for selected/hovered options
-                  cursor: "pointer",
-                }),
-              }}
-              onChange={(selectedOption) =>
-                setProduct((prev) => ({
-                  ...prev,
-                  productCategoryId: selectedOption.value,
-                }))
-              }
-              options={productCategories?.map((category) => ({
-                value: category.id,
-                name: category.typeName,
-                expire: category.expireIn,
-                description: category.typeDescription,
-              }))}
-              name="productCategoryId"
-              placeholder="Product Category"
-              value={productCategories
-                ?.map((category) => ({
+            {/* Weight */}
+            <div className="form-group mt-4">
+              <label className="font-medium text-lg" htmlFor="weight">
+                {t("Weight")}
+              </label>
+              <input
+                type="number"
+                id="weight"
+                name="weight"
+                value={product.weight}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="Enter weight"
+              />
+            </div>
+            {/* Product Category */}
+            <div className="form-group mt-4">
+              <label
+                className="font-medium text-lg"
+                htmlFor="productCategoryId"
+              >
+                {t("Category")}
+              </label>
+              <Select
+                styles={{
+                  control: (baseStyles) => ({
+                    ...baseStyles,
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                  }),
+                }}
+                onChange={(selectedOption) =>
+                  setProduct((prev) => ({
+                    ...prev,
+                    productCategoryId: selectedOption.value,
+                  }))
+                }
+                options={productCategories?.map((category) => ({
                   value: category.id,
-                  name: category.typeName,
-                  expire: category.expireIn,
-                  description: category.typeDescription,
-                }))
-                .find((category) => category.id === product.productCategoryId)}
-              formatOptionLabel={(
-                { name, expire, description },
-                { context }
-              ) => (
-                <div className="flex flex-col">
-                  <div className="flex justify-between font-medium">
-                    <div>{name}</div>
-                    <div>{expire ? expire + " days" : ""}</div>
-                  </div>
-                  {context === "menu" && (
-                    <div className={`text-sm`}>{description}</div>
-                  )}
+                  label: category.typeName,
+                }))}
+                placeholder="Select category"
+              />
+            </div>
+
+            {/* Barcode */}
+            <div className="form-group mt-4">
+              <label className="font-medium text-lg" htmlFor="barcode">
+                {t("Barcode")}
+              </label>
+              <input
+                type="text"
+                id="barcode"
+                name="barcode"
+                value={product.barcode}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="Enter barcode"
+              />
+            </div>
+          </div>
+
+          <div>
+            {/* Image Upload */}
+            {/* <div className="form-group mt-4">
+              <label className="font-medium text-lg" htmlFor="image">
+                {t("Image")}
+              </label>
+              <input
+                type="file"
+                id="image"
+                name="pictureLink"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="input-field"
+              />
+              {imagePreview && (
+                <div className="mt-4">
+                  <img
+                    src={imagePreview}
+                    alt="Product Preview"
+                    className="w-full rounded-lg shadow-md"
+                  />
                 </div>
               )}
-            ></Select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="weight">weight</label>
-            <input
-              type="number"
-              id="weight"
-              name="weight"
-              value={product.weight}
-              onChange={handleChange}
-              className={`input-field ${errors.weight ? "input-error" : ""}`}
-              placeholder="Enter weight quantity"
-            />
-            {errors.weight && <p className="error-text">{errors.weight}</p>}
-          </div>
-          <div className="form-group">
-            <label htmlFor="barcode">barcode</label>
-            <input
-              type="text"
-              id="barcode"
-              name="barcode"
-              value={product.barcode}
-              onChange={handleChange}
-              className={`input-field ${errors.barcode ? "input-error" : ""}`}
-              placeholder="Enter barcode quantity"
-            />
-            {errors.barcode && <p className="error-text">{errors.barcode}</p>}
-          </div>
-          <div className="form-group">
-            <label htmlFor="origin">origin</label>
-            <input
-              type="text"
-              id="origin"
-              name="origin"
-              value={product.origin}
-              onChange={handleChange}
-              className={`input-field ${errors.origin ? "input-error" : ""}`}
-              placeholder="Enter origin quantity"
-            />
-            {errors.origin && <p className="error-text">{errors.origin}</p>}
+            </div> */}
+
+            <div className="h-full ml-auto mr-10">
+              <label
+                htmlFor="file-upload"
+                className="block text-lg font-medium leading-6 "
+              >
+                {t("Image")}
+              </label>
+              <label htmlFor="file-upload" className="cursor-pointer ">
+                <div
+                  className={`${
+                    imagePreview && "background-setting-input"
+                  } mt-2 flex justify-center items-center rounded-lg border  border-dashed border-gray-400 min-h-[50vh] border-hover py-5`}
+                >
+                  <div className={`text-center ${imagePreview && "hidden"} `}>
+                    {/* <PiFileArrowDownLight
+                      className="mx-auto h-12 w-12  span-hover"
+                      aria-hidden="true"
+                    /> */}
+                    <div className="mt-4 flex text-sm leading-6 ">
+                      <p className="relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 ">
+                        <span className="span-hover">
+                          Upload a file PNG, JPG, GIF up to 10MB
+                        </span>
+                        <input
+                          id="file-upload"
+                          name="file-upload"
+                          type="file"
+                          className="sr-only "
+                          accept="image/*"
+                          onChange={handleImageChange}
+                        />
+                      </p>
+                    </div>
+                  </div>
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      className="rounded-xl"
+                      style={{ maxWidth: "90%" }}
+                    />
+                  )}
+                </div>
+              </label>
+            </div>
           </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="submit-button"
-            onClick={handleSubmit}
-          >
-            Add Product
-          </button>
+          <div className="lg:col-span-2">
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+            >
+              {t("Add Product")}
+            </button>
+          </div>
         </form>
       </div>
-    </>
+    </div>
   );
 }
