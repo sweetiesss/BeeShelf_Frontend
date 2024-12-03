@@ -225,11 +225,11 @@ const RequestManagement = () => {
               key: "partner_email",
             },
             { title: "Request Name", dataIndex: "name", key: "name" },
-            {
-              title: "Description",
-              dataIndex: "description",
-              key: "description",
-            },
+            // {
+            //   title: "Description",
+            //   dataIndex: "description",
+            //   key: "description",
+            // },
             {
               title: "Product Name",
               dataIndex: "productName",
@@ -356,8 +356,8 @@ const RequestManagement = () => {
                   <p>{renderStatusTag(selectedRequest.status)}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Receiver Phone:</p>
-                  <p>{selectedRequest.receiverPhone}</p>
+                  <p className="font-bold">Description:</p>
+                  <p>{selectedRequest.description}</p>
                 </div>
                 <div>
                   <p className="font-bold">Receiver Address:</p>
@@ -367,10 +367,10 @@ const RequestManagement = () => {
                   <p className="font-bold">Date:</p>
                   <p>{selectedRequest.createDate.split("T")[0]}</p>
                 </div>
-                <div>
+                {/* <div>
                   <p className="font-bold">Total Price:</p>
                   <p>${selectedRequest.totalPrice}</p>
-                </div>
+                </div> */}
                 <div>
                   <p className="font-bold">Warehouse Name:</p>
                   <p>{selectedRequest.warehouseName}</p>
