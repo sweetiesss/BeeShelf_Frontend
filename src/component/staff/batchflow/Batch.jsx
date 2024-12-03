@@ -45,8 +45,16 @@ const BatchManage = () => {
     setLoading(true);
     try {
       const response = await fetchDataBearer({
-        url: `/batch/get-batches?pageIndex=0&pageSize=100`,
+        
+        url: `/batch/get-batches`,
         method: "GET",
+        params: {
+          filterBy: "WarehouseId",
+          filterQuery: userInfor.workAtWarehouseId,
+          descending: false,
+          pageIndex: 0,
+          pageSize: 100,
+        },
       });
       if (!response || !response.data || !response.data.items) {
         console.error("Failed to fetch batches data");
@@ -67,8 +75,10 @@ const BatchManage = () => {
       setBatches(formattedBatches);
     } catch (error) {
       console.error("Error fetching batches:", error);
+      
     } finally {
       setLoading(false);
+      message.success("Data loaded successfully!");
     }
   };
   useEffect(() => {
@@ -237,24 +247,29 @@ const BatchManage = () => {
   };
 
   const columns = [
+    // {
+    //   title: "Select",
+    //   dataIndex: "select",
+    //   key: "select",
+    //   render: (_, record) => (
+    //     <input
+    //       type="checkbox"
+    //       checked={selectedBatchIds.includes(record.id)}
+    //       onChange={(e) => {
+    //         const selectedId = record.id;
+    //         setSelectedBatchIds((prev) =>
+    //           e.target.checked
+    //             ? [...prev, selectedId]
+    //             : prev.filter((id) => id !== selectedId)
+    //         );
+    //       }}
+    //     />
+    //   ),
+    // },
     {
-      title: "Select",
-      dataIndex: "select",
-      key: "select",
-      render: (_, record) => (
-        <input
-          type="checkbox"
-          checked={selectedBatchIds.includes(record.id)}
-          onChange={(e) => {
-            const selectedId = record.id;
-            setSelectedBatchIds((prev) =>
-              e.target.checked
-                ? [...prev, selectedId]
-                : prev.filter((id) => id !== selectedId)
-            );
-          }}
-        />
-      ),
+      title: "Batch ID",
+      dataIndex: "id",
+      key: "id",
     },
     {
       title: "Batch Name",
@@ -290,13 +305,13 @@ const BatchManage = () => {
         <Button type="primary" onClick={() => setCreateBatchModalVisible(true)}>
           Create Batch
         </Button>
-        <Button
+        {/* <Button
           type="danger"
           onClick={handleDelete}
           disabled={selectedBatchIds.length === 0}
         >
           Delete Selected Batches
-        </Button>
+        </Button> */}
       </Space>
       <Table
         dataSource={batches}

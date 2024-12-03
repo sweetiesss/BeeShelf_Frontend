@@ -172,10 +172,10 @@ const Inventory = () => {
               <p className="font-bold">Warehouse Name:</p>
               <p>{selectedInventory.warehouseName}</p>
             </div>
-            <div>
+            {/* <div>
               <p className="font-bold">Status:</p>
               <p>{selectedInventory.status}</p>
-            </div>
+            </div> */}
           </div>
         )}
       </Modal>
