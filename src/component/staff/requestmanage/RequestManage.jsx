@@ -183,13 +183,17 @@ const RequestManagement = () => {
       }
 
       const response = await fetchDataBearer({
-        url: `/request/update-request-status/${id}?requestStatus=${newStatus}`,
+        url: `/request/update-request-status/${id}`,
         method: "PUT",
+        params: {
+          status: newStatus,
+        },
       });
 
       if (response && response.status === 200) {
         message.success("Status updated successfully!");
         fetchRequests(); // Refresh request list
+        setIsModalVisible(false);
         if (selectedRequest?.id === id) {
           setSelectedRequest({ ...selectedRequest, status: newStatus }); // Update modal if open
         }
