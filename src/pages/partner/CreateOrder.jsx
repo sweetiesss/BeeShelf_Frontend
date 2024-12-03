@@ -540,7 +540,7 @@ export default function CreateOrderPage() {
         <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
           <Mapping
             showLocation={validLocation}
-            toLocation={"Xã Bình Giã Huyện Châu Đức Tỉnh Bà Rịa - Vũng Tàu"}
+         
             cloneWarehouseData={cloneWarehouseData}
           />
           {/* <Mapping

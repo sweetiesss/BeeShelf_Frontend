@@ -8,29 +8,17 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
 
   return (
     <div
-      className={` shadow-lg rounded-lg p-6 mb-4 w-full max-w-lg mx-auto text-black cursor-pointer ${
-        totalWeight
-          ? "bg-[var(--Xanh-10)] hover:bg-[var(--Xanh-100)]"
-          : "bg-white hover:bg-[var(--en-vu-100)]"
-      }`}
+      className={` shadow-xl border-2 relative rounded-lg p-6 mb-4 w-full max-w-lg mx-auto overflow-hidden text-black cursor-pointer bg-white hover:bg-[var(--en-vu-200)]`}
       onClick={() => setWareHouse(warehouse)}
     >
-      <div className="flex items-start gap-10">
-        <div className="overflow-auto w-[8rem] h-[10rem] ">
-          <img
-            src={warehouse?.imgLink || defaultImg}
-            className="bg-gray-300 w-[8rem] h-[8rem] rounded-xl "
-          />
-          <div
-            className={`w-full text-center font-semibold mt-2 ${
-              totalWeight ? "text-[var(--Xanh-Base)]" : "text-[var(--Do-Base)]"
-            }`}
-          >
-            {totalWeight ? "Bought" : "Not yet"}
-          </div>
+      {warehouse?.owned && (
+        <div className="absolute flex justify-center items-center bg-green-500 w-32 text-white h-10 top-2 -right-8 rotate-45">
+          <p>Bought</p>
         </div>
+      )}
+      <div className="flex items-start gap-10">
         <div className="h-full ">
-          <div className="font-bold text-xl text-left mb-4 w-[18rem] overflow-hidden text-nowrap text-ellipsis whitespace-normal">
+          <div className="font-bold text-xl text-left mb-4  overflow-hidden text-nowrap text-ellipsis whitespace-normal">
             {warehouse?.name}
           </div>
           {[
@@ -40,14 +28,14 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
               : []),
             {
               label: "Capacity",
-              value: totalWeight
-                ? `${totalWeight}/${warehouse?.capacity || "N/A"}`
-                : warehouse?.capacity || "N/A",
+              value: `${Math.max(
+                warehouse?.capacity - warehouse?.availableCapacity
+              )}/${warehouse?.capacity || "N/A"}`,
             },
           ].map((item) => (
-            <div className="flex-1 text-left flex items-center gap-4">
+            <div className="flex-1 text-left flex items-start gap-4  ">
               <span className="text-gray-500">{item.label}:</span>
-              <div className="font-semibold ">{item.value}</div>
+              <div className="font-semibold  text-wrap">{item.value}</div>
             </div>
           ))}
         </div>
@@ -70,29 +58,28 @@ export function InventoryCard({
       onClick={(e) =>
         !inventory.ocopPartnerId
           ? handleBuyClick(inventory)
-          : handleShowInventoryDetail(e,inventory?.id)
+          : handleShowInventoryDetail(e, inventory)
       }
     >
-      <div className="font-bold text-xl text-left ">{inventory?.name}</div>
-      <div className="flex items-center justify-between">
-        {/* Right Side: Route Info */}
-        <div className="flex-1 text-left">
-          <div className="text-gray-500">{}</div>
+      <div className="font-bold mb-4 text-xl">{inventory?.name}</div>
+
+      <div className=" justify-start">
+        <div className="text-gray-700 mb-1 flex gap-x-4">
+          <p className="font-semibold">Max weight:</p>
+          <p>{inventory?.maxWeight}</p>
         </div>
-        {/* Left Side: Status, ID, and Weight Info */}
-        <div className="flex-1">
-          <div className="text-gray-700 mb-1">
-            <span className="font-semibold">Max weight:</span>{" "}
-            {inventory?.maxWeight}
-          </div>
+        <div className="text-gray-700 mb-1 flex gap-x-4">
+          <p className="font-semibold">Price:</p>
+          <p>{inventory?.price} VND</p>
         </div>
       </div>
-      <div className="text-gray-500 text-left">
+
+      {/* <div className="text-gray-500 text-left">
         Date:
         <span className="text-black">
           {inventory?.boughtDate} to {inventory?.expirationDate}
         </span>
-      </div>
+      </div> */}
     </div>
   );
 }

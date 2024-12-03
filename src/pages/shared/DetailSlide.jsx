@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDetail } from "../../context/DetailContext";
-import { X } from "@phosphor-icons/react";
+import { X, XCircle } from "@phosphor-icons/react";
 import { AuthContext, useAuth } from "../../context/AuthContext";
 import AxiosProduct from "../../services/Product";
 import AxiosLot from "../../services/Lot";
@@ -8,7 +8,8 @@ import AxiosRequest from "../../services/Request";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import AxiosOrder from "../../services/Order";
-import { format } from "date-fns";
+import { addMonths, format } from "date-fns";
+import AxiosInventory from "../../services/Inventory";
 export default function DetailSlide() {
   const { userInfor } = useContext(AuthContext);
   const {
@@ -886,8 +887,34 @@ export default function DetailSlide() {
     // const { sendOrderById, deleteOrderById } = AxiosOrder();
     // const [lotData, setLotData] = useState();
     // const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
-    // const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
+    const [showExtendConfirmation, setShowExtendConfirmation] = useState(null);
     const [lotsCleanData, setLotsCleanData] = useState();
+    const [monthBuyInvrentory, setMonthToBuyInventory] = useState();
+
+    const { extendInventory } = AxiosInventory();
+
+    const handleCancelExtendInventory = () => {
+      setShowExtendConfirmation(false);
+      setMonthToBuyInventory(0);
+    };
+    const handleConfirmExtendInventory = async () => {
+      try {
+        // setLoading(true);
+        const result = await extendInventory(
+          dataDetail?.id,
+          userInfor.id,
+          monthBuyInvrentory
+        );
+        if (result?.status == 200) {
+          handleCancelExtendInventory();
+          setRefresh(dataDetail?.id);
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        // setLoading(false);
+      }
+    };
 
     const cleanLotsData = () => {
       if (dataDetail?.lots) {
@@ -1028,90 +1055,94 @@ export default function DetailSlide() {
             <div className="w-full h-px bg-gray-300"></div>
           </div>
 
-          <div className="w-full flex flex-col items-center gap-8">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-32 h-32 bg-gray-300 rounded-lg relative"></div>
-              <div className="text-center">
-                <p className="text-xl font-medium">{dataDetail?.name}</p>
-                <p
-                  className={`text-gray-600 text-lg ${
-                    dataDetail?.requestType === "Import"
-                      ? "text-green-500"
-                      : "text-blue-500"
-                  }`}
-                >
-                  {dataDetail?.requestType}
-                </p>
-              </div>
-            </div>
+          <div className="text-left">
+            <p className="text-xl font-medium">{dataDetail?.name}</p>
+          </div>
 
-            {/* Product Info Table */}
-            <div className="w-full flex flex-col gap-4">
-              {[
-                {
-                  label: "Warehouse:",
-                  value: dataDetail?.warehouseName,
-                },
-                { label: "Bought date", value: dataDetail?.boughtDate },
-                {
-                  label: "Expiration date:",
-                  value: dataDetail?.expirationDate,
-                },
-                {
-                  label: "Weight:",
-                  value:
-                    dataDetail.weight + " / " + dataDetail?.maxWeight + " kg",
-                },
-              ]?.map((item, index) => (
-                <div key={index} className="flex justify-between ">
-                  <span className="text-gray-600">{item.label}</span>
-                  <span className="text-black">{item.value}</span>
-                </div>
-              ))}
-              <div className="w-full h-[0.2rem] bg-gray-200" />
-              <label className="font-medium text-lg flex justify-between items-center">
-                Products Amount
-              </label>
-              <div className=" items-center grid-cols-9 grid gap-4 text-gray-500 font-medium border-b-2 border-gray-400 pb-2">
-                <span className=" col-span-4">Product</span>
-                <span className=" text-end col-span-2">Total Lots</span>
-                <span className=" text-end col-span-3">Total Products</span>
+          {/* Product Info Table */}
+          <div className="w-full flex flex-col gap-4">
+            {[
+              {
+                label: "Warehouse:",
+                value: dataDetail?.warehouseName,
+              },
+              {
+                label: "Bought date",
+                value: format(dataDetail?.boughtDate || 0, "dd/MM/yyyy"),
+              },
+              {
+                label: "Expiration date:",
+                value: format(dataDetail?.expirationDate || 0, "dd/MM/yyyy"),
+              },
+              {
+                label: "Weight:",
+                value:
+                  dataDetail?.weight + " / " + dataDetail?.maxWeight + " kg",
+              },
+            ]?.map((item, index) => (
+              <div key={index} className="grid grid-cols-6 gap-4 w-full">
+                <div className="text-gray-600 col-span-2">{item.label}</div>
+                <div className="text-black col-span-4">{item.value}</div>
               </div>
-              {cleanLotsData()?.map((item, index) => (
-                <div>
+            ))}
+            {cleanLotsData().length > 0 && (
+              <>
+                <div className="w-full h-[0.2rem] bg-gray-200" />
+                <label className="font-medium text-lg flex justify-between items-center">
+                  Products Amount
+                </label>
+                <div className=" items-center grid-cols-9 grid gap-4 text-gray-500 font-medium border-b-2 border-gray-400 pb-2">
+                  <span className=" col-span-4">Product</span>
+                  <span className=" text-end col-span-2">Total Lots</span>
+                  <span className=" text-end col-span-3">Total Products</span>
+                </div>
+                {cleanLotsData()?.map((item, index) => (
                   <div>
-                    <div
-                      key={index}
-                      className=" items-center grid-cols-9 grid gap-4 text-black font-medium"
-                    >
-                      <span className=" col-span-4">{item.productName}</span>
-                      <span className=" text-end col-span-2">
-                        {item.totalLot}
-                      </span>
-                      <span className=" text-end col-span-3">
-                        {item.productAmount}
-                      </span>
+                    <div>
+                      <div
+                        key={index}
+                        className=" items-center grid-cols-9 grid gap-4 text-black font-medium"
+                      >
+                        <span className=" col-span-4">{item.productName}</span>
+                        <span className=" text-end col-span-2">
+                          {item.totalLot}
+                        </span>
+                        <span className=" text-end col-span-3">
+                          {item.productAmount}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <div></div>
+                      {item?.lots.map((lot) => (
+                        <div className=" items-center grid  grid-cols-9 gap-4 text-gray-500 ">
+                          <span className="col-span-2 text-start overflow-auto text-clip">
+                            {lot.name}
+                          </span>
+                          <span className="text-end">{lot.number}</span>
+                          <span className=" col-span-4 text-end">
+                            {format(new Date(lot.importDate), "dd/MM")}-
+                            {format(new Date(lot.expirationDate), "dd/MM/yy")}
+                          </span>
+
+                          <span className=" text-end">{lot.amount}</span>
+                          <span className=" text-end">{lot.productAmount}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div>
-                    <div></div>
-                    {item?.lots.map((lot) => (
-                      <div className=" items-center grid  grid-cols-9 gap-4 text-gray-500 ">
-                        <span className="col-span-2 text-start overflow-auto text-clip">{lot.name}</span>
-                        <span className="text-end">{lot.number}</span>
-                        <span className=" col-span-4 text-end">
-                          {format(new Date(lot.importDate), "dd/MM")}-
-                          {format(new Date(lot.expirationDate), "dd/MM/yy")}
-                        </span>
+                ))}
+              </>
+            )}
+          </div>
 
-                        <span className=" text-end">{lot.amount}</span>
-                        <span className=" text-end">{lot.productAmount}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div>
+            <button
+              className="bg-green-500 px-4 py-2 rounded-lg text-white"
+              onClick={() => setShowExtendConfirmation((prev) => !prev)}
+            >
+              Extend
+            </button>
           </div>
         </div>
         {/* {showDeleteConfirmation && (
@@ -1144,38 +1175,112 @@ export default function DetailSlide() {
           </>
         )} */}
 
-        {/*
-        {showUpdateConfirmation && (
+        {showExtendConfirmation && (
           <>
-            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[20] left-0 right-0"></div>
             <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg px-4 py-8 w-[35rem] h-fit z-[30]"
               style={{
                 top: "50%",
                 left: "-100%",
-                transform: "translate(-50%, -50%)",
+                transform: "translate(-25%, -50%)",
               }}
             >
-              <p>{`Are you sure you want to ${
-                showUpdateConfirmation[1] === "Canceled" ? "cancel:" : ""
-              } ${dataDetail?.name}?`}</p>
+              <div
+                className="absolute top-2 right-2 text-white text-3xl hover:scale-105 cursor-pointer"
+                onClick={handleCancelExtendInventory}
+              >
+                <XCircle fill="#ef4444" weight="fill" />
+              </div>
+              <p className="text-2xl">{`Extending inventory ${dataDetail?.name}`}</p>
+              <div className="flex items-center justify-between my-7">
+                <div
+                  className={`flex items-center overflow-auto py-2 px-4 w-fit border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+                    monthBuyInvrentory > 0
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <input
+                    type="number"
+                    className="outline-none w-[5rem]"
+                    value={monthBuyInvrentory}
+                    onChange={(e) => setMonthToBuyInventory(e.target.value)}
+                  ></input>
+
+                  <p>Months</p>
+                </div>
+                <button
+                  className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
+                  onClick={() => setMonthToBuyInventory(6)}
+                >
+                  6 Months
+                </button>
+                <button
+                  className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
+                  onClick={() => setMonthToBuyInventory(12)}
+                >
+                  1 Year
+                </button>
+                <button
+                  className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
+                  onClick={() => setMonthToBuyInventory(24)}
+                >
+                  2 Years
+                </button>
+              </div>
+
+              <div className="mb-7 grid-cols-8 grid gap-4">
+                <div className="col-span-2 text-gray-500">Name</div>
+                <div className="col-span-2 text-gray-500">Price</div>
+                <div className="col-span-1 text-gray-500 text-center">
+                  Amount
+                </div>
+                <div className="col-span-1 text-gray-500">Unit</div>
+                <div className="col-span-2 text-gray-500">Total</div>
+                <div className="col-span-2">{dataDetail?.name}</div>
+                <div className="col-span-2">{dataDetail?.price + "VND"}</div>
+                <div className="col-span-1 text-center">
+                  {monthBuyInvrentory}
+                </div>
+                <div className="col-span-1">Month</div>
+                <div className="col-span-2">
+                  {/* {parseInt(cal( inventory?.price*monthBuyInvrentory)) + "VND"} */}
+                  {`${Math.round(
+                    parseFloat(dataDetail?.price) *
+                      parseFloat(monthBuyInvrentory)
+                  )} VND`}
+                </div>
+                <div className="col-span-8 flex gap-x-4">
+                  <div className="">Expect expiration date:</div>
+                  <p>
+                    {format(
+                      addMonths(
+                        new Date(dataDetail?.expirationDate),
+                        parseInt(monthBuyInvrentory || 0)
+                      ),
+                      "dd/MM/yyyy"
+                    )}
+                  </p>
+                </div>
+              </div>
               <div className="flex justify-end gap-4">
                 <button
-                  onClick={confirmUpdateStatus}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  onClick={() => handleCancelExtendInventory()}
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-red-500 hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={exitUpdateStatus}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                  onClick={handleConfirmExtendInventory}
+                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                 >
-                  Exist
+                  Confirm
                 </button>
               </div>
             </div>
           </>
-        )} */}
+        )}
       </>
     );
   };
