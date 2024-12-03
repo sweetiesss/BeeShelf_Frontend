@@ -1,5 +1,6 @@
 import React from "react";
 import defaultImg from "../../../assets/img/defaultImg.jpg";
+import { format } from "date-fns";
 export function WarehouseCard({ warehouse, setWareHouse }) {
   const totalWeight = warehouse?.inventories?.reduce(
     (total, item) => total + (item?.maxWeight || 0),
@@ -50,17 +51,18 @@ export function InventoryCard({
 }) {
   return (
     <div
-      className={` shadow-lg rounded-lg p-6 mb-4 w-full max-w-lg mx-auto text-black cursor-pointer h-fit ${
-        inventory.ocopPartnerId
-          ? "bg-[var(--Xanh-10)] hover:bg-[var(--Xanh-100)]"
-          : "bg-white hover:bg-[var(--en-vu-100)]"
-      }`}
+      className={` shadow-xl border-2 border-gray-200 relative overflow-hidden rounded-lg p-6 mb-4 w-full max-w-lg mx-auto text-black cursor-pointer h-[11rem] bg-white hover:bg-[var(--en-vu-100)]`}
       onClick={(e) =>
         !inventory.ocopPartnerId
           ? handleBuyClick(inventory)
           : handleShowInventoryDetail(e, inventory)
       }
     >
+      {inventory.ocopPartnerId && (
+        <div className="absolute flex justify-center items-center bg-green-500 w-32 text-white h-10 top-2 -right-8 rotate-45">
+          <p>Bought</p>
+        </div>
+      )}
       <div className="font-bold mb-4 text-xl">{inventory?.name}</div>
 
       <div className=" justify-start">
@@ -72,6 +74,15 @@ export function InventoryCard({
           <p className="font-semibold">Price:</p>
           <p>{inventory?.price} VND</p>
         </div>
+        {inventory.ocopPartnerId && (
+          <div className="text-gray-700 mb-1 flex gap-x-4">
+            <p className="font-semibold">Date:</p>
+            <p>
+              {format(inventory?.boughtDate, "dd/MM/yyyy")} -{" "}
+              {format(inventory?.expirationDate, "dd/MM/yyyy")}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* <div className="text-gray-500 text-left">

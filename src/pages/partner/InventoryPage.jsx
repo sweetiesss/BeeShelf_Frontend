@@ -45,17 +45,12 @@ export default function InventoryPage() {
   const [checkBuyInventory, setCheckBuyInventory] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [refetching, setRefetching] = useState(false);
+
   const [refetchingInventory, setRefetchingInventory] = useState(false);
-  const [setFiltersVisible, filtersVisible] = useState(true);
 
-  const [search, setSearch] = useState(null);
   const [sortCriteria, setSortCriteria] = useState(null);
-  const [descending, setDescending] = useState(false);
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
 
-  const { userInfor } = useAuth();
+  const { userInfor, setRefrestAuthWallet } = useAuth();
   const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
   const { getAllProduct } = AxiosPartner();
   const { getProductByUserId } = AxiosProduct();
@@ -66,7 +61,9 @@ export default function InventoryPage() {
   const [provinceList, setProvinencesList] = useState([]);
   const [provinceAvailableList, setProvinencesAvailableList] = useState([]);
 
-  const [monthBuyInvrentory, setMonthToBuyInventory] = useState(0);
+  const [monthBuyInvrentory, setMonthToBuyInventory] = useState(1);
+
+  const [warehouseOnId, setWareHouseOnId] = useState(0);
 
   const [filters, setFilters] = useState({
     name: "",
@@ -90,7 +87,6 @@ export default function InventoryPage() {
     getInventory1000ByWarehouseId,
     getInventory1000ByUserIdAndWareHouseId,
     buyInventory,
-    getInventoryById,
   } = AxiosInventory();
   const { t } = useTranslation();
 
@@ -105,8 +101,58 @@ export default function InventoryPage() {
   }, [warehousesOwned, warehouses]);
 
   useEffect(() => {
+    getBackWarehouseOn();
+  }, [warehousesBased]);
+
+  const getBackWarehouseOn = () => {
+    if (warehousesBased) {
+      if (warehouseOnId > 0) {
+        const warehouse = warehousesBased.find(
+          (item) => parseInt(item.id) === parseInt(warehouseOnId)
+        );
+        setWareHouse(warehouse);
+        setWareHouseOnId(0);
+      }
+    }
+  };
+
+  useEffect(() => {
     applyFilters();
   }, [filters]);
+
+  useEffect(() => {
+    const fetching = async () => {
+      if (warehouse) {
+        fetchingDataInventories();
+        fetchingDataInventoriesByUserId();
+        fetchingDataProductByUserIdAndWareHouseId();
+      }
+    };
+    fetching();
+  }, [warehouse, refetchingInventory]);
+
+  useEffect(() => {
+    const fetching = async () => {
+      if (refresh > -1) {
+        if (warehouse) {
+          fetchingDataInventories();
+          fetchingDataInventoriesByUserId();
+          fetchingDataProductByUserIdAndWareHouseId();
+        }
+      }
+    };
+    fetching();
+  }, [refresh]);
+
+  useEffect(() => {
+    const fetching = () => {
+      getInventoriesList();
+      if (refresh >= -1) {
+        getDetailInventory();
+      }
+    };
+    fetching();
+  }, [inventoriesOwned, inventories]);
 
   const getProvincesAPI = async () => {
     try {
@@ -186,53 +232,10 @@ export default function InventoryPage() {
     }
   };
 
-  useEffect(() => {
-    const fetching = async () => {
-      if (warehouse) {
-        setInventories();
-        setInventoriesOwned();
-        setInventoriesShowList();
-        fetchingDataInventories();
-        fetchingDataInventoriesByUserId();
-        fetchingDataProductByUserIdAndWareHouseId();
-      }
-    };
-    fetching();
-  }, [warehouse, refetchingInventory]);
-
-  useEffect(() => {
-    const fetching = async () => {
-      if (refresh > -1) {
-        if (warehouse) {
-          fetchingDataInventories();
-          fetchingDataInventoriesByUserId();
-          fetchingDataProductByUserIdAndWareHouseId();
-        }
-      }
-    };
-    fetching();
-  }, [refresh]);
-
-  useEffect(() => {
-    const fetching = () => {
-      getInventoriesList();
-      if (refresh >= -1) {
-        getDetailInventory();
-      }
-    };
-    fetching();
-  }, [inventoriesOwned, inventories]);
-
   const fetchingDataWarehouses = async () => {
     try {
       setLoading(true);
-      const res = await getWarehouses(
-        search,
-        sortCriteria,
-        descending,
-        pageIndex,
-        1000
-      );
+      const res = await getWarehouses(null, null, null, null, 1000);
       if (res?.status == 200) {
         setWareHouses(res);
       }
@@ -366,6 +369,9 @@ export default function InventoryPage() {
         handleCancelBuyInventory();
         setRefetchingInventory((prev) => !prev);
         setLoading(true);
+        getBackWareHouseIsInding();
+        setWareHouseOnId(warehouse?.id);
+        setRefrestAuthWallet((prev) => !prev);
       }
     } catch (e) {
       console.log(e);
@@ -432,6 +438,13 @@ export default function InventoryPage() {
   };
   const clearDataInventoryOfWarehosue = () => {
     setWareHouse();
+    setInventories();
+    setInventoriesOwned();
+    setInventoriesShowList();
+  };
+  const getBackWareHouseIsInding = async () => {
+    await fetchingDataWarehouses();
+    await fetchingDataWarehousesByUserId();
   };
 
   return (
@@ -446,7 +459,7 @@ export default function InventoryPage() {
                   ? "text-[var(--en-vu-500-disable)]   cursor-pointer"
                   : "text-[var(--en-vu)]"
               }`}
-              onClick={() => warehouse && setWareHouse()}
+              onClick={() => warehouse && clearDataInventoryOfWarehosue()}
             >
               {warehouse ? warehouse.name : t("Warehouses")}
             </span>
@@ -730,7 +743,12 @@ export default function InventoryPage() {
                         ? "Only normal inventories"
                         : "Only cold inventories",
                   },
-                  { label: "Capacity:", value: warehouse?.capacity },
+                  {
+                    label: "Capacity:",
+                    value: `${Math.max(
+                      warehouse?.capacity - warehouse?.availableCapacity
+                    )}/${warehouse?.capacity || "N/A"}`,
+                  },
                 ].map((item) => (
                   <div className="grid-cols-4 grid gap-4 mb-4">
                     <p className="col-span-1 font-medium  text-gray-500">
@@ -773,7 +791,7 @@ export default function InventoryPage() {
               >
                 <XCircle fill="#ef4444" weight="fill" />
               </div>
-              <p className="text-2xl">{`How much month do you want to buy this: ${inventory.name}?`}</p>
+              <p className="text-2xl">{`Buying inventory: ${inventory.name}?`}</p>
               <div className="flex items-center justify-between my-7">
                 <div
                   className={`flex items-center overflow-auto py-2 px-4 w-fit border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
@@ -812,19 +830,19 @@ export default function InventoryPage() {
               </div>
 
               <div className="mb-7 grid-cols-8 grid gap-4">
-                <div className="col-span-2 text-gray-500">Name</div>
+                <div className="col-span-2 text-gray-500">Weight</div>
                 <div className="col-span-2 text-gray-500">Price</div>
-                <div className="col-span-1 text-gray-500 text-center">
+                <div className="col-span-2 text-gray-500 text-center">
                   Amount
                 </div>
-                <div className="col-span-1 text-gray-500">Unit</div>
+
                 <div className="col-span-2 text-gray-500">Total</div>
-                <div className="col-span-2">{inventory?.name}</div>
+                <div className="col-span-2">{inventory?.maxWeight}kg</div>
                 <div className="col-span-2">{inventory?.price + "VND"}</div>
-                <div className="col-span-1 text-center">
-                  {monthBuyInvrentory}
+                <div className="col-span-2 text-center">
+                  {monthBuyInvrentory} Month
                 </div>
-                <div className="col-span-1">Month</div>
+
                 <div className="col-span-2">
                   {/* {parseInt(cal( inventory?.price*monthBuyInvrentory)) + "VND"} */}
                   {`${Math.round(
