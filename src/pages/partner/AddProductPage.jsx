@@ -18,6 +18,8 @@ export default function AddProductPage() {
     ocopPartnerId: userInfor.id,
     barcode: "",
     name: "",
+    unit: "",
+    isCold: 0,
     price: null,
     weight: null,
     productCategoryId: null,
@@ -132,36 +134,9 @@ export default function AddProductPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const newErrors = {};
-
-    // Object.keys(product).forEach((field) => {
-    //   validateField(field, product[field]);
-    //   if (!product[field]) {
-    //     newErrors[field] = "This field is required.";
-    //   }
-    // });
-
-    // if (Object.keys(newErrors).length > 0) {
-    //   setErrors((prev) => ({ ...prev, ...newErrors }));
-    //   return;
-    // }
     try {
-      // const additionalData = {
-      //   ContentType: "image/jpeg",
-      //   ContentDisposition: "form-data",
-      //   FileName: imageLink.name,
-      //   Headers: {
-      //     additionalProp1: ["string"],
-      //     additionalProp2: ["string"],
-      //     additionalProp3: ["string"],
-      //   },
-      // };
       console.log(product);
-      // const uploadedImage = await uploadImage(imageLink, additionalData);
-      // console.log("Server response:", uploadedImage);
-
-
       const result = await createProductWithUserId(product);
       console.log(result);
       if (result?.status == 200) {
@@ -210,8 +185,7 @@ export default function AddProductPage() {
           <div className="form-group">
             <label htmlFor="image">Product Image URL</label>
 
-
-{/*             
+            {/*             
             <input
               type="file"
               id="image"
@@ -231,7 +205,7 @@ export default function AddProductPage() {
               </div>
             )} */}
 
-          <input
+            <input
               type="text"
               id="image"
               name="pictureLink"
@@ -254,10 +228,7 @@ export default function AddProductPage() {
                 />
               </div>
             )}
-
-
           </div>
-
 
           <div className="form-group">
             <label htmlFor="name">Product Name</label>
@@ -287,35 +258,48 @@ export default function AddProductPage() {
             />
             {errors.price && <p className="error-text">{errors.price}</p>}
           </div>
+          <div className="form-group">
+            <label htmlFor="unit">Unit</label>
+            <select
+              id="unit"
+              name="unit"
+              value={product.unit}
+              onChange={handleChange}
+              className={`input-field ${errors.unit ? "input-error" : ""}`}
+              placeholder="Enter product unit"
+            >
+              <option value={""}>Choose Units</option>
+              <option value={"package"}>Package</option>
+              <option value={"box"}>Box</option>
+              <option value={"lit"}>lit</option>
+              {/* <option value={"kg"}>""</option>
+              <option value={""}>""</option>
+              <option value={""}>""</option>
+              <option value={""}>""</option>
+              <option value={""}>""</option> */}
+            </select>
+         
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="isCold">IsCold</label>
+            <input
+              type="checkbox"
+              id="isCold"
+              name="isCold"
+              checked={product.isCold === 1} // Determines if the checkbox is checked
+              onChange={(e) =>
+                setProduct((prevProduct) => ({
+                  ...prevProduct,
+                  isCold: e.target.checked ? 1 : 0, // Update isCold based on checkbox state
+                }))
+              }
+            />
+          </div>
 
           {/* Category */}
           <div className="form-group">
             <label htmlFor="productCategoryId">productCategoryId</label>
-            {/* <input
-              type="text"
-              id="category"
-              name="category"
-              value={product.category}
-              onChange={handleChange}
-              className={`input-field ${errors.category ? "input-error" : ""}`}
-              placeholder="Enter product category"
-            />
-            {errors.category && <p className="error-text">{errors.category}</p>} */}
-
-            {/* <select
-              name="productCategoryId"
-              id="productCategoryId"
-              value={product.productCategoryId}
-              onChange={handleChange}
-            >
-              <option value={0}>Select product category</option>
-              {productCategories?.map((category) => (
-                <option value={category.id}>
-                  <span>{category.name}</span>
-                </option>
-              ))}
-            </select> */}
-
             <Select
               className="w-full"
               styles={{
@@ -376,14 +360,10 @@ export default function AddProductPage() {
                 <div className="flex flex-col">
                   <div className="flex justify-between font-medium">
                     <div>{name}</div>
-                    <div>{expire?expire+ " days":""}</div>
+                    <div>{expire ? expire + " days" : ""}</div>
                   </div>
                   {context === "menu" && (
-                    <div
-                    className={`text-sm`}
-                  >
-                    {description}
-                  </div>
+                    <div className={`text-sm`}>{description}</div>
                   )}
                 </div>
               )}

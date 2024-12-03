@@ -36,9 +36,7 @@ export default function ImportProductExcel({ result, setResult }) {
   const { createProductsWithUserId } = AxiosProduct();
   const { t } = useTranslation();
 
-  useEffect(()=>{
-
-  },[])
+  useEffect(() => {}, []);
 
   useEffect(() => {
     const checkCount = selectedProducts.length;
@@ -63,9 +61,7 @@ export default function ImportProductExcel({ result, setResult }) {
     checkIsDuplicated(hasDuplicates);
   }, [excelData]);
 
-  const getProductCategory=async()=>{
-    
-  }
+  const getProductCategory = async () => {};
 
   const toggleProductSelection = (product) => {
     if (!editProduct) {
@@ -99,6 +95,8 @@ export default function ImportProductExcel({ result, setResult }) {
         barcode: "101-elz",
         name: "Example Vegetable A",
         price: 10.0,
+        unit: "package",
+        isCold: "yes",
         weight: 0.5,
         productCategoryId: 1,
         origin: "Made in USA",
@@ -108,6 +106,8 @@ export default function ImportProductExcel({ result, setResult }) {
         barcode: "233-elz",
         name: "Example Fish Can B",
         price: 10.0,
+        unit: "package",
+        isCold: "yes",
         weight: 0.5,
         productCategoryId: 2,
         origin: "Made in Viet Nam",
@@ -195,6 +195,8 @@ export default function ImportProductExcel({ result, setResult }) {
       const updateData = jsonData.map((item, index) => ({
         ...item,
         id: index,
+        isCold:
+          item?.isCold.replace(/\s+/g, "").toLowerCase() === "yes" ? 1 : 0,
         ocopPartnerId: userInfor.id,
       }));
       const result = validateExcelData(updateData);

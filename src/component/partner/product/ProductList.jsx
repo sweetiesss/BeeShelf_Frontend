@@ -79,7 +79,6 @@ export default function ProductList({
             <th className="border-b-2 py-4 w-10 text-center px-2 ">
               {selectedProducts?.length > 0 ? (
                 <input
-
                   type="checkbox"
                   checked={overall?.checked}
                   onChange={handleClickOverall}
@@ -130,6 +129,9 @@ export default function ProductList({
 
             <th className="border-b-2 text-left py-4 w-[10vw]">
               {t("Category")}
+            </th>
+            <th className="border-b-2 text-left py-4 w-[5vw]">
+              {t("isCold")}
             </th>
 
             <th
@@ -285,7 +287,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                      placeholder="Input name"
+                        placeholder="Input name"
                         value={editForm?.name}
                         name="name"
                         className="w-[80%] px-2 py-1"
@@ -319,6 +321,20 @@ export default function ProductList({
                       )}
                     </div>
                   </td>
+                  <td className="w-[5vw]">
+                    <div
+                      className={`overflow-hidden text-nowrap max-w-[9vw] flex items-center${
+                        checkError?.error?.includes("isCold") && "text-red-500"
+                      }`}
+                    >
+                      {product.isCold === 1 ? "Yes" : "No"}
+                      {checkError?.error?.includes("isCold") && (
+                        <span className="bg-red-500 text-white text-lg rounded-md">
+                          <ExclamationMark weight="bold" />
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td
                     className={`w-[10vw] ${
                       checkError?.error?.includes("origin") &&
@@ -327,7 +343,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                      placeholder="Input origin"
+                        placeholder="Input origin"
                         value={editForm?.origin}
                         name="origin"
                         className="w-[80%] px-2 py-1"
@@ -353,7 +369,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                      placeholder="Price"
+                        placeholder="Price"
                         type="number"
                         value={editForm?.price}
                         name="price"
@@ -364,7 +380,7 @@ export default function ProductList({
                       <div
                         className={`overflow-hidden text-nowrap max-w-[6vw] flex items-center `}
                       >
-                        {product.price}
+                        {product.price} / {product.unit}
                         {checkError?.error?.includes("price") &&
                           !product.price && (
                             <span className="bg-red-500 text-white text-lg rounded-md">
@@ -399,7 +415,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                      placeholder="Weight"
+                        placeholder="Weight"
                         type="number"
                         value={editForm?.weight}
                         name="weight"

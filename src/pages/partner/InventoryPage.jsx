@@ -135,9 +135,7 @@ export default function InventoryPage() {
     const fetching = async () => {
       if (refresh > -1) {
         if (warehouse) {
-          fetchingDataInventories();
-          fetchingDataInventoriesByUserId();
-          fetchingDataProductByUserIdAndWareHouseId();
+         setRefetchingInventory(prev=>!prev)
         }
       }
     };
