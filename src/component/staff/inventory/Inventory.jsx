@@ -22,6 +22,7 @@ const Inventory = () => {
   const { fetchDataBearer } = useAxiosBearer();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState({}); // Track loading for each inventory item
 
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchInventories = async () => {
@@ -69,19 +70,16 @@ const Inventory = () => {
   }, [userInfor]);
 
   const getDetailInventory = async (id) => {
+    setLoadingDetails((prev) => ({ ...prev, [id]: true })); // Set loading to true for this specific inventory
     try {
       const response = await fetchDataBearer({
         url: `/inventory/get-inventory/${id}`,
         method: "GET",
       });
-    //   if (response && response.data) {
-    //     setSelectedInventory(response.data);
-    //     setIsModalVisible(true);
-    //   }
-    if (response && response.data) {
+      if (response && response.data) {
         // Assuming the first element of the 'lots' array contains the inventory lot details
         const lotData = response.data.lots[0];
-  
+
         if (lotData) {
           // Now, setting the inventory lot details
           setSelectedInventory({
@@ -97,18 +95,19 @@ const Inventory = () => {
             importDate: lotData.importDate,
             exportDate: lotData.exportDate,
             expirationDate: lotData.expirationDate,
-            inventoryId: lotData.inventoryId
+            inventoryId: lotData.inventoryId,
           });
-  
+
           setIsModalVisible(true);
-        } }
-      
-    else {
+        }
+      } else {
         message.error("No data returned from the server.");
       }
     } catch (error) {
       console.error("Error fetching inventory details:", error);
       message.error("Failed to fetch inventory details. Please try again.");
+    } finally {
+      setLoadingDetails((prev) => ({ ...prev, [id]: false })); // Reset loading for this specific inventory
     }
   };
 
@@ -148,8 +147,13 @@ const Inventory = () => {
                     type="primary"
                     size="small"
                     onClick={() => getDetailInventory(item.id)}
+                    disabled={loadingDetails[item.id]} // Disable button if loading for this item
                   >
-                    View Details
+                    {loadingDetails[item.id] ? (
+                      <Spin size="small" />
+                    ) : (
+                      "View Details"
+                    )}
                   </Button>
                 </Space>
               </Card>
@@ -159,7 +163,7 @@ const Inventory = () => {
       </Row>
 
       <Modal
-        title="Inventory Details" 
+        title="Inventory Details"
         open={isModalVisible}
         onCancel={handleModalClose}
         footer={[
@@ -168,46 +172,43 @@ const Inventory = () => {
           </Button>,
         ]}
       >
-        {selectedInventory && (
-          <div className="grid grid-cols-1 gap-4">
-           <p className="font-bold">Lot ID:</p> <p>{selectedInventory.inventoryId}</p>
-            <div>
-              <p className="font-bold">Lot ID:</p>
-              <p>{selectedInventory.id}</p>
+        {/* Wrap content with Spin */}
+        {loadingDetails[selectedInventory?.id] ? (
+          <Spin size="large" className="flex justify-center items-center" />
+        ) : (
+          selectedInventory && (
+            <div className="grid grid-cols-1 gap-4">
+              <p className="font-bold">Lot ID:</p> <p>{selectedInventory.inventoryId}</p>
+              <div>
+                <p className="font-bold">Lot ID:</p>
+                <p>{selectedInventory.id}</p>
+              </div>
+              <div>
+                <p className="font-bold">Lot Number:</p>
+                <p>{selectedInventory.lotNumber}</p>
+              </div>
+              <div>
+                <p className="font-bold">Lot Name:</p>
+                <p>{selectedInventory.name}</p>
+              </div>
+              <div>
+                <p className="font-bold">Lot Amount:</p>
+                <p>{selectedInventory.lotAmount}</p>
+              </div>
+              <div>
+                <p className="font-bold">Product PerLot:</p>
+                <p>{selectedInventory.productPerLot}</p>
+              </div>
+              <div>
+                <p className="font-bold">Product Name:</p>
+                <p>{selectedInventory.productName}</p>
+              </div>
+              <div>
+                <p className="font-bold">Total Product Amount:</p>
+                <p>{selectedInventory.totalProductAmount}</p>
+              </div>
             </div>
-            {/* <div>
-              <p className="font-bold">Inventory ID:</p>
-              <p>{selectedInventory.id}</p>
-            </div> */}
-            <div>
-              <p className="font-bold">Lot Number:</p>
-              <p>{selectedInventory.lotNumber}</p>
-            </div>
-            <div>
-              <p className="font-bold">Lot Name:</p>
-              <p>{selectedInventory.name}</p>
-            </div>
-            <div>
-              <p className="font-bold">Lot Amount:</p>
-              <p>{selectedInventory.lotAmount}</p>
-            </div>
-            <div>
-              <p className="font-bold">Product PerLot:</p>
-              <p>{selectedInventory.productPerLot}</p>
-            </div>
-            {/* <div>
-              <p className="font-bold">Total Products:</p>
-              <p>{selectedInventory.totalProduct}</p>
-            </div> */}
-            <div>
-              <p className="font-bold"> Product Name:</p>
-              <p>{selectedInventory.productName}</p>
-            </div>
-            <div>
-              <p className="font-bold">Total Product Amount:</p>
-              <p>{selectedInventory.totalProductAmount}</p>
-            </div>
-          </div>
+          )
         )}
       </Modal>
     </div>

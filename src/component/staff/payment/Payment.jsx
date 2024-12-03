@@ -51,7 +51,7 @@ const Payment = () => {
           label: `MoneyTransferId: ${moneyTransferId.id} - 
           OCOP Partner ID: ${moneyTransferId.ocopPartnerId} - 
           Amount: ${moneyTransferId.amount}`,
-          // Hiển thị Payment ID trong label
+           // Hiển thị Payment ID trong label
         }));
         setPaymentIdOptions(options);
       } else {
@@ -70,14 +70,10 @@ const Payment = () => {
     setLoading(true);
     try {
       // Kiểm tra thông tin trước khi gọi API
-      console.log(
-        "Creating payment with moneyTransferId:",
-        moneyTransferId,
-        "and staffId:",
-        userInfor?.id
-      );
+      console.log("Creating payment with moneyTransferId:", moneyTransferId, "and staffId:", userInfor?.id);
 
       const response = await fetchDataBearer({
+
         // url: `/payment/create-money-transfer-request/${paymentId}?staffId=${userInfor?.id}`,
         url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}`,
         method: "POST",
@@ -85,6 +81,7 @@ const Payment = () => {
           moneyTransferId,
         },
       });
+      
 
       if (response && response.status === 200) {
         message.success("Payment Confirm successfully!");
@@ -110,21 +107,12 @@ const Payment = () => {
       dataIndex: "ocopPartnerId",
       key: "ocopPartnerId",
     },
-    { title: "Transfer By", dataIndex: "transferBy", key: "transferBy" },
-    {
-      title: "TransferByStaffEmail",
-      dataIndex: "transferByStaffEmail",
-      key: "transferByStaffEmail",
-    },
+    {title: "Transfer By", dataIndex: "transferBy", key:"transferBy"},
+    { title: "TransferByStaffEmail", dataIndex: "transferByStaffEmail", key: "transferByStaffEmail" },
     // { title: "Collected By", dataIndex: "collectedBy", key: "collectedBy" },
-    { title: "Amount", dataIndex: "amount", key: "amount" },
+    {title: "Amount", dataIndex: "amount", key:"amount"},
     // { title: "Shipper Email", dataIndex: "shipperEmail", key: "shipperEmail" },
-    {
-      title: "CreateDate",
-      dataIndex: "createDate",
-      key: "createDate",
-      render: (text) => text.split("T")[0],
-    },
+    { title: "CreateDate", dataIndex: "createDate", key: "createDate" ,  render: (text) => text.split("T")[0], },
     // {
     //   title: "Total Amount",
     //   dataIndex: "totalAmount",
@@ -144,7 +132,7 @@ const Payment = () => {
       <Button
         type="primary"
         onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
-        loading={loading}
+        // loading={loading}
         style={{ marginBottom: 20 }}
       >
         Confirm Money Transfer
@@ -165,10 +153,12 @@ const Payment = () => {
             loading={loading}
             onClick={createPayment}
           >
-            Confirm Money Transfer Request
+            Confirm Money Transfer Request 
           </Button>,
         ]}
       >
+
+
         <Form layout="vertical">
           {/* Trường input cho staffId */}
           <Form.Item label="Staff ID" required>
@@ -196,24 +186,29 @@ const Payment = () => {
         </Form>
       </Modal>
 
-      <Table
-        dataSource={payments}
-        columns={columns}
-        loading={loading}
-        pagination={{
-          current: pagination.pageIndex + 1,
-          pageSize: pagination.pageSize,
-          total: pagination.totalItemsCount,
-          onChange: (page) => {
-            setPagination((prev) => ({
-              ...prev,
-              pageIndex: page - 1,
-            }));
-            fetchPayments(); // Gọi lại API khi chuyển trang
-          },
-        }}
-        rowKey="id"
-      />
+      {/* Hiển thị loading khi đang tải dữ liệu */}
+      {loading ? (
+        <Spin tip="Loading payments..." />
+      ) : (
+        <Table
+          dataSource={payments}
+          columns={columns}
+          loading={loading}
+          pagination={{
+            current: pagination.pageIndex + 1,
+            pageSize: pagination.pageSize,
+            total: pagination.totalItemsCount,
+            onChange: (page) => {
+              setPagination((prev) => ({
+                ...prev,
+                pageIndex: page - 1,
+              }));
+              fetchPayments(); // Gọi lại API khi chuyển trang
+            },
+          }}
+          rowKey="id"
+        />
+      )}
     </div>
   );
 };
