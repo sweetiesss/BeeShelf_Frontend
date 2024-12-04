@@ -73,15 +73,12 @@ const Payment = () => {
       console.log("Creating payment with moneyTransferId:", moneyTransferId, "and staffId:", userInfor?.id);
 
       const response = await fetchDataBearer({
-
-        // url: `/payment/create-money-transfer-request/${paymentId}?staffId=${userInfor?.id}`,
         url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}`,
         method: "POST",
         data: {
           moneyTransferId,
         },
       });
-      
 
       if (response && response.status === 200) {
         message.success("Payment Confirm successfully!");
@@ -107,18 +104,10 @@ const Payment = () => {
       dataIndex: "ocopPartnerId",
       key: "ocopPartnerId",
     },
-    {title: "Transfer By", dataIndex: "transferBy", key:"transferBy"},
+    { title: "Transfer By", dataIndex: "transferBy", key: "transferBy" },
     { title: "TransferByStaffEmail", dataIndex: "transferByStaffEmail", key: "transferByStaffEmail" },
-    // { title: "Collected By", dataIndex: "collectedBy", key: "collectedBy" },
-    {title: "Amount", dataIndex: "amount", key:"amount"},
-    // { title: "Shipper Email", dataIndex: "shipperEmail", key: "shipperEmail" },
-    { title: "CreateDate", dataIndex: "createDate", key: "createDate" ,  render: (text) => text.split("T")[0], },
-    // {
-    //   title: "Total Amount",
-    //   dataIndex: "totalAmount",
-    //   key: "totalAmount",
-    //   render: (text) => `$${text}`,
-    // },
+    { title: "Amount", dataIndex: "amount", key: "amount" },
+    { title: "CreateDate", dataIndex: "createDate", key: "createDate", render: (text) => text.split("T")[0] },
   ];
 
   // Lấy dữ liệu thanh toán khi component mount
@@ -132,12 +121,12 @@ const Payment = () => {
       <Button
         type="primary"
         onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
-        // loading={loading}
         style={{ marginBottom: 20 }}
       >
         Confirm Money Transfer
       </Button>
       <h1>Transfer Money Request List</h1>
+      
       {/* Modal hiển thị form nhập staffId và paymentId */}
       <Modal
         title="Confirm Money Transfer Request"
@@ -157,10 +146,7 @@ const Payment = () => {
           </Button>,
         ]}
       >
-
-
         <Form layout="vertical">
-          {/* Trường input cho staffId */}
           <Form.Item label="Staff ID" required>
             <Input
               value={userInfor?.id} // Để giá trị mặc định là userInfor?.id
@@ -169,7 +155,6 @@ const Payment = () => {
             />
           </Form.Item>
 
-          {/* Trường input cho paymentId */}
           <Form.Item label="Payment ID" required>
             <Select
               value={moneyTransferId} // Đảm bảo paymentId là state hoặc prop đang lưu trữ giá trị đã chọn
@@ -188,7 +173,9 @@ const Payment = () => {
 
       {/* Hiển thị loading khi đang tải dữ liệu */}
       {loading ? (
-        <Spin tip="Loading payments..." />
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "300px" }}>
+          <Spin tip="Loading payments..." />
+        </div>
       ) : (
         <Table
           dataSource={payments}
