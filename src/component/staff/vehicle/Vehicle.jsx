@@ -143,12 +143,23 @@ const Vehicle = () => {
         ]}
       >
         <Form layout="vertical">
-          <Form.Item label="Staff ID" required>
-            <Input
+          <Form.Item label="Shipper ID" required>
+            {/* <Input
               value={userInfor?.id} // Để giá trị mặc định là userInfor?.id
               disabled
               placeholder="Staff ID"
-            />
+            /> */}
+                <Select
+              value={moneyTransferId}
+              onChange={(value) => setPaymentId(value)}
+              placeholder="Select Vehicle ID"
+            >
+              {paymentIdOptions.map((option) => (
+                <Select.Option key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item label="Vehicle" required>

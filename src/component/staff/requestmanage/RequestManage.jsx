@@ -156,9 +156,9 @@ const RequestManagement = () => {
       case "Pending":
         return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
       case "Processing":
-        return ["Delivered", "Failed"]; // OCOP Partner Delivered or Deliver window expire
+        return [ "Delivered","Failed"]; // OCOP Partner Delivered or Deliver window expire
       case "Delivered":
-        return ["Completed"]; // Item stored
+        return ["Failed","Completed"]; // Item stored
       case "Failed":
       case "Completed":
       case "Cancelled":
