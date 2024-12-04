@@ -9,6 +9,8 @@ import {
   Archive,
   Aperture,
   CreditCard,
+  CarProfile,
+  TreasureChest,
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
@@ -118,22 +120,29 @@ export function Sidebar() {
 
         {userInfor?.roleName === "Staff" && (
           <>
-            <NavLink to="dashboardstaff" className="flex navigate-menu">
+            {/* <NavLink to="dashboardstaff" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <House className="icon" weight="fill" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
-            </NavLink>
+            </NavLink> */}
+        
             <NavLink to="payment" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <CreditCard className="icon" weight="fill" />
-                <p className="label">{t("Payment")}</p>
+                <p className="label">{t("Transfer Money")}</p>
               </div>
             </NavLink>
             <NavLink to="batchflow" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Package className="icon" weight="fill" />
                 <p className="label">{t("Create Batch")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="vehicle" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <CarProfile className="icon" weight="fill" />
+                <p className="label">{t("Vehicle")}</p>
               </div>
             </NavLink>
             <NavLink to="ordermanage" className="flex navigate-menu">
@@ -152,7 +161,7 @@ export function Sidebar() {
 
             <NavLink to="inventory" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Package className="icon" weight="fill" />
+                <TreasureChest className="icon" weight="fill" />
                 <p className="label">{t("Inventory")}</p>
               </div>
             </NavLink>

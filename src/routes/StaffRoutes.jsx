@@ -12,6 +12,7 @@ import Payment from "../component/staff/payment/Payment";
 import Dashboard from "../component/staff/dashboard/Dashboard";
 // import Inventory from "../component/staff/inventory/Inventory";
 import Inventory from "../component/staff/inventory/Inventory";
+import Vehicle from "../component/staff/vehicle/Vehicle";
 
 export default function StaffRoutes() {
   const { dataDetail, typeDetail } = useDetail();  
@@ -21,7 +22,7 @@ export default function StaffRoutes() {
       <Routes>
         <Route path="/*" element={<LayoutLogined />}>
 
-        <Route index element={<Dashboard />} />
+        <Route index element={<Payment />} />
         <Route path="dashboardstaff" element={<Dashboard/>}/>
         {/* <Route path="warehouseinventory" element={<Inventory/>}/> */}
         <Route path="inventory" element={<Inventory/>}/>
@@ -29,6 +30,7 @@ export default function StaffRoutes() {
         <Route path="batchflow" element={<Batch/>}/>
          <Route path="requestmanage" element={<RequestManagement/>}/>
          <Route path="payment" element={<Payment/>}/>
+         <Route path="vehicle" element={<Vehicle/>}/>
          
         </Route>
         {/* <Route path="payment" element={<Payment/>}/> */}
