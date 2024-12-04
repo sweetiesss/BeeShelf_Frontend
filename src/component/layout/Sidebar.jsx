@@ -136,7 +136,7 @@ export function Sidebar() {
             <NavLink to="batchflow" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Package className="icon" weight="fill" />
-                <p className="label">{t("Create Batch")}</p>
+                <p className="label">{t("Batch")}</p>
               </div>
             </NavLink>
             <NavLink to="vehicle" className="flex navigate-menu">
