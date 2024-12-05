@@ -21,8 +21,8 @@ const Inventory = () => {
   const [inventories, setInventories] = useState([]);
   const { fetchDataBearer } = useAxiosBearer();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedInventory, setSelectedInventory] = useState(null);
-  const [loadingDetails, setLoadingDetails] = useState({}); // Track loading for each inventory item
+  const [selectedInventory, setSelectedInventory] = useState([]);
+  // const [loadingDetails, setLoadingDetails] = useState({}); // Track loading for each inventory item
 
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchInventories = async () => {
@@ -70,7 +70,7 @@ const Inventory = () => {
   }, [userInfor]);
 
   const getDetailInventory = async (id) => {
-    setLoadingDetails((prev) => ({ ...prev, [id]: true })); // Set loading to true for this specific inventory
+    // setLoadingDetails((prev) => ({ ...prev, [id]: true })); // Set loading to true for this specific inventory
     try {
       const response = await fetchDataBearer({
         url: `/inventory/get-inventory/${id}`,
@@ -78,25 +78,11 @@ const Inventory = () => {
       });
       if (response && response.data) {
         // Assuming the first element of the 'lots' array contains the inventory lot details
-        const lotData = response.data.lots[0];
+        const lotData = response.data.lots;
 
         if (lotData) {
           // Now, setting the inventory lot details
-          setSelectedInventory({
-            id: lotData.id,
-            lotNumber: lotData.lotNumber,
-            name: lotData.name,
-            createDate: lotData.createDate,
-            lotAmount: lotData.lotAmount,
-            productId: lotData.productId,
-            productName: lotData.productName,
-            productPerLot: lotData.productPerLot,
-            totalProductAmount: lotData.totalProductAmount,
-            importDate: lotData.importDate,
-            exportDate: lotData.exportDate,
-            expirationDate: lotData.expirationDate,
-            inventoryId: lotData.inventoryId,
-          });
+          setSelectedInventory(lotData);
 
           setIsModalVisible(true);
         }
@@ -107,7 +93,7 @@ const Inventory = () => {
       console.error("Error fetching inventory details:", error);
       message.error("Failed to fetch inventory details. Please try again.");
     } finally {
-      setLoadingDetails((prev) => ({ ...prev, [id]: false })); // Reset loading for this specific inventory
+      // setLoadingDetails((prev) => ({ ...prev, [id]: false })); // Reset loading for this specific inventory
     }
   };
 
@@ -147,13 +133,9 @@ const Inventory = () => {
                     type="primary"
                     size="small"
                     onClick={() => getDetailInventory(item.id)}
-                    disabled={loadingDetails[item.id]} // Disable button if loading for this item
+                    // disabled={loadingDetails[item.id]} // Disable button if loading for this item
                   >
-                    {loadingDetails[item.id] ? (
-                      <Spin size="small" />
-                    ) : (
-                      "View Details"
-                    )}
+                    {"View Details"}
                   </Button>
                 </Space>
               </Card>
@@ -163,6 +145,7 @@ const Inventory = () => {
       </Row>
 
       <Modal
+        className="!w-[800px]"
         title="Inventory Details"
         open={isModalVisible}
         onCancel={handleModalClose}
@@ -173,43 +156,46 @@ const Inventory = () => {
         ]}
       >
         {/* Wrap content with Spin */}
-        {loadingDetails[selectedInventory?.id] ? (
+        {/* {loadingDetails[selectedInventory?.id] ? (
           <Spin size="large" className="flex justify-center items-center" />
-        ) : (
-          selectedInventory && (
-            <div className="grid grid-cols-1 gap-4">
-              <p className="font-bold">Lot ID:</p> <p>{selectedInventory.inventoryId}</p>
-              <div>
-                <p className="font-bold">Lot ID:</p>
-                <p>{selectedInventory.id}</p>
-              </div>
-              <div>
-                <p className="font-bold">Lot Number:</p>
-                <p>{selectedInventory.lotNumber}</p>
-              </div>
-              <div>
-                <p className="font-bold">Lot Name:</p>
-                <p>{selectedInventory.name}</p>
-              </div>
-              <div>
-                <p className="font-bold">Lot Amount:</p>
-                <p>{selectedInventory.lotAmount}</p>
-              </div>
-              <div>
-                <p className="font-bold">Product PerLot:</p>
-                <p>{selectedInventory.productPerLot}</p>
-              </div>
-              <div>
-                <p className="font-bold">Product Name:</p>
-                <p>{selectedInventory.productName}</p>
-              </div>
-              <div>
-                <p className="font-bold">Total Product Amount:</p>
-                <p>{selectedInventory.totalProductAmount}</p>
-              </div>
-            </div>
-          )
-        )}
+        ) : ( */}
+        <div className="grid grid-cols-2 gap-4">
+          {selectedInventory?.map((item, idx) => (
+            <>
+              <Card key={idx}>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Lot ID:</p>
+                  <p>{item.id}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Lot Number:</p>
+                  <p>{item.lotNumber}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Lot Name:</p>
+                  <p>{item.name}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Lot Amount:</p>
+                  <p>{item.lotAmount}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Product PerLot:</p>
+                  <p>{item.productPerLot}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Product Name:</p>
+                  <p>{item.productName}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Total Product Amount:</p>
+                  <p>{item.totalProductAmount}</p>
+                </div>
+              </Card>
+            </>
+          ))}
+        </div>
+        {/* )} */}
       </Modal>
     </div>
   );

@@ -1,37 +1,34 @@
 // export default RequestManagement;
+import { Button, Image, message, Modal, Select, Table, Tag } from "antd";
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Tag,
-  Input,
-  Space,
-  Button,
-  message,
-  Select,
-  Modal,
-  Image,
-} from "antd";
-import useAxios from "../../../services/CustomizeAxios";
 import { useAuth } from "../../../context/AuthContext";
+import useAxios from "../../../services/CustomizeAxios";
 
 const { Option } = Select;
 
 const RequestManagement = () => {
-  const [warehouseId, setWarehouseId] = useState("");
   const [requests, setRequests] = useState([]);
+  const [requestExports, setRequestExports] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingExport, setLoadingExport] = useState(false);
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
     pageSize: 10,
     totalPagesCount: 0,
     pageIndex: 0,
   });
-  const [email, setEmail] = useState("");
-  const [employeeDetails, setEmployeeDetails] = useState(null);
+  const [paginationExport, setPaginationExport] = useState({
+    totalItemsCount: 0,
+    pageSize: 10,
+    totalPagesCount: 0,
+    pageIndex: 0,
+  });
   const { fetchDataBearer } = useAxios();
+  const [statusFilter, setStatusFilter] = useState(null);
 
   useEffect(() => {
     fetchRequests(0);
+    fetchRequestExports(0);
   }, []);
 
   const { userInfor } = useAuth();
@@ -48,6 +45,7 @@ const RequestManagement = () => {
           warehouseId: userInfor?.workAtWarehouseId,
           pageIndex,
           pageSize: pagination.pageSize,
+          import: true,
         },
       });
 
@@ -84,44 +82,66 @@ const RequestManagement = () => {
     }
   };
 
+  const fetchRequestExports = async (pageIndex = 0) => {
+    setLoadingExport(true);
+    try {
+      console.log(userInfor?.workAtWarehouseId);
+
+      const response = await fetchDataBearer({
+        url: `/request/get-requests`,
+        method: "GET",
+        params: {
+          warehouseId: userInfor?.workAtWarehouseId,
+          pageIndex,
+          pageSize: pagination.pageSize,
+          import: false,
+        },
+      });
+
+      if (response && response.data) {
+        const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
+          response.data;
+
+        // Lọc các yêu cầu không có trạng thái "Draft"
+        const filteredItems = items.filter((item) => item.status !== "Draft");
+
+        setRequestExports(
+          filteredItems.map((item) => ({
+            key: item.id,
+            ...item,
+          }))
+        );
+
+        setPaginationExport({
+          totalItemsCount,
+          pageSize,
+          totalPagesCount,
+          pageIndex,
+        });
+
+        message.success("Data loaded successfully!");
+      } else {
+        message.error("No data returned from the server.");
+      }
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+      message.error("Failed to fetch requests. Please check the Warehouse ID.");
+    } finally {
+      setLoadingExport(false);
+    }
+  };
+
   const handlePageChange = (page) => {
     fetchRequests(page - 1);
   };
 
-  // const updateRequestStatus = async (id, newStatus) => {
-  //   if (!newStatus) {
-  //     message.error("Please select a new status!");
-  //     return;
-  //   }
+  const handlePageChangeExport = (page) => {
+    fetchRequestExports(page - 1);
+  };
 
-  //   setLoading(true);
-  //   try {
-  //     // Log dữ liệu trước khi gửi
-  //     console.log("Updating status for ID:", id, "to new status:", newStatus);
-
-  //     const response = await fetchDataBearer({
-  //       url: `/request/update-request-status/${id}?status=${newStatus}`,
-  //       method: "PUT",
-  //     });
-
-  //     if (response && response.status === 200) {
-  //       message.success("Status updated successfully!");
-  //       fetchRequests(pagination.pageIndex); // Làm mới bảng sau khi cập nhật
-  //     } else {
-  //       const errorMessage =
-  //         response?.data?.message || "Failed to update status.";
-  //       message.error(errorMessage);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating status:", error);
-  //     message.error(
-  //       error.response?.data?.message ||
-  //         "Failed to update status. Please try again."
-  //     );
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const handleStatusFilter = (value) => {
+    setStatusFilter(value);
+  };
 
   const renderStatusTag = (status) => {
     const colorMap = {
@@ -193,10 +213,11 @@ const RequestManagement = () => {
       if (response && response.status === 200) {
         message.success("Status updated successfully!");
         fetchRequests(); // Refresh request list
+        fetchRequestExports();
         setIsModalVisible(false);
-        if (selectedRequest?.id === id) {
-          setSelectedRequest({ ...selectedRequest, status: newStatus }); // Update modal if open
-        }
+        // if (selectedRequest?.id === id) {
+        //   setSelectedRequest({ ...selectedRequest, status: newStatus }); // Update modal if open
+        // }
       } else {
         const errorMessage =
           response?.data?.message || "Failed to update status.";
@@ -215,10 +236,10 @@ const RequestManagement = () => {
 
   return (
     <>
-      <div style={{ padding: "20px" }}>
-        <h1>Request Management</h1>
+      <div className="p-[20px]">
+        <h1>Import Request Management</h1>
 
-        {/* Request Table */}
+        {/* Request Import Table */}
         <Table
           dataSource={requests}
           columns={[
@@ -229,11 +250,6 @@ const RequestManagement = () => {
               key: "partner_email",
             },
             { title: "Request Name", dataIndex: "name", key: "name" },
-            // {
-            //   title: "Description",
-            //   dataIndex: "description",
-            //   key: "description",
-            // },
             {
               title: "Product Name",
               dataIndex: "productName",
@@ -253,11 +269,31 @@ const RequestManagement = () => {
               title: "Status",
               dataIndex: "status",
               key: "status",
-              render: (status, record) => (
-                <div className="flex flex-col gap-2 items-center">
-                  {renderStatusTag(status)} {/* Hiển thị status tag */}
+              filterDropdown: ({
+                setSelectedKeys,
+                selectedKeys,
+                confirm,
+                clearFilters,
+              }) => (
+                <div style={{ padding: 8 }}>
+                  <Select
+                    style={{ width: 120 }}
+                    value={selectedKeys[0]}
+                    onChange={(value) => {
+                      setSelectedKeys(value ? [value] : []);
+                      confirm();
+                    }}
+                    allowClear
+                  >
+                    <Option value="Pending">Pending</Option>
+                    <Option value="Approved">Approved</Option>
+                    <Option value="Rejected">Rejected</Option>
+                    <Option value="Completed">Completed</Option>
+                  </Select>
                 </div>
               ),
+              onFilter: (value, record) => record.status === value,
+              render: (status) => renderStatusTag(status),
             },
             {
               title: "Create Date",
@@ -324,6 +360,132 @@ const RequestManagement = () => {
             pageSize: pagination.pageSize,
             total: pagination.totalItemsCount,
             onChange: handlePageChange,
+          }}
+        />
+
+        <h1>Export Request Management</h1>
+
+        {/* Request Export Table */}
+        <Table
+          dataSource={requestExports}
+          columns={[
+            { title: "Request ID", dataIndex: "id", key: "id" },
+            {
+              title: "Partner Email",
+              dataIndex: "partner_email",
+              key: "partner_email",
+            },
+            { title: "Request Name", dataIndex: "name", key: "name" },
+            {
+              title: "Product Name",
+              dataIndex: "productName",
+              key: "productName",
+            },
+            {
+              title: "Request Type",
+              dataIndex: "requestType",
+              key: "requestType",
+            },
+            {
+              title: "Warehouse Name",
+              dataIndex: "warehouseName",
+              key: "warehouseName",
+            },
+            {
+              title: "Status",
+              dataIndex: "status",
+              key: "status",
+              filterDropdown: ({
+                setSelectedKeys,
+                selectedKeys,
+                confirm,
+                clearFilters,
+              }) => (
+                <div style={{ padding: 8 }}>
+                  <Select
+                    style={{ width: 120 }}
+                    value={selectedKeys[0]}
+                    onChange={(value) => {
+                      setSelectedKeys(value ? [value] : []);
+                      confirm();
+                    }}
+                    allowClear
+                  >
+                    <Option value="Pending">Pending</Option>
+                    <Option value="Approved">Approved</Option>
+                    <Option value="Rejected">Rejected</Option>
+                    <Option value="Completed">Completed</Option>
+                  </Select>
+                </div>
+              ),
+              onFilter: (value, record) => record.status === value,
+              render: (status) => renderStatusTag(status),
+            },
+            {
+              title: "Create Date",
+              dataIndex: "createDate",
+              key: "createDate",
+              render: (text) => {
+                if (!text) return ""; // Kiểm tra trường hợp giá trị null hoặc undefined
+
+                const date = new Date(text);
+                const day = String(date.getDate()).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+                return `${day}/${month}/${year}`;
+              },
+            },
+
+            {
+              title: "Approve Date",
+              dataIndex: "approveDate",
+              key: "approveDate",
+              render: (text) => {
+                if (!text) return ""; // Trả về chuỗi rỗng nếu không có giá trị
+                const date = new Date(text);
+                const day = String(date.getDate()).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+                return `${day}/${month}/${year}`;
+              },
+            },
+
+            {
+              title: "Deliver Date",
+              dataIndex: "deliverDate",
+              key: "deliverDate",
+              render: (text) => {
+                if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
+                const date = new Date(text);
+                const day = String(date.getDate()).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+                return `${day}/${month}/${year}`;
+              },
+            },
+
+            {
+              title: "Action",
+              dataIndex: "",
+              key: "x",
+              render: (_, record) => (
+                <div className="flex flex-col gap-2 items-center">
+                  <Button
+                    className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+                    onClick={() => showRequestDetail(record)} // Hien thi chi tiet
+                  >
+                    View Details
+                  </Button>
+                </div>
+              ),
+            },
+          ]}
+          loading={loadingExport}
+          pagination={{
+            current: paginationExport.pageIndex + 1,
+            pageSize: paginationExport.pageSize,
+            total: paginationExport.totalItemsCount,
+            onChange: handlePageChangeExport,
           }}
         />
       </div>

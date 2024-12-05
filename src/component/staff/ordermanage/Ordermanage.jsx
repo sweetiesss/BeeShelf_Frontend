@@ -170,11 +170,37 @@ const Ordermanage = () => {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status, record) => (
-        <div className="flex flex-col gap-2 items-center">
-          {renderStatusTag(status)} {/* Hiển thị status tag */}
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div className="p-2">
+          <Select
+            className="w-[120px]"
+            value={selectedKeys[0]}
+            onChange={(value) => {
+              setSelectedKeys(value ? [value] : []);
+              confirm();
+            }}
+            allowClear
+          >
+            <Option value="Pending">Pending</Option>
+            <Option value="Canceled">Canceled</Option>
+            <Option value="Processing">Processing</Option>
+            <Option value="Delivered">Delivered</Option>
+            <Option value="Shipping">Shipping</Option>
+            <Option value="Returned">Returned</Option>
+            <Option value="Refunded">Refunded</Option>
+            <Option value="Approved">Approved</Option>
+            <Option value="Rejected">Rejected</Option>
+            <Option value="Completed">Completed</Option>
+          </Select>
         </div>
       ),
+      onFilter: (value, record) => record.status === value,
+      render: (status) => renderStatusTag(status),
     },
     {
       title: "Receiver Phone",
