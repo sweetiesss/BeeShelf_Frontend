@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-undef */
 import React, { useEffect, useState } from "react";
 import { Table, message, Spin, Button, Input, Modal, Form, Select } from "antd";
 import { useParams } from "react-router-dom";
@@ -143,6 +144,30 @@ const Vehicle = () => {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div className="p-2">
+          <Select
+            className="w-[120px]"
+            value={selectedKeys[0]}
+            onChange={(value) => {
+              setSelectedKeys(value ? [value] : []);
+              confirm();
+            }}
+            allowClear
+          >
+            <Option value="InService">InService</Option>
+            <Option value="Repair">Repair</Option>
+            <Option value="Available">Available</Option>
+          </Select>
+        </div>
+      ),
+      onFilter: (value, record) => record.status === value,
+      render: (status) => status,
     },
     { title: "LicensePlate", dataIndex: "licensePlate", key: "licensePlate" },
     // Cột bổ sung có thể bỏ qua nếu không cần thiết

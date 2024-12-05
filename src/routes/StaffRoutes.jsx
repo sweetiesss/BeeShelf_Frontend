@@ -13,25 +13,25 @@ import Dashboard from "../component/staff/dashboard/Dashboard";
 // import Inventory from "../component/staff/inventory/Inventory";
 import Inventory from "../component/staff/inventory/Inventory";
 import Vehicle from "../component/staff/vehicle/Vehicle";
+import ProfileEdit from "../pages/shared/EditProfilePage";
 
 export default function StaffRoutes() {
-  const { dataDetail, typeDetail } = useDetail();  
+  const { dataDetail, typeDetail } = useDetail();
   return (
     <div className="relative">
       {typeDetail && <DetailSlide />}
       <Routes>
         <Route path="/*" element={<LayoutLogined />}>
-
-        <Route index element={<Payment />} />
-        <Route path="dashboardstaff" element={<Dashboard/>}/>
-        {/* <Route path="warehouseinventory" element={<Inventory/>}/> */}
-        <Route path="inventory" element={<Inventory/>}/>
-        <Route path="ordermanage" element={<Ordermanage/>} />
-        <Route path="batchflow" element={<Batch/>}/>
-         <Route path="requestmanage" element={<RequestManagement/>}/>
-         <Route path="payment" element={<Payment/>}/>
-         <Route path="vehicle" element={<Vehicle/>}/>
-         
+          <Route index element={<Payment />} />
+          <Route path="dashboardstaff" element={<Dashboard />} />
+          {/* <Route path="warehouseinventory" element={<Inventory/>}/> */}
+          <Route path="inventory" element={<Inventory />} />
+          <Route path="ordermanage" element={<Ordermanage />} />
+          <Route path="batchflow" element={<Batch />} />
+          <Route path="requestmanage" element={<RequestManagement />} />
+          <Route path="payment" element={<Payment />} />
+          <Route path="vehicle" element={<Vehicle />} />
+          <Route path="editProfile" element={<ProfileEdit />} />
         </Route>
         {/* <Route path="payment" element={<Payment/>}/> */}
       </Routes>
