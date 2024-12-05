@@ -45,7 +45,6 @@ const BatchManage = () => {
     setLoading(true);
     try {
       const response = await fetchDataBearer({
-        
         url: `/batch/get-batches`,
         method: "GET",
         params: {
@@ -75,7 +74,6 @@ const BatchManage = () => {
       setBatches(formattedBatches);
     } catch (error) {
       console.error("Error fetching batches:", error);
-      
     } finally {
       setLoading(false);
       message.success("Data loaded successfully!");
@@ -406,7 +404,7 @@ const BatchManage = () => {
       </Modal>
 
       {/* Batch Details Drawer */}
-      <Drawer
+      {/* <Drawer
         title={`Batch Details - ${selectedBatch?.name}`}
         open={!!selectedBatch}
         onClose={() => setSelectedBatch(null)}
@@ -422,6 +420,69 @@ const BatchManage = () => {
             </List.Item>
           )}
         />
+      </Drawer> */}
+      <Drawer
+        title={`Batch Details Batch Name: ${selectedBatch?.name}`}
+        open={!!selectedBatch}
+        onClose={() => setSelectedBatch(null)}
+        width={500}
+      >
+        <div className="px-8 py-4">
+          {/* Title */}
+          {/* <Typography.Title level={5} className="mb-4">Orders</Typography.Title> */}
+
+          {/* Orders List */}
+          <div className="space-y-4">
+            <List
+              dataSource={selectedBatch?.orders || []}
+              renderItem={(order) => (
+                <List.Item key={order.id}>
+                  {/* <div className="bg-white p-4 rounded-lg shadow-md space-y-3"> */}
+                  <div className="bg-white p-6 w-full max-w-xl rounded-lg shadow-lg space-y-4">
+                    {/* Order Code */}
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm text-gray-500 font-semibold">
+                        Order ID: {order.id}
+                      </div>
+                      {/* <div className="text-sm text-gray-700">{order.id}</div> */}
+                    </div>
+                    <Divider />
+
+                    {/* Order Details */}
+                    <div className="flex justify-between">
+                      <div className="w-[80%]">
+                        <div className="text-sm text-gray-500">
+                          Order Code:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.orderCode}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-700"></div>
+                        <div className="text-sm text-gray-500">
+                          Order Code: {order.orderCode}
+                        </div>
+                      </div>
+                      <div className="w-[48%]">
+                        <div className="text-sm text-gray-500">Status:</div>
+                      </div>
+                    </div>
+                  </div>
+                </List.Item>
+              )}
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-4 pt-4">
+            <button
+              className="px-4 py-2 text-white bg-gray-600 rounded-md hover:bg-gray-700"
+              onClick={() => setSelectedBatch(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
       </Drawer>
     </div>
   );

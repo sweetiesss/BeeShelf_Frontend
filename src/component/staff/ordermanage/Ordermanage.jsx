@@ -190,14 +190,26 @@ const Ordermanage = () => {
       title: "Date",
       dataIndex: "createDate",
       key: "createDate",
-      render: (text) => text.split("T")[0], // Chỉ hiển thị ngày
+      render: (text) => {
+        const date = new Date(text);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() bắt đầu từ 0
+        const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+        return `${day}/${month}/${year}`;
+      },
     },
+
     {
       title: "Total Price",
       dataIndex: "totalPrice",
       key: "totalPrice",
-      render: (text) => `$${text}`,
+      render: (text) =>
+        new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(text), // Định dạng theo tiền tệ VNĐ
     },
+
     {
       title: "Action",
       dataIndex: "",
@@ -334,11 +346,28 @@ const Ordermanage = () => {
                 </div>
                 <div>
                   <p className="font-bold">Date:</p>
-                  <p>{selectedOrder.createDate.split("T")[0]}</p>
+                  <p>
+                    {(() => {
+                      const date = new Date(selectedOrder.createDate);
+                      const day = String(date.getDate()).padStart(2, "0");
+                      const month = String(date.getMonth() + 1).padStart(
+                        2,
+                        "0"
+                      ); // getMonth() bắt đầu từ 0
+                      const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+                      return `${day}/${month}/${year}`;
+                    })()}
+                  </p>
                 </div>
+
                 <div>
                   <p className="font-bold">Total Price:</p>
-                  <p>${selectedOrder.totalPrice}</p>
+                  <p>
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(selectedOrder.totalPrice)}
+                  </p>
                 </div>
                 <div>
                   <p className="font-bold">Warehouse Name:</p>

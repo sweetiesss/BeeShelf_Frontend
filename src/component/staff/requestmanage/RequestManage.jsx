@@ -156,9 +156,9 @@ const RequestManagement = () => {
       case "Pending":
         return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
       case "Processing":
-        return [ "Delivered","Failed"]; // OCOP Partner Delivered or Deliver window expire
+        return ["Delivered", "Failed"]; // OCOP Partner Delivered or Deliver window expire
       case "Delivered":
-        return ["Failed","Completed"]; // Item stored
+        return ["Failed", "Completed"]; // Item stored
       case "Failed":
       case "Completed":
       case "Cancelled":
@@ -263,20 +263,45 @@ const RequestManagement = () => {
               title: "Create Date",
               dataIndex: "createDate",
               key: "createDate",
-              render: (text) => text?.split("T")[0], // Chỉ hiển thị ngày
+              render: (text) => {
+                if (!text) return ""; // Kiểm tra trường hợp giá trị null hoặc undefined
+
+                const date = new Date(text);
+                const day = String(date.getDate()).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+                return `${day}/${month}/${year}`;
+              },
             },
+
             {
               title: "Approve Date",
               dataIndex: "approveDate",
               key: "approveDate",
-              render: (text) => text?.split("T")[0], // Chỉ hiển thị ngày
+              render: (text) => {
+                if (!text) return ""; // Trả về chuỗi rỗng nếu không có giá trị
+                const date = new Date(text);
+                const day = String(date.getDate()).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+                return `${day}/${month}/${year}`;
+              },
             },
+
             {
               title: "Deliver Date",
               dataIndex: "deliverDate",
               key: "deliverDate",
-              render: (text) => text?.split("T")[0], // Chỉ hiển thị ngày
+              render: (text) => {
+                if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
+                const date = new Date(text);
+                const day = String(date.getDate()).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+                return `${day}/${month}/${year}`;
+              },
             },
+
             {
               title: "Action",
               dataIndex: "",
@@ -369,8 +394,20 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">Date:</p>
-                  <p>{selectedRequest.createDate.split("T")[0]}</p>
+                  <p>
+                    {(() => {
+                      const date = new Date(selectedRequest.createDate);
+                      const day = String(date.getDate()).padStart(2, "0");
+                      const month = String(date.getMonth() + 1).padStart(
+                        2,
+                        "0"
+                      ); // Tháng bắt đầu từ 0, cần cộng 1
+                      const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+                      return `${day}/${month}/${year}`;
+                    })()}
+                  </p>
                 </div>
+
                 {/* <div>
                   <p className="font-bold">Total Price:</p>
                   <p>${selectedRequest.totalPrice}</p>

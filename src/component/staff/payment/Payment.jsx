@@ -50,7 +50,7 @@ const Payment = () => {
           value: moneyTransferId.id, // ID của payment sẽ là value
           label: `MoneyTransferId: ${moneyTransferId.id} - 
           OCOP Partner ID: ${moneyTransferId.ocopPartnerId} - 
-          Amount: ${moneyTransferId.amount}`,
+          Amount: ${new Intl.NumberFormat('vi-VN', { style: 'decimal', maximumFractionDigits: 0 }).format(moneyTransferId.amount)} VNĐ`,
            // Hiển thị Payment ID trong label
         }));
         setPaymentIdOptions(options);
@@ -106,8 +106,23 @@ const Payment = () => {
     },
     { title: "Transfer By", dataIndex: "transferBy", key: "transferBy" },
     { title: "TransferByStaffEmail", dataIndex: "transferByStaffEmail", key: "transferByStaffEmail" },
-    { title: "Amount", dataIndex: "amount", key: "amount" },
-    { title: "CreateDate", dataIndex: "createDate", key: "createDate", render: (text) => text.split("T")[0] },
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+      render: (amount) =>
+        new Intl.NumberFormat('vi-VN', { style: 'decimal', maximumFractionDigits: 0 }).format(amount) + " VNĐ",
+    },
+    {
+      title: "CreateDate",
+      dataIndex: "createDate",
+      key: "createDate",
+      render: (text) => {
+        const date = new Date(text);
+        return new Intl.DateTimeFormat('vi-VN').format(date); // Định dạng ngày theo kiểu dd/mm/yyyy
+      },
+    }
+    
   ];
 
   // Lấy dữ liệu thanh toán khi component mount
