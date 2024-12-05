@@ -11,6 +11,7 @@ import AxiosOrder from "../../services/Order";
 import { addMonths, format } from "date-fns";
 import AxiosInventory from "../../services/Inventory";
 import { t } from "i18next";
+
 export default function DetailSlide() {
   const { userInfor, setRefrestAuthWallet } = useContext(AuthContext);
   const {
@@ -23,6 +24,7 @@ export default function DetailSlide() {
 
     setCreateRequest,
   } = useDetail();
+  const { getLotByProductIdX1000 } = AxiosLot();
 
   const detailComponent = useRef();
 
@@ -43,6 +45,7 @@ export default function DetailSlide() {
       origin: dataDetail?.origin,
     });
     const [inputField, setInputField] = useState();
+    const [lotsList, setLotsList] = useState();
     const [errors, setErrors] = useState();
     const { updateProductById } = AxiosProduct();
     const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
@@ -61,6 +64,20 @@ export default function DetailSlide() {
         document.removeEventListener("mousedown", handleClickOutSide);
       };
     }, [createRequest]);
+    useEffect(() => {
+      const fetchingLot = async () => {
+        if (dataDetail && typeDetail === "product") {
+          const lotResut = await getLotByProductIdX1000(
+            userInfor?.id,
+            dataDetail?.id,
+            false
+          );
+          console.log("lotResut", lotResut);
+          setLotsList(lotResut);
+        }
+      };
+      fetchingLot();
+    }, [dataDetail, typeDetail]);
     const handleEdit = () => {
       setInputField({
         barcode: true,
@@ -95,6 +112,7 @@ export default function DetailSlide() {
         setShowUpdateConfirm(false);
       }
     };
+    console.log("datadetail", dataDetail);
 
     return (
       <>
@@ -103,7 +121,7 @@ export default function DetailSlide() {
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold text-black">
-                Product Details
+                {t("ProductDetail")}
               </h2>
               <div
                 className="text-3xl cursor-pointer text-gray-500 hover:text-black"
@@ -121,11 +139,6 @@ export default function DetailSlide() {
                 src={dataDetail?.pictureLink}
                 className="w-fit h-32 rounded-lg relative border-2 border-black"
               />
-              {dataDetail?.isInInv && (
-                <div className="absolute right-0 top-0 bg-green-500 text-white px-1 py-1 rounded-2xl translate-x-4 -translate-y-4">
-                  Inv
-                </div>
-              )}
             </div>
             <div className="text-center ">
               {inputField?.name ? (
@@ -148,7 +161,7 @@ export default function DetailSlide() {
           {/* Product Info Table */}
           <div className="w-full grid grid-cols-2 gap-4">
             <span className="text-black text-lg font-semibold col-span-1">
-              Origin:
+              {t("Origin")}:
             </span>
             {inputField?.origin ? (
               <input
@@ -165,23 +178,20 @@ export default function DetailSlide() {
                 {dataDetail?.origin}
               </span>
             )}
-
             <span className="text-black text-lg font-semibold col-span-1">
-              Category:
+              {t("Category")}:
             </span>
             <span className="text-gray-700 text-lg col-span-1">
               {dataDetail?.productCategoryName}
             </span>
-
             <span className="text-black text-lg font-semibold col-span-1">
-              Create Date:
+              {t("CreateDate")}:
             </span>
             <span className="text-gray-700 text-lg col-span-1">
-              {dataDetail?.createDate}
+              {format(dataDetail?.createDate, "dd/MM/yyyy")}
             </span>
-
             <span className="text-black text-lg font-semibold col-span-1">
-              Price:
+              {t("Price")}:
             </span>
             {inputField?.price ? (
               <input
@@ -195,12 +205,11 @@ export default function DetailSlide() {
               />
             ) : (
               <span className="text-gray-700 text-lg col-span-1">
-                {dataDetail?.price}
+                {new Intl.NumberFormat().format(dataDetail?.price)} vnd
               </span>
             )}
-
             <span className="text-black text-lg font-semibold col-span-1">
-              Weight:
+              {t("Weight")}:
             </span>
             {inputField?.weight ? (
               <input
@@ -214,11 +223,17 @@ export default function DetailSlide() {
               />
             ) : (
               <span className="text-gray-700 text-lg col-span-1">
-                {dataDetail?.weight}
+                {dataDetail?.weight} kg
               </span>
             )}
+            <span className="text-black text-lg font-semibold col-span-1">
+              {t("TotalLotsImported")}:
+            </span>
+            <span className="text-gray-700 text-lg col-span-1">
+              {lotsList?.data?.totalItemsCount} lot
+            </span>
           </div>
-          <div className="flex justify-between items-center w-full px-20">
+          <div className="flex justify-between items-center w-full gap-4">
             {inputField ? (
               <>
                 <button onClick={() => setInputField()}>Cancel</button>
@@ -227,10 +242,18 @@ export default function DetailSlide() {
             ) : (
               <>
                 {!dataDetail?.isInInv && (
-                  <button onClick={handleEdit}>Edit</button>
+                  <button
+                    onClick={handleEdit}
+                    className="mt-auto hover:bg-gray-500 bg-gray-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
+                  >
+                    {t("Edit")}
+                  </button>
                 )}
-                <button onClick={() => setCreateRequest(true)}>
-                  Create Request
+                <button
+                  onClick={() => setCreateRequest(true)}
+                  className="mt-auto hover:bg-green-500 bg-green-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
+                >
+                  {t("CreateRequest")}
                 </button>
               </>
             )}
@@ -1035,12 +1058,12 @@ export default function DetailSlide() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-semibold text-black">
-                  Inventory information
+                  {t("InventoryInformation")}
                 </h2>
               </div>
               <div
                 className="text-3xl cursor-pointer text-gray-500 hover:text-black"
-                // onClick={handleCloseDetail}
+                 onClick={handleCloseDetail}
               >
                 <X weight="bold" />
               </div>
@@ -1048,27 +1071,32 @@ export default function DetailSlide() {
             <div className="w-full h-px bg-gray-300"></div>
           </div>
 
-          <div className="text-left">
-            <p className="text-xl font-medium">{dataDetail?.name}</p>
-          </div>
-
           {/* Product Info Table */}
           <div className="w-full flex flex-col gap-4">
             {[
               {
-                label: "Warehouse:",
+                label: t("InventoryName") + ":",
+                value: dataDetail?.name,
+              },
+              {
+                label: t("Warehouse") + ":",
                 value: dataDetail?.warehouseName,
               },
               {
-                label: "Bought date",
+                label: t("Price") + ":",
+                value:
+                  new Intl.NumberFormat().format(dataDetail?.price) + " vnd",
+              },
+              {
+                label: t("BoughtDate") + ":",
                 value: format(dataDetail?.boughtDate || 0, "dd/MM/yyyy"),
               },
               {
-                label: "Expiration date:",
+                label: t("ExpirationDate") + ":",
                 value: format(dataDetail?.expirationDate || 0, "dd/MM/yyyy"),
               },
               {
-                label: "Weight:",
+                label: t("Weight") + ":",
                 value:
                   dataDetail?.weight + " / " + dataDetail?.maxWeight + " kg",
               },
@@ -1131,10 +1159,10 @@ export default function DetailSlide() {
 
           <div>
             <button
-              className="bg-green-500 px-4 py-2 rounded-lg text-white"
+              className="bg-green-500 px-4 py-2 rounded-lg text-white w-full"
               onClick={() => setShowExtendConfirmation((prev) => !prev)}
             >
-              Extend
+              {t("Extend")}
             </button>
           </div>
         </div>
@@ -1185,7 +1213,7 @@ export default function DetailSlide() {
               >
                 <XCircle fill="#ef4444" weight="fill" />
               </div>
-              <p className="text-2xl">{`Extending inventory ${dataDetail?.name}`}</p>
+              <p className="text-2xl">{`${t("ExtendingInventory")}: ${dataDetail?.name}`}</p>
               <div className="flex items-center justify-between my-7">
                 <div
                   className={`flex items-center overflow-auto py-2 px-4 w-fit border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
@@ -1201,51 +1229,55 @@ export default function DetailSlide() {
                     onChange={(e) => setMonthToBuyInventory(e.target.value)}
                   ></input>
 
-                  <p>Months</p>
+                  <p>{t("Months")}</p>
                 </div>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
                   onClick={() => setMonthToBuyInventory(6)}
                 >
-                  6 Months
+                  6 {t("Months")}
                 </button>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
                   onClick={() => setMonthToBuyInventory(12)}
                 >
-                  1 Year
+                  1 {t("Year")}
                 </button>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
                   onClick={() => setMonthToBuyInventory(24)}
                 >
-                  2 Years
+                  2 {t("Years")}
                 </button>
               </div>
 
               <div className="mb-7 grid-cols-8 grid gap-4">
-                <div className="col-span-2 text-gray-500">Name</div>
-                <div className="col-span-2 text-gray-500">Price</div>
+                <div className="col-span-2 text-gray-500">{t("Name")}</div>
+                <div className="col-span-2 text-gray-500">{t("Price")}</div>
                 <div className="col-span-1 text-gray-500 text-center">
-                  Amount
+                  {t("Amount")}
                 </div>
-                <div className="col-span-1 text-gray-500">Unit</div>
-                <div className="col-span-2 text-gray-500">Total</div>
+                <div className="col-span-1 text-gray-500">{t("Unit")}</div>
+                <div className="col-span-2 text-gray-500">{t("Total")}</div>
                 <div className="col-span-2">{dataDetail?.name}</div>
-                <div className="col-span-2">{new Intl.NumberFormat().format(dataDetail?.price) + "vnd"}</div>
+                <div className="col-span-2">
+                  {new Intl.NumberFormat().format(dataDetail?.price) + "vnd"}
+                </div>
                 <div className="col-span-1 text-center">
                   {monthBuyInvrentory}
                 </div>
-                <div className="col-span-1">Month</div>
+                <div className="col-span-1">{t("Month")}</div>
                 <div className="col-span-2">
                   {/* {parseInt(cal( inventory?.price*monthBuyInvrentory)) + "VND"} */}
-                  {`${new Intl.NumberFormat().format(Math.round(
-                    parseFloat(dataDetail?.price) *
-                      parseFloat(monthBuyInvrentory)
-                  ))} vnd`}
+                  {`${new Intl.NumberFormat().format(
+                    Math.round(
+                      parseFloat(dataDetail?.price) *
+                        parseFloat(monthBuyInvrentory)
+                    )
+                  )} vnd`}
                 </div>
                 <div className="col-span-8 flex gap-x-4">
-                  <div className="">Expect expiration date:</div>
+                  <div className="">{t("ExpectExpirationDate")}:</div>
                   <p>
                     {format(
                       addMonths(
@@ -1262,13 +1294,13 @@ export default function DetailSlide() {
                   onClick={() => handleCancelExtendInventory()}
                   className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-red-500 hover:text-white"
                 >
-                  Cancel
+                  {t("Cancel")}
                 </button>
                 <button
                   onClick={handleConfirmExtendInventory}
                   className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                 >
-                  Confirm
+                  {t("Confirm")}
                 </button>
               </div>
             </div>

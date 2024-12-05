@@ -71,15 +71,21 @@ export function InventoryCard({
 
       {inventory.ocopPartnerId && (
         <div className="absolute flex justify-center items-center bg-green-500 w-32 text-white h-10 top-2 -right-8 rotate-45">
-          <p>Bought</p>
+          <p>{t("Hired")}</p>
         </div>
       )}
       <div className="font-bold mb-4 text-xl">{inventory?.name}</div>
 
       <div className=" justify-start">
         <div className="text-gray-700 mb-1 flex gap-x-4">
-          <p className="font-semibold">{t("Maxweight")}:</p>
-          <p>{new Intl.NumberFormat().format(inventory?.maxWeight)} kg</p>
+          <p className="font-semibold">{t("MaxWeight")}:</p>
+          {/* <p>{new Intl.NumberFormat().format(inventory?.maxWeight)} kg</p> */}
+          {inventory.ocopPartnerId
+            ? new Intl.NumberFormat().format(inventory?.weight) +
+                "/" +
+                new Intl.NumberFormat().format(inventory?.maxWeight) || "N/A"
+            : new Intl.NumberFormat().format(inventory?.maxWeight)}
+          kg
         </div>
         <div className="text-gray-700 mb-1 flex gap-x-4">
           <p className="font-semibold">{t("Price")}:</p>

@@ -39,9 +39,8 @@ export default function InventoryPage() {
   const [inventories, setInventories] = useState();
   const [inventoriesOwned, setInventoriesOwned] = useState();
   const [inventoriesShowList, setInventoriesShowList] = useState();
+  const [inventoriesBased, setInventoriesBased] = useState();
   const [inventory, setInventory] = useState();
-
-  const [allProductsInWarehouse, setAllProductsInWarehouse] = useState();
 
   const [checkBuyInventory, setCheckBuyInventory] = useState(false);
 
@@ -53,8 +52,6 @@ export default function InventoryPage() {
 
   const { userInfor, setRefrestAuthWallet } = useAuth();
   const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
-  const { getAllProduct } = AxiosPartner();
-  const { getProductByUserId } = AxiosProduct();
   const { updateDataDetail, updateTypeDetail, refresh, setRefresh } =
     useDetail();
   const { getProvinces } = AxiosOthers();
@@ -82,6 +79,25 @@ export default function InventoryPage() {
     capacityFrom: 1,
     status: -1,
     capacityTo: 9999999999,
+  };
+  const [inventoryFilters, setInventoryFilters] = useState({
+    status: -1,
+    weightFrom: 0,
+    weightTo: 9999999999,
+    maxWeightFrom: 0,
+    maxWeightTo: 9999999999,
+    priceFrom: 0,
+    priceTo: 9999999999,
+  });
+
+  const defaultInventoryFilter = {
+    status: -1,
+    weightFrom: 0,
+    weightTo: 9999999999,
+    maxWeightFrom: 0,
+    maxWeightTo: 9999999999,
+    priceFrom: 0,
+    priceTo: 9999999999,
   };
 
   const {
@@ -120,13 +136,15 @@ export default function InventoryPage() {
   useEffect(() => {
     applyFilters();
   }, [filters]);
+  useEffect(() => {
+    applyInventoryFilters();
+  }, [inventoryFilters]);
 
   useEffect(() => {
     const fetching = async () => {
       if (warehouse) {
         fetchingDataInventories();
         fetchingDataInventoriesByUserId();
-        fetchingDataProductByUserIdAndWareHouseId();
       }
     };
     fetching();
@@ -218,17 +236,112 @@ export default function InventoryPage() {
       setWareHouseShowList(filtered);
     }
   };
+  const applyInventoryFilters = () => {
+    console.log("???", inventoriesBased);
+    console.log("?????", inventoryFilters);
+
+    if (inventoriesBased) {
+      let filtered = [...inventoriesBased];
+
+      if (parseInt(inventoryFilters.status) > -1) {
+        console.log("here");
+
+        filtered = filtered.filter(
+          (warehouse) =>
+            (parseInt(inventoryFilters.status) == 1 &&
+              warehouse.ocopPartnerId) ||
+            (parseInt(inventoryFilters.status) == 0 &&
+              !warehouse?.ocopPartnerId)
+        );
+      }
+
+      if (
+        parseInt(inventoryFilters.status) != 0 &&
+        (inventoryFilters.weightFrom || inventoryFilters.weightTo)
+      ) {
+        filtered = filtered.filter(
+          (warehouse) =>
+            warehouse.weight >= inventoryFilters.weightFrom &&
+            warehouse.weight <= inventoryFilters.weightTo
+        );
+      }
+      if (inventoryFilters.maxWeightFrom || inventoryFilters.maxWeightTo) {
+        filtered = filtered.filter(
+          (warehouse) =>
+            warehouse.maxWeight >= inventoryFilters.maxWeightFrom &&
+            warehouse.maxWeight <= inventoryFilters.maxWeightTo
+        );
+      }
+      if (inventoryFilters.priceFrom || inventoryFilters.priceTo) {
+        filtered = filtered.filter(
+          (warehouse) =>
+            warehouse.price >= inventoryFilters.priceFrom &&
+            warehouse.price <= inventoryFilters.priceTo
+        );
+      }
+      console.log("filterResult", filtered);
+
+      setInventoriesShowList(filtered);
+    }
+  };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    if (name === "capacityFrom" || name === "capacityTo") {
+    if (name === "capacityFrom") {
       if (value < 0 || value === "" || !value) {
         setFilters((prev) => ({ ...prev, [name]: 1 }));
+      } else if (value > 9999999999) {
+        setFilters((prev) => ({ ...prev, [name]: 9999999999 }));
       } else {
         setFilters((prev) => ({ ...prev, [name]: parseInt(value, 10) }));
       }
+    }
+    if (name === "capacityTo") {
+      if (value < 0 || value === "" || !value || value < 1000) {
+        setInventoryFilters((prev) => ({ ...prev, [name]: 1000 }));
+      } else if (value > 9999999999) {
+        setFilters((prev) => ({ ...prev, [name]: 9999999999 }));
+      } else {
+        setInventoryFilters((prev) => ({
+          ...prev,
+          [name]: parseInt(value, 10),
+        }));
+      }
     } else {
       setFilters((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+  const handleInventoryFilterChange = (e) => {
+    const { name, value } = e.target;
+    if (
+      name === "weightFrom" ||
+      name === "maxWeightFrom" ||
+      name === "priceFrom"
+    ) {
+      if (value < 0 || value === "" || !value) {
+        setInventoryFilters((prev) => ({ ...prev, [name]: 0 }));
+      } else if (value > 9999999999) {
+        setFilters((prev) => ({ ...prev, [name]: 9999999999 }));
+      } else {
+        setInventoryFilters((prev) => ({
+          ...prev,
+          [name]: parseInt(value, 10),
+        }));
+      }
+    }
+    if (name === "weightTo" || name === "maxWeightTo" || name === "priceTo") {
+      if (value < 0 || value === "" || !value || value < 1000) {
+        setInventoryFilters((prev) => ({ ...prev, [name]: 1000 }));
+      } else if (value > 9999999999) {
+        setFilters((prev) => ({ ...prev, [name]: 9999999999 }));
+      } else {
+        setInventoryFilters((prev) => ({
+          ...prev,
+          [name]: parseInt(value, 10),
+        }));
+      }
+    } else {
+      setInventoryFilters((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -336,22 +449,8 @@ export default function InventoryPage() {
 
     const combinedList = [...inventoriesOwnedList, ...result];
     console.log("inventory list", combinedList);
-
+    setInventoriesBased(combinedList);
     setInventoriesShowList(combinedList);
-  };
-  const fetchingDataProductByUserIdAndWareHouseId = async () => {
-    try {
-      setLoading(true);
-      const res = await getAllProduct(userInfor?.id, warehouse?.id);
-      console.log("owned", res);
-      if (res?.status == 200) {
-        setAllProductsInWarehouse(res);
-      }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleBuyClick = (inventory) => {
@@ -566,7 +665,12 @@ export default function InventoryPage() {
               <div className="flex items-center">
                 <p className="text-lg font-medium mr-4">{t("Capacity")}:</p>
                 <div
-                  className={`flex items-center border border-gray-300  rounded-2xl px-4 py-1 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]`}
+                  className={`flex items-center border border-gray-300  rounded-2xl px-4 py-1 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)] ${
+                    parseInt(filters?.capacityFrom) > 1 ||
+                    parseInt(filters?.capacityTo) < 9999999999
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
                 >
                   <input
                     className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
@@ -603,7 +707,7 @@ export default function InventoryPage() {
                 <p className="text-lg font-medium mr-4">{t("Status")}</p>
                 <div
                   className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-[10rem]  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
-                    sortCriteria === "Location"
+                    parseInt(inventoryFilters.status) > -1
                       ? "text-black ring-[var(--Xanh-Base)] ring-2"
                       : "text-[var(--en-vu-300)]"
                   }`}
@@ -612,78 +716,119 @@ export default function InventoryPage() {
                     <LockKeyOpen weight="fill" />
                   </label>
                   <select
-                    className=" w-full rounded-lg outline-none"
-                    type="password"
-                    // onChange={handleInput}
-                    name="password"
-                    placeholder="Password"
-                    value={sortCriteria || ""}
+                    className="w-[7rem] outline-none"
+                    name="status"
+                    value={inventoryFilters.status}
+                    onChange={handleInventoryFilterChange}
+                    disabled={loading}
                   >
-                    <option></option>
+                    <option value={-1}>All</option>
+                    <option value={0}>Not Hired</option>
+                    <option value={1}>Hired</option>
                   </select>
                 </div>
               </div>
               <div className="flex items-center">
-                <p className="text-lg font-medium mr-4">{t("Maxweight")}:</p>
-                <div className={`flex items-center`}>
-                  <label className="text-xl  pr-0  rounded-s-lg mr-2 ">
-                    from:
-                  </label>
+                <p className="text-lg font-medium mr-4">{t("Weight")}:</p>
+                <div
+                  className={`flex items-center border border-gray-300  rounded-2xl px-4 py-1 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)] ${
+                    parseInt(inventoryFilters?.weightFrom) > 0 ||
+                    parseInt(inventoryFilters?.weightTo) < 9999999999
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
                   <input
-                    className=" w-[7rem]  border-b-2 outline-none focus-within:rounded-lg focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black "
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
+                    name="weightFrom"
+                    min={1}
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.weightFrom, 10)}
+                    disabled={loading}
                   ></input>
-                  <label className="text-xl  pr-0  rounded-s-lg mr-2 ">
-                    - to:
-                  </label>
+                  <label className="mx-2">-</label>
                   <input
-                    className=" w-[7rem]  border-b-2 outline-none focus-within:rounded-lg focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black "
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     min={10000}
-                    value={10000}
+                    name="weightTo"
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.weightTo, 10)}
+                    disabled={loading}
                   ></input>
+                  <label className="ml-2">kg</label>
                 </div>
               </div>
               <div className="flex items-center">
-                <p className="text-lg font-medium mr-4">{t("Weight")}:</p>
-                <div className={`flex items-center`}>
-                  <label className="text-xl  pr-0  rounded-s-lg mr-2 ">
-                    from:
-                  </label>
+                <p className="text-lg font-medium mr-4">{t("MaxWeight")}:</p>
+                <div
+                  className={`flex items-center border border-gray-300  rounded-2xl px-4 py-1 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)] ${
+                    parseInt(inventoryFilters?.maxWeightFrom) > 0 ||
+                    parseInt(inventoryFilters?.maxWeightTo) < 9999999999
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
                   <input
-                    className=" w-[7rem]  border-b-2 outline-none focus-within:rounded-lg focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black "
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
+                    name="maxWeightFrom"
+                    min={0}
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.maxWeightFrom, 10)}
+                    disabled={loading}
                   ></input>
-                  <label className="text-xl  pr-0  rounded-s-lg mr-2 ">
-                    - to:
-                  </label>
+                  <label className="mx-2">-</label>
                   <input
-                    className=" w-[7rem]  border-b-2 outline-none focus-within:rounded-lg focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black "
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     min={10000}
-                    value={10000}
+                    name="maxWeightTo"
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.maxWeightTo, 10)}
+                    disabled={loading}
                   ></input>
+                  <label className="ml-2">kg</label>
                 </div>
               </div>
               <div className="flex items-center">
                 <p className="text-lg font-medium mr-4">{t("Price")}:</p>
-                <div className={`flex items-center`}>
-                  <label className="text-xl  pr-0  rounded-s-lg mr-2 ">
-                    from:
-                  </label>
+                <div
+                  className={`flex items-center border border-gray-300  rounded-2xl px-4 py-1 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)] ${
+                    parseInt(inventoryFilters?.priceFrom) > 0 ||
+                    parseInt(inventoryFilters?.priceTo) < 9999999999
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
                   <input
-                    className=" w-[7rem]  border-b-2 outline-none focus-within:rounded-lg focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black "
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
+                    name="priceFrom"
+                    min={1}
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.priceFrom, 10)}
+                    disabled={loading}
                   ></input>
-                  <label className="text-xl  pr-0  rounded-s-lg mr-2 ">
-                    - to:
-                  </label>
+                  <label className="mx-2">-</label>
                   <input
-                    className=" w-[7rem]  border-b-2 outline-none focus-within:rounded-lg focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black "
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     min={10000}
+                    name="priceTo"
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.priceTo, 10)}
+                    disabled={loading}
                   ></input>
+                  <label className="ml-2">vnd</label>
                 </div>
+              </div>
+              <div
+                className="text-xl bg-gray-100 p-1 rounded-full border-2 border-gray-400 hover:bg-gray-200 hover:border-gray-500 cursor-pointer"
+                onClick={() => setInventoryFilters(defaultInventoryFilter)}
+              >
+                <ArrowCounterClockwise />
               </div>
             </div>
           )}
@@ -793,7 +938,7 @@ export default function InventoryPage() {
               >
                 <XCircle fill="#ef4444" weight="fill" />
               </div>
-              <p className="text-2xl">{`Buying inventory: ${inventory.name}?`}</p>
+              <p className="text-2xl">{`${t("BuyingInventory")}: ${inventory.name}?`}</p>
               <div className="flex items-center justify-between my-7">
                 <div
                   className={`flex items-center overflow-auto py-2 px-4 w-fit border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
@@ -809,53 +954,55 @@ export default function InventoryPage() {
                     onChange={(e) => setMonthToBuyInventory(e.target.value)}
                   ></input>
 
-                  <p>Months</p>
+                  <p>{t("Months")}</p>
                 </div>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
                   onClick={() => setMonthToBuyInventory(6)}
                 >
-                  6 Months
+                  6 {t("Months")}
                 </button>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
                   onClick={() => setMonthToBuyInventory(12)}
                 >
-                  1 Year
+                  1 {t("Year")}
                 </button>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
                   onClick={() => setMonthToBuyInventory(24)}
                 >
-                  2 Years
+                  2 {t("Years")}
                 </button>
               </div>
 
               <div className="mb-7 grid-cols-8 grid gap-4">
-                <div className="col-span-2 text-gray-500">Weight</div>
-                <div className="col-span-2 text-gray-500">Price</div>
+                <div className="col-span-2 text-gray-500">{t("Weight")}</div>
+                <div className="col-span-2 text-gray-500">{t("Price")}</div>
                 <div className="col-span-2 text-gray-500 text-center">
-                  Amount
+                  {t("Amount")}
                 </div>
 
-                <div className="col-span-2 text-gray-500">Total</div>
-                <div className="col-span-2">{inventory?.maxWeight}kg</div>
+                <div className="col-span-2 text-gray-500">{t("Total")}</div>
+                <div className="col-span-2">{new Intl.NumberFormat().format(inventory?.maxWeight)} kg</div>
                 <div className="col-span-2">
                   {new Intl.NumberFormat().format(inventory?.price) + " vnd"}
                 </div>
                 <div className="col-span-2 text-center">
-                  {monthBuyInvrentory} Month
+                  {monthBuyInvrentory} {t("Month")}
                 </div>
 
                 <div className="col-span-2">
                   {/* {parseInt(cal( inventory?.price*monthBuyInvrentory)) + "VND"} */}
-                  {`${new Intl.NumberFormat().format(Math.round(
-                    parseFloat(inventory?.price) *
-                      parseFloat(monthBuyInvrentory)
-                  ))} vnd`}
+                  {`${new Intl.NumberFormat().format(
+                    Math.round(
+                      parseFloat(inventory?.price) *
+                        parseFloat(monthBuyInvrentory)
+                    )
+                  )} vnd`}
                 </div>
                 <div className="col-span-8 flex gap-x-4">
-                  <div className="">Expect expiration date:</div>
+                  <div className="">{t("ExpectExpirationDate")}:</div>
                   <p>
                     {format(
                       addMonths(new Date(), parseInt(monthBuyInvrentory || 0)),
@@ -869,13 +1016,13 @@ export default function InventoryPage() {
                   onClick={() => handleCancelBuyInventory()}
                   className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-red-500 hover:text-white"
                 >
-                  Cancel
+                  {t("Cancel")}
                 </button>
                 <button
                   onClick={handleConfirmBuyInventory}
                   className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                 >
-                  Confirm
+                  {t("Confirm")}
                 </button>
               </div>
             </div>

@@ -22,6 +22,7 @@ export default function ProductPage() {
   const [page, setPage] = useState(0);
   const [isShowDetailProduct, setShowDetailProduct] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedProductsBased, setSelectedProductsBased] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
   const [overall, setOverall] = useState({
     checked: false,
@@ -56,9 +57,13 @@ export default function ProductPage() {
   };
   const debouncedFetchProducts = useCallback(
     debounce(async (page, index, sortBy, search, descending) => {
+      let thisPage = page;
+      if (search) {
+        thisPage = 0;
+      }
       const response = await getProductByUserId(
         userInfor?.id,
-        page,
+        thisPage,
         index,
         search,
         sortBy,
@@ -71,7 +76,6 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchingData = async () => {
       const result = await getInventory1000ByUserId(userInfor?.id);
-      console.log(result);
       setInventory(result);
     };
     fetchingData();
@@ -80,6 +84,7 @@ export default function ProductPage() {
     if (userInfor) {
       setLoading(true);
       debouncedFetchProducts(page, index, sortBy, search, descending);
+
       setLoading(false);
     }
   }, [page, index, sortBy, search, userInfor, fetching, descending]);
@@ -134,20 +139,33 @@ export default function ProductPage() {
   };
 
   const toggleProductSelection = (product) => {
-    setSelectedProducts((prevSelected) =>
-      prevSelected.includes(product)
-        ? prevSelected.filter((p) => p !== product)
-        : [...prevSelected, product]
-    );
+    // Check if the product is already selected
+    const isAlreadySelected = selectedProducts.some((p) => p.id === product.id);
+
+    // If already selected, remove it; otherwise, add it
+    if (isAlreadySelected) {
+      setSelectedProducts((prevSelected) =>
+        prevSelected.filter((p) => p.id !== product.id)
+      );
+      setSelectedProductsBased((prevSelectedBased) =>
+        prevSelectedBased.filter((p) => p.id !== product.id)
+      );
+    } else {
+      setSelectedProducts((prevSelected) => [...prevSelected, product]);
+      setSelectedProductsBased((prevSelectedBased) => [
+        ...prevSelectedBased,
+        product,
+      ]);
+    }
   };
 
-  const isProductSelected = (product) => {
-    return selectedProducts.includes(product);
-  };
+  const isProductSelected = (product) =>
+    selectedProducts.some((p) => p.id === product.id);
 
   const handleClickOverall = (e) => {
     e.stopPropagation();
     setSelectedProducts([]);
+    setSelectedProductsBased([]);
   };
 
   const handleDownload = () => {
@@ -262,7 +280,7 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="w-full h-full gap-10 ">
+    <div className="w-full h-full gap-10 pb-10">
       <div className="w-full">
         <ProductHeader
           handleDownload={handleDownload}

@@ -183,7 +183,7 @@ export default function ProductList({
               }}
             >
               <span className="flex items-center gap-1">
-                {t("Price")}
+                {t("Price")} (vnd)
                 {!descending ? (
                   <ArrowUp weight="bold" />
                 ) : (
@@ -222,7 +222,7 @@ export default function ProductList({
               }}
             >
               <span className="flex items-center gap-1">
-                {t("Weight")}
+                {t("Weight")} (kg)
                 {!descending ? (
                   <ArrowUp weight="bold" />
                 ) : (
@@ -448,7 +448,7 @@ export default function ProductList({
                       <div
                         className={`overflow-hidden text-nowrap  flex items-center `}
                       >
-                        {product.price} VND
+                        {product.price}
                         {checkError?.error?.includes("price") &&
                           !product.price && (
                             <span className="bg-red-500 text-white text-lg rounded-md">
@@ -561,7 +561,7 @@ export default function ProductList({
                       <div
                         className={`overflow-hidden text-nowrap  flex items-center`}
                       >
-                        {product.weight} kg
+                        {product.weight}
                         {checkError?.error?.includes("weight") &&
                           !product.weight && (
                             <span className="bg-red-500 text-white text-lg rounded-md">
@@ -573,7 +573,7 @@ export default function ProductList({
                   </td>
                   {!notInDataBase ? (
                     <td className="text-center">
-                      <button
+                      {/* <button
                         onClick={(e) => {
                           e.stopPropagation();
                           updateDataDetail(product);
@@ -581,7 +581,12 @@ export default function ProductList({
                         }}
                       >
                         Send request
-                      </button>
+                      </button> */}
+                      {product?.isInInv ? (
+                        <span className="bg-green-200 px-2 py-1 rounded-lg text-sm ">Imported</span>
+                      ) : (
+                        <span className="bg-gray-200 px-2 py-1 rounded-lg text-sm ">Not imported</span>
+                      )}
                     </td>
                   ) : editAble ? (
                     <td className="text-center">
@@ -664,7 +669,7 @@ export default function ProductList({
         </tbody>
       </table>
       {!notInDataBase && (
-        <div className="flex justify-between items-center">
+        <div className="grid grid-cols-3">
           <div className="flex items-center space-x-5 mt-5">
             <p>{t("RowsPerPage")}:</p>
             <select
@@ -681,11 +686,7 @@ export default function ProductList({
               <option>10</option>
             </select>
           </div>
-          <div className="flex space-x-5 items-center">
-            <p>
-              {(page + 1) * index - (index - 1)} - {(page + 1) * index} of{" "}
-              {response?.totalItemsCount} {t("items")}
-            </p>
+          <div className="flex space-x-5 items-center w-full justify-center">
             <Pagination
               totalPagesCount={response?.totalPagesCount}
               currentPage={page + 1}
