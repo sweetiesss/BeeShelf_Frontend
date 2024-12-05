@@ -9,16 +9,19 @@ import {
   message,
   Spin,
   Modal,
+  Input,
 } from "antd";
 import { useAuth } from "../../../context/AuthContext";
 import useAxiosBearer from "../../../services/CustomizeAxios";
 
 const { Title, Paragraph } = Typography;
+const { Search } = Input;
 
 const Inventory = () => {
   const { userInfor } = useAuth(); // Lấy thông tin user từ hook useAuth
   const [loading, setLoading] = useState(false);
   const [inventories, setInventories] = useState([]);
+  const [filteredInventories, setFilteredInventories] = useState([]);
   const { fetchDataBearer } = useAxiosBearer();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState(null);
@@ -51,6 +54,7 @@ const Inventory = () => {
 
       if (response && response.data) {
         setInventories(response.data.items);
+        setFilteredInventories(response.data.items); // Set initial inventories to filtered inventories
         message.success("Data loaded successfully!");
       } else {
         message.error("No data returned from the server.");
@@ -116,14 +120,37 @@ const Inventory = () => {
     setSelectedInventory(null);
   };
 
+  // Hàm lọc theo tên
+  const handleSearch = (value) => {
+    if (value) {
+      // Lọc danh sách dựa trên tên
+      const filtered = inventories.filter((item) =>
+        (item.name || '').toLowerCase().includes(value.toLowerCase()) // Kiểm tra nếu item.name là null hoặc undefined
+      );
+      setFilteredInventories(filtered);
+    } else {
+      // Nếu ô tìm kiếm trống, hiển thị tất cả inventory
+      setFilteredInventories(inventories);
+    }
+  };
+  
+
   return (
     <div style={{ padding: "20px" }}>
+      {/* Thêm ô tìm kiếm theo tên */}
+      <Search
+        placeholder="Search by Inventory Name"
+        onSearch={handleSearch}
+        style={{ marginBottom: 20, width: 300 }}
+        allowClear
+      />
+
       {/* Dùng Row và Col để chia card thành nhiều cột */}
       <Row gutter={[16, 16]} justify="center">
         {loading ? (
           <Spin size={32} className="text-center" />
         ) : (
-          inventories.map((item, index) => (
+          filteredInventories.map((item, index) => (
             <Col key={index} xs={24} sm={12} md={8} lg={6}>
               <Card
                 style={{
