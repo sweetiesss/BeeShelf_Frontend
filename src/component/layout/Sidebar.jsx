@@ -130,27 +130,27 @@ export function Sidebar() {
             <NavLink to="batchflow" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Package className="icon" weight="fill" />
-                <p className="label">{t("Create Batch")}</p>
+                <p className="label">{t("CreateBatch")}</p>
               </div>
             </NavLink>
             <NavLink to="assign" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Aperture className="icon" weight="fill" />
-                <p className="label">{t("Assign Order")}</p>
+                <p className="label">{t("AssignOrder")}</p>
               </div>
             </NavLink>
 
             <NavLink to="ordermanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Bag className="icon" weight="fill" />
-                <p className="label">{t("Ordermanage")}</p>
+                <p className="label">{t("OrderManage")}</p>
               </div>
             </NavLink>
 
             <NavLink to="requestmanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <AddressBook className="icon" weight="fill" />
-                <p className="label">{t("Request Manage")}</p>
+                <p className="label">{t("RequestManage")}</p>
               </div>
             </NavLink>
 

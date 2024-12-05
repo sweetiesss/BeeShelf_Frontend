@@ -12,6 +12,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import Select from "react-select";
+import { useDetail } from "../../../context/DetailContext";
 
 export default function ProductList({
   products,
@@ -41,6 +42,7 @@ export default function ProductList({
   const { t } = useTranslation();
   const [openAction, setOpenAction] = useState();
   const [thisIsTheLastItem, IsThisIsTheLastItem] = useState(false);
+  const { setCreateRequest, updateDataDetail } = useDetail();
   const unitOptions = [
     { value: "", label: "Choose unit" },
     { value: "Liter", label: "Liter" },
@@ -129,7 +131,9 @@ export default function ProductList({
               )}
             </th>
             <th className="border-b-2 text-left py-4 ">{t("Image")}</th>
-            <th className="border-b-2 text-left py-4">{t("Barcode")}</th>
+            {notInDataBase && (
+              <th className="border-b-2 text-left py-4">{t("Barcode")}</th>
+            )}
 
             <th
               className={`border-b-2 text-left py-4  cursor-pointer hover:text-[var(--en-vu-600)] ${
@@ -273,36 +277,38 @@ export default function ProductList({
                       className=" h-[4rem] rounded-xl"
                     />
                   </td>
-                  <td
-                    className={`  ${
-                      checkError?.error?.includes("barcode") &&
-                      "text-red-500 font-bold"
-                    }`}
-                  >
-                    {editAble ? (
-                      <input
-                        placeholder="Input barcode"
-                        value={editForm?.barcode}
-                        name="barcode"
-                        className="w-[80%] px-2 py-1"
-                        onChange={hanldeEditChange}
-                      />
-                    ) : (
-                      <>
-                        <div
-                          className={`overflow-hidden text-nowrap  flex items-center `}
-                        >
-                          {product.barcode}
-                          {checkError?.error?.includes("barcode") &&
-                            !product.barcode && (
-                              <span className="bg-red-500 text-white text-lg rounded-md">
-                                <ExclamationMark weight="bold" />
-                              </span>
-                            )}
-                        </div>
-                      </>
-                    )}
-                  </td>
+                  {notInDataBase && (
+                    <td
+                      className={`  ${
+                        checkError?.error?.includes("barcode") &&
+                        "text-red-500 font-bold"
+                      }`}
+                    >
+                      {editAble ? (
+                        <input
+                          placeholder="Input barcode"
+                          value={editForm?.barcode}
+                          name="barcode"
+                          className="w-[80%] px-2 py-1"
+                          onChange={hanldeEditChange}
+                        />
+                      ) : (
+                        <>
+                          <div
+                            className={`overflow-hidden text-nowrap  flex items-center `}
+                          >
+                            {product.barcode}
+                            {checkError?.error?.includes("barcode") &&
+                              !product.barcode && (
+                                <span className="bg-red-500 text-white text-lg rounded-md">
+                                  <ExclamationMark weight="bold" />
+                                </span>
+                              )}
+                          </div>
+                        </>
+                      )}
+                    </td>
+                  )}
                   <td
                     className={` ${
                       checkError?.error?.includes("name") &&
@@ -567,15 +573,15 @@ export default function ProductList({
                   </td>
                   {!notInDataBase ? (
                     <td className="text-center">
-                      {product.isInInv ? (
-                        <span className="px-5 py-1 rounded-xl bg-green-300 ">
-                          Yes
-                        </span>
-                      ) : (
-                        <span className="px-5 py-1 rounded-xl bg-gray-300 ">
-                          Not Yet
-                        </span>
-                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateDataDetail(product);
+                          setCreateRequest(true);
+                        }}
+                      >
+                        Send request
+                      </button>
                     </td>
                   ) : editAble ? (
                     <td className="text-center">

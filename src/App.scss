@@ -196,6 +196,11 @@
   margin-bottom: 0.5rem;
   border-radius: 4px;
 }
+.text-clip {
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
 
 @keyframes bounces {
   0%,

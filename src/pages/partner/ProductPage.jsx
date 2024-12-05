@@ -11,13 +11,14 @@ import CreateRequestImport from "../../component/partner/product/CreateRequestIm
 import AxiosInventory from "../../services/Inventory";
 import { useDetail } from "../../context/DetailContext";
 import { ProductListSkeleton } from "../shared/SkeletonLoader";
+import { format } from "date-fns";
 
 export default function ProductPage() {
   const [fetching, setFetching] = useState(false);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState();
   const [inventories, setInventory] = useState(null);
-  const [index, setIndex] = useState(10);
+  const [index, setIndex] = useState(6);
   const [page, setPage] = useState(0);
   const [isShowDetailProduct, setShowDetailProduct] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -64,7 +65,7 @@ export default function ProductPage() {
         descending
       );
       setProducts(response?.data);
-    }, 500),
+    }, 300),
     [userInfor?.id]
   );
   useEffect(() => {
@@ -148,15 +149,48 @@ export default function ProductPage() {
     e.stopPropagation();
     setSelectedProducts([]);
   };
+
   const handleDownload = () => {
     const formattedData =
       selectedProducts.length > 0
-        ? selectedProducts.map((item) => ({
-            ...item,
-          }))
-        : products?.items?.map((item) => ({
-            ...item,
-          }));
+        ? selectedProducts.map(
+            ({
+              id,
+              ocopPartnerId,
+              productCategoryId,
+              price,
+              weight,
+              isCold,
+              isInInv,
+              createDate,
+              ...item
+            }) => ({
+              ...item,
+              "price (vnd)": price,
+              "weight (kg)": weight,
+              Cold: isCold === 1 ? true : false,
+              createDate: format(createDate, "dd-MM-yyyy"),
+            })
+          )
+        : products?.items?.map(
+            ({
+              id,
+              ocopPartnerId,
+              productCategoryId,
+              price,
+              weight,
+              isCold,
+              isInInv,
+              createDate,
+              ...item
+            }) => ({
+              ...item,
+              "price (vnd)": price,
+              "weight (kg)": weight,
+              Cold: isCold === 1 ? true : false,
+              createDate: format(createDate, "dd-MM-yyyy"),
+            })
+          );
     const formatDate = () => {
       const date = new Date();
       const day = String(date.getDate()).padStart(2, "0");
@@ -218,8 +252,8 @@ export default function ProductPage() {
   };
 
   const handleSortChange = (value) => {
-    console.log("checkcheck",sortBy===value);
-    
+    console.log("checkcheck", sortBy === value);
+
     if (sortBy === value) {
       setDescending((prev) => !prev);
     } else {

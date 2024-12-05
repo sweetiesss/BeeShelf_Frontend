@@ -27,6 +27,7 @@ import AxiosProduct from "../../services/Product";
 import AxiosOthers from "../../services/Others";
 import { WarehouseListSkeleton } from "../shared/SkeletonLoader";
 import { addMonths, format } from "date-fns";
+import SpinnerLoading from "../../component/shared/Loading";
 
 export default function InventoryPage() {
   const [warehouses, setWareHouses] = useState();
@@ -135,7 +136,7 @@ export default function InventoryPage() {
     const fetching = async () => {
       if (refresh > -1) {
         if (warehouse) {
-         setRefetchingInventory(prev=>!prev)
+          setRefetchingInventory((prev) => !prev);
         }
       }
     };
@@ -147,6 +148,7 @@ export default function InventoryPage() {
       getInventoriesList();
       if (refresh >= -1) {
         getDetailInventory();
+        setRefresh(-1);
       }
     };
     fetching();
@@ -383,23 +385,10 @@ export default function InventoryPage() {
     setMonthToBuyInventory(0);
   };
 
-  const handleShowProductDetail = async (e, productName) => {
-    try {
-      e.stopPropagation();
-      const productResult = await getProductByUserId(
-        userInfor?.id,
-        0,
-        1,
-        productName
-      );
-      console.log(productResult);
-      if (productResult?.status === 200) {
-        updateDataDetail(productResult?.data?.items[0]);
-        updateTypeDetail("product");
-      }
-    } catch (e) {
-      console.log(e);
-    }
+  const handleOpenGoogleMaps = (location) => {
+    const encodedLocation = encodeURIComponent(location);
+    const googleMapsUrl = `https://www.google.com/maps?q=${encodedLocation}`;
+    window.open(googleMapsUrl, "_blank"); // Opens in a new tab
   };
 
   const handleShowInventoryDetail = async (e, inventory) => {
@@ -459,19 +448,19 @@ export default function InventoryPage() {
               }`}
               onClick={() => warehouse && clearDataInventoryOfWarehosue()}
             >
-              {warehouse ? warehouse.name : t("Warehouses")}
+              {t("Warehouses")}
             </span>
             <span
               className={`${
                 !warehouse ? "text-[var(--en-vu)]" : "text-[var(--en-vu)]"
               }`}
             >
-              {!warehouse ? "" : " > " + t("DetailInformation")}
+              {!warehouse ? "" : " > " + warehouse?.name}
             </span>
           </p>
         </div>
         <div className="my-10 ">
-          <p className="text-2xl font-semibold">{t("Filters")}</p>
+          {/* <p className="text-2xl font-semibold">{t("Filters")}</p> */}
           {!warehouse ? (
             <div className="flex items-center gap-10 mt-6">
               <div className="flex items-center">
@@ -576,12 +565,11 @@ export default function InventoryPage() {
               </div>
               <div className="flex items-center">
                 <p className="text-lg font-medium mr-4">{t("Capacity")}:</p>
-                <div className={`flex items-center`}>
-                  <label className="text-xl  pr-0  rounded-s-lg mr-2 ">
-                    from:
-                  </label>
+                <div
+                  className={`flex items-center border border-gray-300  rounded-2xl px-4 py-1 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]`}
+                >
                   <input
-                    className=" w-[7rem]  border-b-2 outline-none focus-within:rounded-lg focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black "
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     name="capacityFrom"
                     min={1}
@@ -589,11 +577,9 @@ export default function InventoryPage() {
                     value={parseInt(filters?.capacityFrom, 10)}
                     disabled={loading}
                   ></input>
-                  <label className="text-xl  pr-0  rounded-s-lg mr-2 ">
-                    - to:
-                  </label>
+                  <label className="mx-2">-</label>
                   <input
-                    className=" w-[7rem]  border-b-2 outline-none focus-within:rounded-lg focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black "
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     min={10000}
                     name="capacityTo"
@@ -601,6 +587,7 @@ export default function InventoryPage() {
                     value={parseInt(filters?.capacityTo, 10)}
                     disabled={loading}
                   ></input>
+                  <label className="ml-2">kg</label>
                 </div>
               </div>
               <div
@@ -637,7 +624,7 @@ export default function InventoryPage() {
                 </div>
               </div>
               <div className="flex items-center">
-                <p className="text-lg font-medium mr-4">{t("Max Weight")}:</p>
+                <p className="text-lg font-medium mr-4">{t("Maxweight")}:</p>
                 <div className={`flex items-center`}>
                   <label className="text-xl  pr-0  rounded-s-lg mr-2 ">
                     from:
@@ -702,13 +689,14 @@ export default function InventoryPage() {
           )}
         </div>
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-[37rem] items-start">
-            {Array(100)
-              .fill(0)
-              .map((_, index) => (
-                <WarehouseListSkeleton key={index} />
-              ))}
-          </div>
+          // <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-[37rem] items-start">
+          //   {Array(100)
+          //     .fill(0)
+          //     .map((_, index) => (
+          //       <WarehouseListSkeleton key={index} />
+          //     ))}
+          // </div>
+          <SpinnerLoading />
         ) : !warehouse ? (
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-[37rem] items-start">
@@ -724,16 +712,20 @@ export default function InventoryPage() {
         ) : (
           <div className="h-[65vh] grid grid-cols-4 grid-rows-12 mt-10 gap-y-4 gap-x-10">
             <p className="text-2xl font-semibold row-span-1">
-              {t("ProductsInWarehouse")}
+              {t("WarehouseInformation")}
             </p>
             <p className="text-2xl font-semibold col-span-3 row-span-1">
-              {t("InventoriesInWareHouse")}
+              {t("InventoriesInTheWarehouse")}
             </p>
             <div className="flex flex-col row-span-11">
               <div className="w-full h-fit max-h-1/3">
                 {[
-                  { label: "Name:", value: warehouse?.name },
-                  { label: "Location:", value: warehouse?.location },
+                  { label: t("Name") + ":", value: warehouse?.name },
+                  {
+                    label: t("Location") + ":",
+                    value: warehouse?.location,
+                    onClick: () => handleOpenGoogleMaps(warehouse?.location),
+                  },
                   {
                     label: "Invetories:",
                     value:
@@ -742,14 +734,26 @@ export default function InventoryPage() {
                         : "Only cold inventories",
                   },
                   {
-                    label: "Capacity:",
-                    value: `${Math.max(
-                      warehouse?.capacity - warehouse?.availableCapacity
-                    )}/${warehouse?.capacity || "N/A"}`,
+                    label: t("Capacity") + ":",
+                    value:
+                      `${new Intl.NumberFormat().format(
+                        Math.max(
+                          warehouse?.capacity - warehouse?.availableCapacity
+                        )
+                      )}/${
+                        new Intl.NumberFormat().format(warehouse?.capacity) ||
+                        "N/A"
+                      }` + " kg",
                   },
-                ].map((item) => (
-                  <div className="grid-cols-4 grid gap-4 mb-4">
-                    <p className="col-span-1 font-medium  text-gray-500">
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className={`grid-cols-4 grid gap-4 mb-4 ${
+                      item.onClick ? "cursor-pointer hover:text-blue-600" : ""
+                    }`}
+                    onClick={item.onClick ? item.onClick : undefined}
+                  >
+                    <p className="col-span-1 font-medium text-gray-500">
                       {item.label}
                     </p>
                     <p className="col-span-3">{item.value}</p>
@@ -836,17 +840,19 @@ export default function InventoryPage() {
 
                 <div className="col-span-2 text-gray-500">Total</div>
                 <div className="col-span-2">{inventory?.maxWeight}kg</div>
-                <div className="col-span-2">{inventory?.price + "VND"}</div>
+                <div className="col-span-2">
+                  {new Intl.NumberFormat().format(inventory?.price) + " vnd"}
+                </div>
                 <div className="col-span-2 text-center">
                   {monthBuyInvrentory} Month
                 </div>
 
                 <div className="col-span-2">
                   {/* {parseInt(cal( inventory?.price*monthBuyInvrentory)) + "VND"} */}
-                  {`${Math.round(
+                  {`${new Intl.NumberFormat().format(Math.round(
                     parseFloat(inventory?.price) *
                       parseFloat(monthBuyInvrentory)
-                  )} VND`}
+                  ))} vnd`}
                 </div>
                 <div className="col-span-8 flex gap-x-4">
                   <div className="">Expect expiration date:</div>

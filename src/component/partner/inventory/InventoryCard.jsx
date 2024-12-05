@@ -1,6 +1,8 @@
 import React from "react";
 import defaultImg from "../../../assets/img/defaultImg.jpg";
-import { format } from "date-fns";
+import { differenceInDays, format } from "date-fns";
+import { Buildings, Package } from "@phosphor-icons/react";
+import { t } from "i18next";
 export function WarehouseCard({ warehouse, setWareHouse }) {
   const totalWeight = warehouse?.inventories?.reduce(
     (total, item) => total + (item?.maxWeight || 0),
@@ -12,9 +14,12 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
       className={` shadow-xl border-2 relative rounded-lg p-6 mb-4 w-full max-w-lg mx-auto overflow-hidden text-black cursor-pointer bg-white hover:bg-[var(--en-vu-200)]`}
       onClick={() => setWareHouse(warehouse)}
     >
+      <div className="absolute bottom-2 right-2 text-5xl text-gray-300">
+        <Buildings weight="fill" />
+      </div>
       {warehouse?.owned && (
         <div className="absolute flex justify-center items-center bg-green-500 w-32 text-white h-10 top-2 -right-8 rotate-45">
-          <p>Bought</p>
+          <p>Hired</p>
         </div>
       )}
       <div className="flex items-start gap-10">
@@ -23,20 +28,22 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
             {warehouse?.name}
           </div>
           {[
-            { label: "Location", value: warehouse?.location },
-            ...(warehouse?.totalInventory
-              ? [{ label: "Inventories", value: warehouse?.totalInventory }]
-              : []),
+            { label: t("Location"), value: warehouse?.location },
             {
-              label: "Capacity",
-              value: `${Math.max(
-                warehouse?.capacity - warehouse?.availableCapacity
-              )}/${warehouse?.capacity || "N/A"}`,
+              label: t("Capacity"),
+              value:
+                `${new Intl.NumberFormat().format(
+                  Math.max(warehouse?.capacity - warehouse?.availableCapacity)
+                )}/${
+                  new Intl.NumberFormat().format(warehouse?.capacity) || "N/A"
+                }` + " kg",
             },
           ].map((item) => (
-            <div className="flex-1 text-left flex items-start gap-4  ">
+            <div className="flex-1 text-left flex items-start gap-4 ">
               <span className="text-gray-500">{item.label}:</span>
-              <div className="font-semibold  text-wrap">{item.value}</div>
+              <div className="font-semibold  text-nowrap hover:text-wrap text-clip w-[20rem] max-w-[20rem]">
+                {item.value}
+              </div>
             </div>
           ))}
         </div>
@@ -58,6 +65,10 @@ export function InventoryCard({
           : handleShowInventoryDetail(e, inventory)
       }
     >
+      <div className="absolute bottom-2 right-2 text-5xl text-gray-300">
+        <Package weight="fill" />
+      </div>
+
       {inventory.ocopPartnerId && (
         <div className="absolute flex justify-center items-center bg-green-500 w-32 text-white h-10 top-2 -right-8 rotate-45">
           <p>Bought</p>
@@ -67,19 +78,28 @@ export function InventoryCard({
 
       <div className=" justify-start">
         <div className="text-gray-700 mb-1 flex gap-x-4">
-          <p className="font-semibold">Max weight:</p>
-          <p>{inventory?.maxWeight}</p>
+          <p className="font-semibold">{t("Maxweight")}:</p>
+          <p>{new Intl.NumberFormat().format(inventory?.maxWeight)} kg</p>
         </div>
         <div className="text-gray-700 mb-1 flex gap-x-4">
-          <p className="font-semibold">Price:</p>
-          <p>{inventory?.price} VND</p>
+          <p className="font-semibold">{t("Price")}:</p>
+          <p>{new Intl.NumberFormat().format(inventory?.price)} vnd</p>
         </div>
         {inventory.ocopPartnerId && (
           <div className="text-gray-700 mb-1 flex gap-x-4">
-            <p className="font-semibold">Date:</p>
+            <p className="font-semibold">{t("Expiredon")}:</p>
             <p>
-              {format(inventory?.boughtDate, "dd/MM/yyyy")} -{" "}
-              {format(inventory?.expirationDate, "dd/MM/yyyy")}
+              {/* {format(inventory?.boughtDate, "dd/MM/yyyy")} -{" "}
+              {format(inventory?.expirationDate, "dd/MM/yyyy")} */}
+              {inventory?.expirationDate
+                ? `${differenceInDays(
+                    new Date(inventory.expirationDate),
+                    new Date()
+                  )} ${t("days")} ( ${format(
+                    inventory?.expirationDate,
+                    "dd/MM/yyyy"
+                  )} )`
+                : "N/A"}
             </p>
           </div>
         )}

@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import AxiosImg from "../../services/Img";
 import AxiosCategory from "../../services/Category";
 import Select from "react-select";
+import { DownloadSimple } from "@phosphor-icons/react";
 
 export default function AddProductPage() {
   const { userInfor } = useContext(AuthContext);
@@ -30,6 +31,27 @@ export default function AddProductPage() {
 
   const [imageLink, setImageLink] = useState();
   const [imagePreview, setImagePreview] = useState("");
+  const unitOptions = [
+    { value: "", label: "Choose unit" },
+    { value: "Liter", label: "Liter" },
+    { value: "Milliliter", label: "Milliliter" },
+    { value: "Pieces", label: "Pieces" },
+    { value: "Box", label: "Box" },
+    { value: "Bottle", label: "Bottle" },
+    { value: "Package", label: "Package" },
+    { value: "Carton", label: "Carton" },
+    { value: "Meter", label: "Meter" },
+    { value: "Centimeter", label: "Centimeter" },
+    { value: "Square Meter", label: "Square Meter" },
+    { value: "Kilometer", label: "Kilometer" },
+    { value: "Bag", label: "Bag" },
+    { value: "Sheet", label: "Sheet" },
+    { value: "Roll", label: "Roll" },
+    { value: "Jar", label: "Jar" },
+    { value: "Pot", label: "Pot" },
+    { value: "Tablet", label: "Tablet" },
+    { value: "Can", label: "Can" },
+  ];
 
   const [errors, setErrors] = useState({});
   const { t } = useTranslation();
@@ -51,7 +73,37 @@ export default function AddProductPage() {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    if (name === "weight") {
+      if (value > 99999999) {
+        setProduct((prevProduct) => ({
+          ...prevProduct,
+          [name]: 99999999,
+        }));
+        return;
+      } else if (value < 0) {
+        setProduct((prevProduct) => ({
+          ...prevProduct,
+          [name]: 1,
+        }));
+        return;
+      }
+    }
+    if (name === "price") {
+      if (value > 99999999999) {
+        setProduct((prevProduct) => ({
+          ...prevProduct,
+          [name]: 99999999999,
+        }));
+        return;
+      } else if (value < 0) {
+        setProduct((prevProduct) => ({
+          ...prevProduct,
+          [name]: 1,
+        }));
+        return;
+      }
+    }
     setProduct((prevProduct) => ({
       ...prevProduct,
       [name]: value,
@@ -67,11 +119,9 @@ export default function AddProductPage() {
       const result = await createProductWithUserId(submitForm);
       if (result?.status === 200) {
         setProduct(defaultForm);
-        toast.success("Product added successfully!");
       }
     } catch (error) {
       console.error("Error in handleSubmit:", error);
-      toast.error("Failed to add product.");
     }
   };
 
@@ -87,8 +137,8 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex space-x-4 font-semibold text-xl mb-10">
+    <div className="p-6 ">
+      <div className="flex space-x-4 font-semibold text-xl mb-6">
         <NavLink to="../product" className="opacity-50 hover:underline">
           {t("Product")}
         </NavLink>
@@ -98,7 +148,7 @@ export default function AddProductPage() {
         </NavLink>
       </div>
       <div className="bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-2xl font-semibold mb-6">{t("Add New Product")}</h1>
+        {/* <h1 className="text-2xl font-semibold mb-6">{t("Add New Product")}</h1> */}
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 lg:grid-cols-2 gap-10"
@@ -121,39 +171,94 @@ export default function AddProductPage() {
             </div>
 
             {/* Price */}
-            <div className="form-group mt-4">
-              <label className="font-medium text-lg" htmlFor="price">
-                {t("Price")}
+            <div className="flex justify-between items-center gap-10">
+              <div className="form-group mt-4 relative w-1/2">
+                <label className="font-medium text-lg" htmlFor="price">
+                  {t("Price")}
+                </label>
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  value={product.price}
+                  onChange={handleChange}
+                  className="input-field"
+                  placeholder="Enter product price"
+                />
+                <label className="absolute bottom-[0.625rem] right-10">
+                  vnd
+                </label>
+              </div>
+              <div className="form-group mt-4 w-1/2">
+                <label className="font-medium text-lg" htmlFor="unit">
+                  {t("Unit")}
+                </label>
+                <Select
+      
+                  value={unitOptions.find(
+                    (option) => option.value === product?.unit
+                  )}
+                  onChange={(selectedOption) =>
+                    handleChange({
+                      target: {
+                        name: "unit",
+                        value: selectedOption.value,
+                      },
+                    })
+                  }
+                  name="unit"
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  options={unitOptions}
+                  styles={{
+                    menu: (provided) => ({
+                      ...provided,
+                      width: "100%",
+                    }),
+                    menuList: (provided) => ({
+                      ...provided,
+                      maxHeight: "7.5rem",
+                      overflow: "auto",
+                    }),
+                    control: (provided) => ({
+                      ...provided,
+                      paddingTop:"4px",
+                      paddingBottom:"4px",
+                      // width:"100%",
+                      borderColor: "#ccc", // Custom border color
+                      boxShadow: "none", // Remove default focus outline
+                      "&:hover": { borderColor: "#aaa" }, // Border on hover
+                    }),
+                    option: (provided, state) => ({
+                      ...provided,
+                      backgroundColor: state.isSelected
+                        ? "#0056b3"
+                        : state.isFocused
+                        ? "#e6f7ff"
+                        : "white",
+                      color: state.isSelected ? "white" : "black",
+                    }),
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="form-group mt-4 ">
+              <label className="font-medium text-lg" htmlFor="origin">
+                {t("Product Origin")}
               </label>
               <input
-                type="number"
-                id="price"
-                name="price"
-                value={product.price}
+                type="text"
+                id="origin"
+                name="origin"
+                value={product.origin}
                 onChange={handleChange}
                 className="input-field"
-                placeholder="Enter product price"
+                placeholder="Enter product origin"
               />
             </div>
 
             {/* Unit */}
-            <div className="form-group mt-4">
-              <label className="font-medium text-lg" htmlFor="unit">
-                {t("Unit")}
-              </label>
-              <select
-                id="unit"
-                name="unit"
-                value={product.unit}
-                onChange={handleChange}
-                className="input-field"
-              >
-                <option value="">{t("Choose Unit")}</option>
-                <option value="package">{t("Package")}</option>
-                <option value="box">{t("Box")}</option>
-                <option value="lit">{t("Liter")}</option>
-              </select>
-            </div>
 
             {/* Is Cold */}
             <div className="form-group mt-4">
@@ -176,7 +281,7 @@ export default function AddProductPage() {
             </div>
 
             {/* Weight */}
-            <div className="form-group mt-4">
+            <div className="form-group mt-4 relative">
               <label className="font-medium text-lg" htmlFor="weight">
                 {t("Weight")}
               </label>
@@ -186,9 +291,11 @@ export default function AddProductPage() {
                 name="weight"
                 value={product.weight}
                 onChange={handleChange}
-                className="input-field"
+                className="input-field relative"
                 placeholder="Enter weight"
+                max={999999}
               />
+              <label className="absolute bottom-[0.625rem] right-10">kg</label>
             </div>
             {/* Product Category */}
             <div className="form-group mt-4">
@@ -200,10 +307,39 @@ export default function AddProductPage() {
               </label>
               <Select
                 styles={{
+                  menu: (provided) => ({
+                    ...provided,
+
+                    // Restrict the dropdown height
+                    overflowY: "hidden", // Enable scrolling for content
+                  }),
+                  menuList: (provided) => ({
+                    ...provided,
+                    padding: 0, // Ensure no extra padding
+                    maxHeight: "7.5rem",
+                    overflow: "auto",
+                  }),
                   control: (baseStyles) => ({
                     ...baseStyles,
                     border: "1px solid #ccc",
                     borderRadius: "4px",
+                    padding: "0.5rem",
+                    boxShadow: "none",
+                    "&:hover": {
+                      border: "1px solid #888",
+                    },
+                  }),
+                  option: (baseStyles, { isFocused, isSelected }) => ({
+                    ...baseStyles,
+                    backgroundColor: isSelected
+                      ? "#0056b3"
+                      : isFocused
+                      ? "#e7f3ff"
+                      : "white",
+                    color: isSelected ? "white" : "black",
+                    cursor: "pointer",
+                    padding: "0.5rem 1rem", // Option padding
+                    textAlign: "left", // Center-align text
                   }),
                 }}
                 onChange={(selectedOption) =>
@@ -282,9 +418,14 @@ export default function AddProductPage() {
                     /> */}
                     <div className="mt-4 flex text-sm leading-6 ">
                       <p className="relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 ">
-                        <span className="span-hover">
-                          Upload a file PNG, JPG, GIF up to 10MB
-                        </span>
+                        <div className="flex gap-4 items-center">
+                          <span className="text-3xl">
+                            <DownloadSimple />
+                          </span>
+                          <span className="span-hover">
+                            Upload a file PNG, JPG, GIF up to 10MB
+                          </span>
+                        </div>
                         <input
                           id="file-upload"
                           name="file-upload"

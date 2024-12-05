@@ -10,8 +10,9 @@ import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import AxiosOrder from "../../services/Order";
 import { addMonths, format } from "date-fns";
 import AxiosInventory from "../../services/Inventory";
+import { t } from "i18next";
 export default function DetailSlide() {
-  const { userInfor } = useContext(AuthContext);
+  const { userInfor, setRefrestAuthWallet } = useContext(AuthContext);
   const {
     dataDetail,
     typeDetail,
@@ -19,6 +20,7 @@ export default function DetailSlide() {
     updateTypeDetail,
     setRefresh,
     createRequest,
+
     setCreateRequest,
   } = useDetail();
 
@@ -60,25 +62,17 @@ export default function DetailSlide() {
       };
     }, [createRequest]);
     const handleEdit = () => {
-      dataDetail?.isInInv
-        ? setInputField({
-            price: false,
-            weight: false,
-            pictureLink: false,
-            barcode: false,
-            name: false,
-            productCategoryId: false,
-            origin: false,
-          })
-        : setInputField({
-            barcode: true,
-            name: true,
-            price: true,
-            weight: true,
-            productCategoryId: false,
-            pictureLink: true,
-            origin: true,
-          });
+      setInputField({
+        barcode: true,
+        name: true,
+        price: true,
+        weight: true,
+        productCategoryId: true,
+        unit: true,
+        isCold: true,
+        pictureLink: true,
+        origin: true,
+      });
     };
     const handleInput = (e) => {
       const { name, value } = e.target;
@@ -123,127 +117,126 @@ export default function DetailSlide() {
 
           <div className="w-full flex flex-col items-center gap-8">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-32 h-32 bg-gray-300 rounded-lg relative">
-                {dataDetail?.isInInv && (
-                  <div className="absolute right-0 top-0 bg-green-500 text-white px-1 py-1 rounded-2xl translate-x-4 -translate-y-4">
-                    Inv
-                  </div>
-                )}
-              </div>
-              <div className="text-center ">
-                {inputField?.name ? (
-                  <input
-                    name="name"
-                    value={form?.name}
-                    placeholder="Name"
-                    onChange={handleInput}
-                    className={`input-field text-center ${
-                      errors?.name ? "input-error" : ""
-                    }`}
-                  />
-                ) : (
-                  <p className="text-xl font-medium">{dataDetail?.name}</p>
-                )}
-                <p className="text-gray-600 text-lg">{dataDetail?.barcode}</p>
-              </div>
+              <img
+                src={dataDetail?.pictureLink}
+                className="w-fit h-32 rounded-lg relative border-2 border-black"
+              />
+              {dataDetail?.isInInv && (
+                <div className="absolute right-0 top-0 bg-green-500 text-white px-1 py-1 rounded-2xl translate-x-4 -translate-y-4">
+                  Inv
+                </div>
+              )}
             </div>
-
-            {/* Product Info Table */}
-            <div className="w-full flex flex-col gap-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-lg">
-                  OCOP Partner Email:
-                </span>
-                <span className="text-black text-lg font-semibold">
-                  {dataDetail?.ocopPartnerEmail}
-                </span>
-              </div>
-              <div className="flex justify-between items-center gap-8 h-[3rem]">
-                <span className="text-gray-600 text-lg">Origin:</span>
-                {inputField?.origin ? (
-                  <input
-                    name="origin"
-                    value={form?.origin}
-                    placeholder="Origin"
-                    onChange={handleInput}
-                    className={`input-field text-left w-full font-semibold text-lg${
-                      errors?.origin ? "input-error" : ""
-                    }`}
-                  />
-                ) : (
-                  <span className="text-black text-lg font-semibold">
-                    {dataDetail?.origin}
-                  </span>
-                )}
-              </div>
-              <div className="flex justify-between items-center gap-8 h-[3rem]">
-                <span className="text-gray-600 text-lg">
-                  Product Category Name:
-                </span>
-                <span className="text-black text-lg font-semibold">
-                  {dataDetail?.productCategoryName}
-                </span>
-              </div>
-              <div className="flex justify-between items-center gap-8 h-[3rem]">
-                <span className="text-gray-600 text-lg">Create Date:</span>
-                <span className="text-black text-lg font-semibold">
-                  {dataDetail?.createDate}
-                </span>
-              </div>
-              <div className="flex justify-between items-center gap-8 h-[3rem]">
-                <span className="text-gray-600 text-lg">Price:</span>
-                {inputField?.price ? (
-                  <input
-                    name="price"
-                    type="number"
-                    value={form?.price}
-                    onChange={handleInput}
-                    className={`input-field text-left w-full font-semibold text-lg${
-                      errors?.price ? "input-error" : ""
-                    }`}
-                  />
-                ) : (
-                  <span className="text-black text-lg font-semibold">
-                    {dataDetail?.price}
-                  </span>
-                )}
-              </div>
-              <div className="flex justify-between items-center gap-8 h-[3rem]">
-                <span className="text-gray-600 text-lg">Weight:</span>
-                {inputField?.weight ? (
-                  <input
-                    name="weight"
-                    value={form?.weight}
-                    type="number"
-                    onChange={handleInput}
-                    className={`input-field text-left w-full font-semibold text-lg${
-                      errors?.weight ? "input-error" : ""
-                    }`}
-                  />
-                ) : (
-                  <span className="text-black text-lg font-semibold">
-                    {dataDetail?.weight}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-between items-center w-full px-20">
-              { inputField ? (
-                <>
-                  <button onClick={() => setInputField()}>Cancel</button>
-                  <button onClick={handeUpdate}>Update</button>
-                </>
+            <div className="text-center ">
+              {inputField?.name ? (
+                <input
+                  name="name"
+                  value={form?.name}
+                  placeholder="Name"
+                  onChange={handleInput}
+                  className={`input-field text-center ${
+                    errors?.name ? "input-error" : ""
+                  }`}
+                />
               ) : (
-                <>
-                  <button onClick={handleEdit}>Edit</button>
-                  <button onClick={() => setCreateRequest(true)}>
-                    Create Request
-                  </button>
-                </>
-              )} 
+                <p className="text-xl font-medium">{dataDetail?.name}</p>
+              )}
+              <p className="text-gray-600 text-lg">{dataDetail?.barcode}</p>
             </div>
           </div>
+
+          {/* Product Info Table */}
+          <div className="w-full grid grid-cols-2 gap-4">
+            <span className="text-black text-lg font-semibold col-span-1">
+              Origin:
+            </span>
+            {inputField?.origin ? (
+              <input
+                name="origin"
+                value={form?.origin}
+                placeholder="Origin"
+                onChange={handleInput}
+                className={`input-field text-left w-full col-span-1 font-semibold text-lg${
+                  errors?.origin ? "input-error" : ""
+                }`}
+              />
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.origin}
+              </span>
+            )}
+
+            <span className="text-black text-lg font-semibold col-span-1">
+              Category:
+            </span>
+            <span className="text-gray-700 text-lg col-span-1">
+              {dataDetail?.productCategoryName}
+            </span>
+
+            <span className="text-black text-lg font-semibold col-span-1">
+              Create Date:
+            </span>
+            <span className="text-gray-700 text-lg col-span-1">
+              {dataDetail?.createDate}
+            </span>
+
+            <span className="text-black text-lg font-semibold col-span-1">
+              Price:
+            </span>
+            {inputField?.price ? (
+              <input
+                name="price"
+                type="number"
+                value={form?.price}
+                onChange={handleInput}
+                className={`input-field text-left w-full col-span-1 font-semibold text-lg${
+                  errors?.price ? "input-error" : ""
+                }`}
+              />
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.price}
+              </span>
+            )}
+
+            <span className="text-black text-lg font-semibold col-span-1">
+              Weight:
+            </span>
+            {inputField?.weight ? (
+              <input
+                name="weight"
+                value={form?.weight}
+                type="number"
+                onChange={handleInput}
+                className={`input-field text-left col-span-1 w-full font-semibold text-lg${
+                  errors?.weight ? "input-error" : ""
+                }`}
+              />
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.weight}
+              </span>
+            )}
+          </div>
+          <div className="flex justify-between items-center w-full px-20">
+            {inputField ? (
+              <>
+                <button onClick={() => setInputField()}>Cancel</button>
+                <button onClick={handeUpdate}>Update</button>
+              </>
+            ) : (
+              <>
+                {!dataDetail?.isInInv && (
+                  <button onClick={handleEdit}>Edit</button>
+                )}
+                <button onClick={() => setCreateRequest(true)}>
+                  Create Request
+                </button>
+              </>
+            )}
+          </div>
         </div>
+
         {showUpdateConfirm && (
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50"></div>
@@ -881,13 +874,14 @@ export default function DetailSlide() {
       </>
     );
   };
+
   const InventoryDetail = () => {
     // const { sendOrderById, deleteOrderById } = AxiosOrder();
     // const [lotData, setLotData] = useState();
     // const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
     const [showExtendConfirmation, setShowExtendConfirmation] = useState(null);
     const [lotsCleanData, setLotsCleanData] = useState();
-    const [monthBuyInvrentory, setMonthToBuyInventory] = useState();
+    const [monthBuyInvrentory, setMonthToBuyInventory] = useState(1);
 
     const { extendInventory } = AxiosInventory();
 
@@ -905,6 +899,7 @@ export default function DetailSlide() {
         );
         if (result?.status == 200) {
           handleCancelExtendInventory();
+          setRefrestAuthWallet((prev) => !prev);
           setRefresh(dataDetail?.id);
         }
       } catch (e) {
@@ -1237,17 +1232,17 @@ export default function DetailSlide() {
                 <div className="col-span-1 text-gray-500">Unit</div>
                 <div className="col-span-2 text-gray-500">Total</div>
                 <div className="col-span-2">{dataDetail?.name}</div>
-                <div className="col-span-2">{dataDetail?.price + "VND"}</div>
+                <div className="col-span-2">{new Intl.NumberFormat().format(dataDetail?.price) + "vnd"}</div>
                 <div className="col-span-1 text-center">
                   {monthBuyInvrentory}
                 </div>
                 <div className="col-span-1">Month</div>
                 <div className="col-span-2">
                   {/* {parseInt(cal( inventory?.price*monthBuyInvrentory)) + "VND"} */}
-                  {`${Math.round(
+                  {`${new Intl.NumberFormat().format(Math.round(
                     parseFloat(dataDetail?.price) *
                       parseFloat(monthBuyInvrentory)
-                  )} VND`}
+                  ))} vnd`}
                 </div>
                 <div className="col-span-8 flex gap-x-4">
                   <div className="">Expect expiration date:</div>
@@ -1314,7 +1309,7 @@ export default function DetailSlide() {
       <>
         <div className="w-[455px] h-full bg-white p-6 flex flex-col gap-8 text-black ">
           <div className="flex justify-between">
-            <div>User Profile</div>
+            <div>{t("UserProfile")}</div>
             <div>X</div>
           </div>
           <div className="flex-col items-center flex mt-[1rem]">
@@ -1328,36 +1323,44 @@ export default function DetailSlide() {
             <div className="font-medium text-xl mt-[1rem] mx-[0.3rem]">
               {userInfor?.firstName + " " + userInfor?.lastName}
             </div>
-            <div className="text-[var(--en-vu-600)]">{userInfor?.roleName}</div>
+            <div className="text-[var(--en-vu-600)]">
+              {t(userInfor?.roleName)}
+            </div>
           </div>
           <div className="flex flex-col w-full pl-[2rem] pr-[1rem]">
             <div className="font-medium mb-[16px] flex justify-between items-center">
-              <p>Personal details</p>
+              <p>{t("PersonalDetails")}</p>
               <div onClick={handleEditProfile}>X</div>
             </div>
             <div className="grid grid-cols-2 gap-[16px] w-full">
-              <div className="text-[var(--en-vu-600)]">Phone number:</div>
+              <div className="text-[var(--en-vu-600)]">{t("PhoneNumber")}:</div>
               <div className="text-[var(--en-vu-Base)]">{userInfor?.phone}</div>
-              <div className="text-[var(--en-vu-600)]">Email:</div>
+              <div className="text-[var(--en-vu-600)]">{t("Email")}:</div>
               <div className="text-[var(--en-vu-Base)] w-[11rem] overflow-hidden">
                 {userInfor?.email}
               </div>
             </div>
             <div className="w-full border-b-2 my-4"></div>
             <div className="font-medium mb-[16px] flex justify-between items-center">
-              <p>Business details</p>
+              <p>{t("BusinessDetails")}</p>
               <div onClick={handleEditProfile}>X</div>
             </div>
             <div className="grid grid-cols-2 gap-4 w-full">
-              <div className="text-[var(--en-vu-600)]">Business name:</div>
+              <div className="text-[var(--en-vu-600)]">
+                {t("BusinessName")}:
+              </div>
               <div className="text-[var(--en-vu-Base)]">
                 {userInfor?.businessName}
               </div>
-              <div className="text-[var(--en-vu-600)]">Category name:</div>
+              <div className="text-[var(--en-vu-600)]">
+                {t("CategoryName")}:
+              </div>
               <div className="text-[var(--en-vu-Base)]">
                 {userInfor?.categoryName}
               </div>
-              <div className="text-[var(--en-vu-600)]">Ocop category name:</div>
+              <div className="text-[var(--en-vu-600)]">
+                {t("OcopCategoryName")}:
+              </div>
               <div className="text-[var(--en-vu-Base)]">
                 {userInfor?.ocopCategoryName}
               </div>
@@ -1368,7 +1371,7 @@ export default function DetailSlide() {
             className="mt-auto bg-red-500 text-white py-2 px-4 rounded-lg"
             onClick={logout}
           >
-            Logout
+            {t("Logout")}
           </button>
         </div>
       </>

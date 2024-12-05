@@ -29,9 +29,9 @@ export default function CreateRequestImport({
     lot: {
       lotNumber: "",
       name: "",
-      amount: null,
+      lotAmount: null,
       productId: product?.id,
-      productAmount: null,
+      productPerLot: null,
     },
   };
   const [form, setForm] = useState(baseForm);
@@ -232,8 +232,8 @@ export default function CreateRequestImport({
                   <input
                     className="outline-none border-b-2 focus-within:border-black"
                     type="number"
-                    name="lot.amount"
-                    value={form?.lot?.amount}
+                    name="lot.lotAmount"
+                    value={form?.lot?.lotAmount}
                     onChange={handleInput}
                     min="1"
                   />
@@ -258,8 +258,8 @@ export default function CreateRequestImport({
                   <input
                     className="outline-none border-b-2 focus-within:border-black"
                     type="number"
-                    name="lot.productAmount"
-                    value={form?.lot?.productAmount}
+                    name="lot.productPerLot"
+                    value={form?.lot?.productPerLot}
                     onChange={handleInput}
                   />
                 </div>
