@@ -7,7 +7,9 @@ import AxiosRequest from "../../../services/Request";
 import { AuthContext } from "../../../context/AuthContext";
 import { useDetail } from "../../../context/DetailContext";
 import { useTranslation } from "react-i18next";
-
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
+import Select from "react-select";
+import { differenceInDays, format } from "date-fns";
 export default function CreateRequestImport({
   product,
   setProduct,
@@ -25,13 +27,13 @@ export default function CreateRequestImport({
     ocopPartnerId: userInfor?.id,
     name: "",
     description: "",
-    sendToInventoryId: null,
+    sendToInventoryId: 0,
     lot: {
       lotNumber: "",
       name: "",
-      amount: null,
+      lotAmount: null,
       productId: product?.id,
-      productAmount: null,
+      productPerLot: null,
     },
   };
   const [form, setForm] = useState(baseForm);
@@ -108,6 +110,9 @@ export default function CreateRequestImport({
   };
 
   const handleReset = () => {};
+  console.log("productData", product);
+  console.log("inventory", inventories);
+
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
@@ -140,60 +145,127 @@ export default function CreateRequestImport({
         {type === "Import" && (
           <>
             <div className="flex flex-col gap-4">
-              {/* <input
-                placeholder="Request Name"
-                name="name"
-                onChange={handleInput}
-              />
-              <input
-                placeholder="Request Description"
-                name="description"
-                onChange={handleInput}
-              />
-              <input
-                placeholder="Lot number"
-                name="lot.lotNumber"
-                onChange={handleInput}
-              />
-              <input
-                placeholder="Name"
-                name="lot.name"
-                onChange={handleInput}
-              />
-              <input
-                placeholder="Amount of Lot"
-                type="Number"
-                name="lot.amount"
-                onChange={handleInput}
-                min="1"
-              />
-              <input
-                placeholder="Amount of Product"
-                type="Number"
-                name="lot.productAmount"
-                onChange={handleInput}
-              /> */}
               <div className="flex flex-col gap-3">
                 <label className="text-[var(--en-vu-600)] font-normal">
                   {t("ChooseInventory")}
                 </label>
-                <select onChange={handleInput} name="sendToInventoryId">
-                  <option>Select Inventory</option>
+                {/* <select onChange={handleInput} name="sendToInventoryId">
+                  <option>SelectYourHiredInventory</option>
                   {inventories &&
                     inventories.status === 200 &&
-                    inventories.data.items.map((inv) => (
-                      <option value={inv.id}>
-                        {inv.name}-{inv.warehouseName}
-                      </option>
-                    ))}
-                </select>
+                    inventories?.data?.items?.map((inv) => {
+                      if (inv.isCold === product.isCold)
+                        return (
+                          <option value={inv.id}>
+                            {inv.name}-{inv.warehouseName}
+                          </option>
+                        );
+                      return;
+                    })}
+                </select> */}
+                <Select
+                  styles={{
+                    menu: (provided) => ({
+                      ...provided,
+
+                      // Restrict the dropdown height
+                      overflowY: "hidden", // Enable scrolling for content
+                    }),
+                    menuList: (provided) => ({
+                      ...provided,
+                      padding: 0, // Ensure no extra padding
+                      maxHeight: "11.5rem",
+                      overflow: "auto",
+                    }),
+                    control: (baseStyles) => ({
+                      ...baseStyles,
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      padding: "0.5rem",
+                      boxShadow: "none",
+                      "&:hover": {
+                        border: "1px solid #888",
+                      },
+                    }),
+                    option: (baseStyles, { isFocused, isSelected }) => ({
+                      ...baseStyles,
+                      backgroundColor: isSelected
+                        ? "#0056b3"
+                        : isFocused
+                        ? "#e7f3ff"
+                        : "white",
+                      color: isSelected ? "white" : "black",
+                      cursor: "pointer",
+                      padding: "0.5rem 1rem", // Option padding
+                      textAlign: "left", // Center-align text
+                    }),
+                  }}
+                  onChange={(selectedOption) =>
+                    handleInput({
+                      target: {
+                        name: "sendToInventoryId",
+                        value: selectedOption.value,
+                      },
+                    })
+                  }
+                  options={[
+                    { value: 0, label: t("SelectYourHiredInventory") },
+                    ...(Array.isArray(inventories?.data?.items)
+                      ? inventories?.data?.items?.map((inv) => {
+                          if (inv.isCold === product.isCold)
+                            return {
+                              value: inv.id,
+                              label: inv.name,
+                              expire: inv.expirationDate,
+                              weight: inv.weight,
+                              maxWeight: inv.maxWeight,
+                            };
+                          return;
+                        })
+                      : []),
+                  ]}
+                  formatOptionLabel={({ label, expire, weight, maxWeight }) => (
+                    <div className="">
+                      <p>{label}</p>
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        {maxWeight && (
+                          <div className="flex items-center gap-4">
+                            <p>{t("Weight")}</p>
+                            <p>
+                              {new Intl.NumberFormat().format(weight) +
+                                "/" +
+                                new Intl.NumberFormat().format(maxWeight)}{" "}
+                              kg
+                            </p>
+                          </div>
+                        )}
+                        {expire && (
+                          <div className="flex gap-4 items-center">
+                            <p>{t("Expiredon")}:</p>
+                            <p className="">
+                              {expire
+                                ? `${differenceInDays(
+                                    new Date(expire),
+                                    new Date()
+                                  )} ${t("days")} ( ${format(
+                                    expire,
+                                    "dd/MM/yyyy"
+                                  )} )`
+                                : "N/A"}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                />
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[var(--en-vu-600)] font-normal">
                   {t("RequestName")}
                 </label>
                 <input
-                  className="outline-none border-b-2 focus-within:border-black"
+                  className="outline-none border-2 py-2 focus-within:border-black"
                   name="name"
                   value={form?.name}
                   onChange={handleInput}
@@ -204,7 +276,7 @@ export default function CreateRequestImport({
                   {t("RequestDescription")}
                 </label>
                 <input
-                  className="outline-none border-b-2 focus-within:border-black"
+                  className="outline-none border-2 py-2 focus-within:border-black"
                   type="text"
                   name="description"
                   value={form?.description}
@@ -230,10 +302,10 @@ export default function CreateRequestImport({
                     {t("AmountofLot")}
                   </label>
                   <input
-                    className="outline-none border-b-2 focus-within:border-black"
+                    className="outline-none border-2 py-2 focus-within:border-black"
                     type="number"
-                    name="lot.amount"
-                    value={form?.lot?.amount}
+                    name="lot.lotAmount"
+                    value={form?.lot?.lotAmount}
                     onChange={handleInput}
                     min="1"
                   />
@@ -243,7 +315,7 @@ export default function CreateRequestImport({
                     {t("AmountofProductPerLot")}
                   </label>
                   <input
-                    className="outline-none border-b-2 focus-within:border-black"
+                    className="outline-none border-2 py-2 focus-within:border-black"
                     type="number"
                     name="lot.productAmount"
                     value={form?.lot?.productAmount / form?.lot?.amount}
@@ -253,13 +325,13 @@ export default function CreateRequestImport({
                 </div> */}
                 <div className="flex flex-col w-full gap-2">
                   <label className="text-[var(--en-vu-600)] font-normal">
-                    {t("TotalAmountofProduct")}
+                    {t("AmountOfProductPerLot")}
                   </label>
                   <input
-                    className="outline-none border-b-2 focus-within:border-black"
+                    className="outline-none border-2 p-2 focus-within:border-black"
                     type="number"
-                    name="lot.productAmount"
-                    value={form?.lot?.productAmount}
+                    name="lot.productPerLot"
+                    value={form?.lot?.productPerLot}
                     onChange={handleInput}
                   />
                 </div>
@@ -271,7 +343,7 @@ export default function CreateRequestImport({
                   onChange={handleProductSelect}
                   value={form.lot.productId}
                 >
-                  <option value="">Choose Product</option>
+                  <option value="">{t("ChooseProduct")}</option>
                   {products.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.name}
@@ -283,25 +355,34 @@ export default function CreateRequestImport({
             {product && (
               <div className="flex justify-between py-2 pb-4">
                 <div className="space-x-10">
-                  <button
-                    className="px-4 py-2"
+                  {/* <button
+                    className="text-xl bg-gray-100 p-1 rounded-full border-2 py-2 border-gray-400 hover:bg-gray-200 hover:border-gray-500 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleReset();
                     }}
                   >
-                    Reset
+                    <ArrowCounterClockwise />
+                  </button> */}
+                  <button
+                    className="bg-red-300 text-black hover:text-white px-4 py-2 rounded-md hover:bg-red-500"
+                    onClick={handleCancel}
+                  >
+                    {t("Cancel")}
                   </button>
                 </div>
-                <div>
-                  <button className="px-4 py-2" onClick={handleCancel}>
-                    Cancel
+                <div className="gap-4 flex">
+                  <button
+                    className="bg-gray-300 text-black hover:text-white px-4 py-2 rounded-md hover:bg-gray-500"
+                    onClick={handleSaveDraft}
+                  >
+                    {t("SaveAsDraft")}
                   </button>
-                  <button className="px-4 py-2" onClick={handleSaveDraft}>
-                    Save As Draft
-                  </button>
-                  <button className="px-4 py-2" onClick={handleConfirm}>
-                    Confirm
+                  <button
+                    className=" bg-green-300 text-black hover:text-white px-4 py-2 rounded-md hover:bg-green-500"
+                    onClick={handleConfirm}
+                  >
+                    {t("Confirm")}
                   </button>
                 </div>
               </div>

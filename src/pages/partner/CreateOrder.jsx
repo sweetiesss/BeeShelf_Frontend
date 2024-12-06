@@ -216,7 +216,10 @@ export default function CreateOrderPage() {
     const dataLocation = await getWarehouses(warehouse);
     const warehouseAddress = dataLocation?.data?.location; // Replace with your actual warehouse address
     const receiverAddress = form.receiverAddress;
-    setStartLocation("Hoa Lac Hi-tech Park, km 29, Đại lộ, Thăng Long, Hà Nội");
+    console.log("addres", warehouseAddress);
+
+    setStartLocation("178a Đ. Bưởi, Cống Vị, Ba Đình, Ha Noi");
+
     try {
       const response = await axios.get(
         `https://www.mapquestapi.com/directions/v2/route?key=${API_KEY}&from=${encodeURIComponent(
@@ -540,8 +543,9 @@ export default function CreateOrderPage() {
         <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
           <Mapping
             showLocation={validLocation}
-            toLocation={"Xã Bình Giã Huyện Châu Đức Tỉnh Bà Rịa - Vũng Tàu"}
-            cloneWarehouseData={cloneWarehouseData}
+            toLocation={startLocation}
+
+            // cloneWarehouseData={cloneWarehouseData}
           />
           {/* <Mapping
               showLocation="123 Main St, New York, NY"
