@@ -4,6 +4,8 @@ import { EnvelopeSimple } from "@phosphor-icons/react";
 import AxiosPartner from "../../services/Partner";
 import AxiosUser from "../../services/User";
 import { useNavigate } from "react-router-dom";
+import useAxiosBearer from "../../services/CustomizeAxios";
+import { toast } from "react-toastify";
 
 export default function ProfileEdit() {
   const nav = useNavigate();
@@ -31,6 +33,7 @@ export default function ProfileEdit() {
   const [file, setFile] = useState(null);
   const [ocopCategory, setOcopCategory] = useState();
   const [loading, setLoading] = useState(false);
+  const { fetchDataBearer } = useAxiosBearer();
 
   useEffect(() => {
     const setOcop = () => {
@@ -67,44 +70,81 @@ export default function ProfileEdit() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
     setErrors({});
 
-    if (selectedFile) {
+    const formData = new FormData();
+
+    // Append required fields
+    formData.append("image", selectedFile); // Binary file data
+    formData.append("ContentType", selectedFile.type || "image/jpeg"); // Content type
+    formData.append("ContentDisposition", ""); // Empty if optional
+    formData.append("Length", selectedFile.size); // File size in bytes
+    formData.append("Name", selectedFile.name); // File name
+    formData.append("FileName", selectedFile.name); // File name again
+
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ", " + pair[1]); // Logs the key-value pairs in FormData
+    }
+
+    // Append optional headers
+    if (selectedFile.Headers) {
+      formData.append("Headers", JSON.stringify(selectedFile.Headers));
+    }
+
+    const response = await fetchDataBearer({
+      url: `/picture/upload-profile-image/${userInfor.id}`,
+      method: "POST",
+      data: formData,
+    });
+    console.log(response);
+
+    if (response) {
       setFile(selectedFile);
+
       setForm((prev) => ({
         ...prev,
-        pictureLink: URL.createObjectURL(selectedFile), // Temporarily show the selected file as a preview
+        pictureLink: response.data,
       }));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (file) {
       console.log("Upload this file:", file);
     }
     console.log("Form data to save:", form);
+    try {
+      const response = await fetchDataBearer({
+        url: `/user/update-employee`,
+        method: "PUT",
+        data: form,
+      });
+      console.log(response);
+      if (response.status === 200) {
+        toast.success("Update profile successfully");
+      }
+    } catch (error) {
+      toast.error("Update profile failed");
+    }
   };
 
-  console.log(ocopCategory);
-
   return (
-    <div className="grid grid-cols-3 grid-rows-2 gap-4 w-[80vw] h-[80vh] mx-auto">
+    <div className="grid grid-cols-1 grid-rows-1 gap-4 mx-auto max-w-2xl">
       {/* Profile Picture Section */}
       <div className="flex flex-col col-span-1 row-span-2 items-center p-4 bg-white rounded-lg border-2 shadow-lg">
-        <div className="overflow-hidden my-10 w-52 h-52 rounded-full border-2 border-gray-700">
-          <img
-            src={form.pictureLink}
-            alt="Profile"
-            className="object-cover w-full h-full"
-            onError={(e) => {
-              setErrors((prev) => ({ ...prev, pictureLink: "Invalid link." }));
-              e.target.src = userInfor?.pictureLink; // Fallback to userInfor picture
-            }}
-          />
-        </div>
+        <img
+          src={form.pictureLink ? form.pictureLink : userInfor?.pictureLink}
+          alt="Profile"
+          className="object-cover w-[200px] h-full rounded"
+          onError={(e) => {
+            setErrors((prev) => ({ ...prev, pictureLink: "Invalid link." }));
+            e.target.src =
+              "https://cdn.pixabay.com/photo/2015/10/05/22/37/man-732872_960_720.jpg"; // Fallback to default avatar
+          }}
+        />
         {errors?.pictureLink !== "" && (
           <div className="font-medium text-red-500 text-md">
             {errors?.pictureLink}
@@ -117,7 +157,7 @@ export default function ProfileEdit() {
             value={form.pictureLink}
             onChange={handleInputChange}
             placeholder="Image URL"
-            className="border rounded-lg px-2 w-[65%] text-sm py-3"
+            className="border rounded-lg px-2 w-[65%] text-sm py-3 flex-1 mr-2"
           />
           <label
             htmlFor="uploadFileImg"
@@ -215,7 +255,7 @@ export default function ProfileEdit() {
           Save Changes
         </button>
       </div>
-      <div className="col-span-2 row-span-1 p-4 bg-white rounded-lg border-2 shadow-lg">
+      {/* <div className="col-span-2 row-span-1 p-4 bg-white rounded-lg border-2 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold">Secure Data</h2>
         <div className="mt-4 w-full">
           {errors?.citizenIdentificationNumber ===
@@ -323,9 +363,9 @@ export default function ProfileEdit() {
             Reset Password
           </button>
         </div>
-      </div>
+      </div> */}
       {/* Edit Profile Form Section */}
-      <div className="col-span-2 row-span-1 p-4 bg-white rounded-lg border-2 shadow-lg">
+      {/* <div className="col-span-2 row-span-1 p-4 bg-white rounded-lg border-2 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold">Edit Others</h2>
         <div className="mt-4 w-full">
           {errors?.businessName === "businessName" && (
@@ -408,7 +448,7 @@ export default function ProfileEdit() {
             className={`px-2 py-1 w-full text-lg rounded-lg border`}
           />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
