@@ -48,7 +48,7 @@ export function LayoutLogined() {
       </div>
       <div className="h-full w-full body-wrapper overflow-auto">
         <HeaderAuthenticated />
-        <div className="w-full  min-h-[calc(100vh-6.7rem)] max-h-[90vh] p-10">
+        <div className="w-full  min-h-[calc(100vh-6.75rem)] max-h-[89vh] p-10">
           <Outlet />
         </div>
       </div>
