@@ -213,17 +213,21 @@ const Ordermanage = () => {
       key: "receiverAddress",
     },
     {
-      title: "Date",
+      title: "Create Date",
       dataIndex: "createDate",
       key: "createDate",
       render: (text) => {
         const date = new Date(text);
         const day = String(date.getDate()).padStart(2, "0");
         const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() bắt đầu từ 0
-        const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
-        return `${day}/${month}/${year}`;
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+    
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
       },
     },
+    
 
     {
       title: "Total Price",
@@ -264,8 +268,8 @@ const Ordermanage = () => {
         return ["Canceled"]; // Shipper delivery or Out of stock
       // case "Shipping":
       //   return ["Delivered", "Canceled"]; // Shipping Finish delivery or OCOP Partner Cancelled
-      // case "Delivered":
-      //   return ["Returned", "Completed"]; // Receiver returns or Return window expire
+      case "Delivered":
+        return ["Completed"]; // Receiver returns or Return window expire
       case "Returned":
         return ["Refunded"]; // Refund processed
       case "Completed":
@@ -371,7 +375,7 @@ const Ordermanage = () => {
                   <p>{selectedOrder.receiverAddress}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Date:</p>
+                  <p className="font-bold">Create Date:</p>
                   <p>
                     {(() => {
                       const date = new Date(selectedOrder.createDate);

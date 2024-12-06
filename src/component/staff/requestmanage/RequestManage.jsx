@@ -174,7 +174,7 @@ const RequestManagement = () => {
       case "Draft":
         return ["Pending"]; // Request Created
       case "Pending":
-        return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
+        return ["Processing"]; // Staff confirmed or OCOP Partner Cancelled
       case "Processing":
         return ["Delivered", "Failed"]; // OCOP Partner Delivered or Deliver window expire
       case "Delivered":
@@ -260,11 +260,11 @@ const RequestManagement = () => {
               dataIndex: "requestType",
               key: "requestType",
             },
-            {
-              title: "Warehouse Name",
-              dataIndex: "warehouseName",
-              key: "warehouseName",
-            },
+            // {
+            //   title: "Warehouse Name",
+            //   dataIndex: "warehouseName",
+            //   key: "warehouseName",
+            // },
             {
               title: "Status",
               dataIndex: "status",
@@ -286,8 +286,10 @@ const RequestManagement = () => {
                     allowClear
                   >
                     <Option value="Pending">Pending</Option>
-                    <Option value="Approved">Approved</Option>
-                    <Option value="Rejected">Rejected</Option>
+                    <Option value="Processing">Processing</Option>
+                    <Option value="Failed">Failed</Option>
+                    <Option value="Delivered">Delivered</Option>
+                    <Option value="Canceled">Canceled</Option>
                     <Option value="Completed">Completed</Option>
                   </Select>
                 </div>
@@ -305,25 +307,29 @@ const RequestManagement = () => {
                 const date = new Date(text);
                 const day = String(date.getDate()).padStart(2, "0");
                 const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
-                return `${day}/${month}/${year}`;
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
               },
             },
-
             {
               title: "Approve Date",
-              dataIndex: "approveDate",
-              key: "approveDate",
+              dataIndex: "apporveDate", // Sửa typo ở đây
+              key: "apporveDate",
               render: (text) => {
                 if (!text) return ""; // Trả về chuỗi rỗng nếu không có giá trị
                 const date = new Date(text);
                 const day = String(date.getDate()).padStart(2, "0");
                 const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
-                return `${day}/${month}/${year}`;
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
               },
             },
-
             {
               title: "Deliver Date",
               dataIndex: "deliverDate",
@@ -333,8 +339,27 @@ const RequestManagement = () => {
                 const date = new Date(text);
                 const day = String(date.getDate()).padStart(2, "0");
                 const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
-                return `${day}/${month}/${year}`;
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+              },
+            },
+            {
+              title: "Cancel Date",
+              dataIndex: "cancelDate",
+              key: "cancelDate",
+              render: (text) => {
+                if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
+                const date = new Date(text);
+                const day = String(date.getDate()).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
               },
             },
 
@@ -412,8 +437,10 @@ const RequestManagement = () => {
                     allowClear
                   >
                     <Option value="Pending">Pending</Option>
-                    <Option value="Approved">Approved</Option>
-                    <Option value="Rejected">Rejected</Option>
+                    <Option value="Processing">Processing</Option>
+                    <Option value="Failed">Failed</Option>
+                    <Option value="Delivered">Delivered</Option>
+                    <Option value="Canceled">Canceled</Option>
                     <Option value="Completed">Completed</Option>
                   </Select>
                 </div>
@@ -431,22 +458,27 @@ const RequestManagement = () => {
                 const date = new Date(text);
                 const day = String(date.getDate()).padStart(2, "0");
                 const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
-                return `${day}/${month}/${year}`;
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
               },
             },
-
             {
               title: "Approve Date",
-              dataIndex: "approveDate",
-              key: "approveDate",
+              dataIndex: "apporveDate", // Fix the typo here from 'apporveDate' to 'approveDate'
+              key: "apporveDate",
               render: (text) => {
                 if (!text) return ""; // Trả về chuỗi rỗng nếu không có giá trị
                 const date = new Date(text);
                 const day = String(date.getDate()).padStart(2, "0");
                 const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
-                return `${day}/${month}/${year}`;
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
               },
             },
 
@@ -459,11 +491,13 @@ const RequestManagement = () => {
                 const date = new Date(text);
                 const day = String(date.getDate()).padStart(2, "0");
                 const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
-                return `${day}/${month}/${year}`;
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
               },
             },
-
             {
               title: "Action",
               dataIndex: "",
@@ -550,12 +584,12 @@ const RequestManagement = () => {
                   <p className="font-bold">Description:</p>
                   <p>{selectedRequest.description}</p>
                 </div>
-                <div>
+                {/* <div>
                   <p className="font-bold">Receiver Address:</p>
                   <p>{selectedRequest.receiverAddress}</p>
-                </div>
+                </div> */}
                 <div>
-                  <p className="font-bold">Date:</p>
+                  <p className="font-bold">Create Date:</p>
                   <p>
                     {(() => {
                       const date = new Date(selectedRequest.createDate);
@@ -564,8 +598,14 @@ const RequestManagement = () => {
                         2,
                         "0"
                       ); // Tháng bắt đầu từ 0, cần cộng 1
-                      const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
-                      return `${day}/${month}/${year}`;
+                      const year = date.getFullYear();
+                      const hours = String(date.getHours()).padStart(2, "0");
+                      const minutes = String(date.getMinutes()).padStart(
+                        2,
+                        "0"
+                      );
+
+                      return `${day}/${month}/${year} ${hours}:${minutes}`;
                     })()}
                   </p>
                 </div>
@@ -579,8 +619,8 @@ const RequestManagement = () => {
                   <p>{selectedRequest.warehouseName}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Warehouse Location:</p>
-                  <p>{selectedRequest.warehouseLocation}</p>
+                  <p className="font-bold">Lot ID:</p>
+                  <p>{selectedRequest.lotId}</p>
                 </div>
               </div>
             </div>
