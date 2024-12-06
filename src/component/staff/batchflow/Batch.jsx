@@ -121,6 +121,7 @@ const BatchManage = () => {
             orderFilterBy: "DeliveryZoneId",
             filterQuery: selectedDeliveryZone,
             filterByStatus: "Processing",
+            hasBatch: false
           },
         });
         console.log("Orders data:", response);

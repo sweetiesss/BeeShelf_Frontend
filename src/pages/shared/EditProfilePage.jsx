@@ -93,12 +93,12 @@ export default function ProfileEdit() {
   return (
     <div className="grid grid-cols-3 grid-rows-2 gap-4 w-[80vw] h-[80vh] mx-auto">
       {/* Profile Picture Section */}
-      <div className="col-span-1 row-span-2 border-2 bg-white shadow-lg rounded-lg flex flex-col items-center p-4">
-        <div className="w-52 h-52 rounded-full overflow-hidden border-2 border-gray-700  my-10">
+      <div className="flex flex-col col-span-1 row-span-2 items-center p-4 bg-white rounded-lg border-2 shadow-lg">
+        <div className="overflow-hidden my-10 w-52 h-52 rounded-full border-2 border-gray-700">
           <img
             src={form.pictureLink}
             alt="Profile"
-            className="w-full h-full object-cover"
+            className="object-cover w-full h-full"
             onError={(e) => {
               setErrors((prev) => ({ ...prev, pictureLink: "Invalid link." }));
               e.target.src = userInfor?.pictureLink; // Fallback to userInfor picture
@@ -106,11 +106,11 @@ export default function ProfileEdit() {
           />
         </div>
         {errors?.pictureLink !== "" && (
-          <div className="text-red-500 text-md font-medium">
+          <div className="font-medium text-red-500 text-md">
             {errors?.pictureLink}
           </div>
         )}
-        <div className="flex w-full items-center justify-between">
+        <div className="flex justify-between items-center w-full">
           <input
             type="text"
             name="pictureLink"
@@ -136,14 +136,14 @@ export default function ProfileEdit() {
           />
         </div>
 
-        <div className="w-full mt-10">
+        <div className="mt-10 w-full">
           {errors?.firstName === "firstName" && (
-            <p className="text-red-500 text-md font-medium">
+            <p className="font-medium text-red-500 text-md">
               {errors?.firstName}
             </p>
           )}
           <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
             First Name
           </label>
@@ -152,17 +152,17 @@ export default function ProfileEdit() {
             name="firstName"
             value={form.firstName}
             onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            className={`px-2 py-1 w-full text-lg rounded-lg border`}
           />
         </div>
-        <div className="w-full mt-4">
+        <div className="mt-4 w-full">
           {errors?.lastName === "lastName" && (
-            <p className="text-red-500 text-md font-medium">
+            <p className="font-medium text-red-500 text-md">
               {errors?.lastName}
             </p>
           )}
           <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
             Last Name
           </label>
@@ -171,15 +171,15 @@ export default function ProfileEdit() {
             name="lastName"
             value={form.lastName}
             onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            className={`px-2 py-1 w-full text-lg rounded-lg border`}
           />
         </div>
-        <div className="w-full mt-4">
+        <div className="mt-4 w-full">
           {errors?.email === "email" && (
-            <p className="text-red-500 text-md font-medium">{errors?.email}</p>
+            <p className="font-medium text-red-500 text-md">{errors?.email}</p>
           )}
           <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
             Email
           </label>
@@ -188,15 +188,15 @@ export default function ProfileEdit() {
             name="email"
             value={form.email}
             onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            className={`px-2 py-1 w-full text-lg rounded-lg border`}
           />
         </div>
-        <div className="w-full mt-4">
+        <div className="mt-4 w-full">
           {errors?.phone === "phone" && (
-            <p className="text-red-500 text-md font-medium">{errors?.phone}</p>
+            <p className="font-medium text-red-500 text-md">{errors?.phone}</p>
           )}
           <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
             Phone Number
           </label>
@@ -205,28 +205,27 @@ export default function ProfileEdit() {
             name="phone"
             value={form.phone}
             onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            className={`px-2 py-1 w-full text-lg rounded-lg border`}
           />
         </div>
         <button
-          className={`mt-10 w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
+          className={`relative p-4 mt-10 w-full text-xl font-semibold text-white rounded-2xl transition duration-200 bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)]`}
           onClick={handleSubmit}
         >
           Save Changes
         </button>
       </div>
-
-      <div className="col-span-2 row-span-1 border-2  bg-white shadow-lg rounded-lg p-4">
-        <h2 className="text-lg font-semibold mb-4">Secure Data</h2>
-        <div className="w-full mt-4">
+      <div className="col-span-2 row-span-1 p-4 bg-white rounded-lg border-2 shadow-lg">
+        <h2 className="mb-4 text-lg font-semibold">Secure Data</h2>
+        <div className="mt-4 w-full">
           {errors?.citizenIdentificationNumber ===
             "citizenIdentificationNumber" && (
-            <p className="text-red-500 text-md font-medium">
+            <p className="font-medium text-red-500 text-md">
               {errors?.citizenIdentificationNumber}
             </p>
           )}
           <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
             citizenIdentificationNumber
           </label>
@@ -235,17 +234,17 @@ export default function ProfileEdit() {
             name="citizenIdentificationNumber"
             value={form.citizenIdentificationNumber}
             onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            className={`px-2 py-1 w-full text-lg rounded-lg border`}
           />
         </div>
-        <div className="w-full mt-4">
+        <div className="mt-4 w-full">
           {errors?.taxIdentificationNumber === "taxIdentificationNumber" && (
-            <p className="text-red-500 text-md font-medium">
+            <p className="font-medium text-red-500 text-md">
               {errors?.taxIdentificationNumber}
             </p>
           )}
           <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
             taxIdentificationNumber
           </label>
@@ -254,18 +253,18 @@ export default function ProfileEdit() {
             name="taxIdentificationNumber"
             value={form.taxIdentificationNumber}
             onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            className={`px-2 py-1 w-full text-lg rounded-lg border`}
           />
         </div>
-        <div className="flex gap-4 w-full items-center">
-          <div className="w-full mt-4">
+        <div className="flex gap-4 items-center w-full">
+          <div className="mt-4 w-full">
             {errors?.bankName === "bankName" && (
-              <p className="text-red-500 text-md font-medium">
+              <p className="font-medium text-red-500 text-md">
                 {errors?.bankName}
               </p>
             )}
             <label
-              className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+              className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
             >
               bankName
             </label>
@@ -274,17 +273,17 @@ export default function ProfileEdit() {
               name="bankName"
               value={form.bankName}
               onChange={handleInputChange}
-              className={`border rounded-lg px-2 py-1 w-full text-lg`}
+              className={`px-2 py-1 w-full text-lg rounded-lg border`}
             />
           </div>
-          <div className="w-full mt-4">
+          <div className="mt-4 w-full">
             {errors?.bankAccountNumber === "bankAccountNumber" && (
-              <p className="text-red-500 text-md font-medium">
+              <p className="font-medium text-red-500 text-md">
                 {errors?.bankAccountNumber}
               </p>
             )}
             <label
-              className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+              className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
             >
               bankAccountNumber
             </label>
@@ -293,19 +292,19 @@ export default function ProfileEdit() {
               name="bankAccountNumber"
               value={form.bankAccountNumber}
               onChange={handleInputChange}
-              className={`border rounded-lg px-2 py-1 w-full text-lg`}
+              className={`px-2 py-1 w-full text-lg rounded-lg border`}
             />
           </div>
         </div>
-        <div className="flex gap-4 w-full items-end mt-4">
+        <div className="flex gap-4 items-end mt-4 w-full">
           <div className="w-full">
             {errors?.confirmPassword === "confirmPassword" && (
-              <p className="text-red-500 text-md font-medium">
+              <p className="font-medium text-red-500 text-md">
                 {errors?.confirmPassword}
               </p>
             )}
             <label
-              className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+              className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
             >
               confirmPassword
             </label>
@@ -314,30 +313,28 @@ export default function ProfileEdit() {
               name="confirmPassword"
               value={form.confirmPassword}
               onChange={handleInputChange}
-              className={`border rounded-lg px-2 py-1 w-full text-lg`}
+              className={`px-2 py-1 w-full text-lg rounded-lg border`}
             />
           </div>
           <button
-            className={`bg-gray-400
-             text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-700 transition duration-200 text-nowrap`}
+            className={`px-4 py-2 text-white bg-gray-400 rounded-lg transition duration-200 cursor-pointer hover:bg-gray-700 text-nowrap`}
             onClick={handleResetPassword}
           >
             Reset Password
           </button>
         </div>
       </div>
-
       {/* Edit Profile Form Section */}
-      <div className="col-span-2 row-span-1 border-2  bg-white shadow-lg rounded-lg p-4">
-        <h2 className="text-lg font-semibold mb-4">Edit Others</h2>
-        <div className="w-full mt-4">
+      <div className="col-span-2 row-span-1 p-4 bg-white rounded-lg border-2 shadow-lg">
+        <h2 className="mb-4 text-lg font-semibold">Edit Others</h2>
+        <div className="mt-4 w-full">
           {errors?.businessName === "businessName" && (
-            <p className="text-red-500 text-md font-medium">
+            <p className="font-medium text-red-500 text-md">
               {errors?.businessName}
             </p>
           )}
           <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
             Business Name
           </label>
@@ -346,17 +343,17 @@ export default function ProfileEdit() {
             name="businessName"
             value={form.businessName}
             onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            className={`px-2 py-1 w-full text-lg rounded-lg border`}
           />
         </div>
-        <div className="w-full mt-4">
+        <div className="mt-4 w-full">
           {errors?.ocopCategoryId === "ocopCategoryId" && (
-            <p className="text-red-500 text-md font-medium">
+            <p className="font-medium text-red-500 text-md">
               {errors?.ocopCategoryId}
             </p>
           )}
           <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
             Ocop Category Name
           </label>
@@ -365,21 +362,21 @@ export default function ProfileEdit() {
             name="ocopCategoryId"
             value={form.ocopCategoryId}
             onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            className={`px-2 py-1 w-full text-lg rounded-lg border`}
           >
             {ocopCategoriesList?.data?.items?.map((ocopCate) => (
               <option value={ocopCate.id}>{ocopCate.type}</option>
             ))}
           </select>
         </div>
-        <div className="w-full mt-4">
+        <div className="mt-4 w-full">
           {errors?.categoryId === "categoryId" && (
-            <p className="text-red-500 text-md font-medium">
+            <p className="font-medium text-red-500 text-md">
               {errors?.categoryId}
             </p>
           )}
           <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
             Category Name
           </label>
@@ -388,18 +385,18 @@ export default function ProfileEdit() {
             name="categoryId"
             value={form.categoryId}
             onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            className={`px-2 py-1 w-full text-lg rounded-lg border`}
           ></select>
         </div>
 
-        <div className="w-full mt-4">
+        <div className="mt-4 w-full">
           {errors?.provinceId === "provinceId" && (
-            <p className="text-red-500 text-md font-medium">
+            <p className="font-medium text-red-500 text-md">
               {errors?.provinceId}
             </p>
           )}
           <label
-            className={` block text-lg font-medium text-gray-500 mb-1 ml-2`}
+            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
             provinceId
           </label>
@@ -408,7 +405,7 @@ export default function ProfileEdit() {
             name="provinceId"
             value={form.provinceId}
             onChange={handleInputChange}
-            className={`border rounded-lg px-2 py-1 w-full text-lg`}
+            className={`px-2 py-1 w-full text-lg rounded-lg border`}
           />
         </div>
       </div>
