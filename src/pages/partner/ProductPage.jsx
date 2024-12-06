@@ -11,17 +11,23 @@ import CreateRequestImport from "../../component/partner/product/CreateRequestIm
 import AxiosInventory from "../../services/Inventory";
 import { useDetail } from "../../context/DetailContext";
 import { ProductListSkeleton } from "../shared/SkeletonLoader";
+import { format } from "date-fns";
+import AxiosCategory from "../../services/Category";
+import SpinnerLoading from "../../component/shared/Loading";
 
 export default function ProductPage() {
   const [fetching, setFetching] = useState(false);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState();
   const [inventories, setInventory] = useState(null);
-  const [index, setIndex] = useState(10);
+  const [index, setIndex] = useState(6);
   const [page, setPage] = useState(0);
   const [isShowDetailProduct, setShowDetailProduct] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedProductsBased, setSelectedProductsBased] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+  const [productCategories, setProductCategories] = useState(null);
+  const [productCate, setProductCate] = useState(0);
   const [overall, setOverall] = useState({
     checked: false,
     indeterminate: false,
@@ -32,6 +38,7 @@ export default function ProductPage() {
 
   const { userInfor } = useContext(AuthContext);
   const { getProductByUserId, deleteProductById } = AxiosProduct();
+  const { getProductCategoryBy1000 } = AxiosCategory();
   const {
     dataDetail,
     updateDataDetail,
@@ -54,34 +61,58 @@ export default function ProductPage() {
     };
   };
   const debouncedFetchProducts = useCallback(
-    debounce(async (page, index, sortBy, search, descending) => {
-      const response = await getProductByUserId(
-        userInfor?.id,
-        page,
-        index,
-        search,
-        sortBy,
-        descending
-      );
-      setProducts(response?.data);
-    }, 500),
+    debounce(async (page, index, sortBy, search, descending, productCate) => {
+      let thisPage = page;
+      if (search) {
+        thisPage = 0;
+      }
+      try {
+        setLoading(true);
+
+        const response = await getProductByUserId(
+          userInfor?.id,
+          thisPage,
+          index,
+          search,
+          sortBy,
+          descending,
+          productCate
+        );
+        if (response?.status == 200) {
+          setProducts(response?.data);
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false);
+      }
+    }, 300),
     [userInfor?.id]
   );
   useEffect(() => {
-    const fetchingData = async () => {
-      const result = await getInventory1000ByUserId(userInfor?.id);
-      console.log(result);
-      setInventory(result);
-    };
-    fetchingData();
+    fetchingBeginData();
   }, []);
   useEffect(() => {
     if (userInfor) {
-      setLoading(true);
-      debouncedFetchProducts(page, index, sortBy, search, descending);
-      setLoading(false);
+      debouncedFetchProducts(
+        page,
+        index,
+        sortBy,
+        search,
+        descending,
+        productCate
+      );
     }
-  }, [page, index, sortBy, search, userInfor, fetching, descending]);
+  }, [
+    page,
+    index,
+    sortBy,
+    search,
+    userInfor,
+    fetching,
+    descending,
+    productCate,
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,7 +125,8 @@ export default function ProductPage() {
             index,
             search,
             sortBy,
-            descending
+            descending,
+            productCate
           );
           setProducts(response?.data);
 
@@ -125,6 +157,24 @@ export default function ProductPage() {
     }
   }, [selectedProducts]);
 
+  const fetchingBeginData = async () => {
+    try {
+      setLoading(true);
+      const productCategoriesResult = await getProductCategoryBy1000();
+      if (productCategoriesResult?.status === 200) {
+        setProductCategories(productCategoriesResult?.data?.items);
+      }
+      const result = await getInventory1000ByUserId(userInfor?.id);
+      if (result?.status === 200) {
+        setInventory(result);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleShowDetailProduct = (e, product) => {
     e.stopPropagation();
     setShowDetailProduct(isShowDetailProduct === product ? null : product);
@@ -133,30 +183,76 @@ export default function ProductPage() {
   };
 
   const toggleProductSelection = (product) => {
-    setSelectedProducts((prevSelected) =>
-      prevSelected.includes(product)
-        ? prevSelected.filter((p) => p !== product)
-        : [...prevSelected, product]
-    );
+    // Check if the product is already selected
+    const isAlreadySelected = selectedProducts.some((p) => p.id === product.id);
+
+    // If already selected, remove it; otherwise, add it
+    if (isAlreadySelected) {
+      setSelectedProducts((prevSelected) =>
+        prevSelected.filter((p) => p.id !== product.id)
+      );
+      setSelectedProductsBased((prevSelectedBased) =>
+        prevSelectedBased.filter((p) => p.id !== product.id)
+      );
+    } else {
+      setSelectedProducts((prevSelected) => [...prevSelected, product]);
+      setSelectedProductsBased((prevSelectedBased) => [
+        ...prevSelectedBased,
+        product,
+      ]);
+    }
   };
 
-  const isProductSelected = (product) => {
-    return selectedProducts.includes(product);
-  };
+  const isProductSelected = (product) =>
+    selectedProducts.some((p) => p.id === product.id);
 
   const handleClickOverall = (e) => {
     e.stopPropagation();
     setSelectedProducts([]);
+    setSelectedProductsBased([]);
   };
+
   const handleDownload = () => {
     const formattedData =
       selectedProducts.length > 0
-        ? selectedProducts.map((item) => ({
-            ...item,
-          }))
-        : products?.items?.map((item) => ({
-            ...item,
-          }));
+        ? selectedProducts.map(
+            ({
+              id,
+              ocopPartnerId,
+              productCategoryId,
+              price,
+              weight,
+              isCold,
+              isInInv,
+              createDate,
+              ...item
+            }) => ({
+              ...item,
+              "price (vnd)": price,
+              "weight (kg)": weight,
+              Cold: isCold === 1 ? true : false,
+              createDate: format(createDate, "dd-MM-yyyy"),
+            })
+          )
+        : products?.items?.map(
+            ({
+              id,
+              ocopPartnerId,
+              productCategoryId,
+              price,
+              weight,
+              isCold,
+              isInInv,
+              createDate,
+              ...item
+            }) => ({
+              ...item,
+              "price (vnd)": price,
+              "weight (kg)": weight,
+              Cold: isCold === 1 ? true : false,
+              createDate: format(createDate, "dd-MM-yyyy"),
+            })
+          );
     const formatDate = () => {
       const date = new Date();
       const day = String(date.getDate()).padStart(2, "0");
@@ -218,17 +314,19 @@ export default function ProductPage() {
   };
 
   const handleSortChange = (value) => {
-    console.log("checkcheck",sortBy===value);
-    
+  
+
     if (sortBy === value) {
       setDescending((prev) => !prev);
     } else {
       setSortBy(value);
     }
   };
+ 
+  
 
   return (
-    <div className="w-full h-full gap-10 ">
+    <div className="w-full h-full gap-10 pb-10">
       <div className="w-full">
         <ProductHeader
           handleDownload={handleDownload}
@@ -237,67 +335,63 @@ export default function ProductPage() {
           handleClickOverall={handleClickOverall}
           handleSearchChange={handleSearchChange}
           search={search}
+          setProductCate={setProductCate}
+          productCategories={productCategories}
         />
         {!loading ? (
-          <>
-            {products?.items?.length > 0 ? (
-              <ProductList
-                products={products?.items}
-                selectedProducts={selectedProducts}
-                response={products}
-                toggleProductSelection={toggleProductSelection}
-                isShowDetailProduct={isShowDetailProduct}
-                isProductSelected={isProductSelected}
-                overall={overall}
-                handleClickOverall={handleClickOverall}
-                index={index}
-                setIndex={setIndex}
-                page={page}
-                setPage={setPage}
-                handleDeleteClick={handleDeleteClick}
-                handleShowDetailProduct={handleShowDetailProduct}
-                handleSortChange={handleSortChange}
-                sortBy={sortBy}
-                descending={descending}
-                setDescending={setDescending}
-              />
-            ) : (
-              <>
-                <div>You don't have any product yet!</div>
-              </>
-            )}
-          </>
+          <ProductList
+            products={products?.items}
+            selectedProducts={selectedProducts}
+            response={products}
+            toggleProductSelection={toggleProductSelection}
+            isShowDetailProduct={isShowDetailProduct}
+            isProductSelected={isProductSelected}
+            overall={overall}
+            handleClickOverall={handleClickOverall}
+            index={index}
+            setIndex={setIndex}
+            page={page}
+            setPage={setPage}
+            handleDeleteClick={handleDeleteClick}
+            handleShowDetailProduct={handleShowDetailProduct}
+            handleSortChange={handleSortChange}
+            sortBy={sortBy}
+            descending={descending}
+            setDescending={setDescending}
+          />
         ) : (
           <div className="w-full mt-4">
-            <ProductListSkeleton size={index} />
+            <SpinnerLoading loading={loading} />
           </div>
         )}
       </div>
       {/* <ProductOverview /> */}
       {showDeleteConfirmation && (
         <>
-          <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
           <div
-            className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
+            className="absolute bg-white border z-10 border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
             style={{
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
             }}
           >
-            <p>{`Are you sure you want to delete ${showDeleteConfirmation.name}?`}</p>
+            <p>{`${t("AreYouSureWantToDelete")} ${
+              showDeleteConfirmation.name
+            }?`}</p>
             <div className="flex justify-end gap-4">
-              <button
-                onClick={() => confirmDelete(showDeleteConfirmation)}
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
-              >
-                Delete
-              </button>
               <button
                 onClick={cancelDelete}
                 className="bg-gray-300 text-black px-4 py-2 rounded-md"
               >
-                Cancel
+                {t("Cancel")}
+              </button>
+              <button
+                onClick={() => confirmDelete(showDeleteConfirmation)}
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+              >
+                {t("Confirm")}
               </button>
             </div>
           </div>

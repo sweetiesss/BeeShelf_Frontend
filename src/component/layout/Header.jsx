@@ -185,15 +185,10 @@ export function HeaderAuthenticated() {
     handleLogout();
     nav("/");
   };
-  const notificationBell = useRef();
+
   const notificationDropwDown = useRef();
   const mouseDownEvent = (event) => {
     if (
-      notificationBell.current &&
-      notificationBell.current.contains(event.target)
-    ) {
-      setOpenNotification((prev) => !prev);
-    } else if (
       notificationDropwDown.current &&
       notificationDropwDown.current.contains(event.target)
     ) {
@@ -267,20 +262,13 @@ export function HeaderAuthenticated() {
             <div id="moon"></div>
           </label>
         </div>
-        <button
-          className={
-            "rounded-full w-8 h-8 flex justify-center items-center notification-bell"
-          }
-          ref={notificationBell}
-        >
-          <Bell size={24} weight="fill" />
-        </button>
+
         {authWallet && (
           <div
             className="w-[10rem] cursor-pointer"
             onClick={handleAddingCoinsButton}
           >
-            {authWallet?.totalAmount}
+            {new Intl.NumberFormat().format(authWallet?.totalAmount)} vnd
           </div>
         )}
         <button

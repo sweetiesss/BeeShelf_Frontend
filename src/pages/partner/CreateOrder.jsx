@@ -153,6 +153,9 @@ export default function CreateOrderPage() {
     const dataLocation = await getWarehouses(warehouse);
     const warehouseAddress = dataLocation?.data?.location; // Replace with your actual warehouse address
     const receiverAddress = form.receiverAddress;
+    console.log("addres", warehouseAddress);
+
+    setStartLocation("178a Đ. Bưởi, Cống Vị, Ba Đình, Ha Noi");
 
     try {
       const response = await axios.get(
@@ -406,7 +409,18 @@ export default function CreateOrderPage() {
           </div>
         </form>
         <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
-          <Mapping showLocation={form.receiverAddress} height="90%" />
+          <Mapping
+            showLocation={validLocation}
+            toLocation={startLocation}
+
+            // cloneWarehouseData={cloneWarehouseData}
+          />
+          {/* <Mapping
+              showLocation="123 Main St, New York, NY"
+  startLocation="456 Elm St, Boston, MA"
+            height="90%"
+          /> */}
+          {/* <Mapping showLocation="Xã Phước Tỉnh, Huyện Long Điền, Tỉnh Bà Rịa Vũng Tàu" /> */}
 
           {distance && (
             <p className="mt-4 text-lg">

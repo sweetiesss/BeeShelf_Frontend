@@ -4,63 +4,52 @@ import useAxiosBearer from "./CustomizeAxios";
 
 export default function AxiosImg() {
   const { fetchDataBearer } = useAxiosBearer();
+  const uploadImage = async (file) => {
+    console.log("file", file);
 
-  //   const uploadImage = async (id) => {
-  //     try {
-  //       const fetching = fetchDataBearer({
-  //         url: `order/send-order/` + id,
-  //         method: "PUT",
-  //       });
-  //       await toast.promise(fetching, {
-  //         pending: "Order in progress...",
-  //         success: {
-  //           render() {
-  //             return `Send order successfully`;
-  //           },
-  //         },
-  //         error: {
-  //           render({ data }) {
-  //             console.log("data Error", data.response.data.message);
-  //             return `${data.response.data.message || "Something went wrong!"}`;
-  //           },
-  //         },
-  //       });
-  //       return await fetching;
-  //     } catch (e) {
-  //       return e;
-  //     }
-  //   };
+    // Validate the file
+    if (!file || !(file instanceof File)) {
+      toast.error("Invalid file. Please select a valid image.");
+      throw new Error("Invalid file. Please select a valid image.");
+    }
 
-  const uploadImage = async (file, additionalData) => {
     const formData = new FormData();
 
-    // Append file data
-    formData.append("ContentType", additionalData.ContentType || "image/jpeg");
-    formData.append(
-      "ContentDisposition",
-      additionalData.ContentDisposition || "form-data"
-    );
-    formData.append("Length", file.size || 0); // File size in bytes
-    formData.append("Name", file.name || "unknown");
-    formData.append("FileName", additionalData.FileName || file.name);
+    // Append required fields
+    formData.append("image", file); // Binary file data
+    formData.append("ContentType", file.type || "image/jpeg"); // Content type
+    formData.append("ContentDisposition", ""); // Empty if optional
+    formData.append("Length", file.size); // File size in bytes
+    formData.append("Name", file.name); // File name
+    formData.append("FileName", file.name); // File name again
 
-    // Headers as a JSON string, if required
-    const headersObject = additionalData.Headers || {};
-    formData.append("Headers", JSON.stringify(headersObject));
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ", " + pair[1]); // Logs the key-value pairs in FormData
+    }
+
+    // Append optional headers
+    if (file.Headers) {
+      formData.append("Headers", JSON.stringify(file.Headers));
+    }
 
     try {
+      // Make the API call
       const response = await fetchDataBearer({
-        url: "picture/upload-image",
+        url: "/picture/upload-image", // Adjust the endpoint URL
         method: "POST",
         data: formData,
-        header: {
-          "Content-Type": "multipart/form-data",
+        headers: {
+          "Content-Type": "multipart/form-data", // Required for file upload
         },
       });
-      console.log("Upload successful:", response.data);
-      return response.data;
+      toast.success("Image uploaded successfully!");
+      return response.data; // Return the response for further use
     } catch (error) {
-      console.error("Error uploading file:", error);
+      const errorMessage =
+        error.response?.data?.errors?.image?.[0] ||
+        "Failed to upload image. Please try again.";
+      toast.error(errorMessage);
+      console.error("Error uploading image:", error.response || error);
       throw error;
     }
   };

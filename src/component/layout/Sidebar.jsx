@@ -155,7 +155,7 @@ export function Sidebar() {
             <NavLink to="requestmanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <AddressBook className="icon" weight="fill" />
-                <p className="label">{t("Request Manage")}</p>
+                <p className="label">{t("RequestManage")}</p>
               </div>
             </NavLink>
 
