@@ -14,17 +14,19 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { NavLink } from "react-router-dom";
+import Select from "react-select";
 
 export default function ProductHeader({
   handleDownload,
   selectedProducts,
   handleClickOverall,
   products,
-  updatable,
+  productCategories,
   inInventory,
   setInventory,
   handleSearchChange,
   search,
+  setProductCate,
 }) {
   const { t } = useTranslation();
   return (
@@ -43,18 +45,62 @@ export default function ProductHeader({
         </div>
         <div className="flex items-center w-full justify-between mt-4">
           <div className="flex items-center w-fit gap-10">
-            <p>Filter by:</p>
-            <div className="focus-within:outline-black flex bg-white px-2 pl-4 py-1 rounded-xl outline-2 outline outline-[var(--line-main-color)]">
-              <label className="opacity-70">{t("Category")}:</label>
-              <select name="category" className="pr-2 outline-none">
-                <option>Cosemetic</option>
-              </select>
-            </div>
-            <div className="focus-within:outline-black flex bg-white px-2 pl-4 py-1 rounded-xl outline-2 outline outline-[var(--line-main-color)]">
-              <label className="opacity-70">{t("Brand")}:</label>
-              <select name="category" className="pr-2 outline-none">
-                <option>Ladygaga</option>
-              </select>
+            <div className="focus-within:outline-black  relative items-center flex bg-white rounded-xl outline-2 outline outline-[var(--line-main-color)]">
+              <label className="opacity-70 absolute left-2 top-[0.45rem] z-20 pointer-events-none">
+                {t("Category")}:
+              </label>
+              <Select
+                styles={{
+                  menu: (provided) => ({
+                    ...provided,
+                    borderRadius: "0.75rem",
+                    // Restrict the dropdown height
+                    overflowY: "hidden", // Enable scrolling for content
+                  }),
+                  menuList: (provided) => ({
+                    ...provided,
+                    padding: 0,
+                    // Ensure no extra padding
+                    borderRadius: "0.75rem",
+                    maxHeight: "7.5rem",
+                    overflowY: "auto",
+                  }),
+                  control: (baseStyles) => ({
+                    ...baseStyles,
+                    border: "0px",
+                    boxShadow: "0px",
+                    paddingLeft: "6rem",
+                    borderRadius: "0.75rem",
+                  }),
+                  option: (baseStyles, { isFocused, isSelected }) => ({
+                    ...baseStyles,
+
+                    backgroundColor: isSelected
+                      ? "#0056b3"
+                      : isFocused
+                      ? "#e7f3ff"
+                      : "white",
+                    color: isSelected ? "white" : "black",
+                    cursor: "pointer",
+                    padding: "0.5rem 1rem", // Option padding
+                    textAlign: "left", // Center-align text
+                  }),
+                }}
+                onChange={(selectedOption) =>
+                  setProductCate(selectedOption.value)
+                }
+                options={[
+                  { value: 0, label: "Select category" },
+                  ...(Array.isArray(productCategories)
+                    ? productCategories.map((category) => ({
+                        value: category.id,
+                        label: category.typeName,
+                      }))
+                    : []),
+                ]}
+                placeholder="Select category"
+                className="w-[23rem]"
+              />
             </div>
           </div>
           <div className="flex items-center w-fit gap-10">
@@ -84,11 +130,19 @@ export default function ProductHeader({
             >
               + {t("AddProduct")}
             </NavLink>
-            <div className={`flex items-center focus-within:outline-black  focus-within:text-[var(--text-main-color)] bg-white px-2 pl-4 py-1 rounded-xl outline-2 outline ${search?"outline-black text-[var(--text-main-color)]":"outline-[var(--line-main-color)] text-[var(--text-second-color)]"}`}>
+            <div
+              className={`flex items-center focus-within:outline-black  focus-within:text-[var(--text-main-color)] bg-white px-2 pl-4 py-1 rounded-xl outline-2 outline ${
+                search
+                  ? "outline-black text-[var(--text-main-color)]"
+                  : "outline-[var(--line-main-color)] text-[var(--text-second-color)]"
+              }`}
+            >
               <MagnifyingGlass size={18} weight="bold" />
               <input
-                className={`outline-none pl-1 ml-1 border-0 border-l-2  focus-within:border-black ${search?"border-black":"border-[var(--line-main-color)]"}`}
-                placeholder={t("QuickSearch")}
+                className={`outline-none pl-1 ml-1 border-0 border-l-2  focus-within:border-black ${
+                  search ? "border-black" : "border-[var(--line-main-color)]"
+                }`}
+                placeholder={t("Search")}
                 onChange={handleSearchChange}
                 value={search}
               />

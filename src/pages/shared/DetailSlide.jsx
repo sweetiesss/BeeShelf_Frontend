@@ -11,6 +11,8 @@ import AxiosOrder from "../../services/Order";
 import { addMonths, format } from "date-fns";
 import AxiosInventory from "../../services/Inventory";
 import { t } from "i18next";
+import Select from "react-select";
+import AxiosCategory from "../../services/Category";
 
 export default function DetailSlide() {
   const { userInfor, setRefrestAuthWallet } = useContext(AuthContext);
@@ -21,10 +23,21 @@ export default function DetailSlide() {
     updateTypeDetail,
     setRefresh,
     createRequest,
-
     setCreateRequest,
   } = useDetail();
+  const { getProductCategoryBy1000 } = AxiosCategory();
   const { getLotByProductIdX1000 } = AxiosLot();
+  const [productCategories, setProductCategories] = useState([]);
+
+  useEffect(() => {
+    fetchingBeginData();
+  }, []);
+  const fetchingBeginData = async () => {
+    const productCategoriesResult = await getProductCategoryBy1000();
+    if (productCategoriesResult?.status === 200) {
+      setProductCategories(productCategoriesResult?.data?.items);
+    }
+  };
 
   const detailComponent = useRef();
 
@@ -40,6 +53,8 @@ export default function DetailSlide() {
       name: dataDetail?.name,
       price: dataDetail?.price,
       weight: dataDetail?.weight,
+      unit: dataDetail?.unit,
+      isCold: dataDetail?.isCold,
       productCategoryId: dataDetail?.productCategoryId,
       pictureLink: dataDetail?.pictureLink,
       origin: dataDetail?.origin,
@@ -87,6 +102,7 @@ export default function DetailSlide() {
         productCategoryId: true,
         unit: true,
         isCold: true,
+        productCategoryId: true,
         pictureLink: true,
         origin: true,
       });
@@ -113,6 +129,7 @@ export default function DetailSlide() {
       }
     };
     console.log("datadetail", dataDetail);
+    console.log("form ", form);
 
     return (
       <>
@@ -140,21 +157,33 @@ export default function DetailSlide() {
                 className="w-fit h-32 rounded-lg relative border-2 border-black"
               />
             </div>
-            <div className="text-center ">
+            <div className="text-center  flex flex-col justify-center items-center">
               {inputField?.name ? (
                 <input
                   name="name"
                   value={form?.name}
                   placeholder="Name"
                   onChange={handleInput}
-                  className={`input-field text-center ${
+                  className={`input-field text-center text-xl font-medium w-full ${
                     errors?.name ? "input-error" : ""
                   }`}
                 />
               ) : (
                 <p className="text-xl font-medium">{dataDetail?.name}</p>
               )}
-              <p className="text-gray-600 text-lg">{dataDetail?.barcode}</p>
+              {inputField?.barcode ? (
+                <input
+                  name="barcode"
+                  value={form?.barcode}
+                  placeholder="Barcode"
+                  onChange={handleInput}
+                  className={`input-field text-center w-full col-span-1 text-gray-600 text-lg${
+                    errors?.barcode ? "input-error" : ""
+                  }`}
+                />
+              ) : (
+                <p className="text-gray-600 text-lg">{dataDetail?.barcode}</p>
+              )}
             </div>
           </div>
 
@@ -181,9 +210,69 @@ export default function DetailSlide() {
             <span className="text-black text-lg font-semibold col-span-1">
               {t("Category")}:
             </span>
-            <span className="text-gray-700 text-lg col-span-1">
-              {dataDetail?.productCategoryName}
-            </span>
+            {inputField?.productCategoryId ? (
+              <Select
+                // value={form?.productCategoryId}
+
+                value={
+                  productCategories?.find(
+                    (op) =>
+                      parseInt(op.id) === parseInt(form?.productCategoryId)
+                  ) || null
+                }
+                onChange={(selectedOption) =>
+                  handleInput({
+                    target: {
+                      name: "productCategoryId",
+                      value: selectedOption.id,
+                    },
+                  })
+                }
+                options={productCategories}
+                getOptionValue={(e) => e.id} // Use `id` as the value
+                getOptionLabel={(e) => e.typeName} // Display `typeName` as the label
+                styles={{
+                  menu: (provided) => ({
+                    ...provided,
+
+                    // Restrict the dropdown height
+                    overflowY: "hidden", // Enable scrolling for content
+                  }),
+                  menuList: (provided) => ({
+                    ...provided,
+                    padding: 0, // Ensure no extra padding
+                    maxHeight: "7.5rem",
+                    overflow: "auto",
+                  }),
+                  control: (baseStyles) => ({
+                    ...baseStyles,
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    padding: "0.5rem",
+                    boxShadow: "none",
+                    "&:hover": {
+                      border: "1px solid #888",
+                    },
+                  }),
+                  option: (baseStyles, { isFocused, isSelected }) => ({
+                    ...baseStyles,
+                    backgroundColor: isSelected
+                      ? "#0056b3"
+                      : isFocused
+                      ? "#e7f3ff"
+                      : "white",
+                    color: isSelected ? "white" : "black",
+                    cursor: "pointer",
+                    padding: "0.5rem 1rem", // Option padding
+                    textAlign: "left", // Center-align text
+                  }),
+                }}
+              />
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.productCategoryName}
+              </span>
+            )}
             <span className="text-black text-lg font-semibold col-span-1">
               {t("CreateDate")}:
             </span>
@@ -244,7 +333,7 @@ export default function DetailSlide() {
                 {!dataDetail?.isInInv && (
                   <button
                     onClick={handleEdit}
-                    className="mt-auto hover:bg-gray-500 bg-gray-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
+                    className="mt-auto hover:bg-gray-400 bg-gray-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
                   >
                     {t("Edit")}
                   </button>
@@ -1063,7 +1152,7 @@ export default function DetailSlide() {
               </div>
               <div
                 className="text-3xl cursor-pointer text-gray-500 hover:text-black"
-                 onClick={handleCloseDetail}
+                onClick={handleCloseDetail}
               >
                 <X weight="bold" />
               </div>
@@ -1213,7 +1302,9 @@ export default function DetailSlide() {
               >
                 <XCircle fill="#ef4444" weight="fill" />
               </div>
-              <p className="text-2xl">{`${t("ExtendingInventory")}: ${dataDetail?.name}`}</p>
+              <p className="text-2xl">{`${t("ExtendingInventory")}: ${
+                dataDetail?.name
+              }`}</p>
               <div className="flex items-center justify-between my-7">
                 <div
                   className={`flex items-center overflow-auto py-2 px-4 w-fit border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${

@@ -166,11 +166,24 @@ export default function ImportProductExcel({ result, setResult }) {
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
+    const maxFileSize = 5 * 1024 * 1024;
+    const allowedExtensions = ["xlsx", "xls"];
     setExcelData([]);
     setExcelDataBase([]);
     setErrorList([]);
     setSeen([]);
     if (!file) return; // Exit if no file selected
+    if (file.size > maxFileSize) {
+      alert("The file is too large. Please upload a file smaller than 5 MB.");
+      event.target.value = null; // Clear the file input
+      return;
+    }
+    const fileExtension = file.name.split(".").pop().toLowerCase();
+    if (!allowedExtensions.includes(fileExtension)) {
+      alert("Invalid file type. Please upload an Excel file (.xlsx or .xls).");
+      event.target.value = null; // Clear the file input
+      return;
+    }
 
     // Create a file reader
     const reader = new FileReader();
@@ -372,7 +385,6 @@ export default function ImportProductExcel({ result, setResult }) {
     setEditForm(product);
   };
   const hanldeEditChange = (e) => {
-
     let { name, value, checked, type } = e.target;
     if (name === "price" && value <= 0) value = 1;
     if (name === "weight" && value <= 0) value = 0.1;
@@ -484,6 +496,7 @@ export default function ImportProductExcel({ result, setResult }) {
       origin: (value) => typeof value === "string" && value.trim() !== "",
       price: (value) => !isNaN(Number(value)) && Number(value) > 0, // Convert to a number and check
       barcode: (value) => typeof value === "string" && value.trim() !== "",
+      unit: (value) => typeof value === "string" && value.trim() !== "",
       productCategoryId: (value) => !isNaN(Number(value)) && Number(value) > 0, // Convert to a number and check
       weight: (value) => !isNaN(Number(value)) && Number(value) > 0, // Convert to a number and check
     };
@@ -524,7 +537,7 @@ export default function ImportProductExcel({ result, setResult }) {
           {t("ImportExcel")}
         </NavLink>
       </div>
-      <div className="text-4xl font-semibold">Import products by Excel</div>
+      <div className="text-4xl font-semibold">{t("ImportProductsByExcel")}</div>
       <div className="flex justify-between items-center my-6">
         <div className="flex items-center gap-8 ">
           <button
@@ -539,7 +552,7 @@ export default function ImportProductExcel({ result, setResult }) {
 
           <label
             htmlFor="inputFile"
-            className="bg-white text-black border-2 border-[var(--en-vu-400)] cursor-pointer py-2 px-5 rounded-2xl flex items-center gap-2 hover:font-semibold hover:text-[var(--Xanh-Base)] hover:border-[var(--Xanh-Base)] w-[14rem] justify-center"
+            className="bg-white text-black border-2 border-[var(--en-vu-400)] cursor-pointer py-2 px-5 rounded-2xl flex items-center gap-2 hover:font-semibold hover:text-[var(--Xanh-Base)] hover:border-[var(--Xanh-Base)] w-fit justify-center"
           >
             <span className="text-xl">
               <UploadSimple weight="bold" />
@@ -601,7 +614,7 @@ export default function ImportProductExcel({ result, setResult }) {
                 className={`outline-none pl-1 ml-1 border-0 border-l-2  focus-within:border-black ${
                   search ? "border-black" : "border-[var(--line-main-color)]"
                 }`}
-                placeholder={t("QuickSearch")}
+                placeholder={t("Search")}
                 onChange={handleSearchChange}
                 value={search}
               />
@@ -631,7 +644,7 @@ export default function ImportProductExcel({ result, setResult }) {
                     </button>
                     {selectedProducts?.length + " "}/
                     {" " + excelData?.length + " "}
-                    {t("Totalproducts")}
+                    {t("TotalProducts")}
                   </div>
                   <>
                     <button
@@ -689,19 +702,21 @@ export default function ImportProductExcel({ result, setResult }) {
               transform: "translate(-50%, -50%)",
             }}
           >
-            <p>{`Are you sure you want to delete ${showDeleteConfirmation.name}?`}</p>
+            <p>{`${t("AreYouSureWantToDelete")} ${
+              showDeleteConfirmation.name
+            }?`}</p>
             <div className="flex justify-end gap-4">
-              <button
-                onClick={() => confirmDelete(showDeleteConfirmation)}
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
-              >
-                Delete
-              </button>
               <button
                 onClick={cancelDelete}
                 className="bg-gray-300 text-black px-4 py-2 rounded-md"
               >
-                Cancel
+                {t("Cancel")}
+              </button>
+              <button
+                onClick={() => confirmDelete(showDeleteConfirmation)}
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+              >
+                {t("Confirm ")}
               </button>
             </div>
           </div>

@@ -72,13 +72,19 @@ export default function AxiosProduct() {
     size,
     search,
     sortBy,
-    descending
+    descending,
+    categoryId
   ) => {
     try {
       const queryParams = new URLSearchParams();
       if (search) queryParams.append("search", search);
       if (sortBy) queryParams.append("sortBy", sortBy);
       if (descending) queryParams.append("descending", descending);
+      if (categoryId && categoryId > 0) {
+        queryParams.append("filterBy", "ProductCategoryId");
+        queryParams.append("filterQuery", categoryId);
+      }
+
       queryParams.append("pageIndex", pageIndex || 0);
       queryParams.append("pageSize", size || 10);
       const url = `product/get-products/${userId}?${queryParams.toString()}`;

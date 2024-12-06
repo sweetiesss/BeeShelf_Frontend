@@ -19,7 +19,7 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
       </div>
       {warehouse?.owned && (
         <div className="absolute flex justify-center items-center bg-green-500 w-32 text-white h-10 top-2 -right-8 rotate-45">
-          <p>Hired</p>
+          <p>{t("Hired")}</p>
         </div>
       )}
       <div className="flex items-start gap-10">
@@ -41,7 +41,7 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
           ].map((item) => (
             <div className="flex-1 text-left flex items-start gap-4 ">
               <span className="text-gray-500">{item.label}:</span>
-              <div className="font-semibold  text-nowrap hover:text-wrap text-clip w-[20rem] max-w-[20rem]">
+              <div className="  text-nowrap hover:text-wrap text-clip w-[20rem] max-w-[20rem]">
                 {item.value}
               </div>
             </div>
@@ -78,7 +78,7 @@ export function InventoryCard({
 
       <div className=" justify-start">
         <div className="text-gray-700 mb-1 flex gap-x-4">
-          <p className="font-semibold">{t("MaxWeight")}:</p>
+          <p className="font-medium">{t("MaxWeight")}:</p>
           {/* <p>{new Intl.NumberFormat().format(inventory?.maxWeight)} kg</p> */}
           {inventory.ocopPartnerId
             ? new Intl.NumberFormat().format(inventory?.weight) +

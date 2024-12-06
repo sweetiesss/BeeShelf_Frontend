@@ -44,7 +44,7 @@ export default function ProductList({
   const [thisIsTheLastItem, IsThisIsTheLastItem] = useState(false);
   const { setCreateRequest, updateDataDetail } = useDetail();
   const unitOptions = [
-    { value: "", label: "Choose unit" },
+    { value: "", label: "ChooseUnit" },
     { value: "Liter", label: "Liter" },
     { value: "Milliliter", label: "Milliliter" },
     { value: "Pieces", label: "Pieces" },
@@ -54,7 +54,7 @@ export default function ProductList({
     { value: "Carton", label: "Carton" },
     { value: "Meter", label: "Meter" },
     { value: "Centimeter", label: "Centimeter" },
-    { value: "Square Meter", label: "Square Meter" },
+    { value: "Square Meter", label: "SquareMeter" },
     { value: "Kilometer", label: "Kilometer" },
     { value: "Bag", label: "Bag" },
     { value: "Sheet", label: "Sheet" },
@@ -196,23 +196,25 @@ export default function ProductList({
             >
               <span className="flex items-center gap-1">{t("Unit")}</span>
             </th>
-            <th
-              className={`border-b-2 text-left py-4 cursor-pointer hover:text-[var(--en-vu-600)] ${
-                sortBy === "CreateDate" && "text-black"
-              }`}
-              onClick={() => {
-                handleSortChange("CreateDate");
-              }}
-            >
-              <span className="flex items-center gap-1">
-                {t("CreateDate")}
-                {!descending ? (
-                  <ArrowUp weight="bold" />
-                ) : (
-                  <ArrowDown weight="bold" />
-                )}
-              </span>
-            </th>
+            {!notInDataBase && (
+              <th
+                className={`border-b-2 text-left py-4 cursor-pointer hover:text-[var(--en-vu-600)] ${
+                  sortBy === "CreateDate" && "text-black"
+                }`}
+                onClick={() => {
+                  handleSortChange("CreateDate");
+                }}
+              >
+                <span className="flex items-center gap-1">
+                  {t("CreateDate")}
+                  {!descending ? (
+                    <ArrowUp weight="bold" />
+                  ) : (
+                    <ArrowDown weight="bold" />
+                  )}
+                </span>
+              </th>
+            )}
             <th
               className={`border-b-2 text-left py-4 cursor-pointer hover:text-[var(--en-vu-600)] ${
                 sortBy === "Weight" && "text-black"
@@ -344,17 +346,68 @@ export default function ProductList({
                     }`}
                   >
                     {editAble ? (
-                      <select
-                        value={editForm?.productCategoryId}
-                        name="productCategoryId"
-                        className="w-[80%] px-2 py-1"
-                        onChange={hanldeEditChange}
-                      >
-                        <option value={0}>Select Category</option>
-                        {productCategories?.map((item) => (
-                          <option value={item?.id}>{item?.typeName}</option>
-                        ))}
-                      </select>
+                      // <select
+                      //   value={editForm?.productCategoryId}
+                      //   name="productCategoryId"
+                      //   className="w-[80%] px-2 py-1"
+                      //   onChange={hanldeEditChange}
+                      // >
+                      //   <option value={0}>Select Category</option>
+                      //   {productCategories?.map((item) => (
+                      //     <option value={item?.id}>{item?.typeName}</option>
+                      //   ))}
+                      // </select>
+                      <Select
+                        styles={{
+                          menu: (provided) => ({
+                            ...provided,
+
+                            // Restrict the dropdown height
+                            overflowY: "hidden", // Enable scrolling for content
+                          }),
+                          menuList: (provided) => ({
+                            ...provided,
+                            padding: 0, // Ensure no extra padding
+                            maxHeight: "7.5rem",
+                            overflow: "auto",
+                          }),
+                          control: (baseStyles) => ({
+                            ...baseStyles,
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                            padding: "0.5rem",
+                            boxShadow: "none",
+                            "&:hover": {
+                              border: "1px solid #888",
+                            },
+                          }),
+                          option: (baseStyles, { isFocused, isSelected }) => ({
+                            ...baseStyles,
+                            backgroundColor: isSelected
+                              ? "#0056b3"
+                              : isFocused
+                              ? "#e7f3ff"
+                              : "white",
+                            color: isSelected ? "white" : "black",
+                            cursor: "pointer",
+                            padding: "0.5rem 1rem", // Option padding
+                            textAlign: "left", // Center-align text
+                          }),
+                        }}
+                        onChange={(selectedOption) =>
+                          hanldeEditChange({
+                            target: {
+                              name: "productCategoryId",
+                              value: selectedOption.value,
+                            },
+                          })
+                        }
+                        options={productCategories?.map((category) => ({
+                          value: category.id,
+                          label: category.typeName,
+                        }))}
+                        placeholder="Select category"
+                      />
                     ) : (
                       <div
                         className={`overflow-hidden text-wrap  flex items-center `}
@@ -406,7 +459,7 @@ export default function ProductList({
                   <td
                     className={` ${
                       checkError?.error?.includes("origin") &&
-                      "text-red-500 font-bold"
+                      "text-red-500 font-bold w-[8rem]"
                     }`}
                   >
                     {editAble ? (
@@ -432,7 +485,7 @@ export default function ProductList({
                   <td
                     className={` ${
                       checkError?.error?.includes("price") &&
-                      "text-red-500 font-bold"
+                      "text-red-500 font-bold w-[8rem]"
                     }`}
                   >
                     {editAble ? (
@@ -448,7 +501,7 @@ export default function ProductList({
                       <div
                         className={`overflow-hidden text-nowrap  flex items-center `}
                       >
-                        {product.price}
+                        {new Intl.NumberFormat().format(product.price)}
                         {checkError?.error?.includes("price") &&
                           !product.price && (
                             <span className="bg-red-500 text-white text-lg rounded-md">
@@ -465,13 +518,43 @@ export default function ProductList({
                     }`}
                   >
                     {editAble ? (
-                      // <input
-                      //   placeholder="unit"
-                      //   type="number"
-                      //   value={editForm?.unit}
+                      // <Select
+                      //   value={unitOptions.find(
+                      //     (option) => option.value === editForm?.unit
+                      //   )}
+                      //   onChange={(selectedOption) =>
+                      //     hanldeEditChange({
+                      //       target: {
+                      //         name: "unit",
+                      //         value: selectedOption.value,
+                      //       },
+                      //     })
+                      //   }
                       //   name="unit"
-                      //   className="w-[80%] px-2 py-1"
-                      //   onChange={hanldeEditChange}
+                      //   className="react-select-container"
+                      //   classNamePrefix="react-select"
+                      //   options={unitOptions}
+                      //   styles={{
+                      //     menu: (provided) => ({
+                      //       ...provided,
+                      //       width: "fit",
+                      //     }),
+                      //     control: (provided) => ({
+                      //       ...provided,
+                      //       borderColor: "#ccc", // Custom border color
+                      //       boxShadow: "none", // Remove default focus outline
+                      //       "&:hover": { borderColor: "#aaa" }, // Border on hover
+                      //     }),
+                      //     option: (provided, state) => ({
+                      //       ...provided,
+                      //       backgroundColor: state.isSelected
+                      //         ? "#0056b3"
+                      //         : state.isFocused
+                      //         ? "#e6f7ff"
+                      //         : "white",
+                      //       color: state.isSelected ? "white" : "black",
+                      //     }),
+                      //   }}
                       // />
                       <Select
                         value={unitOptions.find(
@@ -489,13 +572,22 @@ export default function ProductList({
                         className="react-select-container"
                         classNamePrefix="react-select"
                         options={unitOptions}
+                        getOptionLabel={(option) => `${t(option.label)}`}
                         styles={{
                           menu: (provided) => ({
                             ...provided,
-                            width: "fit",
+                            width: "100%",
+                          }),
+                          menuList: (provided) => ({
+                            ...provided,
+                            maxHeight: "7.5rem",
+                            overflow: "auto",
                           }),
                           control: (provided) => ({
                             ...provided,
+                            paddingTop: "4px",
+                            paddingBottom: "4px",
+                            // width:"100%",
                             borderColor: "#ccc", // Custom border color
                             boxShadow: "none", // Remove default focus outline
                             "&:hover": { borderColor: "#aaa" }, // Border on hover
@@ -515,7 +607,7 @@ export default function ProductList({
                       <div
                         className={`overflow-hidden text-nowrap  flex items-center `}
                       >
-                        {product.unit}
+                        {t(product.unit)}
                         {checkError?.error?.includes("unit") &&
                           !product.unit && (
                             <span className="bg-red-500 text-white text-lg rounded-md">
@@ -525,22 +617,18 @@ export default function ProductList({
                       </div>
                     )}
                   </td>
-                  <td className="">
-                    {notInDataBase
-                      ? new Date().toLocaleDateString("en-GB", {
+                  {!notInDataBase && (
+                    <td className="">
+                      {new Date(product.createDate).toLocaleDateString(
+                        "en-GB",
+                        {
                           month: "2-digit",
                           day: "2-digit",
                           year: "2-digit",
-                        })
-                      : new Date(product.createDate).toLocaleDateString(
-                          "en-GB",
-                          {
-                            month: "2-digit",
-                            day: "2-digit",
-                            year: "2-digit",
-                          }
-                        )}
-                  </td>
+                        }
+                      )}
+                    </td>
+                  )}
 
                   <td
                     className={`overflow-hidden  ${
@@ -583,9 +671,13 @@ export default function ProductList({
                         Send request
                       </button> */}
                       {product?.isInInv ? (
-                        <span className="bg-green-200 px-2 py-1 rounded-lg text-sm ">Imported</span>
+                        <span className="bg-green-200 px-2 py-1 rounded-lg text-sm ">
+                          {t("Imported")}
+                        </span>
                       ) : (
-                        <span className="bg-gray-200 px-2 py-1 rounded-lg text-sm ">Not imported</span>
+                        <span className="bg-gray-200 px-2 py-1 rounded-lg text-sm ">
+                          {t("NotImported")}
+                        </span>
                       )}
                     </td>
                   ) : editAble ? (
@@ -594,7 +686,7 @@ export default function ProductList({
                         className="px-5 py-1 rounded-xl bg-green-300 "
                         onClick={handleUpdateEdit}
                       >
-                        Save
+                        {t("Save")}
                       </button>
                     </td>
                   ) : (
@@ -603,7 +695,7 @@ export default function ProductList({
                         className="px-5 py-1 rounded-xl bg-green-300 "
                         onClick={(e) => handleShowDetailProduct(e, product)}
                       >
-                        Edit
+                        {t("Edit")}
                       </button>
                     </td>
                   )}
@@ -647,10 +739,10 @@ export default function ProductList({
                   ) : editAble ? (
                     <td className="text-center">
                       <button
-                        className="px-5 py-1 rounded-xl bg-red-500 text-white"
+                        className="px-5 py-1 rounded-xl bg-red-500 text-white overflow-hidden text-nowrap "
                         onClick={(e) => handleShowDetailProduct(e)}
                       >
-                        Cancel
+                        {t("Cancel")}
                       </button>
                     </td>
                   ) : (
@@ -671,7 +763,7 @@ export default function ProductList({
       {!notInDataBase && (
         <div className="grid grid-cols-3">
           <div className="flex items-center space-x-5 mt-5">
-            <p>{t("RowsPerPage")}:</p>
+            <p>{t("ItemsPerPage")}:</p>
             <select
               className="outline outline-1 px-1 py-1 rounded-xl"
               onChange={(e) => setIndex(e.target.value)}
@@ -688,7 +780,7 @@ export default function ProductList({
           </div>
           <div className="flex space-x-5 items-center w-full justify-center">
             <Pagination
-              totalPagesCount={response?.totalPagesCount}
+              response={response}
               currentPage={page + 1}
               handleLeft={() => setPage(page - 1)}
               handleRight={() => setPage(page + 1)}

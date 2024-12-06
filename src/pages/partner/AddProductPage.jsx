@@ -32,7 +32,7 @@ export default function AddProductPage() {
   const [imageLink, setImageLink] = useState();
   const [imagePreview, setImagePreview] = useState("");
   const unitOptions = [
-    { value: "", label: "Choose unit" },
+    { value: "", label: "ChooseUnit" },
     { value: "Liter", label: "Liter" },
     { value: "Milliliter", label: "Milliliter" },
     { value: "Pieces", label: "Pieces" },
@@ -42,7 +42,7 @@ export default function AddProductPage() {
     { value: "Carton", label: "Carton" },
     { value: "Meter", label: "Meter" },
     { value: "Centimeter", label: "Centimeter" },
-    { value: "Square Meter", label: "Square Meter" },
+    { value: "Square Meter", label: "SquareMeter" },
     { value: "Kilometer", label: "Kilometer" },
     { value: "Bag", label: "Bag" },
     { value: "Sheet", label: "Sheet" },
@@ -157,7 +157,7 @@ export default function AddProductPage() {
             {/* Product Name */}
             <div className="form-group">
               <label className="font-medium text-lg" htmlFor="name">
-                {t("Product Name")}
+                {t("Name")}
               </label>
               <input
                 type="text"
@@ -194,7 +194,6 @@ export default function AddProductPage() {
                   {t("Unit")}
                 </label>
                 <Select
-      
                   value={unitOptions.find(
                     (option) => option.value === product?.unit
                   )}
@@ -210,6 +209,9 @@ export default function AddProductPage() {
                   className="react-select-container"
                   classNamePrefix="react-select"
                   options={unitOptions}
+                  getOptionLabel={(option) =>
+                    `${t(option.label)}`
+                  }
                   styles={{
                     menu: (provided) => ({
                       ...provided,
@@ -222,8 +224,8 @@ export default function AddProductPage() {
                     }),
                     control: (provided) => ({
                       ...provided,
-                      paddingTop:"4px",
-                      paddingBottom:"4px",
+                      paddingTop: "4px",
+                      paddingBottom: "4px",
                       // width:"100%",
                       borderColor: "#ccc", // Custom border color
                       boxShadow: "none", // Remove default focus outline
@@ -245,7 +247,7 @@ export default function AddProductPage() {
 
             <div className="form-group mt-4 ">
               <label className="font-medium text-lg" htmlFor="origin">
-                {t("Product Origin")}
+                {t("Origin")}
               </label>
               <input
                 type="text"
@@ -374,30 +376,6 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            {/* Image Upload */}
-            {/* <div className="form-group mt-4">
-              <label className="font-medium text-lg" htmlFor="image">
-                {t("Image")}
-              </label>
-              <input
-                type="file"
-                id="image"
-                name="pictureLink"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="input-field"
-              />
-              {imagePreview && (
-                <div className="mt-4">
-                  <img
-                    src={imagePreview}
-                    alt="Product Preview"
-                    className="w-full rounded-lg shadow-md"
-                  />
-                </div>
-              )}
-            </div> */}
-
             <div className="h-full ml-auto mr-10">
               <label
                 htmlFor="file-upload"
@@ -423,7 +401,7 @@ export default function AddProductPage() {
                             <DownloadSimple />
                           </span>
                           <span className="span-hover">
-                            Upload a file PNG, JPG, GIF up to 10MB
+                            {t("UploadAFilePNGJPGGIFUpTo10MB")}
                           </span>
                         </div>
                         <input
