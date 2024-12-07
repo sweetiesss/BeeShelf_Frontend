@@ -155,10 +155,15 @@ const Ordermanage = () => {
   // Cột trong bảng
   const columns = [
     {
-      title: "OrderID",
+      title: "Order ID",
       dataIndex: "id",
       key: "id",
       render: (text) => <span>{text}</span>,
+    },
+    {
+      title: "Order Code",
+      dataIndex: "orderCode",
+      key: "orderCode",
     },
     {
       title: "Partner Email",
@@ -357,6 +362,10 @@ const Ordermanage = () => {
                 <div>
                   <p className="font-bold">Order ID:</p>
                   <p>{selectedOrder.id}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Order Code:</p>
+                  <p>{selectedOrder.orderCode}</p>
                 </div>
                 <div>
                   <p className="font-bold">Partner Email:</p>

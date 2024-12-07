@@ -68,7 +68,8 @@ const BatchManage = () => {
         assignTo: batch.assignTo,
         deliveryZoneId: batch.deliveryZoneId,
         orders: batch.orders,
-        shipperId: batch.shipperId,
+        deliveryZoneName: batch.deliveryZoneName,
+        shipperId: batch.shipperId,        
         shipperName: batch.shipperName,
       }));
       setBatches(formattedBatches);
@@ -283,6 +284,11 @@ const BatchManage = () => {
       render: (status) => (
         <Tag color={status === "completed" ? "green" : "red"}>{status}</Tag>
       ),
+    },
+    {
+      title: "DeliveryZoneName",
+      dataIndex: "deliveryZoneName",
+      key: "deliveryZoneName",
     },
     {
       title: "Shipper",
