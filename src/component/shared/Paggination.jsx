@@ -8,6 +8,8 @@ export default function Pagination({
   handleRight,
   handleChoose,
 }) {
+  console.log(response);
+  
   function createPaginationArray(currentPage, totalPagesCount) {
     const paginationArray = [];
     const maxVisiblePages = 5;

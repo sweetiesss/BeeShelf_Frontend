@@ -186,12 +186,12 @@ export default function ProductHeader({
               </>
             ) : (
               <>
-                <button
+                {/* <button
                   className={`text-2xl`}
                   disabled={selectedProducts?.length === 0}
                 >
                   <Trash weight="bold" />
-                </button>
+                </button> */}
                 <button
                   className={`text-2xl`}
                   disabled={selectedProducts?.length === 0}

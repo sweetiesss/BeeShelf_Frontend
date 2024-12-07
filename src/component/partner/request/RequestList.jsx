@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import defaultImg from "../../../assets/img/defaultImg.jpg";
 import Pagination from "../../shared/Paggination";
 import { useEffect, useRef, useState } from "react";
+import { DotsThreeVertical } from "@phosphor-icons/react";
 
 export default function RequestList({
   requests,
@@ -11,7 +12,6 @@ export default function RequestList({
   filterField,
   setFilterField,
   handleShowDetail,
-
 }) {
   const [openAction, setOpenAction] = useState();
   const { t } = useTranslation();
@@ -42,6 +42,8 @@ export default function RequestList({
       document.removeEventListener("mousedown", handleClickOutSide);
     };
   }, []);
+  console.log(requests);
+
   return (
     <div className="shadow-lg bg-white rounded-lg p-4  mb-3 overflow-y-scroll max-h-[70vh] w-full relative">
       <table className="w-full">
@@ -74,28 +76,15 @@ export default function RequestList({
         </thead>
         <tbody>
           {requests &&
-            requests?.items?.map((request) => {
+            requests?.items?.map((request, index) => {
               let check = selectedRequest === request;
               return (
                 <>
-                  {" "}
                   <tr
-                    key={request.id}
-                    className={`${
-                      check
-                        ? " border-2 rounded-xl  bg-[var(--second-color)] "
-                        : "hover:bg-gray-100 border-t-2 "
-                    } cursor-pointer relative`}
-                    onClick={() => handleSelectOrder(request)}
+                    key={index}
+                    className={`hover:bg-gray-100 border-t-2 relative`}
                   >
-                    <td className=" px-1 py-2 text-center ">
-                      <input
-                        type="checkbox"
-                        checked={check}
-                        onChange={() => handleSelectOrder(request)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </td>
+                    <td className=" px-1 py-2 text-center ">{index + 1}</td>
 
                     <td className=" px-3 py-2  flex justify-left items-center ">
                       <img
@@ -127,39 +116,39 @@ export default function RequestList({
                     <td className=" px-1 py-2 text-center">
                       {request?.productName}
                     </td>
-                    <td className=" px-1 py-2 ">
-                      {request?.warehouseName}warehouseName
+                    <td className=" px-1 py-2 max-w-[15rem] w-fit overflow-clip text-ellipsis">
+                      {request?.warehouseName}
                     </td>
                     <td className=" px-1 py-2 ">
                       {new Date(request?.createDate).toLocaleDateString()}
                     </td>
-                    <td className="relative">
+                    <td className=" text-end">
                       <button
-                        className="text-center align-middle bg-red-500"
+                        className="text-center align-middle relative"
                         onClick={() => handleOpenActionTab(request)}
                       >
-                        ...
-                      </button>
-                      {openAction === request && (
-                        <div
-                          className="action-tab-container translate-x-1"
-                          ref={actionComponent}
-                        >
-                          <div onClick={() => handleShowDetail(request)}>
-                            Show detail
-                          </div>
-                          {(request?.status === "Draft" || request?.status === "Pending") && (
-                            <div
-                              onClick={(e) => {
-                                handleDeleteClick(e, request);
-                                handleCloseAction();
-                              }}
-                            >
-                              Delete
+                        <DotsThreeVertical weight="bold" className="text-2xl" />
+                        {openAction === request && (
+                          <div
+                            className="action-tab-container top-0"
+                            ref={actionComponent}
+                          >
+                            <div onClick={() => handleShowDetail(request)}>
+                              Show detail
                             </div>
-                          )}
-                        </div>
-                      )}
+                            {(request?.status === "Draft") && (
+                              <div
+                                onClick={(e) => {
+                                  handleDeleteClick(e, request);
+                                  handleCloseAction();
+                                }}
+                              >
+                                Delete
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </button>
                     </td>
                   </tr>
                 </>
@@ -167,9 +156,9 @@ export default function RequestList({
             })}
         </tbody>
       </table>
-      <div className="flex justify-between items-center">
+      <div className="grid grid-cols-3">
         <div className="flex items-center space-x-5 mt-5">
-          <p>{t("RowsPerPage")}:</p>
+          <p>{t("ItemsPerPage")}:</p>
           <select
             className="outline outline-1 px-1"
             onChange={(e) => {
@@ -190,14 +179,9 @@ export default function RequestList({
             <option value={10}>10</option>
           </select>
         </div>
-        <div className="flex space-x-5 items-center">
-          <p>
-            {(filterField.pageIndex + 1) * filterField.size -
-              (filterField.size - 1)}{" "}
-            - {(filterField.pageIndex + 1) * filterField.size} of{" "}
-            {requests?.totalItemsCount} {t("items")}
-          </p>
+        <div className="flex space-x-5 items-center w-full justify-center">
           <Pagination
+            response={requests}
             totalPagesCount={requests?.totalPagesCount}
             currentPage={filterField.pageIndex + 1}
             handleLeft={() =>
@@ -210,6 +194,12 @@ export default function RequestList({
               setFilterField((prev) => ({
                 ...prev,
                 pageIndex: prev.pageIndex + 1,
+              }))
+            }
+            handleChoose={(newPage) =>
+              setFilterField((prev) => ({
+                ...prev,
+                pageIndex: newPage,
               }))
             }
           />
