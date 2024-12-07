@@ -1,5 +1,5 @@
 // export default Ordermanage;
-import { Button, Image, Modal, Select, Table, Tag, message } from "antd";
+import { Button, Image, Input, Modal, Select, Table, Tag, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import useAxios from "../../../services/CustomizeAxios"; // Giả sử bạn đang sử dụng Axios hook
@@ -17,6 +17,8 @@ const Ordermanage = () => {
   });
   const { fetchDataBearer } = useAxios(); // Giả sử bạn đã tạo một hook Axios tùy chỉnh
   const { userInfor } = useAuth(); // Giả sử bạn có context để lấy thông tin người dùng
+  const [cancellationReason, setCancellationReason] = useState("");
+  const [newStatus, setNewStatus] = useState(undefined);
 
   // Hàm gọi API để lấy danh sách đơn hàng theo warehouseId
   const GetOrderWarehouse = async () => {
@@ -60,7 +62,7 @@ const Ordermanage = () => {
   };
 
   // Cập nhật trạng thái đơn hàng
-  const updateRequestStatus = async (id, newStatus) => {
+  const updateRequestStatus = async (id) => {
     setLoading(true);
     try {
       const currentOrder = data.find((order) => order.id === id);
@@ -74,8 +76,12 @@ const Ordermanage = () => {
       }
 
       const response = await fetchDataBearer({
-        url: `/order/update-order-status/${id}?orderStatus=${newStatus}`,
+        url: `/order/update-order-status/${id}`,
         method: "PUT",
+        params: {
+          orderStatus: newStatus,
+          cancellationReason: cancellationReason,
+        },
       });
 
       if (response && response.status === 200) {
@@ -97,6 +103,9 @@ const Ordermanage = () => {
       );
     } finally {
       setLoading(false);
+      setIsModalVisible(false);
+      setNewStatus(undefined);
+      setCancellationReason("");
     }
   };
 
@@ -221,6 +230,8 @@ const Ordermanage = () => {
       title: "Create Date",
       dataIndex: "createDate",
       key: "createDate",
+      sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+      sortDirections: ["descend", "ascend"],
       render: (text) => {
         const date = new Date(text);
         const day = String(date.getDate()).padStart(2, "0");
@@ -228,23 +239,21 @@ const Ordermanage = () => {
         const year = date.getFullYear();
         const hours = String(date.getHours()).padStart(2, "0");
         const minutes = String(date.getMinutes()).padStart(2, "0");
-    
         return `${day}/${month}/${year} ${hours}:${minutes}`;
       },
     },
-    
-
     {
       title: "Total Price",
       dataIndex: "totalPrice",
       key: "totalPrice",
+      sorter: (a, b) => a.totalPrice - b.totalPrice,
+      sortDirections: ["descend", "ascend"],
       render: (text) =>
         new Intl.NumberFormat("vi-VN", {
           style: "currency",
           currency: "VND",
         }).format(text), // Định dạng theo tiền tệ VNĐ
     },
-
     {
       title: "Action",
       dataIndex: "",
@@ -271,8 +280,8 @@ const Ordermanage = () => {
         return ["Processing", "Canceled"]; // Staff confirmed or OCOP Partner Cancelled
       case "Processing":
         return ["Canceled"]; // Shipper delivery or Out of stock
-      // case "Shipping":
-      //   return ["Delivered", "Canceled"]; // Shipping Finish delivery or OCOP Partner Cancelled
+      case "Shipping":
+        return ["Delivered", "Canceled"]; // Shipping Finish delivery or OCOP Partner Cancelled
       case "Delivered":
         return ["Completed"]; // Receiver returns or Return window expire
       case "Returned":
@@ -293,7 +302,7 @@ const Ordermanage = () => {
 
   return (
     <>
-      <div style={{ padding: "20px" }}>
+      <div className="overflow-auto">
         <h1>Order Management</h1>
         <Table
           className="overflow-x-scroll min-w-[800px] w-full"
@@ -335,15 +344,17 @@ const Ordermanage = () => {
                 />
               </div>
               <label htmlFor="statusSelect" className="font-bold">
-                Update Status:
+                Status:
               </label>
               <Select
                 id="statusSelect"
                 className="w-full"
-                value={selectedOrder.status}
+                value={newStatus}
                 onChange={(newStatus) =>
-                  updateRequestStatus(selectedOrder.id, newStatus)
+                  // updateRequestStatus(selectedOrder.id, newStatus)
+                  setNewStatus(newStatus)
                 }
+                placeholder="Select a status"
                 disabled={
                   getValidStatusTransitions(selectedOrder.status).length === 0
                 }
@@ -356,6 +367,28 @@ const Ordermanage = () => {
                   )
                 )}
               </Select>
+              {newStatus === "Canceled" && (
+                <div>
+                  <label htmlFor="cancellationReason" className="font-bold">
+                    Cancellation Reason:
+                  </label>
+                  <Input
+                    id="cancellationReason"
+                    value={cancellationReason}
+                    onChange={(e) => setCancellationReason(e.target.value)}
+                  />
+                </div>
+              )}
+              <Button
+                className="px-4 py-2 mt-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+                onClick={() => updateRequestStatus(selectedOrder.id)}
+                disabled={
+                  !newStatus ||
+                  (newStatus === "Canceled" && !cancellationReason)
+                }
+              >
+                Update Status
+              </Button>
             </div>
             <div>
               <div className="grid grid-cols-1 gap-2">

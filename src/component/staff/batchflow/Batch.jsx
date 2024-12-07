@@ -122,7 +122,7 @@ const BatchManage = () => {
             orderFilterBy: "DeliveryZoneId",
             filterQuery: selectedDeliveryZone,
             filterByStatus: "Processing",
-            hasBatch: false
+            hasBatch: false,
           },
         });
         console.log("Orders data:", response);
@@ -158,7 +158,7 @@ const BatchManage = () => {
         }
 
         const response = await fetchDataBearer({
-          url: `/warehouse/get-warehouse-shippers`,
+          url: `/warehouse/get-warehouse-shippers/${warehouseId}`,
           method: "GET",
           params: {
             pageIndex: 0,
@@ -444,11 +444,11 @@ const BatchManage = () => {
               dataSource={selectedBatch?.orders || []}
               renderItem={(order) => (
                 <List.Item key={order.id}>
-                  {/* <div className="bg-white p-4 rounded-lg shadow-md space-y-3"> */}
-                  <div className="bg-white p-6 w-full max-w-xl rounded-lg shadow-lg space-y-4">
+                  {/* <div className="p-4 space-y-3 bg-white rounded-lg shadow-md"> */}
+                  <div className="p-6 space-y-4 w-full max-w-xl bg-white rounded-lg shadow-lg">
                     {/* Order Code */}
                     <div className="flex justify-between items-center">
-                      <div className="text-sm text-gray-500 font-semibold">
+                      <div className="text-sm font-semibold text-gray-500">
                         Order ID: {order.id}
                       </div>
                       {/* <div className="text-sm text-gray-700">{order.id}</div> */}
@@ -481,7 +481,7 @@ const BatchManage = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-4 pt-4">
+          <div className="flex gap-4 justify-end pt-4">
             <button
               className="px-4 py-2 text-white bg-gray-600 rounded-md hover:bg-gray-700"
               onClick={() => setSelectedBatch(null)}

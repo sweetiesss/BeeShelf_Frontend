@@ -236,7 +236,7 @@ const RequestManagement = () => {
 
   return (
     <>
-      <div className="p-[20px]">
+      <div className="p-[20px] overflow-auto">
         <h1>Import Request Management</h1>
 
         {/* Request Import Table */}
@@ -260,11 +260,6 @@ const RequestManagement = () => {
               dataIndex: "requestType",
               key: "requestType",
             },
-            // {
-            //   title: "Warehouse Name",
-            //   dataIndex: "warehouseName",
-            //   key: "warehouseName",
-            // },
             {
               title: "Status",
               dataIndex: "status",
@@ -301,6 +296,8 @@ const RequestManagement = () => {
               title: "Create Date",
               dataIndex: "createDate",
               key: "createDate",
+              sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+              sortDirections: ["descend", "ascend"],
               render: (text) => {
                 if (!text) return ""; // Kiểm tra trường hợp giá trị null hoặc undefined
 
@@ -452,6 +449,8 @@ const RequestManagement = () => {
               title: "Create Date",
               dataIndex: "createDate",
               key: "createDate",
+              sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+              sortDirections: ["descend", "ascend"],
               render: (text) => {
                 if (!text) return ""; // Kiểm tra trường hợp giá trị null hoặc undefined
 
@@ -469,6 +468,8 @@ const RequestManagement = () => {
               title: "Approve Date",
               dataIndex: "apporveDate", // Fix the typo here from 'apporveDate' to 'approveDate'
               key: "apporveDate",
+              sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+              sortDirections: ["descend", "ascend"],
               render: (text) => {
                 if (!text) return ""; // Trả về chuỗi rỗng nếu không có giá trị
                 const date = new Date(text);
@@ -481,11 +482,12 @@ const RequestManagement = () => {
                 return `${day}/${month}/${year} ${hours}:${minutes}`;
               },
             },
-
             {
               title: "Deliver Date",
               dataIndex: "deliverDate",
               key: "deliverDate",
+              sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+              sortDirections: ["descend", "ascend"],
               render: (text) => {
                 if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
                 const date = new Date(text);
