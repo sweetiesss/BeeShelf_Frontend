@@ -169,6 +169,8 @@ const Vehicle = () => {
       onFilter: (value, record) => record.status === value,
       render: (status) => status,
     },
+    {title: "AssignedDriverEmail", dataIndex: "assignedDriverEmail", key: "assignedDriverEmail" },
+    {title: "AssignedDriverName", dataIndex: "assignedDriverName", key: "assignedDriverName"},
     { title: "LicensePlate", dataIndex: "licensePlate", key: "licensePlate" },
     // Cột bổ sung có thể bỏ qua nếu không cần thiết
   ];

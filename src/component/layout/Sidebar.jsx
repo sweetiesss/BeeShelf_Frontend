@@ -130,7 +130,7 @@ export function Sidebar() {
             <NavLink to="payment" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <CreditCard className="icon" weight="fill" />
-                <p className="label">{t("Transfer Money")}</p>
+                <p className="label">{t("Transfer")}</p>
               </div>
             </NavLink>
             <NavLink to="batchflow" className="flex navigate-menu">
@@ -148,14 +148,14 @@ export function Sidebar() {
             <NavLink to="ordermanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Bag className="icon" weight="fill" />
-                <p className="label">{t("Order Manage")}</p>
+                <p className="label">{t("Order")}</p>
               </div>
             </NavLink>
 
             <NavLink to="requestmanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <AddressBook className="icon" weight="fill" />
-                <p className="label">{t("RequestManage")}</p>
+                <p className="label">{t("Request")}</p>
               </div>
             </NavLink>
 
