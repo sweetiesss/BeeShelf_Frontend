@@ -165,8 +165,11 @@ const BatchManage = () => {
             pageSize: 100,
             filterBy: "DeliveryZoneId",
             filterQuery: selectedDeliveryZone,
+            vehicleFilter: "notEmpty" // Giả sử API hỗ trợ điều kiện lọc này
           },
         });
+        
+        
 
         if (response.status === 200 && response.data) {
           console.log("Shippers data:", response.data);
