@@ -165,8 +165,11 @@ const BatchManage = () => {
             pageSize: 100,
             filterBy: "DeliveryZoneId",
             filterQuery: selectedDeliveryZone,
+            vehicleFilter: "notEmpty" // Giả sử API hỗ trợ điều kiện lọc này
           },
         });
+        
+        
 
         if (response.status === 200 && response.data) {
           console.log("Shippers data:", response.data);
@@ -380,7 +383,13 @@ const BatchManage = () => {
           <Form.Item
             name="name"
             label="Batch Name"
-            rules={[{ required: true }]}
+            rules={[
+              { required: true, message: "Please enter a batch name" },
+              {
+                max: 250,
+                message: "Batch name must be 250 characters or fewer",
+              },
+            ]}
           >
             <Input />
           </Form.Item>
