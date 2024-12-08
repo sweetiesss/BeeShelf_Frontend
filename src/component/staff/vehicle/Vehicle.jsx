@@ -52,6 +52,7 @@ const Vehicle = () => {
 
         const options = (response?.data?.items || [])
           ?.filter((vehicle) => vehicle.status === "Available")
+          ?.filter((item) => !item.assignedDriverId)
           .map((vehicle) => ({
             value: vehicle.id,
             label: `VehicleId: ${vehicle.id} - Name Vehicle: ${vehicle.name} - License Plate: ${vehicle.licensePlate}`,
@@ -107,7 +108,7 @@ const Vehicle = () => {
         }
 
         const response = await fetchDataBearer({
-          url: `/warehouse/get-warehouse-shippers`,
+          url: `/warehouse/get-warehouse-shippers/${warehouseId}`,
           method: "GET",
           params: {
             pageIndex: 0,
@@ -119,7 +120,11 @@ const Vehicle = () => {
 
         if (response.status === 200 && response.data) {
           console.log("Shippers data:", response.data);
-          setShipperIdOptions(response.data.items || []);
+          // Lọc shipper chua co xe
+          setShipperIdOptions(
+            response.data.items.filter((item) => item.vehicles.length <= 0) ||
+              []
+          );
         } else {
           console.error("Failed to fetch shippers data");
         }
@@ -322,7 +327,7 @@ const Vehicle = () => {
                   shipper.warehouseId && (
                     // eslint-disable-next-line react/jsx-no-undef
                     <Option key={shipper.employeeId} value={shipper.employeeId}>
-                      EmployeeId: {shipper.employeeId} - WarehouseId:{" "}
+                      Employee Name: {shipper.shipperName} - WarehouseId:{" "}
                       {shipper.warehouseId}
                     </Option>
                   )

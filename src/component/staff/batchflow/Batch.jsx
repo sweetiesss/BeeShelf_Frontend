@@ -69,7 +69,7 @@ const BatchManage = () => {
         deliveryZoneId: batch.deliveryZoneId,
         orders: batch.orders,
         deliveryZoneName: batch.deliveryZoneName,
-        shipperId: batch.shipperId,        
+        shipperId: batch.shipperId,
         shipperName: batch.shipperName,
       }));
       setBatches(formattedBatches);
@@ -289,6 +289,32 @@ const BatchManage = () => {
       title: "DeliveryZoneName",
       dataIndex: "deliveryZoneName",
       key: "deliveryZoneName",
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Select
+            style={{ width: 120 }}
+            value={selectedKeys[0]}
+            onChange={(value) => {
+              setSelectedKeys(value ? [value] : []);
+              confirm();
+            }}
+            allowClear
+          >
+            {deliveryZones.map((zone) => (
+              <Option key={zone.id} value={zone.name}>
+                {zone.name}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      ),
+      onFilter: (value, record) => record.deliveryZoneName === value,
+      render: (deliveryZoneName) => deliveryZoneName,
     },
     {
       title: "Shipper",

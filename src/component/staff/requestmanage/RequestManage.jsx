@@ -392,6 +392,9 @@ const RequestManagement = () => {
               title: "Approve Date",
               dataIndex: "apporveDate", // Sửa typo ở đây
               key: "apporveDate",
+              sorter: (a, b) =>
+                new Date(a.apporveDate) - new Date(b.apporveDate),
+              sortDirections: ["descend", "ascend"],
               render: (text) => {
                 if (!text) return ""; // Trả về chuỗi rỗng nếu không có giá trị
                 const date = new Date(text);
@@ -408,6 +411,9 @@ const RequestManagement = () => {
               title: "Deliver Date",
               dataIndex: "deliverDate",
               key: "deliverDate",
+              sorter: (a, b) =>
+                new Date(a.deliverDate) - new Date(b.deliverDate),
+              sortDirections: ["descend", "ascend"],
               render: (text) => {
                 if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
                 const date = new Date(text);
@@ -424,6 +430,8 @@ const RequestManagement = () => {
               title: "Cancel Date",
               dataIndex: "cancelDate",
               key: "cancelDate",
+              sorter: (a, b) => new Date(a.cancelDate) - new Date(b.cancelDate),
+              sortDirections: ["descend", "ascend"],
               render: (text) => {
                 if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
                 const date = new Date(text);
