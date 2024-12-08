@@ -69,7 +69,7 @@ const BatchManage = () => {
         deliveryZoneId: batch.deliveryZoneId,
         orders: batch.orders,
         deliveryZoneName: batch.deliveryZoneName,
-        shipperId: batch.shipperId,        
+        shipperId: batch.shipperId,
         shipperName: batch.shipperName,
       }));
       setBatches(formattedBatches);
@@ -354,7 +354,13 @@ const BatchManage = () => {
           <Form.Item
             name="name"
             label="Batch Name"
-            rules={[{ required: true }]}
+            rules={[
+              { required: true, message: "Please enter a batch name" },
+              {
+                max: 250,
+                message: "Batch name must be 250 characters or fewer",
+              },
+            ]}
           >
             <Input />
           </Form.Item>
