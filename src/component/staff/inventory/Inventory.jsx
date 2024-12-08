@@ -21,6 +21,7 @@ const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 const Inventory = () => {
+  const [buttonLoading, setButtonLoading] = useState({});
   const { userInfor } = useAuth(); // Lấy thông tin user từ hook useAuth
   const [loading, setLoading] = useState(false);
   const [filterLoading, setFilterLoading] = useState(false);
@@ -79,21 +80,18 @@ const Inventory = () => {
       fetchInventories();
     }
   }, [userInfor]);
-
   const getDetailInventory = async (id) => {
+    setButtonLoading((prev) => ({ ...prev, [id]: true }));
     try {
       const response = await fetchDataBearer({
         url: `/inventory/get-inventory/${id}`,
         method: "GET",
       });
       if (response && response.data) {
-        // Assuming the first element of the 'lots' array contains the inventory lot details
         const lotData = response.data.lots;
 
         if (lotData) {
-          // Now, setting the inventory lot details
           setSelectedInventory(lotData);
-
           setIsModalVisible(true);
         }
       } else {
@@ -102,6 +100,8 @@ const Inventory = () => {
     } catch (error) {
       console.error("Error fetching inventory details:", error);
       message.error("Failed to fetch inventory details. Please try again.");
+    } finally {
+      setButtonLoading((prev) => ({ ...prev, [id]: false }));
     }
   };
 
@@ -233,8 +233,13 @@ const Inventory = () => {
                     type="primary"
                     size="small"
                     onClick={() => getDetailInventory(item.id)}
+                    disabled={buttonLoading[item.id]}
                   >
-                    {"View Details"}
+                    {buttonLoading[item.id] ? (
+                      <Spin size="small" />
+                    ) : (
+                      "View Details"
+                    )}
                   </Button>
                 </Space>
               </Card>

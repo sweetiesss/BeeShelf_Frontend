@@ -277,7 +277,7 @@ const Ordermanage = () => {
       case "Draft":
         return ["Pending"];
       case "Pending":
-        return ["Processing", "Canceled"]; // Staff confirmed or OCOP Partner Cancelled
+        return ["Processing"]; // Staff confirmed or OCOP Partner Cancelled
       case "Processing":
         return ["Canceled"]; // Shipper delivery or Out of stock
       case "Shipping":
