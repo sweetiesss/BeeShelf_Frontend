@@ -154,7 +154,7 @@ const RequestManagement = () => {
     return <Tag color={colorMap[status] || "default"}>{status}</Tag>;
   };
 
-  // Show request detail
+  // Show import request detail
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
 
@@ -166,6 +166,20 @@ const RequestManagement = () => {
   const handleModalClose = () => {
     setIsModalVisible(false);
     setSelectedRequest(null);
+  };
+
+  // Show export request detail
+  const [isModalExportVisible, setIsModalVisibleExport] = useState(false);
+  const [selectedExportRequest, setSelectedRequestExport] = useState(null);
+
+  const showRequestDetailExport = (request) => {
+    setSelectedRequestExport(request);
+    setIsModalVisibleExport(true);
+  };
+
+  const handleModalExportClose = () => {
+    setIsModalVisibleExport(false);
+    setSelectedRequestExport(null);
   };
 
   // Add this function to check valid status transitions for requests
@@ -182,6 +196,27 @@ const RequestManagement = () => {
       case "Failed":
       case "Completed":
       case "Cancelled":
+        return []; // Final states - no further transitions allowed
+      default:
+        return [];
+    }
+  };
+
+  // Add this function to check valid status transitions for requests
+  const getValidExportStatusTransitions = (currentStatus) => {
+    switch (currentStatus) {
+      case "Draft":
+        return ["Pending"]; // Request Created
+      case "Pending":
+        return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
+      case "Processing":
+        return ["Delivered", "Failed"]; // OCOP Partner Delivered or Deliver window expire
+      case "Delivered":
+        return ["Returned", "Completed"]; // Item stored
+      case "Failed":
+      case "Completed":
+      case "Cancelled":
+      case "Returned":
         return []; // Final states - no further transitions allowed
       default:
         return [];
@@ -213,11 +248,53 @@ const RequestManagement = () => {
       if (response && response.status === 200) {
         message.success("Status updated successfully!");
         fetchRequests(); // Refresh request list
-        fetchRequestExports();
         setIsModalVisible(false);
-        // if (selectedRequest?.id === id) {
-        //   setSelectedRequest({ ...selectedRequest, status: newStatus }); // Update modal if open
-        // }
+      } else {
+        const errorMessage =
+          response?.data?.message || "Failed to update status.";
+        message.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      message.error(
+        error.response?.data?.message ||
+          "Failed to update status. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update the status update function to validate transitions
+  const updateExportRequestStatus = async (id, newStatus) => {
+    setLoading(true);
+    try {
+      const currentRequest = requestExports.find(
+        (request) => request.id === id
+      );
+      const validTransitions = getValidExportStatusTransitions(
+        currentRequest.status
+      );
+
+      if (!validTransitions.includes(newStatus)) {
+        message.error(
+          `Invalid status transition from ${currentRequest.status} to ${newStatus}`
+        );
+        return;
+      }
+
+      const response = await fetchDataBearer({
+        url: `/request/update-request-status/${id}`,
+        method: "PUT",
+        params: {
+          status: newStatus,
+        },
+      });
+
+      if (response && response.status === 200) {
+        message.success("Status updated successfully!");
+        fetchRequestExports();
+        setIsModalVisibleExport(false);
       } else {
         const errorMessage =
           response?.data?.message || "Failed to update status.";
@@ -508,7 +585,7 @@ const RequestManagement = () => {
                 <div className="flex flex-col gap-2 items-center">
                   <Button
                     className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
-                    onClick={() => showRequestDetail(record)} // Hien thi chi tiet
+                    onClick={() => showRequestDetailExport(record)} // Hien thi chi tiet
                   >
                     View Details
                   </Button>
@@ -525,8 +602,9 @@ const RequestManagement = () => {
           }}
         />
       </div>
+
       <Modal
-        title="Request Details"
+        title="Import Request Details"
         open={isModalVisible}
         onCancel={handleModalClose}
         footer={[
@@ -623,6 +701,112 @@ const RequestManagement = () => {
                 <div>
                   <p className="font-bold">Lot ID:</p>
                   <p>{selectedRequest.lotId}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        title="Export Request Details"
+        open={isModalExportVisible}
+        onCancel={handleModalExportClose}
+        footer={[
+          <Button key="close" onClick={handleModalExportClose}>
+            Close
+          </Button>,
+        ]}
+      >
+        {selectedExportRequest && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div>
+                <Image
+                  src={selectedExportRequest.productImage}
+                  alt="Request Image"
+                  className="w-full"
+                />
+              </div>
+              <label htmlFor="statusSelect" className="font-bold">
+                Update Status:
+              </label>
+              <Select
+                id="statusSelect"
+                className="w-full"
+                value={selectedExportRequest.status}
+                onChange={(newStatus) =>
+                  updateExportRequestStatus(selectedExportRequest.id, newStatus)
+                }
+                disabled={
+                  getValidExportStatusTransitions(selectedExportRequest.status)
+                    .length === 0
+                }
+              >
+                {getValidExportStatusTransitions(
+                  selectedExportRequest.status
+                ).map((status) => (
+                  <Option key={status} value={status}>
+                    {status}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <div className="grid grid-cols-1 gap-2">
+                <div>
+                  <p className="font-bold">Request ID:</p>
+                  <p>{selectedExportRequest.id}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Partner Email:</p>
+                  <p>{selectedExportRequest.partner_email}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Status:</p>
+                  <p>{renderStatusTag(selectedExportRequest.status)}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Description:</p>
+                  <p>{selectedExportRequest.description}</p>
+                </div>
+                {/* <div>
+                  <p className="font-bold">Receiver Address:</p>
+                  <p>{selectedRequest.receiverAddress}</p>
+                </div> */}
+                <div>
+                  <p className="font-bold">Create Date:</p>
+                  <p>
+                    {(() => {
+                      const date = new Date(selectedExportRequest.createDate);
+                      const day = String(date.getDate()).padStart(2, "0");
+                      const month = String(date.getMonth() + 1).padStart(
+                        2,
+                        "0"
+                      ); // Tháng bắt đầu từ 0, cần cộng 1
+                      const year = date.getFullYear();
+                      const hours = String(date.getHours()).padStart(2, "0");
+                      const minutes = String(date.getMinutes()).padStart(
+                        2,
+                        "0"
+                      );
+
+                      return `${day}/${month}/${year} ${hours}:${minutes}`;
+                    })()}
+                  </p>
+                </div>
+
+                {/* <div>
+                  <p className="font-bold">Total Price:</p>
+                  <p>${selectedRequest.totalPrice}</p>
+                </div> */}
+                <div>
+                  <p className="font-bold">Warehouse Name:</p>
+                  <p>{selectedExportRequest.warehouseName}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Lot ID:</p>
+                  <p>{selectedExportRequest.lotId}</p>
                 </div>
               </div>
             </div>
