@@ -1,51 +1,29 @@
 import { useContext, useEffect, useState } from "react";
 import Select from "react-select";
-import { differenceInDays, format } from "date-fns";
-import AxiosRequest from "../../services/Request";
 import { AuthContext } from "../../context/AuthContext";
-import { useDetail } from "../../context/DetailContext";
+
 import { useTranslation } from "react-i18next";
 import AxiosInventory from "../../services/Inventory";
 import AxiosProduct from "../../services/Product";
-import {
-  ArrowCounterClockwise,
-  CaretDown,
-  CaretUp,
-  X,
-} from "@phosphor-icons/react";
-import AxiosPartner from "../../services/Partner";
+
+import AxiosLot from "../../services/Lot";
+import ImportRequestSide from "../../component/partner/request/ImportRequestSide";
+import ExportRequestSide from "../../component/partner/request/ExportRequestSide";
 
 export default function CreateRequestPage({ handleCancel, handleClose }) {
   const { userInfor } = useContext(AuthContext);
   const [typeRequest, setTypeRequest] = useState("Import");
-  const [product, setProduct] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+
   const [products, setProducts] = useState([]);
   const [productsImported, setProductsImported] = useState([]);
-  const [selectedProductImported, setSelectedProductImported] = useState();
-  const [inventories, setInventories] = useState([]);
-  const [inventory, setInventory] = useState();
 
-  const baseForm = {
-    ocopPartnerId: userInfor?.id,
-    name: "",
-    description: "",
-    sendToInventoryId: 0,
-    lot: {
-      lotNumber: "",
-      name: "",
-      lotAmount: null,
-      productId: 0,
-      productPerLot: null,
-    },
-  };
-  const [form, setForm] = useState(baseForm);
+  const [inventories, setInventories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { createRequest } = AxiosRequest();
+
   const { t } = useTranslation();
   const { getInventory1000ByUserId } = AxiosInventory();
   const { getProductByUserId } = AxiosProduct();
-  const { getAllProduct } = AxiosPartner();
+  const { getLotByUserIdX1000 } = AxiosLot();
 
   useEffect(() => {
     const fetchingBeginData = async () => {
@@ -67,7 +45,16 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
         if (response?.status === 200) {
           setProducts(response.data.items || []);
         }
-        const productsInWarehouse = await getAllProduct(userInfor?.id);
+        const productsInWarehouse = await getLotByUserIdX1000(
+          userInfor?.id,
+          "",
+          undefined,
+          undefined,
+          "ExpirationDate",
+          false,
+          0,
+          1000
+        );
         setProductsImported(productsInWarehouse?.data || []);
       } catch (e) {
         console.error("Error fetching inventories", e);
@@ -78,84 +65,88 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
     fetchingBeginData();
   }, []);
 
-  // Handle input changes
-  const handleInput = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => {
-      const keys = name.split(".");
-      if (keys.length > 1) {
-        return {
-          ...prev,
-          [keys[0]]: {
-            ...prev[keys[0]],
-            [keys[1]]: value,
-          },
-        };
-      }
-      return { ...prev, [name]: value };
-    });
-  };
-
-  // Handle confirm
-  const handleConfirm = async (send) => {
-
-    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Generate unique timestamp
-
-    const updatedForm = {
-      ...form,
-      sendToInventoryId: parseInt(inventory?.id),
-      lot: {
-        ...form.lot,
-        productId: parseInt(selectedProduct?.id),
-        lotNumber: `${form.lot.productId}-${currentDateTime}`, // Lot number format
-        name: `${product?.name || "Unnamed"}-${userInfor?.name || "User"}`, // Lot name format
-      },
-    };
-
-    try {
-      const result = await createRequest(updatedForm, "Import", send);
-   
-
-      handleClose(); // Close the modal after confirming
-    } catch (error) {
-      console.error("Error submitting request:", error);
-    }
-  };
-
-  const handleShowDetailProduct = (pro) => {
-    if (pro === product) {
-      setProduct();
-      return;
-    }
-    setProduct(pro);
-  };
-  const handleSelectProduct = (pro) => {
-    setSelectedProduct(pro);
-    if (inventory?.isCold === pro?.isCold) {
-      return;
-    }
-    setInventory();
-  };
-  const handleSlectImportedProduct = (pro) => {
-    const selectedImportProduct = products.find((item) => item?.id === pro?.id);
-    setSelectedProduct(selectedImportProduct);
-    setSelectedProductImported(pro);
-  };
-
-  const handleReset = () => {
-    setForm(baseForm);
-    setSelectedProduct();
-    setInventory();
-    setSelectedProductImported();
-  };
-
-  console.log("products", selectedProductImported);
+  console.log("ImportedProduts", productsImported);
 
   // Render the form
   return (
     <div>
       <p className="font-semibold text-3xl mb-10">{t("CreateRequest")}</p>
-      <div className="flex gap-10 justify-start items-start">
+      <div className=" flex gap-4 items-center mb-4">
+        <div className="text-[var(--en-vu-600)] font-normal col-span-1">
+          {t("TypeOfRequest")}
+        </div>
+
+        <Select
+          className="col-span-2"
+          styles={{
+            menu: (provided) => ({
+              ...provided,
+
+              // Restrict the dropdown height
+              overflowY: "hidden", // Enable scrolling for content
+            }),
+            menuList: (provided) => ({
+              ...provided,
+              padding: 0, // Ensure no extra padding
+              maxHeight: "11.5rem",
+              overflow: "auto",
+            }),
+            control: (baseStyles) => ({
+              ...baseStyles,
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              boxShadow: "none",
+              "&:hover": {
+                border: "1px solid #888",
+              },
+            }),
+            option: (baseStyles, { isFocused, isSelected }) => ({
+              ...baseStyles,
+              backgroundColor: isSelected
+                ? "var(--Xanh-Base)"
+                : isFocused
+                ? "var(--Xanh-100)"
+                : "white",
+              color: isSelected ? "white !important" : "black",
+              cursor: "pointer",
+              padding: "0.5rem 1rem", // Option padding
+              textAlign: "left", // Center-align text
+            }),
+          }}
+          value={{
+            value: typeRequest,
+            label: typeRequest,
+          }} // Map string to object
+          onChange={(selectedOption) => setTypeRequest(selectedOption.value)}
+          options={[
+            { value: "Import", label: "Import" },
+            { value: "Export", label: "Export" },
+          ]}
+          formatOptionLabel={({ value }) => (
+            <div className="flex items-center gap-4">
+              <p>{value}</p>
+              <p className="text-gray-400">
+                {"("}
+                {value === "Import"
+                  ? t("ImportProductToInventory")
+                  : "ExportProductFromInventory"}
+                {")"}
+              </p>
+            </div>
+          )}
+        />
+      </div>
+
+      {typeRequest === "Import" && (
+        <ImportRequestSide products={products} inventories={inventories} />
+      )}
+      {typeRequest === "Export" && (
+        <ExportRequestSide
+          productsImported={productsImported}
+          inventories={inventories}
+        />
+      )}
+      {/* <div className="flex gap-10 justify-start items-start">
         <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[52rem]">
           <div className="flex justify-between items-center ">
             <p className="font-medium text-2xl ">{t("CreateForm")}</p>
@@ -589,7 +580,7 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
               })}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

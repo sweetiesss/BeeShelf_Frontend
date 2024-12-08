@@ -94,7 +94,7 @@ export default function RequestList({
                       />
                     </td>
                     <td className=" px-1 py-2 ">{request?.name}</td>
-                    <td className=" px-1 py-2 ">{request?.description}</td>
+                    <td className=" px-1 py-2 max-w-[20rem]">{request?.description}</td>
                     <td className=" px-1 py-2 ">{request?.requestType}</td>
                     <td className=" px-1 py-2 text-center align-middle">
                       <p

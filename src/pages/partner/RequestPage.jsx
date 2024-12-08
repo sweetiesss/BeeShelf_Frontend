@@ -5,11 +5,11 @@ import { AuthContext } from "../../context/AuthContext";
 import RequestList from "../../component/partner/request/RequestList";
 import AxiosRequest from "../../services/Request";
 import { useDetail } from "../../context/DetailContext";
-import CreateRequestImport from "../../component/partner/product/CreateRequestImport";
-import AxiosProduct from "../../services/Product";
-import AxiosInventory from "../../services/Inventory";
-import { useNavigate } from "react-router-dom";
+
+import { NavLink } from "react-router-dom";
 import SpinnerLoading from "../../component/shared/Loading";
+import { t } from "i18next";
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
 
 export default function RequestPage() {
   const { userInfor } = useContext(AuthContext);
@@ -20,25 +20,24 @@ export default function RequestPage() {
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
-  const {
-    dataDetail,
-    typeDetail,
-    updateDataDetail,
-    updateTypeDetail,
-    refresh,
-    createRequest,
-    setCreateRequest,
-  } = useDetail();
+  const { updateDataDetail, updateTypeDetail, refresh } = useDetail();
 
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
-    import: true,
+    isImport: "",
     status: "",
     descending: true,
     pageIndex: 0,
     pageSize: 10,
   });
-  const nav = useNavigate();
+  const defaultFilter = {
+    userId: userInfor?.id,
+    isImport: "",
+    status: "",
+    descending: true,
+    pageIndex: 0,
+    pageSize: 10,
+  };
 
   useEffect(() => {
     fetchingData();
@@ -54,7 +53,7 @@ export default function RequestPage() {
           const response = await getRequestByUserId(
             filterField.userId,
             filterField.status,
-            filterField.import,
+            filterField.isImport,
             filterField.descending,
             filterField.pageIndex,
             filterField.pageSize
@@ -70,7 +69,7 @@ export default function RequestPage() {
           const response = await getRequestByUserId(
             filterField.userId,
             filterField.status,
-            filterField.import,
+            filterField.isImport,
             filterField.descending,
             filterField.pageIndex,
             filterField.pageSize
@@ -87,7 +86,7 @@ export default function RequestPage() {
     fetching();
   }, [refresh]);
   useEffect(() => {
-    debouncedFetchRequests();
+    debouncedFetchRequests(filterField);
   }, [filterField]);
 
   const debounce = (func, delay) => {
@@ -107,7 +106,7 @@ export default function RequestPage() {
       const response = await getRequestByUserId(
         filterField.userId,
         filterField.status,
-        filterField.import,
+        filterField.isImport,
         filterField.descending,
         filterField.pageIndex,
         filterField.pageSize
@@ -121,13 +120,14 @@ export default function RequestPage() {
   };
 
   const debouncedFetchRequests = useCallback(
-    debounce(async () => {
+    debounce(async (filterField) => {
       try {
         setLoading(true);
 
         const response = await getRequestByUserId(
           filterField.userId,
           filterField.status,
+          filterField.isImport,
           filterField.descending,
           filterField.pageIndex,
           filterField.pageSize
@@ -139,7 +139,7 @@ export default function RequestPage() {
         setLoading(false);
       }
     }, 500),
-    [filterField]
+    []
   );
 
   const handleFiltered = (e) => {
@@ -169,44 +169,76 @@ export default function RequestPage() {
     selectedOrder === order ? setSelectedOrder(null) : setSelectedOrder(order);
   };
 
-  // const filteredOrders = orders.filter((order) =>
-  //   order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
   const handleShowDetail = (request) => {
     updateDataDetail(request);
     updateTypeDetail("request");
     console.log(request);
   };
+  console.log(filterField);
 
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">Request Management</h1>
+      <div className="flex justify-between">
+        <div className="flex gap-10">
+          <div
+            className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-fit  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+              filterField.status != ""
+                ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                : "text-[var(--en-vu-300)]"
+            }`}
+          >
+            <label>{t("Status")}: </label>
+            <select
+              className="outline-none"
+              name="status"
+              value={filterField.status}
+              onChange={handleFiltered}
+            >
+              <option value={""}>Select Request Status</option>
+              <option value={"Draft"}>Draft</option>
+              <option value={"Pending"}>Pending</option>
+              <option value={"Canceled"}>Canceled</option>
+              <option value={"Processing"}>Processing</option>
+              <option value={"Delivered"}>Delivered</option>
+              <option value={"Failed"}>Failed</option>
+              <option value={"Completed"}>Completed</option>
+            </select>
+          </div>
 
-      <select
-        name="status"
-        value={filterField.status}
-        onChange={handleFiltered}
-      >
-        <option>Select Request Status</option>
-        <option value={"Draft"}>Draft</option>
-        <option value={"Pending"}>Pending</option>
-        <option value={"Canceled"}>Canceled</option>
-        <option value={"Processing"}>Processing</option>
-        <option value={"Delivered"}>Delivered</option>
-        <option value={"Failed"}>Failed</option>
-        <option value={"Completed"}>Completed</option>
-      </select>
-
-      <select
-        name="import"
-        value={filterField.import}
-        onChange={handleFiltered}
-      >
-        <option value={true}>Import</option>
-        <option value={false}>Export</option>
-      </select>
-
-      <button onClick={() => nav("create-request")}>Create request</button>
+          <div
+            className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-fit  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+              filterField.isImport != ""
+                ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                : "text-[var(--en-vu-300)]"
+            }`}
+          >
+            <label>{t("RequestType")}: </label>
+            <select
+              className="outline-none"
+              name="isImport"
+              value={filterField.isImport}
+              onChange={handleFiltered}
+            >
+              <option value={""}>All</option>
+              <option value={"import"}>Import</option>
+              <option value={"export"}>Export</option>
+            </select>
+          </div>
+          <div
+            className="text-xl bg-gray-100 p-1 rounded-full border-2 border-gray-400 hover:bg-gray-200 hover:border-gray-500 cursor-pointer"
+            onClick={() => setFilterField(defaultFilter)}
+          >
+            <ArrowCounterClockwise />
+          </div>
+        </div>
+        <NavLink
+          to="create-request"
+          className="outline-2 outline flex items-center gap-2 outline-[var(--line-main-color)] text-[var(--en-vu-500-disable)] hover:outline-[var(--Xanh-Base)] hover:text-black  pr-4 pl-3 py-1 rounded-xl font-semibold"
+        >
+          + {"CreateRequest"}
+        </NavLink>
+      </div>
       <div className="flex justify-left gap-4 mt-6 ">
         <div className="w-full">
           {loading ? (

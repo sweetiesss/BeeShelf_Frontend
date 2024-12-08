@@ -48,8 +48,11 @@ export default function CreateOrderPage() {
   const [ward, setWard] = useState(0);
   const [location, setLocation] = useState();
 
+  const [deliveryZone, setDeliveryZone] = useState();
+
   const [warehouses, setWarehouses] = useState();
   const [warehouse, setWarehouse] = useState();
+  const [detailWarehouse, setDetailWarehouse] = useState();
   const debounceTimeoutRef = useRef(null);
   const [validLocation, setValidLocation] = useState("");
   const [defaultLocation, setDefaultLocation] = useState("");
@@ -60,90 +63,92 @@ export default function CreateOrderPage() {
     ocopPartnerId: userInfor?.id,
     receiverPhone: "",
     receiverAddress: "",
-    receiverWard: "",
-    receiverStrict: "",
-    receiverProvince: "",
-    distance: null,
+    deliveryZoneId: "",
+    // receiverWard: "",
+    // receiverStrict: "",
+    // receiverProvince: "",
+    distance: 0,
     products: [],
   };
   const defaultForm = {
     ocopPartnerId: userInfor?.id,
     receiverPhone: "",
     receiverAddress: "",
-    distance: null,
+    deliveryZoneId: null,
+    distance: 0,
     products: [],
   };
   const [form, setForm] = useState(baseForm);
 
-  useEffect(() => {
-    const validateAndFormatLocation = async () => {
-      const {
-        receiverAddress,
-        receiverWard,
-        receiverStrict,
-        receiverProvince,
-      } = form;
-      if (
-        receiverProvince.length > 0 &&
-        receiverStrict.length > 0 &&
-        receiverWard.length > 0
-      ) {
-        setValidLocation(
-          `${
-            receiverAddress && receiverAddress + ", "
-          } ${receiverWard}, ${receiverStrict}, ${receiverProvince}`
-        );
+  // useEffect(() => {
+  //   const validateAndFormatLocation = async () => {
+  //     const {
+  //       receiverAddress,
+  //       receiverWard,
+  //       receiverStrict,
+  //       receiverProvince,
+  //     } = form;
+  //     if (
+  //       receiverProvince.length > 0 &&
+  //       receiverStrict.length > 0 &&
+  //       receiverWard.length > 0
+  //     ) {
+  //       setValidLocation(
+  //         `${
+  //           receiverAddress && receiverAddress + ", "
+  //         } ${receiverWard}, ${receiverStrict}, ${receiverProvince}`
+  //       );
 
-        setDefaultLocation(
-          `${receiverWard}, ${receiverStrict}, ${receiverProvince}`
-        );
-      } else setValidLocation();
-    };
+  //       setDefaultLocation(
+  //         `${receiverWard}, ${receiverStrict}, ${receiverProvince}`
+  //       );
+  //     } else setValidLocation();
+  //   };
 
-    validateAndFormatLocation();
-  }, [
-    form.receiverAddress,
-    form.receiverWard,
-    form.receiverStrict,
-    form.receiverProvince,
-  ]);
+  //   validateAndFormatLocation();
+  // }, [
+  //   form.receiverAddress,
+  //   form.receiverWard,
+  //   form.receiverStrict,
+  //   form.receiverProvince,
+  // ]);
 
   useEffect(() => {
     getProductsInWareHouse();
-    getProvinces();
+    // getProvinces();
   }, []);
 
-  useEffect(() => {
-    getDistricts();
-  }, [province]);
-  useEffect(() => {
-    getWard();
-  }, [strict]);
+  // useEffect(() => {
+  //   getDistricts();
+  // }, [province]);
+  // useEffect(() => {
+  //   getWard();
+  // }, [strict]);
 
-  const getProvinces = async () => {
-    const result = await getAddressProvincesStressWard(1, 0);
-    setProvinencesList(result?.data?.data);
-    console.log(result);
-  };
-  const getDistricts = async () => {
-    setForm((prev) => ({ ...prev, receiverStrict: "" }));
-    setForm((prev) => ({ ...prev, receiverWard: "" }));
+  // const getProvinces = async () => {
+  //   const result = await getAddressProvincesStressWard(1, 0);
+  //   setProvinencesList(result?.data?.data);
+  //   console.log(result);
+  // };
+  // const getDistricts = async () => {
+  //   setForm((prev) => ({ ...prev, receiverStrict: "" }));
+  //   setForm((prev) => ({ ...prev, receiverWard: "" }));
 
-    if (province !== 0 && province) {
-      const result = await getAddressProvincesStressWard(2, province);
-      setStrictList(result?.data?.data);
-      console.log("district", result);
-    }
-  };
-  const getWard = async () => {
-    setForm((prev) => ({ ...prev, receiverWard: "" }));
+  //   if (province !== 0 && province) {
+  //     const result = await getAddressProvincesStressWard(2, province);
+  //     setStrictList(result?.data?.data);
+  //     console.log("district", result);
+  //   }
+  // };
+  // const getWard = async () => {
+  //   setForm((prev) => ({ ...prev, receiverWard: "" }));
 
-    if (strict !== 0 && strict) {
-      const result = await getAddressProvincesStressWard(3, strict);
-      setWardList(result?.data?.data);
-      console.log("ward", result);
-    }
-  };
+  //   if (strict !== 0 && strict) {
+  //     const result = await getAddressProvincesStressWard(3, strict);
+  //     setWardList(result?.data?.data);
+  //     console.log("ward", result);
+  //   }
+  // };
 
   useEffect(() => {
     if (form.receiverAddress) {
@@ -153,6 +158,7 @@ export default function CreateOrderPage() {
 
   useEffect(() => {
     filterWarehouse();
+    getDetailWarehouse();
   }, [warehouse]);
 
   console.log("t", process.env.REACT_APP_MAP_API_KEY);
@@ -191,7 +197,7 @@ export default function CreateOrderPage() {
       console.log("here2", warehouses);
 
       const result = inventories.filter(
-        (a) => parseInt(a.warehouseId) === parseInt(warehouse?.id)
+        (a) => parseInt(a.warehouseId) === parseInt(warehouse?.warehouseId)
       );
       console.log("here", result);
 
@@ -203,6 +209,8 @@ export default function CreateOrderPage() {
     try {
       setLoading(true);
       const result = await getAllProduct(userInfor?.id, warehouseFilter);
+      console.log("All product", result);
+
       if (result?.status === 200) {
         setInventories(result?.data?.products);
       }
@@ -212,22 +220,26 @@ export default function CreateOrderPage() {
       setLoading(false);
     }
   };
-  // const getWarehouses = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const result = await getWarehouseById(warehouse?.id);
-  //     if (result?.status === 200) {
-  //       console.log("detail", result);
-  //       console.log("from the warehouse", warehouse);
-  //       return result;
-  //     }
-  //     return undefined;
-  //   } catch (e) {
-  //     console.error(e);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const getDetailWarehouse = async () => {
+    try {
+      setLoading(true);
+      if (warehouse) {
+        const result = await getWarehouseById(warehouse?.warehouseId);
+        if (result?.status === 200) {
+          console.log("detail", result);
+          console.log("from the warehouse", warehouse);
+          setDetailWarehouse(result?.data);
+          return;
+        }
+      }
+      setDetailWarehouse();
+      return undefined;
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const calculateDistance = async () => {
     setStartLocation();
@@ -328,8 +340,8 @@ export default function CreateOrderPage() {
       setLoading(true);
       e.preventDefault();
       console.log("Order Created:", form);
-      const result = await createOrder(form, warehouse?.id);
-      console.log(result);
+      // const result = await createOrder(form, warehouse?.warehouseId);
+      // console.log(result);
       setForm(baseForm);
     } catch (e) {
       console.log(e);
@@ -338,139 +350,19 @@ export default function CreateOrderPage() {
     }
   };
 
-  console.log(validLocation);
+  console.log("inventories", inventories);
 
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
       <div className="flex gap-40 h-full text-lg">
         <form onSubmit={handleSubmit} className="space-y-6 w-[40%]">
           <p className="text-2xl font-semibold mb-4">{t("Create Order")}</p>
-          <p className="text-xl font-semibold mb-4">
-            {t("CustomerInformation")}
-          </p>
-          <div>
-            <label className="block  font-medium text-gray-700">
-              {t("Receiver Phone")}
-            </label>
-            <input
-              type="text"
-              name="receiverPhone"
-              value={form.receiverPhone}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
-              required
-            />
-          </div>
-          <div>
-            <label className="block  font-medium text-gray-700">
-              {t("Receiver Address")}
-            </label>
-
-            <input
-              type="text"
-              name="receiverAddress"
-              placeholder={t("receiverAddress")}
-              value={form.receiverAddress}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
-              required
-            />
-            <div className="flex justify-between mt-4 items-center">
-              <div>
-                <select
-                  className="border-b-2 border-[var(--en-vu-500-disable)]"
-                  value={province}
-                  onChange={(e) => {
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverProvince: "",
-                      receiverStrict: "",
-                      receiverWard: "",
-                    }));
-                    setProvinences(e.target.value);
-                    const provinceName = provinceList.find(
-                      (item) => item?.id == e.target.value
-                    );
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverProvince: provinceName?.full_name,
-                    }));
-                  }}
-                >
-                  <option value={0}>Select Province</option>
-                  {provinceList?.map((pro) => (
-                    <option value={pro?.id}>{pro?.full_name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <select
-                  className="border-b-2 border-[var(--en-vu-500-disable)]"
-                  value={strict}
-                  onChange={(e) => {
-                    setStrict(e.target.value);
-                    const stirctName = strictList.find(
-                      (item) => item?.id == e.target.value
-                    );
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverStrict: stirctName?.full_name,
-                    }));
-                  }}
-                >
-                  <option value={0}>Select Districts</option>
-                  {strictList?.map((pro) => (
-                    <option value={pro?.id}>{pro?.full_name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <select
-                  className="border-b-2 border-[var(--en-vu-500-disable)]"
-                  value={ward}
-                  onChange={(e) => {
-                    setWard(e.target.value);
-                    const wardName = wardList.find(
-                      (item) => item?.id == e.target.value
-                    );
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverWard: wardName?.full_name,
-                    }));
-                  }}
-                >
-                  <option value={0}>Select Ward</option>
-                  {wardList?.map((pro) => (
-                    <option value={pro?.id}>{pro?.full_name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
           <div className="space-y-6 w-full">
             <h2 className="text-lg font-semibold">{t("OrderInformation")}</h2>
             <div>
               <label className="block  font-medium text-gray-700">
                 {t("Warehouse")}
               </label>
-              {/* <select
-                className="text-black border border-gray-300 p-2 rounded-md w-full"
-                onChange={(e) => {
-                  setWarehouse(
-                    warehouses?.find((item) => item?.id === e.target.value)
-                  );
-                }}
-                value={warehouse}
-              >
-                <option key={0} value={0}>
-                  Select Warehouse
-                </option>
-                {warehouses?.map((item) => (
-                  <option key={item?.warehouseId} value={item?.warehouseId}>
-                    {item?.warehouseName}
-                  </option>
-                ))}
-              </select> */}
               <Select
                 className="col-span-2"
                 styles={{
@@ -558,7 +450,7 @@ export default function CreateOrderPage() {
                 </button>
               </div>
             </div>
-            <ul className="mt-10 space-y-2 overflow-auto h-[10rem]">
+            <ul className="mt-10 space-y-2 overflow-auto h-fit max-h-[10rem]">
               {form?.products &&
                 form?.products?.map((item) => {
                   console.log(item);
@@ -589,6 +481,164 @@ export default function CreateOrderPage() {
                 })}
             </ul>
           </div>
+          <p className="text-xl font-semibold mb-4">
+            {t("CustomerInformation")}
+          </p>
+          <div>
+            <label className="block  font-medium text-gray-700">
+              {t("Receiver Phone")}
+            </label>
+            <input
+              type="text"
+              name="receiverPhone"
+              value={form.receiverPhone}
+              onChange={handleInputChange}
+              className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
+              required
+            />
+          </div>
+          <div>
+            <label className="block  font-medium text-gray-700">
+              {t("Receiver Address")}
+            </label>
+
+            {/* <div className="flex justify-between mt-4 items-center">
+              <div>
+                <select
+                  className="border-b-2 border-[var(--en-vu-500-disable)]"
+                  value={province}
+                  onChange={(e) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverProvince: "",
+                      receiverStrict: "",
+                      receiverWard: "",
+                    }));
+                    setProvinences(e.target.value);
+                    const provinceName = provinceList.find(
+                      (item) => item?.id == e.target.value
+                    );
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverProvince: provinceName?.full_name,
+                    }));
+                  }}
+                >
+                  <option value={0}>Select Province</option>
+                  {provinceList?.map((pro) => (
+                    <option value={pro?.id}>{pro?.full_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <select
+                  className="border-b-2 border-[var(--en-vu-500-disable)]"
+                  value={strict}
+                  onChange={(e) => {
+                    setStrict(e.target.value);
+                    const stirctName = strictList.find(
+                      (item) => item?.id == e.target.value
+                    );
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverStrict: stirctName?.full_name,
+                    }));
+                  }}
+                >
+                  <option value={0}>Select Districts</option>
+                  {strictList?.map((pro) => (
+                    <option value={pro?.id}>{pro?.full_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <select
+                  className="border-b-2 border-[var(--en-vu-500-disable)]"
+                  value={ward}
+                  onChange={(e) => {
+                    setWard(e.target.value);
+                    const wardName = wardList.find(
+                      (item) => item?.id == e.target.value
+                    );
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverWard: wardName?.full_name,
+                    }));
+                  }}
+                >
+                  <option value={0}>Select Ward</option>
+                  {wardList?.map((pro) => (
+                    <option value={pro?.id}>{pro?.full_name}</option>
+                  ))}
+                </select>
+              </div>
+            </div> */}
+            <div className="flex items-center gap-4">
+              <input
+                type="text"
+                name="receiverAddress"
+                placeholder={t("receiverAddress")}
+                value={form.receiverAddress}
+                onChange={handleInputChange}
+                className="mt-1 outline-none border-2 p-[0.35rem] flex-grow"
+                required
+              />
+
+              <div className="w-fit">
+                <Select
+                  styles={{
+                    menu: (provided) => ({
+                      ...provided,
+
+                      // Restrict the dropdown height
+                      overflowY: "hidden", // Enable scrolling for content
+                    }),
+                    menuList: (provided) => ({
+                      ...provided,
+                      padding: 0, // Ensure no extra padding
+                      maxHeight: "11.5rem",
+                      overflow: "auto",
+                    }),
+                    control: (baseStyles) => ({
+                      ...baseStyles,
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      boxShadow: "none",
+                      "&:hover": {
+                        border: "1px solid #888",
+                      },
+                    }),
+                    option: (baseStyles, { isFocused, isSelected }) => ({
+                      ...baseStyles,
+                      backgroundColor: isSelected
+                        ? "var(--Xanh-Base)"
+                        : isFocused
+                        ? "var(--Xanh-100)"
+                        : "white",
+                      color: isSelected ? "white !important" : "black",
+                      cursor: "pointer",
+                      padding: "0.5rem 1rem", // Option padding
+                      textAlign: "left", // Center-align text
+                    }),
+                  }}
+                  value={deliveryZone} // Map string to object
+                  onChange={(selectedOption) => setDeliveryZone(selectedOption)}
+                  options={detailWarehouse?.deliveryZones}
+                  formatOptionLabel={(selectedOption) => (
+                    <div className="flex items-center gap-4">
+                      <p>{selectedOption?.name}</p>
+                    </div>
+                  )}
+                  getOptionValue={(option) => option.id}
+                  getOptionLabel={(option) => option.name}
+                />
+              </div>
+              <div className="border p-[0.35rem] w-fit cursor-not-allowed">
+                {detailWarehouse?.deliveryZones[0]?.provinceName}
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end space-x-4 mt-6">
             <button
               type="button"

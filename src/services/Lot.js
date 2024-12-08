@@ -46,5 +46,39 @@ export default function AxiosLot() {
       return e;
     }
   };
-  return { createLot, getLotById, getLotByProductIdX1000 };
+  const getLotByUserIdX1000 = async (
+    userId,
+    search,
+    productId,
+    inventoryId,
+    sortBy,
+    descending,
+    page,
+    pageSize
+  ) => {
+    try {
+      const queryParams = new URLSearchParams();
+      queryParams.append("search", search);
+      productId && queryParams.append("filterBy", "ProductId");
+      productId && queryParams.append("filterQuery", productId);
+
+      inventoryId && queryParams.append("filterBy", "InventoryId");
+      inventoryId && queryParams.append("filterQuery", inventoryId);
+
+      queryParams.append("sortBy", sortBy);
+      queryParams.append("descending", descending);
+      queryParams.append("pageIndex", page);
+      queryParams.append("pageSize", pageSize);
+
+      const fetching = await fetchDataBearer({
+        url: `lot/get-lots/` + userId + "?" + queryParams.toString(),
+        method: "GET",
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
+  return { createLot, getLotById, getLotByProductIdX1000, getLotByUserIdX1000 };
 }

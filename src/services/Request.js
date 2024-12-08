@@ -45,8 +45,15 @@ export default function AxiosRequest() {
   ) => {
     try {
       const queryParams = new URLSearchParams();
-      queryParams.append("status", status);
-      queryParams.append("import", isImported);
+      status != "" && queryParams.append("status", status);
+
+      if (isImported === "import") {
+        queryParams.append("import", true);
+      }
+      if (isImported === "export") {
+        queryParams.append("import", false);
+      }
+
       queryParams.append("descending", descending);
       queryParams.append("pageIndex", pageIndex);
       queryParams.append("pageSize", pageSize);
@@ -86,10 +93,10 @@ export default function AxiosRequest() {
       return e;
     }
   };
-  const updateRequestStatus = async (id,status) => {
+  const updateRequestStatus = async (id, status) => {
     try {
       const fetching = fetchDataBearer({
-        url: `request/update-request-status/` + id+"?status="+status,
+        url: `request/update-request-status/` + id + "?status=" + status,
         method: "PUT",
       });
       await toast.promise(fetching, {
@@ -137,5 +144,11 @@ export default function AxiosRequest() {
     }
   };
 
-  return { createRequest, getRequestByUserId, sendRequestById ,deleteRequestById,updateRequestStatus};
+  return {
+    createRequest,
+    getRequestByUserId,
+    sendRequestById,
+    deleteRequestById,
+    updateRequestStatus,
+  };
 }
