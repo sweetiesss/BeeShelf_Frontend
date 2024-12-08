@@ -4,6 +4,7 @@ import { Table, message, Spin, Button, Input, Modal, Form, Select } from "antd";
 import { useParams } from "react-router-dom";
 import useAxios from "../../../services/CustomizeAxios";
 import { useAuth } from "../../../context/AuthContext";
+import { toast } from "react-toastify";
 
 const Vehicle = () => {
   const { userInfor } = useAuth(); // Lấy thông tin user từ hook useAuth
@@ -132,6 +133,28 @@ const Vehicle = () => {
     }
   }, [userInfor]);
 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedVehicle(null);
+  };
+
+  const handleViewDetail = async (id) => {
+    try {
+      const response = await fetchDataBearer({
+        url: `/vehicle/get-vehicle/${id}`,
+        method: "GET",
+      });
+      console.log(response);
+      setSelectedVehicle(response.data);
+      setIsModalVisible(true);
+    } catch (error) {
+      toast.error("Failed to fetch vehicle data");
+    }
+  };
+
   // Cột trong bảng
   const columns = [
     { title: "ID", dataIndex: "id", key: "id" },
@@ -169,11 +192,82 @@ const Vehicle = () => {
       onFilter: (value, record) => record.status === value,
       render: (status) => status,
     },
-    {title: "AssignedDriverEmail", dataIndex: "assignedDriverEmail", key: "assignedDriverEmail" },
-    {title: "AssignedDriverName", dataIndex: "assignedDriverName", key: "assignedDriverName"},
+    {
+      title: "AssignedDriverEmail",
+      dataIndex: "assignedDriverEmail",
+      key: "assignedDriverEmail",
+    },
+    {
+      title: "AssignedDriverName",
+      dataIndex: "assignedDriverName",
+      key: "assignedDriverName",
+    },
     { title: "LicensePlate", dataIndex: "licensePlate", key: "licensePlate" },
+    {
+      title: "Action",
+      key: "action",
+      render: (record) => (
+        <Button type="primary" onClick={() => handleViewDetail(record.id)}>
+          View Detail
+        </Button>
+      ),
+    },
     // Cột bổ sung có thể bỏ qua nếu không cần thiết
   ];
+
+  const updateVehicleStatus = async (id, newStatus) => {
+    setLoading(true);
+    try {
+      const currentVehicle = vehicles.find((vehicle) => vehicle.id === id);
+      const validTransitions = getValidStatusTransitions(currentVehicle.status);
+
+      if (!validTransitions.includes(newStatus)) {
+        message.error(
+          `Invalid status transition from ${currentVehicle.status} to ${newStatus}`
+        );
+        return;
+      }
+
+      const response = await fetchDataBearer({
+        url: `/vehicle/update-vehicle-status/${id}`,
+        method: "PUT",
+        params: {
+          status: newStatus,
+        },
+      });
+
+      if (response && response.status === 200) {
+        message.success("Status updated successfully!");
+        fetchVehicles();
+      } else {
+        const errorMessage =
+          response?.data?.message || "Failed to update status.";
+        message.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      message.error(
+        error.response?.data?.message ||
+          "Failed to update status. Please try again."
+      );
+    } finally {
+      setLoading(false);
+      setIsModalVisible(false);
+    }
+  };
+  // Add this function to check valid status transitions
+  const getValidStatusTransitions = (currentStatus) => {
+    switch (currentStatus) {
+      case "Available":
+        return ["Repair", "InService"];
+      case "InService":
+        return [];
+      case "Repair":
+        return ["Available"];
+      default:
+        return [];
+    }
+  };
 
   // Lấy dữ liệu thanh toán khi component mount và khi pagination thay đổi
   useEffect(() => {
@@ -181,7 +275,7 @@ const Vehicle = () => {
   }, [pagination.pageIndex]);
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="p-[20px]">
       <Button
         type="primary"
         onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
@@ -270,6 +364,75 @@ const Vehicle = () => {
         rowKey="id"
         loading={loading}
       />
+
+      <Modal
+        title="Order Details"
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button key="close" onClick={handleModalClose}>
+            Close
+          </Button>,
+        ]}
+      >
+        {selectedVehicle && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="statusSelect" className="font-bold">
+                Status:
+              </label>
+              <Select
+                id="statusSelect"
+                className="w-full"
+                value={selectedVehicle.status}
+                onChange={(newStatus) =>
+                  updateVehicleStatus(selectedVehicle.id, newStatus)
+                }
+                placeholder="Select a status"
+                disabled={
+                  getValidStatusTransitions(selectedVehicle.status).length === 0
+                }
+              >
+                {getValidStatusTransitions(selectedVehicle.status).map(
+                  (status) => (
+                    <Option key={status} value={status}>
+                      {status}
+                    </Option>
+                  )
+                )}
+              </Select>
+            </div>
+            <div>
+              <div className="grid grid-cols-1 gap-2">
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Vehicle ID:</p>
+                  <p>{selectedVehicle.id}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">vehicle Name:</p>
+                  <p>{selectedVehicle.name}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">License Plate:</p>
+                  <p>{selectedVehicle.licensePlate}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Status:</p>
+                  <p>{selectedVehicle.status}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Type:</p>
+                  <p>{selectedVehicle.type}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold">Assigned Driver Name:</p>
+                  <p>{selectedVehicle.assignedDriverName}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
