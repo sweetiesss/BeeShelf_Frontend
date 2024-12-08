@@ -8,7 +8,7 @@ import AxiosOrder from "../../services/Order";
 import AxiosWarehouse from "../../services/Warehouse";
 import { toast } from "react-toastify";
 import AxiosOthers from "../../services/Others";
-
+import Select from "react-select";
 const cloneWarehouseData = {
   id: 1,
   name: "Ha Noi Main Warehouse",
@@ -52,6 +52,7 @@ export default function CreateOrderPage() {
   const [warehouse, setWarehouse] = useState();
   const debounceTimeoutRef = useRef(null);
   const [validLocation, setValidLocation] = useState("");
+  const [defaultLocation, setDefaultLocation] = useState("");
 
   const [startLocation, setStartLocation] = useState();
 
@@ -88,7 +89,13 @@ export default function CreateOrderPage() {
         receiverWard.length > 0
       ) {
         setValidLocation(
-          ` ${receiverWard} ${receiverStrict} ${receiverProvince}`
+          `${
+            receiverAddress && receiverAddress + ", "
+          } ${receiverWard}, ${receiverStrict}, ${receiverProvince}`
+        );
+
+        setDefaultLocation(
+          `${receiverWard}, ${receiverStrict}, ${receiverProvince}`
         );
       } else setValidLocation();
     };
@@ -151,18 +158,28 @@ export default function CreateOrderPage() {
   console.log("t", process.env.REACT_APP_MAP_API_KEY);
 
   useEffect(() => {
+    console.log("inventories", inventories);
+
     if (inventories) {
-      const uniqueWarehouses = Array.from(
-        new Map(
-          inventories.map((item) => [
-            item.warehouseId,
-            {
-              warehouseId: item.warehouseId,
-              warehouseName: item.warehouseName,
-            },
-          ])
-        ).values()
-      );
+      const warehouseMap = new Map();
+
+      inventories.forEach((item) => {
+        if (!warehouseMap.has(item.warehouseId)) {
+          warehouseMap.set(item.warehouseId, {
+            warehouseId: item.warehouseId,
+            warehouseName: item.warehouseName,
+            productStock: item.stock || 0, // Use initial stock value or 0 if undefined
+          });
+        } else {
+          const currentWarehouse = warehouseMap.get(item.warehouseId);
+          warehouseMap.set(item.warehouseId, {
+            ...currentWarehouse,
+            productStock: currentWarehouse.productStock + (item.stock || 0),
+          });
+        }
+      });
+
+      const uniqueWarehouses = Array.from(warehouseMap.values());
       setWarehouses(uniqueWarehouses);
     }
   }, [inventories]);
@@ -174,7 +191,7 @@ export default function CreateOrderPage() {
       console.log("here2", warehouses);
 
       const result = inventories.filter(
-        (a) => parseInt(a.warehouseId) === parseInt(warehouse)
+        (a) => parseInt(a.warehouseId) === parseInt(warehouse?.id)
       );
       console.log("here", result);
 
@@ -195,30 +212,32 @@ export default function CreateOrderPage() {
       setLoading(false);
     }
   };
-  const getWarehouses = async () => {
-    try {
-      setLoading(true);
-      const result = await getWarehouseById(warehouse);
-      if (result?.status === 200) {
-        return result;
-      }
-      return undefined;
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const getWarehouses = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const result = await getWarehouseById(warehouse?.id);
+  //     if (result?.status === 200) {
+  //       console.log("detail", result);
+  //       console.log("from the warehouse", warehouse);
+  //       return result;
+  //     }
+  //     return undefined;
+  //   } catch (e) {
+  //     console.error(e);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const calculateDistance = async () => {
     setStartLocation();
     const API_KEY = process.env.REACT_APP_MAP_API_KEY;
-    const dataLocation = await getWarehouses(warehouse);
-    const warehouseAddress = dataLocation?.data?.location; // Replace with your actual warehouse address
+
+    const warehouseAddress = warehouse?.location; // Replace with your actual warehouse address
     const receiverAddress = form.receiverAddress;
     console.log("addres", warehouseAddress);
 
-    setStartLocation("178a Đ. Bưởi, Cống Vị, Ba Đình, Ha Noi");
+    setStartLocation(warehouse?.location);
 
     try {
       const response = await axios.get(
@@ -309,7 +328,7 @@ export default function CreateOrderPage() {
       setLoading(true);
       e.preventDefault();
       console.log("Order Created:", form);
-      const result = await createOrder(form, warehouse);
+      const result = await createOrder(form, warehouse?.id);
       console.log(result);
       setForm(baseForm);
     } catch (e) {
@@ -319,7 +338,7 @@ export default function CreateOrderPage() {
     }
   };
 
-  console.log(form);
+  console.log(validLocation);
 
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
@@ -434,10 +453,12 @@ export default function CreateOrderPage() {
               <label className="block  font-medium text-gray-700">
                 {t("Warehouse")}
               </label>
-              <select
+              {/* <select
                 className="text-black border border-gray-300 p-2 rounded-md w-full"
                 onChange={(e) => {
-                  setWarehouse(e.target.value);
+                  setWarehouse(
+                    warehouses?.find((item) => item?.id === e.target.value)
+                  );
                 }}
                 value={warehouse}
               >
@@ -449,7 +470,55 @@ export default function CreateOrderPage() {
                     {item?.warehouseName}
                   </option>
                 ))}
-              </select>
+              </select> */}
+              <Select
+                className="col-span-2"
+                styles={{
+                  menu: (provided) => ({
+                    ...provided,
+
+                    // Restrict the dropdown height
+                    overflowY: "hidden", // Enable scrolling for content
+                  }),
+                  menuList: (provided) => ({
+                    ...provided,
+                    padding: 0, // Ensure no extra padding
+                    maxHeight: "11.5rem",
+                    overflow: "auto",
+                  }),
+                  control: (baseStyles) => ({
+                    ...baseStyles,
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    boxShadow: "none",
+                    "&:hover": {
+                      border: "1px solid #888",
+                    },
+                  }),
+                  option: (baseStyles, { isFocused, isSelected }) => ({
+                    ...baseStyles,
+                    backgroundColor: isSelected
+                      ? "var(--Xanh-Base)"
+                      : isFocused
+                      ? "var(--Xanh-100)"
+                      : "white",
+                    color: isSelected ? "white !important" : "black",
+                    cursor: "pointer",
+                    padding: "0.5rem 1rem", // Option padding
+                    textAlign: "left", // Center-align text
+                  }),
+                }}
+                value={warehouse} // Map string to object
+                onChange={(selectedOption) => setWarehouse(selectedOption)}
+                options={warehouses}
+                formatOptionLabel={(selectedOption) => (
+                  <div className="flex items-center gap-4">
+                    <p>{selectedOption?.warehouseName}</p>
+                  </div>
+                )}
+                getOptionValue={(option) => option.warehouseId}
+                getOptionLabel={(option) => option.warehouseName}
+              />
             </div>
             <div>
               <label className="block  font-medium text-gray-700">
@@ -542,8 +611,9 @@ export default function CreateOrderPage() {
         </form>
         <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
           <Mapping
-            showLocation={validLocation}
-            toLocation={startLocation}
+            showLocation={warehouse?.location}
+            toLocation={validLocation}
+            defaultLocation={defaultLocation}
 
             // cloneWarehouseData={cloneWarehouseData}
           />

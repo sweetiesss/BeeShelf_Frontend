@@ -71,7 +71,7 @@ export default function RequestList({
             <td className="text-center pb-2 ">{t("Product")}</td>
             <td className="text-left pb-2 ">{t("Warehouse")}</td>
             <td className="text-left pb-2 ">{t("CreateDate")}</td>
-            <td className="text-left pb-2 ">{t("Action")}</td>
+            <td className="text-left pb-2 "></td>
           </tr>
         </thead>
         <tbody>

@@ -38,6 +38,7 @@ export default function AxiosRequest() {
   const getRequestByUserId = async (
     userId,
     status,
+    isImported,
     descending,
     pageIndex,
     pageSize
@@ -45,6 +46,7 @@ export default function AxiosRequest() {
     try {
       const queryParams = new URLSearchParams();
       queryParams.append("status", status);
+      queryParams.append("import", isImported);
       queryParams.append("descending", descending);
       queryParams.append("pageIndex", pageIndex);
       queryParams.append("pageSize", pageSize);

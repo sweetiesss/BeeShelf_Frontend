@@ -32,6 +32,7 @@ export default function RequestPage() {
 
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
+    import: true,
     status: "",
     descending: true,
     pageIndex: 0,
@@ -53,6 +54,7 @@ export default function RequestPage() {
           const response = await getRequestByUserId(
             filterField.userId,
             filterField.status,
+            filterField.import,
             filterField.descending,
             filterField.pageIndex,
             filterField.pageSize
@@ -68,6 +70,7 @@ export default function RequestPage() {
           const response = await getRequestByUserId(
             filterField.userId,
             filterField.status,
+            filterField.import,
             filterField.descending,
             filterField.pageIndex,
             filterField.pageSize
@@ -104,6 +107,7 @@ export default function RequestPage() {
       const response = await getRequestByUserId(
         filterField.userId,
         filterField.status,
+        filterField.import,
         filterField.descending,
         filterField.pageIndex,
         filterField.pageSize
@@ -191,6 +195,15 @@ export default function RequestPage() {
         <option value={"Delivered"}>Delivered</option>
         <option value={"Failed"}>Failed</option>
         <option value={"Completed"}>Completed</option>
+      </select>
+
+      <select
+        name="import"
+        value={filterField.import}
+        onChange={handleFiltered}
+      >
+        <option value={true}>Import</option>
+        <option value={false}>Export</option>
       </select>
 
       <button onClick={() => nav("create-request")}>Create request</button>

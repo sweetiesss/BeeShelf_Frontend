@@ -906,7 +906,7 @@ export default function InventoryPage() {
                 ))}
               </div>
               <div className=" w-full h-1/2 flex items-center justify-start z-[10] ">
-                <Mapping showLocation={warehouse?.location} />
+                <Mapping showLocation={warehouse}/>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 col-span-3 overflow-auto row-span-11  items-start ">

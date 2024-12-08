@@ -12,13 +12,10 @@ import Select from "react-select";
 import { differenceInDays, format } from "date-fns";
 export default function CreateRequestImport({
   product,
-  setProduct,
-  products,
+
   inventories,
   handleCancel,
-  type,
-  setType,
-  enableSelect,
+
   handleClose,
 }) {
   const { userInfor } = useContext(AuthContext);
@@ -92,12 +89,12 @@ export default function CreateRequestImport({
         name: `${product.name}-${userInfor?.name || "User"}`, // Product Name + User's Name
       },
     };
-    const fetching = await createRequest(submitForm, type, true);
+    const fetching = await createRequest(submitForm, "Import", true);
     handleClose();
   };
   const handleSaveDraft = async () => {
     console.log(form);
-    const fetching = await createRequest(form, type, false);
+    const fetching = await createRequest(form, "Import", false);
     handleClose();
   };
 
