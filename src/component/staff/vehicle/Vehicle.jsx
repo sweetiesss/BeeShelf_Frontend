@@ -153,9 +153,18 @@ const Vehicle = () => {
         url: `/vehicle/get-vehicle/${id}`,
         method: "GET",
       });
-      console.log(response);
-      setSelectedVehicle(response.data);
-      setIsModalVisible(true);
+
+      // Lọc chỉ những phương tiện có status = "Available"
+      const availableVehicles = response.data.filter(
+        (vehicle) => vehicle.status === "Available"
+      );
+
+      if (availableVehicles.length > 0) {
+        setSelectedVehicle(availableVehicles);
+        setIsModalVisible(true);
+      } else {
+        toast.info("No vehicles with status 'Available' found");
+      }
     } catch (error) {
       toast.error("Failed to fetch vehicle data");
     }

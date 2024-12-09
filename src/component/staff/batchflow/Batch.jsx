@@ -165,12 +165,14 @@ const BatchManage = () => {
             pageSize: 100,
             filterBy: "DeliveryZoneId",
             filterQuery: selectedDeliveryZone,
-            vehicleFilter: "notEmpty" // Giả sử API hỗ trợ điều kiện lọc này
+            // vehicleFilter: "notEmpty" // Giả sử API hỗ trợ điều kiện lọc này
           },
         });
-        
-        
-
+        // Kiểm tra và lọc các shipper có vehicles không rỗng
+        const filteredShippers = response.data.filter(
+          (shipper) => shipper.vehicles && shipper.vehicles.length > 0
+        );
+        console.log(filteredShippers);
         if (response.status === 200 && response.data) {
           console.log("Shippers data:", response.data);
           setShippers(response.data.items || []); // Ensure this is correct
