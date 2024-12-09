@@ -88,7 +88,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="h-[47px] justify-start items-start flex">
-                <div className="grow hover:border-[3px] hover:font-semibold cursor-pointer shrink basis-0 h-[47px] px-[18px] py-3 rounded-[15px] border border-[#adb1bf] justify-center items-center gap-2 flex">
+                <div className="grow hover:bg-gray-100 hover:font-semibold cursor-pointer shrink basis-0 h-[47px] px-[18px] py-3 rounded-[15px] border border-[#adb1bf] justify-center items-center gap-2 flex">
                   <div className="text-[#091540] text-lg font-normal font-['Lexend'] px-5">
                     {t("Viewpreview")}
                   </div>

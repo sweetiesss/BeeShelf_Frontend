@@ -43,6 +43,7 @@ export default function PartnerRoutes() {
           {/* <Route path="profile" element={<ProfilePage />} /> */}
           <Route path="editProfile" element={<EditProfilePage />} />
           <Route path="payment" element={<PaymentPage />} />
+          <Route path="payment/result" element={<PaymentResult />} />
         </Route>
       </Routes>
     </div>
