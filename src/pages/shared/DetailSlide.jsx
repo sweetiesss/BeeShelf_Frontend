@@ -64,6 +64,27 @@ export default function DetailSlide() {
     const [errors, setErrors] = useState();
     const { updateProductById } = AxiosProduct();
     const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
+    const unitOptions = [
+      { value: "", label: "ChooseUnit" },
+      { value: "Liter", label: "Liter" },
+      { value: "Milliliter", label: "Milliliter" },
+      { value: "Pieces", label: "Pieces" },
+      { value: "Box", label: "Box" },
+      { value: "Bottle", label: "Bottle" },
+      { value: "Package", label: "Package" },
+      { value: "Carton", label: "Carton" },
+      { value: "Meter", label: "Meter" },
+      { value: "Centimeter", label: "Centimeter" },
+      { value: "Square Meter", label: "SquareMeter" },
+      { value: "Kilometer", label: "Kilometer" },
+      { value: "Bag", label: "Bag" },
+      { value: "Sheet", label: "Sheet" },
+      { value: "Roll", label: "Roll" },
+      { value: "Jar", label: "Jar" },
+      { value: "Pot", label: "Pot" },
+      { value: "Tablet", label: "Tablet" },
+      { value: "Can", label: "Can" },
+    ];
     useEffect(() => {
       const handleClickOutSide = (event) => {
         if (
@@ -109,6 +130,21 @@ export default function DetailSlide() {
     };
     const handleInput = (e) => {
       const { name, value } = e.target;
+      console.log("name", name);
+      console.log("value", value);
+      if (name === "price") {
+        if (value > 999999999) {
+          setForm(() => ({ ...form, [name]: 999999999 }));
+          return;
+        }
+      }
+      if (name === "weight") {
+        if (value > 999999999) {
+          setForm(() => ({ ...form, [name]: 999999999 }));
+          return;
+        }
+      }
+
       value === ""
         ? setForm(() => ({ ...form, [name]: "" }))
         : setForm(() => ({ ...form, [name]: value }));
@@ -283,33 +319,173 @@ export default function DetailSlide() {
               {t("Price")}:
             </span>
             {inputField?.price ? (
-              <input
-                name="price"
-                type="number"
-                value={form?.price}
-                onChange={handleInput}
-                className={`input-field text-left w-full col-span-1 font-semibold text-lg${
-                  errors?.price ? "input-error" : ""
-                }`}
-              />
+              <div className="relative">
+                <input
+                  name="price"
+                  type="number"
+                  value={form?.price}
+                  onChange={handleInput}
+                  className={`input-field pr-10 text-left w-full col-span-1 font-semibold text-lg${
+                    errors?.price ? "input-error" : ""
+                  }`}
+                />
+                <div className="absolute top-3 right-7">vnd</div>
+              </div>
             ) : (
               <span className="text-gray-700 text-lg col-span-1">
                 {new Intl.NumberFormat().format(dataDetail?.price)} vnd
               </span>
             )}
             <span className="text-black text-lg font-semibold col-span-1">
+              {t("unit")}:
+            </span>
+            {inputField?.unit ? (
+              // <input
+              //   name="unit"
+              //   type="number"
+              //   value={form?.unit}
+              //   onChange={handleInput}
+              //   className={`input-field text-left w-full col-span-1 font-semibold text-lg${
+              //     errors?.unit ? "input-error" : ""
+              //   }`}
+              // />
+              <Select
+                value={unitOptions.find(
+                  (option) => option.value === form?.unit
+                )}
+                onChange={(selectedOption) =>
+                  handleInput({
+                    target: {
+                      name: "unit",
+                      value: selectedOption.value,
+                    },
+                  })
+                }
+                name="unit"
+                className="react-select-container"
+                classNamePrefix="react-select"
+                options={unitOptions}
+                getOptionLabel={(option) => `${t(option.label)}`}
+                styles={{
+                  menu: (provided) => ({
+                    ...provided,
+                    width: "100%",
+                  }),
+                  menuList: (provided) => ({
+                    ...provided,
+                    maxHeight: "7.5rem",
+                    overflow: "auto",
+                  }),
+                  control: (provided) => ({
+                    ...provided,
+                    paddingTop: "4px",
+                    paddingBottom: "4px",
+                    // width:"100%",
+                    borderColor: "#ccc", // Custom border color
+                    boxShadow: "none", // Remove default focus outline
+                    "&:hover": { borderColor: "#aaa" }, // Border on hover
+                  }),
+                  option: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: state.isSelected
+                      ? "#0056b3"
+                      : state.isFocused
+                      ? "#e6f7ff"
+                      : "white",
+                    color: state.isSelected ? "white" : "black",
+                  }),
+                }}
+              />
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.unit}
+              </span>
+            )}
+            <span className="text-black text-lg font-semibold col-span-1">
+              {t("isCold")}:
+            </span>
+            {inputField?.isCold ? (
+              // <input
+              //   name="isCold"
+              //   type="number"
+              //   value={form?.isCold}
+              //   onChange={handleInput}
+              //   className={`input-field text-left w-full col-span-1 font-semibold text-lg${
+              //     errors?.isCold ? "input-error" : ""
+              //   }`}
+              // />
+              <Select
+                value={[
+                  { value: 0, label: t("NormailInventory") },
+                  { value: 1, label: t("FrozenInventory") },
+                ].find((option) => option.value === form?.isCold)}
+                onChange={(selectedOption) =>
+                  handleInput({
+                    target: {
+                      name: "isCold",
+                      value: selectedOption.value,
+                    },
+                  })
+                }
+                name="isCold"
+                className="react-select-container"
+                classNamePrefix="react-select"
+                options={[
+                  { value: 0, label: t("NormailInventory") },
+                  { value: 1, label: t("FrozenInventory") },
+                ]}
+                getOptionLabel={(option) => `${t(option.label)}`}
+                styles={{
+                  menu: (provided) => ({
+                    ...provided,
+                    width: "100%",
+                  }),
+                  menuList: (provided) => ({
+                    ...provided,
+                    maxHeight: "7.5rem",
+                    overflow: "auto",
+                  }),
+                  control: (provided) => ({
+                    ...provided,
+                    paddingTop: "4px",
+                    paddingBottom: "4px",
+                    // width:"100%",
+                    borderColor: "#ccc", // Custom border color
+                    boxShadow: "none", // Remove default focus outline
+                    "&:hover": { borderColor: "#aaa" }, // Border on hover
+                  }),
+                  option: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: state.isSelected
+                      ? "#0056b3"
+                      : state.isFocused
+                      ? "#e6f7ff"
+                      : "white",
+                    color: state.isSelected ? "white" : "black",
+                  }),
+                }}
+              />
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.isCold}
+              </span>
+            )}
+            <span className="text-black text-lg font-semibold col-span-1">
               {t("Weight")}:
             </span>
             {inputField?.weight ? (
-              <input
-                name="weight"
-                value={form?.weight}
-                type="number"
-                onChange={handleInput}
-                className={`input-field text-left col-span-1 w-full font-semibold text-lg${
-                  errors?.weight ? "input-error" : ""
-                }`}
-              />
+              <div className="relative">
+                <input
+                  name="weight"
+                  value={form?.weight}
+                  type="number"
+                  onChange={handleInput}
+                  className={`input-field text-left col-span-1 w-full font-semibold text-lg${
+                    errors?.weight ? "input-error" : ""
+                  }`}
+                />
+                <div className="absolute top-3 right-7">kg</div>
+              </div>
             ) : (
               <span className="text-gray-700 text-lg col-span-1">
                 {dataDetail?.weight} kg
@@ -325,8 +501,18 @@ export default function DetailSlide() {
           <div className="flex justify-between items-center w-full gap-4">
             {inputField ? (
               <>
-                <button onClick={() => setInputField()}>Cancel</button>
-                <button onClick={handeUpdate}>Update</button>
+                <button
+                  className="mt-auto hover:bg-red-500 bg-red-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
+                  onClick={() => setInputField()}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="mt-auto hover:bg-green-500 bg-green-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
+                  onClick={handeUpdate}
+                >
+                  Update
+                </button>
               </>
             ) : (
               <>

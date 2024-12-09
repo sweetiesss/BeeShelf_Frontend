@@ -7,6 +7,8 @@ import "leaflet-routing-machine";
 // Fix default marker icon issue
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+// import fromIcon from "../../assets/img/fromIcon.png";
+import fromIcon from "../../assets/img/fromIcon.svg";
 import { toast } from "react-toastify";
 
 // Define the custom icon globally
@@ -18,17 +20,21 @@ const customIcon = L.icon({
   popupAnchor: [1, -34], // Anchor point for popups
   shadowSize: [41, 41], // Shadow size
 });
+const showFromIcon = L.icon({
+  iconUrl: fromIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41], // Default size
+  iconAnchor: [12, 41], // Anchor point of the icon
+  popupAnchor: [1, -34], // Anchor point for popups
+  shadowSize: [41, 41], // Shadow size
+});
 
-export default function Mapping({
-  showLocation,
-  toLocation,
-  cloneWarehouseData,
-}) {
+export default function Mapping({ showLocation, toLocation, defaultLocation }) {
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null); // Ref for the map container div
   const routingControlRef = useRef(null);
 
-  const fetchCoordinates = async (address) => {
+  const fetchCoordinates = async (address, defaultAddress) => {
     try {
       const response = await axios.get(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
@@ -38,11 +44,20 @@ export default function Mapping({
       if (response.data && response.data.length > 0) {
         const { lat, lon } = response.data[0];
         return { lat, lon };
-      } else {
-        console.error("Location not found: ${address}");
-        // toast.error(Location not found: ${address});
-        return null;
+      } else if (defaultAddress) {
+        const response2 = await axios.get(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            address
+          )}`
+        );
+        if (response2.data && response2.data.length > 0) {
+          const { lat, lon } = response2.data[0];
+          return { lat, lon };
+        }
       }
+      console.error("Location not found: ${address}");
+
+      return null;
     } catch (error) {
       console.error("Error fetching location data for ${address}:, error");
       return null;
@@ -50,14 +65,28 @@ export default function Mapping({
   };
 
   useEffect(() => {
+    return () => {
+      if (routingControlRef.current) {
+        routingControlRef.current.getPlan().setWaypoints([]);
+        mapRef.current.removeControl(routingControlRef.current);
+        routingControlRef.current = null;
+      }
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+  useEffect(() => {
     const initializeMap = async () => {
-      const fromCoordinates = showLocation
-        ? await fetchCoordinates(showLocation)
+      const fromCoordinates = showLocation?.location
+        ? await fetchCoordinates(showLocation?.location, defaultLocation)
         : null;
+      console.log("Tolocation here", toLocation);
+
       const toCoordinates = toLocation
-        ? await fetchCoordinates(toLocation)
+        ? await fetchCoordinates(toLocation, defaultLocation)
         : null;
-      const { location = null, deliveryZones = [] } = cloneWarehouseData || {};
 
       // Ensure the map container is available
       if (!mapContainerRef.current) {
@@ -89,18 +118,31 @@ export default function Mapping({
         routingControlRef.current = null;
       }
 
-      // Case 1: Only showLocation is provided
       if (fromCoordinates && !toCoordinates) {
         L.marker([fromCoordinates.lat, fromCoordinates.lon], {
-          icon: customIcon,
+          icon: showFromIcon,
         })
           .addTo(mapRef.current)
-          .bindPopup(<b>${showLocation}</b>)
+          .bindPopup(
+            `<b style="text-align:center">${showLocation?.name}</b><br>${showLocation?.location}`
+          )
           .openPopup();
+
+        return;
+      }
+      if (!fromCoordinates && toCoordinates) {
+        L.marker([toCoordinates.lat, toCoordinates.lon], {
+          icon: showFromIcon,
+        })
+          .addTo(mapRef.current)
+          .bindPopup(
+            `<b style="text-align:center">Your address</b><br>${toLocation}`
+          )
+          .openPopup();
+
         return;
       }
 
-      // Case 2: Both showLocation and toLocation are provided
       if (fromCoordinates && toCoordinates) {
         routingControlRef.current = L.Routing.control({
           waypoints: [
@@ -113,6 +155,7 @@ export default function Mapping({
           createMarker: (i, waypoint) =>
             L.marker(waypoint.latLng, { icon: customIcon }),
         }).addTo(mapRef.current);
+
         const routingContainer = document.querySelector(
           ".leaflet-routing-container"
         );
@@ -121,7 +164,6 @@ export default function Mapping({
         }
         return;
       }
-    
     };
 
     initializeMap();

@@ -272,11 +272,11 @@ export default function ProductList({
                       onClick={(e) => e.stopPropagation()}
                     />
                   </td>
-                  <td className=" h-[6rem]">
+                  <td className=" h-[7rem] ">
                     <img
                       src={product.pictureLink}
                       alt={product.name}
-                      className=" h-[4rem] rounded-xl"
+                      className="w-[5rem] h-[5rem] object-cover object-center rounded-lg border-2 border-gray-500"
                     />
                   </td>
                   {notInDataBase && (
@@ -346,17 +346,6 @@ export default function ProductList({
                     }`}
                   >
                     {editAble ? (
-                      // <select
-                      //   value={editForm?.productCategoryId}
-                      //   name="productCategoryId"
-                      //   className="w-[80%] px-2 py-1"
-                      //   onChange={hanldeEditChange}
-                      // >
-                      //   <option value={0}>Select Category</option>
-                      //   {productCategories?.map((item) => (
-                      //     <option value={item?.id}>{item?.typeName}</option>
-                      //   ))}
-                      // </select>
                       <Select
                         styles={{
                           menu: (provided) => ({
@@ -501,10 +490,12 @@ export default function ProductList({
                       <div
                         className={`overflow-hidden text-nowrap  flex items-center `}
                       >
-                        {new Intl.NumberFormat().format(product.price)}
+                        {product.price
+                          ? new Intl.NumberFormat().format(product.price)
+                          : ""}
                         {checkError?.error?.includes("price") &&
                           !product.price && (
-                            <span className="bg-red-500 text-white text-lg rounded-md">
+                            <span className="bg-red-500 text-white t ext-lg rounded-md">
                               <ExclamationMark weight="bold" />
                             </span>
                           )}
@@ -518,44 +509,6 @@ export default function ProductList({
                     }`}
                   >
                     {editAble ? (
-                      // <Select
-                      //   value={unitOptions.find(
-                      //     (option) => option.value === editForm?.unit
-                      //   )}
-                      //   onChange={(selectedOption) =>
-                      //     hanldeEditChange({
-                      //       target: {
-                      //         name: "unit",
-                      //         value: selectedOption.value,
-                      //       },
-                      //     })
-                      //   }
-                      //   name="unit"
-                      //   className="react-select-container"
-                      //   classNamePrefix="react-select"
-                      //   options={unitOptions}
-                      //   styles={{
-                      //     menu: (provided) => ({
-                      //       ...provided,
-                      //       width: "fit",
-                      //     }),
-                      //     control: (provided) => ({
-                      //       ...provided,
-                      //       borderColor: "#ccc", // Custom border color
-                      //       boxShadow: "none", // Remove default focus outline
-                      //       "&:hover": { borderColor: "#aaa" }, // Border on hover
-                      //     }),
-                      //     option: (provided, state) => ({
-                      //       ...provided,
-                      //       backgroundColor: state.isSelected
-                      //         ? "#0056b3"
-                      //         : state.isFocused
-                      //         ? "#e6f7ff"
-                      //         : "white",
-                      //       color: state.isSelected ? "white" : "black",
-                      //     }),
-                      //   }}
-                      // />
                       <Select
                         value={unitOptions.find(
                           (option) => option.value === editForm?.unit

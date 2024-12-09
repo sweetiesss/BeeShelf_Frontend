@@ -8,7 +8,7 @@ import AxiosOrder from "../../services/Order";
 import AxiosWarehouse from "../../services/Warehouse";
 import { toast } from "react-toastify";
 import AxiosOthers from "../../services/Others";
-
+import Select from "react-select";
 const cloneWarehouseData = {
   id: 1,
   name: "Ha Noi Main Warehouse",
@@ -48,10 +48,14 @@ export default function CreateOrderPage() {
   const [ward, setWard] = useState(0);
   const [location, setLocation] = useState();
 
+  const [deliveryZone, setDeliveryZone] = useState();
+
   const [warehouses, setWarehouses] = useState();
   const [warehouse, setWarehouse] = useState();
+  const [detailWarehouse, setDetailWarehouse] = useState();
   const debounceTimeoutRef = useRef(null);
   const [validLocation, setValidLocation] = useState("");
+  const [defaultLocation, setDefaultLocation] = useState("");
 
   const [startLocation, setStartLocation] = useState();
 
@@ -59,84 +63,92 @@ export default function CreateOrderPage() {
     ocopPartnerId: userInfor?.id,
     receiverPhone: "",
     receiverAddress: "",
-    receiverWard: "",
-    receiverStrict: "",
-    receiverProvince: "",
-    distance: null,
+    deliveryZoneId: "",
+    // receiverWard: "",
+    // receiverStrict: "",
+    // receiverProvince: "",
+    distance: 0,
     products: [],
   };
   const defaultForm = {
     ocopPartnerId: userInfor?.id,
     receiverPhone: "",
     receiverAddress: "",
-    distance: null,
+    deliveryZoneId: null,
+    distance: 0,
     products: [],
   };
   const [form, setForm] = useState(baseForm);
 
-  useEffect(() => {
-    const validateAndFormatLocation = async () => {
-      const {
-        receiverAddress,
-        receiverWard,
-        receiverStrict,
-        receiverProvince,
-      } = form;
-      if (
-        receiverProvince.length > 0 &&
-        receiverStrict.length > 0 &&
-        receiverWard.length > 0
-      ) {
-        setValidLocation(
-          ` ${receiverWard} ${receiverStrict} ${receiverProvince}`
-        );
-      } else setValidLocation();
-    };
+  // useEffect(() => {
+  //   const validateAndFormatLocation = async () => {
+  //     const {
+  //       receiverAddress,
+  //       receiverWard,
+  //       receiverStrict,
+  //       receiverProvince,
+  //     } = form;
+  //     if (
+  //       receiverProvince.length > 0 &&
+  //       receiverStrict.length > 0 &&
+  //       receiverWard.length > 0
+  //     ) {
+  //       setValidLocation(
+  //         `${
+  //           receiverAddress && receiverAddress + ", "
+  //         } ${receiverWard}, ${receiverStrict}, ${receiverProvince}`
+  //       );
 
-    validateAndFormatLocation();
-  }, [
-    form.receiverAddress,
-    form.receiverWard,
-    form.receiverStrict,
-    form.receiverProvince,
-  ]);
+  //       setDefaultLocation(
+  //         `${receiverWard}, ${receiverStrict}, ${receiverProvince}`
+  //       );
+  //     } else setValidLocation();
+  //   };
+
+  //   validateAndFormatLocation();
+  // }, [
+  //   form.receiverAddress,
+  //   form.receiverWard,
+  //   form.receiverStrict,
+  //   form.receiverProvince,
+  // ]);
 
   useEffect(() => {
     getProductsInWareHouse();
-    getProvinces();
+    // getProvinces();
   }, []);
 
-  useEffect(() => {
-    getDistricts();
-  }, [province]);
-  useEffect(() => {
-    getWard();
-  }, [strict]);
+  // useEffect(() => {
+  //   getDistricts();
+  // }, [province]);
+  // useEffect(() => {
+  //   getWard();
+  // }, [strict]);
 
-  const getProvinces = async () => {
-    const result = await getAddressProvincesStressWard(1, 0);
-    setProvinencesList(result?.data?.data);
-    console.log(result);
-  };
-  const getDistricts = async () => {
-    setForm((prev) => ({ ...prev, receiverStrict: "" }));
-    setForm((prev) => ({ ...prev, receiverWard: "" }));
+  // const getProvinces = async () => {
+  //   const result = await getAddressProvincesStressWard(1, 0);
+  //   setProvinencesList(result?.data?.data);
+  //   console.log(result);
+  // };
+  // const getDistricts = async () => {
+  //   setForm((prev) => ({ ...prev, receiverStrict: "" }));
+  //   setForm((prev) => ({ ...prev, receiverWard: "" }));
 
-    if (province !== 0 && province) {
-      const result = await getAddressProvincesStressWard(2, province);
-      setStrictList(result?.data?.data);
-      console.log("district", result);
-    }
-  };
-  const getWard = async () => {
-    setForm((prev) => ({ ...prev, receiverWard: "" }));
+  //   if (province !== 0 && province) {
+  //     const result = await getAddressProvincesStressWard(2, province);
+  //     setStrictList(result?.data?.data);
+  //     console.log("district", result);
+  //   }
+  // };
+  // const getWard = async () => {
+  //   setForm((prev) => ({ ...prev, receiverWard: "" }));
 
-    if (strict !== 0 && strict) {
-      const result = await getAddressProvincesStressWard(3, strict);
-      setWardList(result?.data?.data);
-      console.log("ward", result);
-    }
-  };
+  //   if (strict !== 0 && strict) {
+  //     const result = await getAddressProvincesStressWard(3, strict);
+  //     setWardList(result?.data?.data);
+  //     console.log("ward", result);
+  //   }
+  // };
 
   useEffect(() => {
     if (form.receiverAddress) {
@@ -146,23 +158,34 @@ export default function CreateOrderPage() {
 
   useEffect(() => {
     filterWarehouse();
+    getDetailWarehouse();
   }, [warehouse]);
 
   console.log("t", process.env.REACT_APP_MAP_API_KEY);
 
   useEffect(() => {
+    console.log("inventories", inventories);
+
     if (inventories) {
-      const uniqueWarehouses = Array.from(
-        new Map(
-          inventories.map((item) => [
-            item.warehouseId,
-            {
-              warehouseId: item.warehouseId,
-              warehouseName: item.warehouseName,
-            },
-          ])
-        ).values()
-      );
+      const warehouseMap = new Map();
+
+      inventories.forEach((item) => {
+        if (!warehouseMap.has(item.warehouseId)) {
+          warehouseMap.set(item.warehouseId, {
+            warehouseId: item.warehouseId,
+            warehouseName: item.warehouseName,
+            productStock: item.stock || 0, // Use initial stock value or 0 if undefined
+          });
+        } else {
+          const currentWarehouse = warehouseMap.get(item.warehouseId);
+          warehouseMap.set(item.warehouseId, {
+            ...currentWarehouse,
+            productStock: currentWarehouse.productStock + (item.stock || 0),
+          });
+        }
+      });
+
+      const uniqueWarehouses = Array.from(warehouseMap.values());
       setWarehouses(uniqueWarehouses);
     }
   }, [inventories]);
@@ -174,7 +197,7 @@ export default function CreateOrderPage() {
       console.log("here2", warehouses);
 
       const result = inventories.filter(
-        (a) => parseInt(a.warehouseId) === parseInt(warehouse)
+        (a) => parseInt(a.warehouseId) === parseInt(warehouse?.warehouseId)
       );
       console.log("here", result);
 
@@ -186,6 +209,8 @@ export default function CreateOrderPage() {
     try {
       setLoading(true);
       const result = await getAllProduct(userInfor?.id, warehouseFilter);
+      console.log("All product", result);
+
       if (result?.status === 200) {
         setInventories(result?.data?.products);
       }
@@ -195,13 +220,19 @@ export default function CreateOrderPage() {
       setLoading(false);
     }
   };
-  const getWarehouses = async () => {
+  const getDetailWarehouse = async () => {
     try {
       setLoading(true);
-      const result = await getWarehouseById(warehouse);
-      if (result?.status === 200) {
-        return result;
+      if (warehouse) {
+        const result = await getWarehouseById(warehouse?.warehouseId);
+        if (result?.status === 200) {
+          console.log("detail", result);
+          console.log("from the warehouse", warehouse);
+          setDetailWarehouse(result?.data);
+          return;
+        }
       }
+      setDetailWarehouse();
       return undefined;
     } catch (e) {
       console.error(e);
@@ -213,12 +244,12 @@ export default function CreateOrderPage() {
   const calculateDistance = async () => {
     setStartLocation();
     const API_KEY = process.env.REACT_APP_MAP_API_KEY;
-    const dataLocation = await getWarehouses(warehouse);
-    const warehouseAddress = dataLocation?.data?.location; // Replace with your actual warehouse address
+
+    const warehouseAddress = warehouse?.location; // Replace with your actual warehouse address
     const receiverAddress = form.receiverAddress;
     console.log("addres", warehouseAddress);
 
-    setStartLocation("178a Đ. Bưởi, Cống Vị, Ba Đình, Ha Noi");
+    setStartLocation(warehouse?.location);
 
     try {
       const response = await axios.get(
@@ -309,8 +340,8 @@ export default function CreateOrderPage() {
       setLoading(true);
       e.preventDefault();
       console.log("Order Created:", form);
-      const result = await createOrder(form, warehouse);
-      console.log(result);
+      // const result = await createOrder(form, warehouse?.warehouseId);
+      // console.log(result);
       setForm(baseForm);
     } catch (e) {
       console.log(e);
@@ -319,13 +350,137 @@ export default function CreateOrderPage() {
     }
   };
 
-  console.log(form);
+  console.log("inventories", inventories);
 
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
       <div className="flex gap-40 h-full text-lg">
         <form onSubmit={handleSubmit} className="space-y-6 w-[40%]">
           <p className="text-2xl font-semibold mb-4">{t("Create Order")}</p>
+          <div className="space-y-6 w-full">
+            <h2 className="text-lg font-semibold">{t("OrderInformation")}</h2>
+            <div>
+              <label className="block  font-medium text-gray-700">
+                {t("Warehouse")}
+              </label>
+              <Select
+                className="col-span-2"
+                styles={{
+                  menu: (provided) => ({
+                    ...provided,
+
+                    // Restrict the dropdown height
+                    overflowY: "hidden", // Enable scrolling for content
+                  }),
+                  menuList: (provided) => ({
+                    ...provided,
+                    padding: 0, // Ensure no extra padding
+                    maxHeight: "11.5rem",
+                    overflow: "auto",
+                  }),
+                  control: (baseStyles) => ({
+                    ...baseStyles,
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    boxShadow: "none",
+                    "&:hover": {
+                      border: "1px solid #888",
+                    },
+                  }),
+                  option: (baseStyles, { isFocused, isSelected }) => ({
+                    ...baseStyles,
+                    backgroundColor: isSelected
+                      ? "var(--Xanh-Base)"
+                      : isFocused
+                      ? "var(--Xanh-100)"
+                      : "white",
+                    color: isSelected ? "white !important" : "black",
+                    cursor: "pointer",
+                    padding: "0.5rem 1rem", // Option padding
+                    textAlign: "left", // Center-align text
+                  }),
+                }}
+                value={warehouse} // Map string to object
+                onChange={(selectedOption) => setWarehouse(selectedOption)}
+                options={warehouses}
+                formatOptionLabel={(selectedOption) => (
+                  <div className="flex items-center gap-4">
+                    <p>{selectedOption?.warehouseName}</p>
+                  </div>
+                )}
+                getOptionValue={(option) => option.warehouseId}
+                getOptionLabel={(option) => option.warehouseName}
+              />
+            </div>
+            <div>
+              <label className="block  font-medium text-gray-700">
+                {t("Products")}
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <select
+                  className="text-black border border-gray-300 p-2 rounded-md"
+                  onChange={handleItemChange}
+                  name="productId"
+                  value={item.productId}
+                >
+                  <option key={0} value={0}>
+                    Select products
+                  </option>
+                  {inventoriesShowList?.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.productName}/{item.stock}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  name="productAmount"
+                  placeholder={t("productAmount")}
+                  value={item.productAmount}
+                  onChange={handleItemChange}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={addItem}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
+                >
+                  {t("Add Item")}
+                </button>
+              </div>
+            </div>
+            <ul className="mt-10 space-y-2 overflow-auto h-fit max-h-[10rem]">
+              {form?.products &&
+                form?.products?.map((item) => {
+                  console.log(item);
+                  const product = inventoriesShowList.find((pro) => {
+                    console.log("pro", pro);
+                    return parseInt(pro.id) === parseInt(item.productId);
+                  });
+                  return (
+                    <>
+                      <li
+                        key={item.productId}
+                        className="flex justify-between items-center border-b pb-2"
+                      >
+                        <span>
+                          {product?.productName} - {item.productAmount}/
+                          {product?.stock} stock
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.productId)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          {t("Remove")}
+                        </button>
+                      </li>
+                    </>
+                  );
+                })}
+            </ul>
+          </div>
           <p className="text-xl font-semibold mb-4">
             {t("CustomerInformation")}
           </p>
@@ -347,16 +502,7 @@ export default function CreateOrderPage() {
               {t("Receiver Address")}
             </label>
 
-            <input
-              type="text"
-              name="receiverAddress"
-              placeholder={t("receiverAddress")}
-              value={form.receiverAddress}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
-              required
-            />
-            <div className="flex justify-between mt-4 items-center">
+            {/* <div className="flex justify-between mt-4 items-center">
               <div>
                 <select
                   className="border-b-2 border-[var(--en-vu-500-disable)]"
@@ -426,100 +572,73 @@ export default function CreateOrderPage() {
                   ))}
                 </select>
               </div>
-            </div>
-          </div>
-          <div className="space-y-6 w-full">
-            <h2 className="text-lg font-semibold">{t("OrderInformation")}</h2>
-            <div>
-              <label className="block  font-medium text-gray-700">
-                {t("Warehouse")}
-              </label>
-              <select
-                className="text-black border border-gray-300 p-2 rounded-md w-full"
-                onChange={(e) => {
-                  setWarehouse(e.target.value);
-                }}
-                value={warehouse}
-              >
-                <option key={0} value={0}>
-                  Select Warehouse
-                </option>
-                {warehouses?.map((item) => (
-                  <option key={item?.warehouseId} value={item?.warehouseId}>
-                    {item?.warehouseName}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block  font-medium text-gray-700">
-                {t("Products")}
-              </label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <select
-                  className="text-black border border-gray-300 p-2 rounded-md"
-                  onChange={handleItemChange}
-                  name="productId"
-                  value={item.productId}
-                >
-                  <option key={0} value={0}>
-                    Select products
-                  </option>
-                  {inventoriesShowList?.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.productName}/{item.stock}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  name="productAmount"
-                  placeholder={t("productAmount")}
-                  value={item.productAmount}
-                  onChange={handleItemChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
-                  required
+            </div> */}
+            <div className="flex items-center gap-4">
+              <input
+                type="text"
+                name="receiverAddress"
+                placeholder={t("receiverAddress")}
+                value={form.receiverAddress}
+                onChange={handleInputChange}
+                className="mt-1 outline-none border-2 p-[0.35rem] flex-grow"
+                required
+              />
+
+              <div className="w-fit">
+                <Select
+                  styles={{
+                    menu: (provided) => ({
+                      ...provided,
+
+                      // Restrict the dropdown height
+                      overflowY: "hidden", // Enable scrolling for content
+                    }),
+                    menuList: (provided) => ({
+                      ...provided,
+                      padding: 0, // Ensure no extra padding
+                      maxHeight: "11.5rem",
+                      overflow: "auto",
+                    }),
+                    control: (baseStyles) => ({
+                      ...baseStyles,
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      boxShadow: "none",
+                      "&:hover": {
+                        border: "1px solid #888",
+                      },
+                    }),
+                    option: (baseStyles, { isFocused, isSelected }) => ({
+                      ...baseStyles,
+                      backgroundColor: isSelected
+                        ? "var(--Xanh-Base)"
+                        : isFocused
+                        ? "var(--Xanh-100)"
+                        : "white",
+                      color: isSelected ? "white !important" : "black",
+                      cursor: "pointer",
+                      padding: "0.5rem 1rem", // Option padding
+                      textAlign: "left", // Center-align text
+                    }),
+                  }}
+                  value={deliveryZone} // Map string to object
+                  onChange={(selectedOption) => setDeliveryZone(selectedOption)}
+                  options={detailWarehouse?.deliveryZones}
+                  formatOptionLabel={(selectedOption) => (
+                    <div className="flex items-center gap-4">
+                      <p>{selectedOption?.name}</p>
+                    </div>
+                  )}
+                  getOptionValue={(option) => option.id}
+                  getOptionLabel={(option) => option.name}
                 />
-                <button
-                  type="button"
-                  onClick={addItem}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
-                >
-                  {t("Add Item")}
-                </button>
+              </div>
+              <div className="border p-[0.35rem] w-fit cursor-not-allowed">
+                {detailWarehouse?.deliveryZones[0]?.provinceName}
               </div>
             </div>
-            <ul className="mt-10 space-y-2 overflow-auto h-[10rem]">
-              {form?.products &&
-                form?.products?.map((item) => {
-                  console.log(item);
-                  const product = inventoriesShowList.find((pro) => {
-                    console.log("pro", pro);
-                    return parseInt(pro.id) === parseInt(item.productId);
-                  });
-                  return (
-                    <>
-                      <li
-                        key={item.productId}
-                        className="flex justify-between items-center border-b pb-2"
-                      >
-                        <span>
-                          {product?.productName} - {item.productAmount}/
-                          {product?.stock} stock
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => removeItem(item.productId)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          {t("Remove")}
-                        </button>
-                      </li>
-                    </>
-                  );
-                })}
-            </ul>
           </div>
+
           <div className="flex justify-end space-x-4 mt-6">
             <button
               type="button"
@@ -542,8 +661,9 @@ export default function CreateOrderPage() {
         </form>
         <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
           <Mapping
-            showLocation={validLocation}
-            toLocation={startLocation}
+            showLocation={warehouse?.location}
+            toLocation={validLocation}
+            defaultLocation={defaultLocation}
 
             // cloneWarehouseData={cloneWarehouseData}
           />

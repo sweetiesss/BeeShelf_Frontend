@@ -5,44 +5,39 @@ import { AuthContext } from "../../context/AuthContext";
 import RequestList from "../../component/partner/request/RequestList";
 import AxiosRequest from "../../services/Request";
 import { useDetail } from "../../context/DetailContext";
-import CreateRequestImport from "../../component/partner/product/CreateRequestImport";
-import AxiosProduct from "../../services/Product";
-import AxiosInventory from "../../services/Inventory";
+
+import { NavLink } from "react-router-dom";
+import SpinnerLoading from "../../component/shared/Loading";
+import { t } from "i18next";
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
 
 export default function RequestPage() {
   const { userInfor } = useContext(AuthContext);
   const { getRequestByUserId, deleteRequestById } = AxiosRequest();
   const [fetchAgain, setFetchingAgain] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [requests, setRequests] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [inventories, setInventories] = useState();
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
-  const [productPage, setProductPage] = useState(0);
-  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [selectedProductOnCreateRequest, setSelectedProductOnCreateRequest] =
-    useState();
 
-  const { getProductByUserId } = AxiosProduct();
-  const { getInventory1000ByUserId } = AxiosInventory();
-  const [type, setType] = useState();
-  const {
-    dataDetail,
-    typeDetail,
-    updateDataDetail,
-    updateTypeDetail,
-    refresh,
-    createRequest,
-    setCreateRequest,
-  } = useDetail();
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+  const { updateDataDetail, updateTypeDetail, refresh } = useDetail();
 
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
+    isImport: "",
     status: "",
     descending: true,
     pageIndex: 0,
     pageSize: 10,
   });
+  const defaultFilter = {
+    userId: userInfor?.id,
+    isImport: "",
+    status: "",
+    descending: true,
+    pageIndex: 0,
+    pageSize: 10,
+  };
 
   useEffect(() => {
     fetchingData();
@@ -52,37 +47,46 @@ export default function RequestPage() {
   }, [fetchAgain]);
   useEffect(() => {
     const fetching = async () => {
-      if (refresh && refresh > 0) {
-        const response = await getRequestByUserId(
-          filterField.userId,
-          filterField.status,
-          filterField.descending,
-          filterField.pageIndex,
-          filterField.pageSize
-        );
-        console.log(response);
+      try {
+        setLoading(true);
+        if (refresh && refresh > 0) {
+          const response = await getRequestByUserId(
+            filterField.userId,
+            filterField.status,
+            filterField.isImport,
+            filterField.descending,
+            filterField.pageIndex,
+            filterField.pageSize
+          );
+          console.log(response);
 
-        setRequests(response?.data);
-        updateDataDetail(
-          response?.data?.items.find((item) => item.id === refresh)
-        );
-      }
-      if (refresh && refresh < 0) {
-        const response = await getRequestByUserId(
-          filterField.userId,
-          filterField.status,
-          filterField.descending,
-          filterField.pageIndex,
-          filterField.pageSize
-        );
-        console.log(response);
-        setRequests(response?.data);
+          setRequests(response?.data);
+          updateDataDetail(
+            response?.data?.items.find((item) => item.id === refresh)
+          );
+        }
+        if (refresh && refresh < 0) {
+          const response = await getRequestByUserId(
+            filterField.userId,
+            filterField.status,
+            filterField.isImport,
+            filterField.descending,
+            filterField.pageIndex,
+            filterField.pageSize
+          );
+          console.log(response);
+          setRequests(response?.data);
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false);
       }
     };
     fetching();
   }, [refresh]);
   useEffect(() => {
-    debouncedFetchRequests();
+    debouncedFetchRequests(filterField);
   }, [filterField]);
 
   const debounce = (func, delay) => {
@@ -96,28 +100,46 @@ export default function RequestPage() {
   };
 
   const fetchingData = async () => {
-    const response = await getRequestByUserId(
-      filterField.userId,
-      filterField.status,
-      filterField.descending,
-      filterField.pageIndex,
-      filterField.pageSize
-    );
-    setRequests(response?.data);
-  };
+    try {
+      setLoading(true);
 
-  const debouncedFetchRequests = useCallback(
-    debounce(async () => {
       const response = await getRequestByUserId(
         filterField.userId,
         filterField.status,
+        filterField.isImport,
         filterField.descending,
         filterField.pageIndex,
         filterField.pageSize
       );
       setRequests(response?.data);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const debouncedFetchRequests = useCallback(
+    debounce(async (filterField) => {
+      try {
+        setLoading(true);
+
+        const response = await getRequestByUserId(
+          filterField.userId,
+          filterField.status,
+          filterField.isImport,
+          filterField.descending,
+          filterField.pageIndex,
+          filterField.pageSize
+        );
+        setRequests(response?.data);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false);
+      }
     }, 500),
-    [filterField]
+    []
   );
 
   const handleFiltered = (e) => {
@@ -125,16 +147,6 @@ export default function RequestPage() {
     setFilterField((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddOrder = async (order) => {
-    // const newOrder = await addOrder(order);
-    // setOrders([...orders, newOrder]);
-  };
-
-  const handleUpdateOrder = async (order) => {
-    // const updatedOrder = await updateOrder(order);
-    // setOrders(orders.map((o) => (o.id === updatedOrder.id ? updatedOrder : o)));
-    // setSelectedOrder(null);
-  };
   const handleDeleteClick = (e, request) => {
     e.stopPropagation();
     setShowDeleteConfirmation(request);
@@ -157,103 +169,91 @@ export default function RequestPage() {
     selectedOrder === order ? setSelectedOrder(null) : setSelectedOrder(order);
   };
 
-  const handleSearch = (event) => {
-    // setSearchQuery(event.target.value);
-  };
-
-  // const filteredOrders = orders.filter((order) =>
-  //   order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
   const handleShowDetail = (request) => {
     updateDataDetail(request);
     updateTypeDetail("request");
     console.log(request);
   };
+  console.log(filterField);
 
-  const handleScroll = (e) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-    if (scrollTop + clientHeight >= scrollHeight - 10 && !isFetchingNextPage) {
-      setProductPage((prevPage) => prevPage + 1); // Load next page
-    }
-  };
-
-  useEffect(() => {
-    fetchingProducts(productPage);
-  }, [productPage]);
-
-  const fetchingProducts = async (page) => {
-    try {
-      setIsFetchingNextPage(true);
-      const response = await getProductByUserId(userInfor?.id, page, 10);
-      console.log(response);
-      if (response?.status === 200) {
-        setProducts((prev) => [...prev, ...response?.data?.items]);
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setIsFetchingNextPage(false);
-    }
-  };
-
-  useEffect(() => {
-    const fetchingData = async () => {
-      const result = await getInventory1000ByUserId();
-      console.log(result);
-      setInventories(result);
-    };
-    fetchingData();
-  }, []);
-  useEffect(() => {
-    const handleScroll = (e) => {
-      const { scrollTop, scrollHeight, clientHeight } = e.target;
-      if (
-        scrollTop + clientHeight >= scrollHeight - 10 &&
-        !isFetchingNextPage
-      ) {
-        setProductPage((prevPage) => prevPage + 1); // Increment page for next fetch
-      }
-    };
-
-    const container = document.querySelector(".request-container"); // Add a class to your scroll container
-    container?.addEventListener("scroll", handleScroll);
-    return () => container?.removeEventListener("scroll", handleScroll);
-  }, [isFetchingNextPage]);
-  const handleClose = () => {
-    setCreateRequest(false);
-    setFetchingAgain((prv) => !prv);
-  };
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">Request Management</h1>
+      <div className="flex justify-between">
+        <div className="flex gap-10">
+          <div
+            className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-fit  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+              filterField.status != ""
+                ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                : "text-[var(--en-vu-300)]"
+            }`}
+          >
+            <label>{t("Status")}: </label>
+            <select
+              className="outline-none"
+              name="status"
+              value={filterField.status}
+              onChange={handleFiltered}
+            >
+              <option value={""}>Select Request Status</option>
+              <option value={"Draft"}>Draft</option>
+              <option value={"Pending"}>Pending</option>
+              <option value={"Canceled"}>Canceled</option>
+              <option value={"Processing"}>Processing</option>
+              <option value={"Delivered"}>Delivered</option>
+              <option value={"Failed"}>Failed</option>
+              <option value={"Completed"}>Completed</option>
+            </select>
+          </div>
 
-      <select
-        name="status"
-        value={filterField.status}
-        onChange={handleFiltered}
-      >
-        <option>Select Request Status</option>
-        <option value={"Draft"}>Draft</option>
-        <option value={"Pending"}>Pending</option>
-        <option value={"Canceled"}>Canceled</option>
-        <option value={"Processing"}>Processing</option>
-        <option value={"Delivered"}>Delivered</option>
-        <option value={"Failed"}>Failed</option>
-        <option value={"Completed"}>Completed</option>
-      </select>
-
-      <button onClick={() => setCreateRequest(true)}>Create request</button>
+          <div
+            className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-fit  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+              filterField.isImport != ""
+                ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                : "text-[var(--en-vu-300)]"
+            }`}
+          >
+            <label>{t("RequestType")}: </label>
+            <select
+              className="outline-none"
+              name="isImport"
+              value={filterField.isImport}
+              onChange={handleFiltered}
+            >
+              <option value={""}>All</option>
+              <option value={"import"}>Import</option>
+              <option value={"export"}>Export</option>
+            </select>
+          </div>
+          <div
+            className="text-xl bg-gray-100 p-1 rounded-full border-2 border-gray-400 hover:bg-gray-200 hover:border-gray-500 cursor-pointer"
+            onClick={() => setFilterField(defaultFilter)}
+          >
+            <ArrowCounterClockwise />
+          </div>
+        </div>
+        <NavLink
+          to="create-request"
+          className="outline-2 outline flex items-center gap-2 outline-[var(--line-main-color)] text-[var(--en-vu-500-disable)] hover:outline-[var(--Xanh-Base)] hover:text-black  pr-4 pl-3 py-1 rounded-xl font-semibold"
+        >
+          + {"CreateRequest"}
+        </NavLink>
+      </div>
       <div className="flex justify-left gap-4 mt-6 ">
         <div className="w-full">
-          <RequestList
-            requests={requests}
-            handleDeleteClick={handleDeleteClick}
-            handleSelectOrder={handleSelectOrder}
-            selectedOrder={selectedOrder}
-            filterField={filterField}
-            setFilterField={setFilterField}
-            handleShowDetail={handleShowDetail}
-          />
+          {loading ? (
+            <SpinnerLoading loading={loading} />
+          ) : (
+            <RequestList
+              requests={requests}
+              handleDeleteClick={handleDeleteClick}
+              handleSelectOrder={handleSelectOrder}
+              selectedOrder={selectedOrder}
+              filterField={filterField}
+              setFilterField={setFilterField}
+              handleShowDetail={handleShowDetail}
+            />
+          )}
         </div>
         {showDeleteConfirmation && (
           <>
@@ -285,18 +285,6 @@ export default function RequestPage() {
           </>
         )}
       </div>
-      {createRequest && (
-        <CreateRequestImport
-          product={selectedProductOnCreateRequest}
-          setProduct={setSelectedProductOnCreateRequest}
-          inventories={inventories}
-          enableSelect={true}
-          type={type}
-          products={products}
-          setType={setType}
-          handleClose={handleClose}
-        />
-      )}
     </div>
   );
 }

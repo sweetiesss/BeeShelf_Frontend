@@ -93,7 +93,7 @@ export function InventoryCard({
         </div>
         {inventory.ocopPartnerId && (
           <div className="text-gray-700 mb-1 flex gap-x-4">
-            <p className="font-semibold">{t("Expiredon")}:</p>
+            <p className="font-semibold">{t("Expiredin")}:</p>
             <p>
               {/* {format(inventory?.boughtDate, "dd/MM/yyyy")} -{" "}
               {format(inventory?.expirationDate, "dd/MM/yyyy")} */}

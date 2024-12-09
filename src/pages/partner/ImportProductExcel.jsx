@@ -658,7 +658,7 @@ export default function ImportProductExcel({ result, setResult }) {
                       className={`text-2xl`}
                       onClick={handleImportSelectedProduct}
                     >
-                      <UploadSimple weight="bold" />
+                      <DownloadSimple weight="bold" />
                     </button>
                   </>
                 </>

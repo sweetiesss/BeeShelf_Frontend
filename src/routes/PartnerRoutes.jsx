@@ -16,6 +16,7 @@ import { useDetail } from "../context/DetailContext";
 import { PaymentPage } from "../pages/partner/PaymentPage";
 import PaymentResult from "../pages/partner/PaymentResult";
 import CreateOrderPage from "../pages/partner/CreateOrder";
+import CreateRequestPage from "../pages/partner/CreateRequestPage";
 export default function PartnerRoutes() {
   const { dataDetail, typeDetail } = useDetail();
 
@@ -32,6 +33,7 @@ export default function PartnerRoutes() {
           <Route path={"order/create-order"} element={<CreateOrderPage />} />
 
           <Route path={"request"} element={<RequestPage />} />
+          <Route path={"request/create-request"} element={<CreateRequestPage />} />
 
           <Route
             path="product/import_product"
