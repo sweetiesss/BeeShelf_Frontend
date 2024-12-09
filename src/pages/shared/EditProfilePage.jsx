@@ -96,7 +96,9 @@ export default function ProfileEdit() {
     const response = await fetchDataBearer({
       url: `/picture/upload-profile-image/${userInfor.id}`,
       method: "POST",
-      data: formData,
+      data: {
+        formData,
+      },
     });
     console.log(response);
 
@@ -120,7 +122,14 @@ export default function ProfileEdit() {
       const response = await fetchDataBearer({
         url: `/user/update-employee`,
         method: "PUT",
-        data: form,
+        data: {
+          email: form.email,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          phone: form.phone,
+          pictureLink: form.pictureLink,
+          confirmPassword: "1",
+        },
       });
       console.log(response);
       if (response.status === 200) {

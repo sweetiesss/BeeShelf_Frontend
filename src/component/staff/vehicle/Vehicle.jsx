@@ -24,6 +24,7 @@ const Vehicle = () => {
     pageIndex: 0,
   });
   const { fetchDataBearer } = useAxios();
+  const typeVehicles = ["Truck", "Van", "Motorcycle"];
 
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchVehicles = async () => {
@@ -198,12 +199,12 @@ const Vehicle = () => {
       render: (status) => status,
     },
     {
-      title: "AssignedDriverEmail",
+      title: "Assigned Driver Email",
       dataIndex: "assignedDriverEmail",
       key: "assignedDriverEmail",
     },
     {
-      title: "AssignedDriverName",
+      title: "Assigned Driver Name",
       dataIndex: "assignedDriverName",
       key: "assignedDriverName",
     },
@@ -220,6 +221,7 @@ const Vehicle = () => {
     // Cột bổ sung có thể bỏ qua nếu không cần thiết
   ];
 
+  // Update vehicle status
   const updateVehicleStatus = async (id, newStatus) => {
     setLoading(true);
     try {
@@ -254,6 +256,44 @@ const Vehicle = () => {
       message.error(
         error.response?.data?.message ||
           "Failed to update status. Please try again."
+      );
+    } finally {
+      setLoading(false);
+      setIsModalVisible(false);
+    }
+  };
+
+  // Update vehicle type
+  const updateVehicle = async (id, values) => {
+    setLoading(true);
+    try {
+      const response = await fetchDataBearer({
+        url: `/vehicle/update-vehicle/${id}`,
+        method: "PUT",
+        params: {
+          type: values.type,
+        },
+        data: {
+          name: values.name,
+          licensePlate: values.licensePlate,
+          warehouseId: values.warehouseId,
+          isCold: values.isCold,
+        },
+      });
+
+      if (response && response.status === 200) {
+        message.success("Type updated successfully!");
+        fetchVehicles();
+      } else {
+        const errorMessage =
+          response?.data?.message || "Failed to update type.";
+        message.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error updating type:", error);
+      message.error(
+        error.response?.data?.message ||
+          "Failed to update type. Please try again."
       );
     } finally {
       setLoading(false);
@@ -379,61 +419,124 @@ const Vehicle = () => {
             Close
           </Button>,
         ]}
+        className="!w-[700px]"
       >
         {selectedVehicle && (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="statusSelect" className="font-bold">
-                Status:
-              </label>
-              <Select
-                id="statusSelect"
-                className="w-full"
-                value={selectedVehicle.status}
-                onChange={(newStatus) =>
-                  updateVehicleStatus(selectedVehicle.id, newStatus)
-                }
-                placeholder="Select a status"
-                disabled={
-                  getValidStatusTransitions(selectedVehicle.status).length === 0
-                }
-              >
-                {getValidStatusTransitions(selectedVehicle.status).map(
-                  (status) => (
-                    <Option key={status} value={status}>
-                      {status}
+              <div>
+                <label htmlFor="statusSelect" className="font-bold">
+                  Status:
+                </label>
+                <Select
+                  id="statusSelect"
+                  className="w-full"
+                  value={selectedVehicle.status}
+                  onChange={(newStatus) =>
+                    updateVehicleStatus(selectedVehicle.id, newStatus)
+                  }
+                  placeholder="Select a status"
+                  disabled={
+                    getValidStatusTransitions(selectedVehicle.status).length ===
+                    0
+                  }
+                >
+                  {getValidStatusTransitions(selectedVehicle.status).map(
+                    (status) => (
+                      <Option key={status} value={status}>
+                        {status}
+                      </Option>
+                    )
+                  )}
+                </Select>
+              </div>
+              {/* <div>
+                <label htmlFor="typeSelect" className="font-bold">
+                  Type:
+                </label>
+                <Select
+                  id="typeSelect"
+                  className="w-full"
+                  value={selectedVehicle.type}
+                  onChange={(newType) =>
+                    updateVehicleType(selectedVehicle.id, newType)
+                  }
+                  placeholder="Select a type"
+                >
+                  {typeVehicles.map((type) => (
+                    <Option key={type} value={type}>
+                      {type}
                     </Option>
-                  )
-                )}
-              </Select>
+                  ))}
+                </Select>
+              </div> */}
             </div>
             <div>
-              <div className="grid grid-cols-1 gap-2">
-                <div className="flex justify-between items-center">
-                  <p className="font-bold">Vehicle ID:</p>
-                  <p>{selectedVehicle.id}</p>
-                </div>
-                <div className="flex justify-between items-center">
-                  <p className="font-bold">vehicle Name:</p>
-                  <p>{selectedVehicle.name}</p>
-                </div>
-                <div className="flex justify-between items-center">
-                  <p className="font-bold">License Plate:</p>
-                  <p>{selectedVehicle.licensePlate}</p>
-                </div>
-                <div className="flex justify-between items-center">
-                  <p className="font-bold">Status:</p>
-                  <p>{selectedVehicle.status}</p>
-                </div>
-                <div className="flex justify-between items-center">
-                  <p className="font-bold">Type:</p>
-                  <p>{selectedVehicle.type}</p>
-                </div>
-                <div className="flex justify-between items-center">
-                  <p className="font-bold">Assigned Driver Name:</p>
-                  <p>{selectedVehicle.assignedDriverName}</p>
-                </div>
-              </div>
+              <Form
+                name="basic"
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+                initialValues={selectedVehicle}
+                onFinish={(values) => {
+                  updateVehicle(selectedVehicle.id, values);
+                }}
+              >
+                <Form.Item
+                  label="Vehicle ID"
+                  name="id"
+                  rules={[
+                    { required: true, message: "Please input vehicle id!" },
+                  ]}
+                >
+                  <Input disabled />
+                </Form.Item>
+                <Form.Item
+                  label="Vehicle Name"
+                  name="name"
+                  rules={[
+                    { required: true, message: "Please input vehicle name!" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="License Plate"
+                  name="licensePlate"
+                  rules={[
+                    { required: true, message: "Please input license plate!" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="Type"
+                  name="type"
+                  rules={[{ required: true, message: "Please select type!" }]}
+                >
+                  <Select placeholder="Select a type">
+                    {typeVehicles.map((type) => (
+                      <Option key={type} value={type}>
+                        {type}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  className="hidden"
+                  label="warehouseId"
+                  name="warehouseId"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item className="hidden" label="isCold" name="isCold">
+                  <Input />
+                </Form.Item>
+                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                  <Button type="primary" htmlType="submit">
+                    Update
+                  </Button>
+                </Form.Item>
+              </Form>
             </div>
           </div>
         )}
