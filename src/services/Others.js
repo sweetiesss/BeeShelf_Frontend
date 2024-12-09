@@ -12,6 +12,30 @@ export default function AxiosOthers() {
       return e;
     }
   };
+  const getProvinces = async () => {
+    try {
+      const fetching = await fetchData({
+        url: "partner/get-provinces",
+        method: "GET",
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
+  const getAddressProvincesStressWard = async (A, B) => {
+    try {
+      const fetching = await axios.get(
+        `https://esgoo.net/api-tinhthanh/${A}/${B}.htm`
+      );
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
+
   const getOcopCategoryBy100 = async (pageIndex = 0, size = 100) => {
     try {
       const queryParams = new URLSearchParams();
@@ -30,5 +54,5 @@ export default function AxiosOthers() {
     }
   };
 
-  return { getBanks,getOcopCategoryBy100 };
+  return { getBanks, getOcopCategoryBy100, getProvinces,getAddressProvincesStressWard };
 }

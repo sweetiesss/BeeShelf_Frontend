@@ -1,12 +1,15 @@
 import { CaretLeft, CaretRight } from "@phosphor-icons/react"; // Replace with your actual icons
+import { useEffect, useState } from "react";
 
 export default function Pagination({
   currentPage,
-  totalPagesCount,
+  response,
   handleLeft,
   handleRight,
   handleChoose,
 }) {
+  console.log(response);
+  
   function createPaginationArray(currentPage, totalPagesCount) {
     const paginationArray = [];
     const maxVisiblePages = 5;
@@ -29,13 +32,16 @@ export default function Pagination({
     paginationArray.push(totalPagesCount);
     return paginationArray;
   }
-  const paginationArray = createPaginationArray(currentPage, totalPagesCount);
+  const paginationArray = createPaginationArray(
+    currentPage,
+    response?.totalPagesCount
+  );
   return (
     <div className="flex items-center space-x-3">
       <button
-        className={` ${currentPage === 1 && "opacity-0"}`}
+        className={` ${!response?.previous ? "hidden" : "block"}`}
         onClick={handleLeft}
-        disabled={currentPage === 1}
+        disabled={!response?.previous}
       >
         <CaretLeft />
       </button>
@@ -61,9 +67,9 @@ export default function Pagination({
       </div>
 
       <button
-        className={` ${currentPage === totalPagesCount && "opacity-0"}`}
+        className={` ${!response?.next ? "hidden" : "block"}`}
         onClick={handleRight}
-        disabled={currentPage === totalPagesCount}
+        disabled={!response?.next}
       >
         <CaretRight />
       </button>

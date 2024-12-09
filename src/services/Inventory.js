@@ -13,10 +13,13 @@ export default function AxiosInventory() {
       return fetching;
     } catch (e) {
       console.log(e);
-      return e; 
+      return e;
     }
   };
-  const getInventory1000ByUserIdAndWareHouseId = async (userId, warehouseId) => {
+  const getInventory1000ByUserIdAndWareHouseId = async (
+    userId,
+    warehouseId
+  ) => {
     try {
       const fetching = await fetchDataBearer({
         url: `inventory/get-inventories/${userId}?filterBy=WarehouseId&filterQuery=${warehouseId}&descending=false&pageIndex=0&pageSize=1000`,
@@ -52,11 +55,25 @@ export default function AxiosInventory() {
       return e;
     }
   };
-  const buyInventory = async (id, userId) => {
+  const buyInventory = async (id, userId, monthBuyInvrentory) => {
     try {
-      const fetching = await fetchDataBearer({
-        url: `/inventory/buy-inventory/${id}/${userId}`,
+      const fetching = fetchDataBearer({
+        url: `inventory/buy-inventory/${id}/${userId}?month=${monthBuyInvrentory}`,
         method: "POST",
+      });
+      await toast.promise(fetching, {
+        pending: "Buying inventory...",
+        success: {
+          render() {
+            return `Inventory bought`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
       });
       return fetching;
     } catch (e) {
@@ -64,7 +81,33 @@ export default function AxiosInventory() {
       return e;
     }
   };
-  const createInventory=async(data)=>{
+  const extendInventory = async (id, userId, monthBuyInvrentory) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `inventory/extend-inventory/${id}/${userId}?month=${monthBuyInvrentory}`,
+        method: "POST",
+      });
+      await toast.promise(fetching, {
+        pending: "Extending inventory...",
+        success: {
+          render() {
+            return `Inventory extended`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
+  const createInventory = async (data) => {
     try {
       const fetching = fetchDataBearer({
         url: `inventory/create-inventory`,
@@ -90,6 +133,14 @@ export default function AxiosInventory() {
       console.log(e);
       return e;
     }
-  }
-  return { getInventory1000ByWarehouseId, getInventory1000ByUserIdAndWareHouseId,getInventory1000ByUserId, getInventoryById ,buyInventory,createInventory};
+  };
+  return {
+    getInventory1000ByWarehouseId,
+    getInventory1000ByUserIdAndWareHouseId,
+    getInventory1000ByUserId,
+    getInventoryById,
+    buyInventory,
+    createInventory,
+    extendInventory,
+  };
 }

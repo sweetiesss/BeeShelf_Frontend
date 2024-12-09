@@ -88,7 +88,6 @@ export default function useAxiosBearer() {
     params = {},
     header = {},
   }) => {
-    console.log(isAuthenticated);
 
     setLoading(true);
     try {

@@ -7,16 +7,15 @@ import AxiosRequest from "../../../services/Request";
 import { AuthContext } from "../../../context/AuthContext";
 import { useDetail } from "../../../context/DetailContext";
 import { useTranslation } from "react-i18next";
-
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
+import Select from "react-select";
+import { differenceInDays, format } from "date-fns";
 export default function CreateRequestImport({
   product,
-  setProduct,
-  products,
+
   inventories,
   handleCancel,
-  type,
-  setType,
-  enableSelect,
+
   handleClose,
 }) {
   const { userInfor } = useContext(AuthContext);
@@ -25,16 +24,17 @@ export default function CreateRequestImport({
     ocopPartnerId: userInfor?.id,
     name: "",
     description: "",
-    sendToInventoryId: null,
+    sendToInventoryId: 0,
     lot: {
       lotNumber: "",
       name: "",
-      amount: null,
+      lotAmount: null,
       productId: product?.id,
-      productAmount: null,
+      productPerLot: null,
     },
   };
   const [form, setForm] = useState(baseForm);
+  const [inventory, setInventory] = useState(baseForm);
   const { createRequest } = AxiosRequest();
   const { t } = useTranslation();
 
@@ -82,32 +82,26 @@ export default function CreateRequestImport({
     const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Format date-time
     let submitForm = {
       ...form,
+      sendToInventoryId: parseInt(inventory.id),
       lot: {
         ...form.lot,
         lotNumber: `${form.lot.productId}-${currentDateTime}`, // Product ID + Date-Time
         name: `${product.name}-${userInfor?.name || "User"}`, // Product Name + User's Name
       },
     };
-    const fetching = await createRequest(submitForm, type, true);
+    const fetching = await createRequest(submitForm, "Import", true);
     handleClose();
   };
   const handleSaveDraft = async () => {
     console.log(form);
-    const fetching = await createRequest(form, type, false);
+    const fetching = await createRequest(form, "Import", false);
     handleClose();
-  };
-  const handleProductSelect = (e) => {
-    const selectedProductId = e.target.value;
-    const selectedProduct = products.find(
-      (item) => item.id == selectedProductId
-    );
-
-    if (selectedProduct) {
-      setProduct(selectedProduct); // Update selected product in parent
-    }
   };
 
   const handleReset = () => {};
+  console.log("productData", product);
+  console.log("inventory", inventories);
+
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
@@ -123,95 +117,122 @@ export default function CreateRequestImport({
         <div>
           <p className="font-semibold text-xl">{t("CreateRequest")}</p>
         </div>
-        {enableSelect && (
-          <select
-            className=""
-            placeholder=""
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-          >
-            <option value={null}>Select Type of Request</option>
-            <option value={"Import"}>Import products to warehouse</option>
-            <option value={null}>Export products</option>
-            <option value={null}>Withdrawn money</option>
-            <option value={null}>Others</option>
-          </select>
-        )}
-        {type === "Import" && (
-          <>
-            <div className="flex flex-col gap-4">
-              {/* <input
-                placeholder="Request Name"
-                name="name"
-                onChange={handleInput}
-              />
-              <input
-                placeholder="Request Description"
-                name="description"
-                onChange={handleInput}
-              />
-              <input
-                placeholder="Lot number"
-                name="lot.lotNumber"
-                onChange={handleInput}
-              />
-              <input
-                placeholder="Name"
-                name="lot.name"
-                onChange={handleInput}
-              />
-              <input
-                placeholder="Amount of Lot"
-                type="Number"
-                name="lot.amount"
-                onChange={handleInput}
-                min="1"
-              />
-              <input
-                placeholder="Amount of Product"
-                type="Number"
-                name="lot.productAmount"
-                onChange={handleInput}
-              /> */}
-              <div className="flex flex-col gap-3">
-                <label className="text-[var(--en-vu-600)] font-normal">
-                  {t("ChooseInventory")}
-                </label>
-                <select onChange={handleInput} name="sendToInventoryId">
-                  <option>Select Inventory</option>
-                  {inventories &&
-                    inventories.status === 200 &&
-                    inventories.data.items.map((inv) => (
-                      <option value={inv.id}>
-                        {inv.name}-{inv.warehouseName}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-[var(--en-vu-600)] font-normal">
-                  {t("RequestName")}
-                </label>
-                <input
-                  className="outline-none border-b-2 focus-within:border-black"
-                  name="name"
-                  value={form?.name}
-                  onChange={handleInput}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-[var(--en-vu-600)] font-normal">
-                  {t("RequestDescription")}
-                </label>
-                <input
-                  className="outline-none border-b-2 focus-within:border-black"
-                  type="text"
-                  name="description"
-                  value={form?.description}
-                  onChange={handleInput}
-                />
-              </div>
-              {/* <input
+
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
+            <label className="text-[var(--en-vu-600)] font-normal">
+              {t("ChooseInventory")}
+            </label>
+            <Select
+              styles={{
+                menu: (provided) => ({
+                  ...provided,
+
+                  // Restrict the dropdown height
+                  overflowY: "hidden", // Enable scrolling for content
+                }),
+                menuList: (provided) => ({
+                  ...provided,
+                  padding: 0, // Ensure no extra padding
+                  maxHeight: "11.5rem",
+                  overflow: "auto",
+                }),
+                control: (baseStyles) => ({
+                  ...baseStyles,
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  padding: "0.5rem",
+                  boxShadow: "none",
+                  "&:hover": {
+                    border: "1px solid #888",
+                  },
+                }),
+                option: (baseStyles, { isFocused, isSelected }) => ({
+                  ...baseStyles,
+                  backgroundColor: isSelected
+                    ? "var(--Xanh-Base)"
+                    : isFocused
+                    ? "var(--Xanh-100)"
+                    : "white",
+                  color: isSelected ? "white !important" : "black",
+                  cursor: "pointer",
+                  padding: "0.5rem 1rem", // Option padding
+                  textAlign: "left", // Center-align text
+                }),
+              }}
+              value={inventory}
+              onChange={(selectedOption) => setInventory(selectedOption)}
+              options={inventories?.data?.items.filter(
+                (item) => item.isCold === product.isCold
+              )}
+              getOptionLabel={(option) => option.name}
+              getOptionValue={(option) => option.id}
+              formatOptionLabel={(selectedOption) => (
+                <div className="">
+                  <p>{selectedOption?.name}</p>
+                  <div
+                    className={`flex items-center justify-between text-sm text-gray-500`}
+                  >
+                    {selectedOption?.maxWeight && (
+                      <div className="flex items-center gap-4">
+                        <p>{t("Weight")}</p>
+                        <p>
+                          {new Intl.NumberFormat().format(
+                            selectedOption?.weight
+                          ) +
+                            "/" +
+                            new Intl.NumberFormat().format(
+                              selectedOption?.maxWeight
+                            )}{" "}
+                          kg
+                        </p>
+                      </div>
+                    )}
+                    {selectedOption?.expirationDate && (
+                      <div className="flex gap-4 items-center">
+                        <p>{t("Expiredon")}:</p>
+                        <p className="">
+                          {selectedOption?.expirationDate
+                            ? `${differenceInDays(
+                                new Date(selectedOption?.expirationDate),
+                                new Date()
+                              )} ${t("days")} ( ${format(
+                                selectedOption?.expirationDate,
+                                "dd/MM/yyyy"
+                              )} )`
+                            : "N/A"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[var(--en-vu-600)] font-normal">
+              {t("RequestName")}
+            </label>
+            <input
+              className="outline-none border-2 py-2 focus-within:border-black"
+              name="name"
+              value={form?.name}
+              onChange={handleInput}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[var(--en-vu-600)] font-normal">
+              {t("RequestDescription")}
+            </label>
+            <input
+              className="outline-none border-2 py-2 focus-within:border-black"
+              type="text"
+              name="description"
+              value={form?.description}
+              onChange={handleInput}
+            />
+          </div>
+          {/* <input
                 placeholder="Lot Number"
                 name="lot.lotNumber"
                 value={form?.lot?.lotNumber}
@@ -224,26 +245,26 @@ export default function CreateRequestImport({
                 onChange={handleInput}
               /> */}
 
-              <div className="flex justify-between gap-10">
-                <div className="flex flex-col w-full gap-2">
-                  <label className="text-[var(--en-vu-600)] font-normal">
-                    {t("AmountofLot")}
-                  </label>
-                  <input
-                    className="outline-none border-b-2 focus-within:border-black"
-                    type="number"
-                    name="lot.amount"
-                    value={form?.lot?.amount}
-                    onChange={handleInput}
-                    min="1"
-                  />
-                </div>
-                {/* <div className="flex flex-col w-full gap-2">
+          <div className="flex justify-between gap-10">
+            <div className="flex flex-col w-full gap-2">
+              <label className="text-[var(--en-vu-600)] font-normal">
+                {t("AmountofLot")}
+              </label>
+              <input
+                className="outline-none border-2 py-2 focus-within:border-black"
+                type="number"
+                name="lot.lotAmount"
+                value={form?.lot?.lotAmount}
+                onChange={handleInput}
+                min="1"
+              />
+            </div>
+            {/* <div className="flex flex-col w-full gap-2">
                   <label className="text-[var(--en-vu-600)] font-normal">
                     {t("AmountofProductPerLot")}
                   </label>
                   <input
-                    className="outline-none border-b-2 focus-within:border-black"
+                    className="outline-none border-2 py-2 focus-within:border-black"
                     type="number"
                     name="lot.productAmount"
                     value={form?.lot?.productAmount / form?.lot?.amount}
@@ -251,64 +272,54 @@ export default function CreateRequestImport({
                     disabled={true}
                   />
                 </div> */}
-                <div className="flex flex-col w-full gap-2">
-                  <label className="text-[var(--en-vu-600)] font-normal">
-                    {t("TotalAmountofProduct")}
-                  </label>
-                  <input
-                    className="outline-none border-b-2 focus-within:border-black"
-                    type="number"
-                    name="lot.productAmount"
-                    value={form?.lot?.productAmount}
-                    onChange={handleInput}
-                  />
-                </div>
-              </div>
-
-              {products?.length > 0 && (
-                <select
-                  className="border p-2 rounded w-full request-container"
-                  onChange={handleProductSelect}
-                  value={form.lot.productId}
-                >
-                  <option value="">Choose Product</option>
-                  {products.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-              )}
+            <div className="flex flex-col w-full gap-2">
+              <label className="text-[var(--en-vu-600)] font-normal">
+                {t("AmountOfProductPerLot")}
+              </label>
+              <input
+                className="outline-none border-2 p-2 focus-within:border-black"
+                type="number"
+                name="lot.productPerLot"
+                value={form?.lot?.productPerLot}
+                onChange={handleInput}
+              />
             </div>
-            {product && (
-              <div className="flex justify-between py-2 pb-4">
-                <div className="space-x-10">
-                  <button
-                    className="px-4 py-2"
+          </div>
+        </div>
+
+        <div className="flex justify-between py-2 pb-4">
+          <div className="space-x-10">
+            {/* <button
+                    className="text-xl bg-gray-100 p-1 rounded-full border-2 py-2 border-gray-400 hover:bg-gray-200 hover:border-gray-500 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleReset();
                     }}
                   >
-                    Reset
-                  </button>
-                </div>
-                <div>
-                  <button className="px-4 py-2" onClick={handleCancel}>
-                    Cancel
-                  </button>
-                  <button className="px-4 py-2" onClick={handleSaveDraft}>
-                    Save As Draft
-                  </button>
-                  <button className="px-4 py-2" onClick={handleConfirm}>
-                    Confirm
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-        <></>
+                    <ArrowCounterClockwise />
+                  </button> */}
+            <button
+              className="bg-red-300 text-black hover:text-white px-4 py-2 rounded-md hover:bg-red-500"
+              onClick={handleCancel}
+            >
+              {t("Cancel")}
+            </button>
+          </div>
+          <div className="gap-4 flex">
+            <button
+              className="bg-gray-300 text-black hover:text-white px-4 py-2 rounded-md hover:bg-gray-500"
+              onClick={handleSaveDraft}
+            >
+              {t("SaveAsDraft")}
+            </button>
+            <button
+              className=" bg-green-300 text-black hover:text-white px-4 py-2 rounded-md hover:bg-green-500"
+              onClick={handleConfirm}
+            >
+              {t("Confirm")}
+            </button>
+          </div>
+        </div>
       </div>
     </>
   );

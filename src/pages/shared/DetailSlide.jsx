@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDetail } from "../../context/DetailContext";
-import { X } from "@phosphor-icons/react";
+import { X, XCircle } from "@phosphor-icons/react";
 import { AuthContext, useAuth } from "../../context/AuthContext";
 import AxiosProduct from "../../services/Product";
 import AxiosLot from "../../services/Lot";
@@ -8,9 +8,14 @@ import AxiosRequest from "../../services/Request";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import AxiosOrder from "../../services/Order";
-import { format } from "date-fns";
+import { addMonths, format } from "date-fns";
+import AxiosInventory from "../../services/Inventory";
+import { t } from "i18next";
+import Select from "react-select";
+import AxiosCategory from "../../services/Category";
+
 export default function DetailSlide() {
-  const { userInfor } = useContext(AuthContext);
+  const { userInfor, setRefrestAuthWallet } = useContext(AuthContext);
   const {
     dataDetail,
     typeDetail,
@@ -20,6 +25,19 @@ export default function DetailSlide() {
     createRequest,
     setCreateRequest,
   } = useDetail();
+  const { getProductCategoryBy1000 } = AxiosCategory();
+  const { getLotByProductIdX1000 } = AxiosLot();
+  const [productCategories, setProductCategories] = useState([]);
+
+  useEffect(() => {
+    fetchingBeginData();
+  }, []);
+  const fetchingBeginData = async () => {
+    const productCategoriesResult = await getProductCategoryBy1000();
+    if (productCategoriesResult?.status === 200) {
+      setProductCategories(productCategoriesResult?.data?.items);
+    }
+  };
 
   const detailComponent = useRef();
 
@@ -35,14 +53,38 @@ export default function DetailSlide() {
       name: dataDetail?.name,
       price: dataDetail?.price,
       weight: dataDetail?.weight,
+      unit: dataDetail?.unit,
+      isCold: dataDetail?.isCold,
       productCategoryId: dataDetail?.productCategoryId,
       pictureLink: dataDetail?.pictureLink,
       origin: dataDetail?.origin,
     });
     const [inputField, setInputField] = useState();
+    const [lotsList, setLotsList] = useState();
     const [errors, setErrors] = useState();
     const { updateProductById } = AxiosProduct();
     const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
+    const unitOptions = [
+      { value: "", label: "ChooseUnit" },
+      { value: "Liter", label: "Liter" },
+      { value: "Milliliter", label: "Milliliter" },
+      { value: "Pieces", label: "Pieces" },
+      { value: "Box", label: "Box" },
+      { value: "Bottle", label: "Bottle" },
+      { value: "Package", label: "Package" },
+      { value: "Carton", label: "Carton" },
+      { value: "Meter", label: "Meter" },
+      { value: "Centimeter", label: "Centimeter" },
+      { value: "Square Meter", label: "SquareMeter" },
+      { value: "Kilometer", label: "Kilometer" },
+      { value: "Bag", label: "Bag" },
+      { value: "Sheet", label: "Sheet" },
+      { value: "Roll", label: "Roll" },
+      { value: "Jar", label: "Jar" },
+      { value: "Pot", label: "Pot" },
+      { value: "Tablet", label: "Tablet" },
+      { value: "Can", label: "Can" },
+    ];
     useEffect(() => {
       const handleClickOutSide = (event) => {
         if (
@@ -58,29 +100,51 @@ export default function DetailSlide() {
         document.removeEventListener("mousedown", handleClickOutSide);
       };
     }, [createRequest]);
+    useEffect(() => {
+      const fetchingLot = async () => {
+        if (dataDetail && typeDetail === "product") {
+          const lotResut = await getLotByProductIdX1000(
+            userInfor?.id,
+            dataDetail?.id,
+            false
+          );
+          console.log("lotResut", lotResut);
+          setLotsList(lotResut);
+        }
+      };
+      fetchingLot();
+    }, [dataDetail, typeDetail]);
     const handleEdit = () => {
-      dataDetail?.isInInv
-        ? setInputField({
-            price: false,
-            weight: false,
-            pictureLink: false,
-            barcode: false,
-            name: false,
-            productCategoryId: false,
-            origin: false,
-          })
-        : setInputField({
-            barcode: true,
-            name: true,
-            price: true,
-            weight: true,
-            productCategoryId: false,
-            pictureLink: true,
-            origin: true,
-          });
+      setInputField({
+        barcode: true,
+        name: true,
+        price: true,
+        weight: true,
+        productCategoryId: true,
+        unit: true,
+        isCold: true,
+        productCategoryId: true,
+        pictureLink: true,
+        origin: true,
+      });
     };
     const handleInput = (e) => {
       const { name, value } = e.target;
+      console.log("name", name);
+      console.log("value", value);
+      if (name === "price") {
+        if (value > 999999999) {
+          setForm(() => ({ ...form, [name]: 999999999 }));
+          return;
+        }
+      }
+      if (name === "weight") {
+        if (value > 999999999) {
+          setForm(() => ({ ...form, [name]: 999999999 }));
+          return;
+        }
+      }
+
       value === ""
         ? setForm(() => ({ ...form, [name]: "" }))
         : setForm(() => ({ ...form, [name]: value }));
@@ -100,6 +164,8 @@ export default function DetailSlide() {
         setShowUpdateConfirm(false);
       }
     };
+    console.log("datadetail", dataDetail);
+    console.log("form ", form);
 
     return (
       <>
@@ -108,7 +174,7 @@ export default function DetailSlide() {
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold text-black">
-                Product Details
+                {t("ProductDetail")}
               </h2>
               <div
                 className="text-3xl cursor-pointer text-gray-500 hover:text-black"
@@ -122,129 +188,353 @@ export default function DetailSlide() {
 
           <div className="w-full flex flex-col items-center gap-8">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-32 h-32 bg-gray-300 rounded-lg relative">
-                {dataDetail?.isInInv && (
-                  <div className="absolute right-0 top-0 bg-green-500 text-white px-1 py-1 rounded-2xl translate-x-4 -translate-y-4">
-                    Inv
-                  </div>
-                )}
-              </div>
-              <div className="text-center ">
-                {inputField?.name ? (
-                  <input
-                    name="name"
-                    value={form?.name}
-                    placeholder="Name"
-                    onChange={handleInput}
-                    className={`input-field text-center ${
-                      errors?.name ? "input-error" : ""
-                    }`}
-                  />
-                ) : (
-                  <p className="text-xl font-medium">{dataDetail?.name}</p>
-                )}
-                <p className="text-gray-600 text-lg">{dataDetail?.barcode}</p>
-              </div>
+              <img
+                src={dataDetail?.pictureLink}
+                className="w-fit h-32 rounded-lg relative border-2 border-black"
+              />
             </div>
-
-            {/* Product Info Table */}
-            <div className="w-full flex flex-col gap-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-lg">
-                  OCOP Partner Email:
-                </span>
-                <span className="text-black text-lg font-semibold">
-                  {dataDetail?.ocopPartnerEmail}
-                </span>
-              </div>
-              <div className="flex justify-between items-center gap-8 h-[3rem]">
-                <span className="text-gray-600 text-lg">Origin:</span>
-                {inputField?.origin ? (
-                  <input
-                    name="origin"
-                    value={form?.origin}
-                    placeholder="Origin"
-                    onChange={handleInput}
-                    className={`input-field text-left w-full font-semibold text-lg${
-                      errors?.origin ? "input-error" : ""
-                    }`}
-                  />
-                ) : (
-                  <span className="text-black text-lg font-semibold">
-                    {dataDetail?.origin}
-                  </span>
-                )}
-              </div>
-              <div className="flex justify-between items-center gap-8 h-[3rem]">
-                <span className="text-gray-600 text-lg">
-                  Product Category Name:
-                </span>
-                <span className="text-black text-lg font-semibold">
-                  {dataDetail?.productCategoryName}
-                </span>
-              </div>
-              <div className="flex justify-between items-center gap-8 h-[3rem]">
-                <span className="text-gray-600 text-lg">Create Date:</span>
-                <span className="text-black text-lg font-semibold">
-                  {dataDetail?.createDate}
-                </span>
-              </div>
-              <div className="flex justify-between items-center gap-8 h-[3rem]">
-                <span className="text-gray-600 text-lg">Price:</span>
-                {inputField?.price ? (
-                  <input
-                    name="price"
-                    type="number"
-                    value={form?.price}
-                    onChange={handleInput}
-                    className={`input-field text-left w-full font-semibold text-lg${
-                      errors?.price ? "input-error" : ""
-                    }`}
-                  />
-                ) : (
-                  <span className="text-black text-lg font-semibold">
-                    {dataDetail?.price}
-                  </span>
-                )}
-              </div>
-              <div className="flex justify-between items-center gap-8 h-[3rem]">
-                <span className="text-gray-600 text-lg">Weight:</span>
-                {inputField?.weight ? (
-                  <input
-                    name="weight"
-                    value={form?.weight}
-                    type="number"
-                    onChange={handleInput}
-                    className={`input-field text-left w-full font-semibold text-lg${
-                      errors?.weight ? "input-error" : ""
-                    }`}
-                  />
-                ) : (
-                  <span className="text-black text-lg font-semibold">
-                    {dataDetail?.weight}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-between items-center w-full px-20">
-              {dataDetail?.isInInv ? (
-                <div></div>
-              ) : inputField ? (
-                <>
-                  <button onClick={() => setInputField()}>Cancel</button>
-                  <button onClick={handeUpdate}>Update</button>
-                </>
+            <div className="text-center  flex flex-col justify-center items-center">
+              {inputField?.name ? (
+                <input
+                  name="name"
+                  value={form?.name}
+                  placeholder="Name"
+                  onChange={handleInput}
+                  className={`input-field text-center text-xl font-medium w-full ${
+                    errors?.name ? "input-error" : ""
+                  }`}
+                />
               ) : (
-                <>
-                  <button onClick={handleEdit}>Edit</button>
-                  <button onClick={() => setCreateRequest(true)}>
-                    Create Request
-                  </button>
-                </>
+                <p className="text-xl font-medium">{dataDetail?.name}</p>
+              )}
+              {inputField?.barcode ? (
+                <input
+                  name="barcode"
+                  value={form?.barcode}
+                  placeholder="Barcode"
+                  onChange={handleInput}
+                  className={`input-field text-center w-full col-span-1 text-gray-600 text-lg${
+                    errors?.barcode ? "input-error" : ""
+                  }`}
+                />
+              ) : (
+                <p className="text-gray-600 text-lg">{dataDetail?.barcode}</p>
               )}
             </div>
           </div>
+
+          {/* Product Info Table */}
+          <div className="w-full grid grid-cols-2 gap-4">
+            <span className="text-black text-lg font-semibold col-span-1">
+              {t("Origin")}:
+            </span>
+            {inputField?.origin ? (
+              <input
+                name="origin"
+                value={form?.origin}
+                placeholder="Origin"
+                onChange={handleInput}
+                className={`input-field text-left w-full col-span-1 font-semibold text-lg${
+                  errors?.origin ? "input-error" : ""
+                }`}
+              />
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.origin}
+              </span>
+            )}
+            <span className="text-black text-lg font-semibold col-span-1">
+              {t("Category")}:
+            </span>
+            {inputField?.productCategoryId ? (
+              <Select
+                // value={form?.productCategoryId}
+
+                value={
+                  productCategories?.find(
+                    (op) =>
+                      parseInt(op.id) === parseInt(form?.productCategoryId)
+                  ) || null
+                }
+                onChange={(selectedOption) =>
+                  handleInput({
+                    target: {
+                      name: "productCategoryId",
+                      value: selectedOption.id,
+                    },
+                  })
+                }
+                options={productCategories}
+                getOptionValue={(e) => e.id} // Use `id` as the value
+                getOptionLabel={(e) => e.typeName} // Display `typeName` as the label
+                styles={{
+                  menu: (provided) => ({
+                    ...provided,
+
+                    // Restrict the dropdown height
+                    overflowY: "hidden", // Enable scrolling for content
+                  }),
+                  menuList: (provided) => ({
+                    ...provided,
+                    padding: 0, // Ensure no extra padding
+                    maxHeight: "7.5rem",
+                    overflow: "auto",
+                  }),
+                  control: (baseStyles) => ({
+                    ...baseStyles,
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    padding: "0.5rem",
+                    boxShadow: "none",
+                    "&:hover": {
+                      border: "1px solid #888",
+                    },
+                  }),
+                  option: (baseStyles, { isFocused, isSelected }) => ({
+                    ...baseStyles,
+                    backgroundColor: isSelected
+                      ? "#0056b3"
+                      : isFocused
+                      ? "#e7f3ff"
+                      : "white",
+                    color: isSelected ? "white" : "black",
+                    cursor: "pointer",
+                    padding: "0.5rem 1rem", // Option padding
+                    textAlign: "left", // Center-align text
+                  }),
+                }}
+              />
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.productCategoryName}
+              </span>
+            )}
+            <span className="text-black text-lg font-semibold col-span-1">
+              {t("CreateDate")}:
+            </span>
+            <span className="text-gray-700 text-lg col-span-1">
+              {format(dataDetail?.createDate, "dd/MM/yyyy")}
+            </span>
+            <span className="text-black text-lg font-semibold col-span-1">
+              {t("Price")}:
+            </span>
+            {inputField?.price ? (
+              <div className="relative">
+                <input
+                  name="price"
+                  type="number"
+                  value={form?.price}
+                  onChange={handleInput}
+                  className={`input-field pr-10 text-left w-full col-span-1 font-semibold text-lg${
+                    errors?.price ? "input-error" : ""
+                  }`}
+                />
+                <div className="absolute top-3 right-7">vnd</div>
+              </div>
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {new Intl.NumberFormat().format(dataDetail?.price)} vnd
+              </span>
+            )}
+            <span className="text-black text-lg font-semibold col-span-1">
+              {t("unit")}:
+            </span>
+            {inputField?.unit ? (
+              // <input
+              //   name="unit"
+              //   type="number"
+              //   value={form?.unit}
+              //   onChange={handleInput}
+              //   className={`input-field text-left w-full col-span-1 font-semibold text-lg${
+              //     errors?.unit ? "input-error" : ""
+              //   }`}
+              // />
+              <Select
+                value={unitOptions.find(
+                  (option) => option.value === form?.unit
+                )}
+                onChange={(selectedOption) =>
+                  handleInput({
+                    target: {
+                      name: "unit",
+                      value: selectedOption.value,
+                    },
+                  })
+                }
+                name="unit"
+                className="react-select-container"
+                classNamePrefix="react-select"
+                options={unitOptions}
+                getOptionLabel={(option) => `${t(option.label)}`}
+                styles={{
+                  menu: (provided) => ({
+                    ...provided,
+                    width: "100%",
+                  }),
+                  menuList: (provided) => ({
+                    ...provided,
+                    maxHeight: "7.5rem",
+                    overflow: "auto",
+                  }),
+                  control: (provided) => ({
+                    ...provided,
+                    paddingTop: "4px",
+                    paddingBottom: "4px",
+                    // width:"100%",
+                    borderColor: "#ccc", // Custom border color
+                    boxShadow: "none", // Remove default focus outline
+                    "&:hover": { borderColor: "#aaa" }, // Border on hover
+                  }),
+                  option: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: state.isSelected
+                      ? "#0056b3"
+                      : state.isFocused
+                      ? "#e6f7ff"
+                      : "white",
+                    color: state.isSelected ? "white" : "black",
+                  }),
+                }}
+              />
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.unit}
+              </span>
+            )}
+            <span className="text-black text-lg font-semibold col-span-1">
+              {t("isCold")}:
+            </span>
+            {inputField?.isCold ? (
+              // <input
+              //   name="isCold"
+              //   type="number"
+              //   value={form?.isCold}
+              //   onChange={handleInput}
+              //   className={`input-field text-left w-full col-span-1 font-semibold text-lg${
+              //     errors?.isCold ? "input-error" : ""
+              //   }`}
+              // />
+              <Select
+                value={[
+                  { value: 0, label: t("NormailInventory") },
+                  { value: 1, label: t("FrozenInventory") },
+                ].find((option) => option.value === form?.isCold)}
+                onChange={(selectedOption) =>
+                  handleInput({
+                    target: {
+                      name: "isCold",
+                      value: selectedOption.value,
+                    },
+                  })
+                }
+                name="isCold"
+                className="react-select-container"
+                classNamePrefix="react-select"
+                options={[
+                  { value: 0, label: t("NormailInventory") },
+                  { value: 1, label: t("FrozenInventory") },
+                ]}
+                getOptionLabel={(option) => `${t(option.label)}`}
+                styles={{
+                  menu: (provided) => ({
+                    ...provided,
+                    width: "100%",
+                  }),
+                  menuList: (provided) => ({
+                    ...provided,
+                    maxHeight: "7.5rem",
+                    overflow: "auto",
+                  }),
+                  control: (provided) => ({
+                    ...provided,
+                    paddingTop: "4px",
+                    paddingBottom: "4px",
+                    // width:"100%",
+                    borderColor: "#ccc", // Custom border color
+                    boxShadow: "none", // Remove default focus outline
+                    "&:hover": { borderColor: "#aaa" }, // Border on hover
+                  }),
+                  option: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: state.isSelected
+                      ? "#0056b3"
+                      : state.isFocused
+                      ? "#e6f7ff"
+                      : "white",
+                    color: state.isSelected ? "white" : "black",
+                  }),
+                }}
+              />
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.isCold}
+              </span>
+            )}
+            <span className="text-black text-lg font-semibold col-span-1">
+              {t("Weight")}:
+            </span>
+            {inputField?.weight ? (
+              <div className="relative">
+                <input
+                  name="weight"
+                  value={form?.weight}
+                  type="number"
+                  onChange={handleInput}
+                  className={`input-field text-left col-span-1 w-full font-semibold text-lg${
+                    errors?.weight ? "input-error" : ""
+                  }`}
+                />
+                <div className="absolute top-3 right-7">kg</div>
+              </div>
+            ) : (
+              <span className="text-gray-700 text-lg col-span-1">
+                {dataDetail?.weight} kg
+              </span>
+            )}
+            <span className="text-black text-lg font-semibold col-span-1">
+              {t("TotalLotsImported")}:
+            </span>
+            <span className="text-gray-700 text-lg col-span-1">
+              {lotsList?.data?.totalItemsCount} lot
+            </span>
+          </div>
+          <div className="flex justify-between items-center w-full gap-4">
+            {inputField ? (
+              <>
+                <button
+                  className="mt-auto hover:bg-red-500 bg-red-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
+                  onClick={() => setInputField()}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="mt-auto hover:bg-green-500 bg-green-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
+                  onClick={handeUpdate}
+                >
+                  Update
+                </button>
+              </>
+            ) : (
+              <>
+                {!dataDetail?.isInInv && (
+                  <button
+                    onClick={handleEdit}
+                    className="mt-auto hover:bg-gray-400 bg-gray-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
+                  >
+                    {t("Edit")}
+                  </button>
+                )}
+                <button
+                  onClick={() => setCreateRequest(true)}
+                  className="mt-auto hover:bg-green-500 bg-green-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
+                >
+                  {t("CreateRequest")}
+                </button>
+              </>
+            )}
+          </div>
         </div>
+
         {showUpdateConfirm && (
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50"></div>
@@ -882,12 +1172,40 @@ export default function DetailSlide() {
       </>
     );
   };
+
   const InventoryDetail = () => {
     // const { sendOrderById, deleteOrderById } = AxiosOrder();
     // const [lotData, setLotData] = useState();
     // const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
-    // const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
+    const [showExtendConfirmation, setShowExtendConfirmation] = useState(null);
     const [lotsCleanData, setLotsCleanData] = useState();
+    const [monthBuyInvrentory, setMonthToBuyInventory] = useState(1);
+
+    const { extendInventory } = AxiosInventory();
+
+    const handleCancelExtendInventory = () => {
+      setShowExtendConfirmation(false);
+      setMonthToBuyInventory(0);
+    };
+    const handleConfirmExtendInventory = async () => {
+      try {
+        // setLoading(true);
+        const result = await extendInventory(
+          dataDetail?.id,
+          userInfor.id,
+          monthBuyInvrentory
+        );
+        if (result?.status == 200) {
+          handleCancelExtendInventory();
+          setRefrestAuthWallet((prev) => !prev);
+          setRefresh(dataDetail?.id);
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        // setLoading(false);
+      }
+    };
 
     const cleanLotsData = () => {
       if (dataDetail?.lots) {
@@ -1015,12 +1333,12 @@ export default function DetailSlide() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-semibold text-black">
-                  Inventory information
+                  {t("InventoryInformation")}
                 </h2>
               </div>
               <div
                 className="text-3xl cursor-pointer text-gray-500 hover:text-black"
-                // onClick={handleCloseDetail}
+                onClick={handleCloseDetail}
               >
                 <X weight="bold" />
               </div>
@@ -1028,90 +1346,99 @@ export default function DetailSlide() {
             <div className="w-full h-px bg-gray-300"></div>
           </div>
 
-          <div className="w-full flex flex-col items-center gap-8">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-32 h-32 bg-gray-300 rounded-lg relative"></div>
-              <div className="text-center">
-                <p className="text-xl font-medium">{dataDetail?.name}</p>
-                <p
-                  className={`text-gray-600 text-lg ${
-                    dataDetail?.requestType === "Import"
-                      ? "text-green-500"
-                      : "text-blue-500"
-                  }`}
-                >
-                  {dataDetail?.requestType}
-                </p>
+          {/* Product Info Table */}
+          <div className="w-full flex flex-col gap-4">
+            {[
+              {
+                label: t("InventoryName") + ":",
+                value: dataDetail?.name,
+              },
+              {
+                label: t("Warehouse") + ":",
+                value: dataDetail?.warehouseName,
+              },
+              {
+                label: t("Price") + ":",
+                value:
+                  new Intl.NumberFormat().format(dataDetail?.price) + " vnd",
+              },
+              {
+                label: t("BoughtDate") + ":",
+                value: format(dataDetail?.boughtDate || 0, "dd/MM/yyyy"),
+              },
+              {
+                label: t("ExpirationDate") + ":",
+                value: format(dataDetail?.expirationDate || 0, "dd/MM/yyyy"),
+              },
+              {
+                label: t("Weight") + ":",
+                value:
+                  dataDetail?.weight + " / " + dataDetail?.maxWeight + " kg",
+              },
+            ]?.map((item, index) => (
+              <div key={index} className="grid grid-cols-6 gap-4 w-full">
+                <div className="text-gray-600 col-span-2">{item.label}</div>
+                <div className="text-black col-span-4">{item.value}</div>
               </div>
-            </div>
-
-            {/* Product Info Table */}
-            <div className="w-full flex flex-col gap-4">
-              {[
-                {
-                  label: "Warehouse:",
-                  value: dataDetail?.warehouseName,
-                },
-                { label: "Bought date", value: dataDetail?.boughtDate },
-                {
-                  label: "Expiration date:",
-                  value: dataDetail?.expirationDate,
-                },
-                {
-                  label: "Weight:",
-                  value:
-                    dataDetail.weight + " / " + dataDetail?.maxWeight + " kg",
-                },
-              ]?.map((item, index) => (
-                <div key={index} className="flex justify-between ">
-                  <span className="text-gray-600">{item.label}</span>
-                  <span className="text-black">{item.value}</span>
+            ))}
+            {cleanLotsData().length > 0 && (
+              <>
+                <div className="w-full h-[0.2rem] bg-gray-200" />
+                <label className="font-medium text-lg flex justify-between items-center">
+                  Products Amount
+                </label>
+                <div className=" items-center grid-cols-9 grid gap-4 text-gray-500 font-medium border-b-2 border-gray-400 pb-2">
+                  <span className=" col-span-4">Product</span>
+                  <span className=" text-end col-span-2">Total Lots</span>
+                  <span className=" text-end col-span-3">Total Products</span>
                 </div>
-              ))}
-              <div className="w-full h-[0.2rem] bg-gray-200" />
-              <label className="font-medium text-lg flex justify-between items-center">
-                Products Amount
-              </label>
-              <div className=" items-center grid-cols-9 grid gap-4 text-gray-500 font-medium border-b-2 border-gray-400 pb-2">
-                <span className=" col-span-4">Product</span>
-                <span className=" text-end col-span-2">Total Lots</span>
-                <span className=" text-end col-span-3">Total Products</span>
-              </div>
-              {cleanLotsData()?.map((item, index) => (
-                <div>
+                {cleanLotsData()?.map((item, index) => (
                   <div>
-                    <div
-                      key={index}
-                      className=" items-center grid-cols-9 grid gap-4 text-black font-medium"
-                    >
-                      <span className=" col-span-4">{item.productName}</span>
-                      <span className=" text-end col-span-2">
-                        {item.totalLot}
-                      </span>
-                      <span className=" text-end col-span-3">
-                        {item.productAmount}
-                      </span>
+                    <div>
+                      <div
+                        key={index}
+                        className=" items-center grid-cols-9 grid gap-4 text-black font-medium"
+                      >
+                        <span className=" col-span-4">{item.productName}</span>
+                        <span className=" text-end col-span-2">
+                          {item.totalLot}
+                        </span>
+                        <span className=" text-end col-span-3">
+                          {item.productAmount}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <div></div>
+                      {item?.lots.map((lot) => (
+                        <div className=" items-center grid  grid-cols-9 gap-4 text-gray-500 ">
+                          <span className="col-span-2 text-start overflow-auto text-clip">
+                            {lot.name}
+                          </span>
+                          <span className="text-end">{lot.number}</span>
+                          <span className=" col-span-4 text-end">
+                            {format(new Date(lot.importDate), "dd/MM")}-
+                            {format(new Date(lot.expirationDate), "dd/MM/yy")}
+                          </span>
+
+                          <span className=" text-end">{lot.amount}</span>
+                          <span className=" text-end">{lot.productAmount}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div>
-                    <div></div>
-                    {item?.lots.map((lot) => (
-                      <div className=" items-center grid  grid-cols-9 gap-4 text-gray-500 ">
-                        <span className="col-span-2 text-start overflow-auto text-clip">{lot.name}</span>
-                        <span className="text-end">{lot.number}</span>
-                        <span className=" col-span-4 text-end">
-                          {format(new Date(lot.importDate), "dd/MM")}-
-                          {format(new Date(lot.expirationDate), "dd/MM/yy")}
-                        </span>
+                ))}
+              </>
+            )}
+          </div>
 
-                        <span className=" text-end">{lot.amount}</span>
-                        <span className=" text-end">{lot.productAmount}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div>
+            <button
+              className="bg-green-500 px-4 py-2 rounded-lg text-white w-full"
+              onClick={() => setShowExtendConfirmation((prev) => !prev)}
+            >
+              {t("Extend")}
+            </button>
           </div>
         </div>
         {/* {showDeleteConfirmation && (
@@ -1144,38 +1471,118 @@ export default function DetailSlide() {
           </>
         )} */}
 
-        {/*
-        {showUpdateConfirmation && (
+        {showExtendConfirmation && (
           <>
-            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[20] left-0 right-0"></div>
             <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg px-4 py-8 w-[35rem] h-fit z-[30]"
               style={{
                 top: "50%",
                 left: "-100%",
-                transform: "translate(-50%, -50%)",
+                transform: "translate(-25%, -50%)",
               }}
             >
-              <p>{`Are you sure you want to ${
-                showUpdateConfirmation[1] === "Canceled" ? "cancel:" : ""
-              } ${dataDetail?.name}?`}</p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={confirmUpdateStatus}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+              <div
+                className="absolute top-2 right-2 text-white text-3xl hover:scale-105 cursor-pointer"
+                onClick={handleCancelExtendInventory}
+              >
+                <XCircle fill="#ef4444" weight="fill" />
+              </div>
+              <p className="text-2xl">{`${t("ExtendingInventory")}: ${
+                dataDetail?.name
+              }`}</p>
+              <div className="flex items-center justify-between my-7">
+                <div
+                  className={`flex items-center overflow-auto py-2 px-4 w-fit border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+                    monthBuyInvrentory > 0
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
                 >
-                  Cancel
+                  <input
+                    type="number"
+                    className="outline-none w-[5rem]"
+                    value={monthBuyInvrentory}
+                    onChange={(e) => setMonthToBuyInventory(e.target.value)}
+                  ></input>
+
+                  <p>{t("Months")}</p>
+                </div>
+                <button
+                  className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
+                  onClick={() => setMonthToBuyInventory(6)}
+                >
+                  6 {t("Months")}
                 </button>
                 <button
-                  onClick={exitUpdateStatus}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                  className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
+                  onClick={() => setMonthToBuyInventory(12)}
                 >
-                  Exist
+                  1 {t("Year")}
+                </button>
+                <button
+                  className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
+                  onClick={() => setMonthToBuyInventory(24)}
+                >
+                  2 {t("Years")}
+                </button>
+              </div>
+
+              <div className="mb-7 grid-cols-8 grid gap-4">
+                <div className="col-span-2 text-gray-500">{t("Name")}</div>
+                <div className="col-span-2 text-gray-500">{t("Price")}</div>
+                <div className="col-span-1 text-gray-500 text-center">
+                  {t("Amount")}
+                </div>
+                <div className="col-span-1 text-gray-500">{t("Unit")}</div>
+                <div className="col-span-2 text-gray-500">{t("Total")}</div>
+                <div className="col-span-2">{dataDetail?.name}</div>
+                <div className="col-span-2">
+                  {new Intl.NumberFormat().format(dataDetail?.price) + "vnd"}
+                </div>
+                <div className="col-span-1 text-center">
+                  {monthBuyInvrentory}
+                </div>
+                <div className="col-span-1">{t("Month")}</div>
+                <div className="col-span-2">
+                  {/* {parseInt(cal( inventory?.price*monthBuyInvrentory)) + "VND"} */}
+                  {`${new Intl.NumberFormat().format(
+                    Math.round(
+                      parseFloat(dataDetail?.price) *
+                        parseFloat(monthBuyInvrentory)
+                    )
+                  )} vnd`}
+                </div>
+                <div className="col-span-8 flex gap-x-4">
+                  <div className="">{t("ExpectExpirationDate")}:</div>
+                  <p>
+                    {format(
+                      addMonths(
+                        new Date(dataDetail?.expirationDate),
+                        parseInt(monthBuyInvrentory || 0)
+                      ),
+                      "dd/MM/yyyy"
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => handleCancelExtendInventory()}
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-red-500 hover:text-white"
+                >
+                  {t("Cancel")}
+                </button>
+                <button
+                  onClick={handleConfirmExtendInventory}
+                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                >
+                  {t("Confirm")}
                 </button>
               </div>
             </div>
           </>
-        )} */}
+        )}
       </>
     );
   };
@@ -1211,7 +1618,7 @@ export default function DetailSlide() {
       <>
         <div className="w-[455px] h-full bg-white p-6 flex flex-col gap-8 text-black ">
           <div className="flex justify-between">
-            <div>User Profile</div>
+            <div>{t("UserProfile")}</div>
             <div>X</div>
           </div>
           <div className="flex-col items-center flex mt-[1rem]">
@@ -1225,36 +1632,44 @@ export default function DetailSlide() {
             <div className="font-medium text-xl mt-[1rem] mx-[0.3rem]">
               {userInfor?.firstName + " " + userInfor?.lastName}
             </div>
-            <div className="text-[var(--en-vu-600)]">{userInfor?.roleName}</div>
+            <div className="text-[var(--en-vu-600)]">
+              {t(userInfor?.roleName)}
+            </div>
           </div>
           <div className="flex flex-col w-full pl-[2rem] pr-[1rem]">
             <div className="font-medium mb-[16px] flex justify-between items-center">
-              <p>Personal details</p>
+              <p>{t("PersonalDetails")}</p>
               <div onClick={handleEditProfile}>X</div>
             </div>
             <div className="grid grid-cols-2 gap-[16px] w-full">
-              <div className="text-[var(--en-vu-600)]">Phone number:</div>
+              <div className="text-[var(--en-vu-600)]">{t("PhoneNumber")}:</div>
               <div className="text-[var(--en-vu-Base)]">{userInfor?.phone}</div>
-              <div className="text-[var(--en-vu-600)]">Email:</div>
+              <div className="text-[var(--en-vu-600)]">{t("Email")}:</div>
               <div className="text-[var(--en-vu-Base)] w-[11rem] overflow-hidden">
                 {userInfor?.email}
               </div>
             </div>
             <div className="w-full border-b-2 my-4"></div>
             <div className="font-medium mb-[16px] flex justify-between items-center">
-              <p>Business details</p>
+              <p>{t("BusinessDetails")}</p>
               <div onClick={handleEditProfile}>X</div>
             </div>
             <div className="grid grid-cols-2 gap-4 w-full">
-              <div className="text-[var(--en-vu-600)]">Business name:</div>
+              <div className="text-[var(--en-vu-600)]">
+                {t("BusinessName")}:
+              </div>
               <div className="text-[var(--en-vu-Base)]">
                 {userInfor?.businessName}
               </div>
-              <div className="text-[var(--en-vu-600)]">Category name:</div>
+              <div className="text-[var(--en-vu-600)]">
+                {t("CategoryName")}:
+              </div>
               <div className="text-[var(--en-vu-Base)]">
                 {userInfor?.categoryName}
               </div>
-              <div className="text-[var(--en-vu-600)]">Ocop category name:</div>
+              <div className="text-[var(--en-vu-600)]">
+                {t("OcopCategoryName")}:
+              </div>
               <div className="text-[var(--en-vu-Base)]">
                 {userInfor?.ocopCategoryName}
               </div>
@@ -1265,7 +1680,7 @@ export default function DetailSlide() {
             className="mt-auto bg-red-500 text-white py-2 px-4 rounded-lg"
             onClick={logout}
           >
-            Logout
+            {t("Logout")}
           </button>
         </div>
       </>

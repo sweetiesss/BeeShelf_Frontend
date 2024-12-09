@@ -53,3 +53,16 @@ export function ProductListSkeleton({ size }) {
     </div>
   );
 }
+
+export function WarehouseListSkeleton() {
+  return (
+    <div className="animate-pulse shadow-lg rounded-lg p-6 mb-4 w-full max-w-lg mx-auto bg-gray-200">
+      <div className="h-6 bg-gray-300 rounded mb-4 w-3/4"></div>
+      <div className="space-y-3">
+        <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+      </div>
+    </div>
+  );
+}
