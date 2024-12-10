@@ -217,6 +217,25 @@ const BatchManage = () => {
       setLoading(false);
     }
   };
+  const formatDateTimeVN = (dateString) => {
+    if (!dateString) return { date: "", time: "" };
+
+    const date = new Date(dateString);
+
+    const formattedDate = date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+
+    const formattedTime = date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    return { date: formattedDate, time: formattedTime };
+  };
 
   // Handle create batch
   const handleCreateBatch = async (values) => {
@@ -485,133 +504,146 @@ const BatchManage = () => {
                   <div className="p-6 space-y-4 w-full max-w-xl bg-white rounded-lg shadow-lg">
                     {/* Order Code */}
                     <div className="flex justify-between items-center">
-                      <div className="text-sm font-semibold text-gray-500">
-                        Order ID: {order.id}
+                      <div className="text-base">
+                        <span className="font-bold text-gray-10000">
+                          Order ID:
+                        </span>
+                        <span className="text-gray-700"> {order.id}</span>
                       </div>
-                      {/* <div className="text-sm text-gray-700">{order.id}</div> */}
                     </div>
+
                     <Divider />
 
                     {/* Order Details */}
                     <div className="flex justify-between">
                       <div className="w-[80%]">
-                        <div className="text-sm text-gray-10000">
-                          Order Code:
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">Order Code:</span>
                           <span className="text-gray-700">
-                            {"     "}
+                            {" "}
                             {order.orderCode}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-10000">
-                        Warehouse Name:
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">Warehouse Name:</span>
                           <span className="text-gray-700">
-                            {"     "}
+                            {" "}
                             {order.warehouseName}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-10000">
-                          Partner Email:
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">Partner Email:</span>
                           <span className="text-gray-700">
-                            {"     "}
+                            {" "}
                             {order.partner_email}
                           </span>
                         </div>
-                        {/* <div className="w-[48%]">
-                          <div className="text-sm text-gray-500">Partner Email:</div>
-                          {order.partner_email}
-                        </div> */}
-                        <div className="text-sm text-gray-10000">
-                          Order Status:
-                          <span className="text-gray-700">
-                            {"     "}
-                            {order.status}
-                          </span>
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">Order Status:</span>
+                          <span className="text-gray-700"> {order.status}</span>
                         </div>
-                        {/* <div className="w-[48%]">
-                          <div className="text-sm text-gray-500">Order Status:</div>
-                          {order.status}
-                        </div> */}
-                        <div className="text-sm text-gray-10000">
-                          Reason For Cancellation:
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">
+                            Reason For Cancellation:
+                          </span>
                           <span className="text-gray-700">
-                            {"     "}
+                            {" "}
                             {order.cancellationReason}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-1000">
-                        Order Creation Date:
+
+                        <div className="text-base text-gray-1000">
+                          <span className="font-bold">
+                            Order Creation Date:
+                          </span>
                           <span className="text-gray-700">
-                            {"     "}
-                            {order.createDate}
+                            {" "}
+                            {formatDateTimeVN(order.createDate).date}{" "}
+                            {formatDateTimeVN(order.createDate).time}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-1000">
-                          Approval Date:
+
+                        <div className="text-base text-gray-1000">
+                          <span className="font-bold">Approval Date:</span>
                           <span className="text-gray-700">
-                            {"     "}
-                            {order.approveDate}
+                            {" "}
+                            {formatDateTimeVN(order.approveDate).date}{" "}
+                            {formatDateTimeVN(order.approveDate).time}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-10000">
-                        Delivery Start Date:
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">
+                            Delivery Start Date:
+                          </span>
                           <span className="text-gray-700">
-                            {"     "}
-                            {order.deliverStartDate}
+                            {" "}
+                            {formatDateTimeVN(order.deliverStartDate).date}{" "}
+                            {formatDateTimeVN(order.deliverStartDate).time}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-10000">
-                        Delivery finish date:
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">
+                            Delivery Finish Date:
+                          </span>
                           <span className="text-gray-700">
-                            {"     "}
-                            {order.deliverFinishDate}
+                            {" "}
+                            {
+                              formatDateTimeVN(order.deliverFinishDate).date
+                            }{" "}
+                            {formatDateTimeVN(order.deliverFinishDate).time}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-10000">
-                        Completion Date:
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">Completion Date:</span>
                           <span className="text-gray-700">
-                            {"     "}
-                            {order.completeDate}
+                            {" "}
+                            {formatDateTimeVN(order.completeDate).date}{" "}
+                            {formatDateTimeVN(order.completeDate).time}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-10000">
-                        Return Date:
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">Return Date:</span>
                           <span className="text-gray-700">
-                            {"     "}
-                            {order.returnDate}
+                            {" "}
+                            {formatDateTimeVN(order.returnDate).date}{" "}
+                            {formatDateTimeVN(order.returnDate).time}
                           </span>
                         </div>
-                       
-                        <div className="text-sm text-gray-10000">
-                        Cancellation Date:
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">Cancellation Date:</span>
                           <span className="text-gray-700">
-                            {"     "}
-                            {order.cancelDate}
+                            {" "}
+                            {formatDateTimeVN(order.cancelDate).date}{" "}
+                            {formatDateTimeVN(order.cancelDate).time}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-10000">
-                        Recipient Phone Number:
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">
+                            Recipient Phone Number:
+                          </span>
                           <span className="text-gray-700">
-                            {"     "}
+                            {" "}
                             {order.receiverPhone}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-10000">
-                        Recipient Address:
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">Recipient Address:</span>
                           <span className="text-gray-700">
-                            {"     "}
+                            {" "}
                             {order.receiverAddress}
                           </span>
                         </div>
-                        
-                        
-                        {/* <div className="w-[48%]">
-                          <div className="text-sm text-gray-500">Reason for cancellation:</div>
-                          {order.cancellationReason}
-                        </div> */}
-                        {/* <div className="text-sm text-gray-700"></div>
-                        <div className="text-sm text-gray-500">
-                          Order Creation Date: {order.createDate}
-                        </div> */}
                       </div>
                     </div>
                   </div>
