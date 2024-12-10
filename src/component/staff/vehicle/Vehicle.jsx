@@ -73,11 +73,11 @@ const Vehicle = () => {
   };
 
   // Hàm gọi API để tạo một payment mới
-  const assignVehicleToShipper = async (shipperId, vehicleId) => {
+  const assignVehicleToShipper = async (vehicleId,shipperId) => {
     setLoading(true);
     try {
       const response = await fetchDataBearer({
-        url: `/vehicle/assign-driver/${shipperId}/${vehicleId}`,
+        url: `/vehicle/assign-driver/${vehicleId}/${shipperId}`,
         method: "POST",
       });
 
@@ -343,7 +343,7 @@ const Vehicle = () => {
             key="submit"
             type="primary"
             loading={loading}
-            onClick={() => assignVehicleToShipper(shipperId, vehicleId)}
+            onClick={() => assignVehicleToShipper(vehicleId,shipperId)}
           >
             Assign Vehicle To Shipper
           </Button>,
