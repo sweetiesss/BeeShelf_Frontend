@@ -495,20 +495,123 @@ const BatchManage = () => {
                     {/* Order Details */}
                     <div className="flex justify-between">
                       <div className="w-[80%]">
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-gray-10000">
                           Order Code:
                           <span className="text-gray-700">
                             {"     "}
                             {order.orderCode}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-700"></div>
-                        <div className="text-sm text-gray-500">
-                          Order Code: {order.orderCode}
+                        <div className="text-sm text-gray-10000">
+                        Warehouse Name:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.warehouseName}
+                          </span>
                         </div>
-                      </div>
-                      <div className="w-[48%]">
-                        <div className="text-sm text-gray-500">Status:</div>
+                        <div className="text-sm text-gray-10000">
+                          Partner Email:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.partner_email}
+                          </span>
+                        </div>
+                        {/* <div className="w-[48%]">
+                          <div className="text-sm text-gray-500">Partner Email:</div>
+                          {order.partner_email}
+                        </div> */}
+                        <div className="text-sm text-gray-10000">
+                          Order Status:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.status}
+                          </span>
+                        </div>
+                        {/* <div className="w-[48%]">
+                          <div className="text-sm text-gray-500">Order Status:</div>
+                          {order.status}
+                        </div> */}
+                        <div className="text-sm text-gray-10000">
+                          Reason For Cancellation:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.cancellationReason}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-1000">
+                        Order Creation Date:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.createDate}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-1000">
+                          Approval Date:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.approveDate}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-10000">
+                        Delivery Start Date:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.deliverStartDate}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-10000">
+                        Delivery finish date:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.deliverFinishDate}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-10000">
+                        Completion Date:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.completeDate}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-10000">
+                        Return Date:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.returnDate}
+                          </span>
+                        </div>
+                       
+                        <div className="text-sm text-gray-10000">
+                        Cancellation Date:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.cancelDate}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-10000">
+                        Recipient Phone Number:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.receiverPhone}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-10000">
+                        Recipient Address:
+                          <span className="text-gray-700">
+                            {"     "}
+                            {order.receiverAddress}
+                          </span>
+                        </div>
+                        
+                        
+                        {/* <div className="w-[48%]">
+                          <div className="text-sm text-gray-500">Reason for cancellation:</div>
+                          {order.cancellationReason}
+                        </div> */}
+                        {/* <div className="text-sm text-gray-700"></div>
+                        <div className="text-sm text-gray-500">
+                          Order Creation Date: {order.createDate}
+                        </div> */}
                       </div>
                     </div>
                   </div>
