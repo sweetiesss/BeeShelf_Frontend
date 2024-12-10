@@ -39,7 +39,7 @@ export default function PaymentResult() {
   };
 
   return (
-    <div className="w-full h-screen flex justify-center items-center bg-gray-100">
+    <div className="w-full h-[50vh] flex justify-center items-center">
       <div
         className={`w-[80vw] max-w-[600px] bg-white rounded-lg shadow-lg border p-6 flex flex-col items-center text-center ${statusStyles[status]}`}
       >

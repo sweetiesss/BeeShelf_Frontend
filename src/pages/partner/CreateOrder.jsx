@@ -151,12 +151,6 @@ export default function CreateOrderPage() {
   // };
 
   useEffect(() => {
-    if (form.receiverAddress) {
-      calculateDistance();
-    }
-  }, [form.receiverAddress, warehouse]);
-
-  useEffect(() => {
     filterWarehouse();
     getDetailWarehouse();
   }, [warehouse]);
@@ -241,32 +235,6 @@ export default function CreateOrderPage() {
     }
   };
 
-  const calculateDistance = async () => {
-    setStartLocation();
-    const API_KEY = process.env.REACT_APP_MAP_API_KEY;
-
-    const warehouseAddress = warehouse?.location; // Replace with your actual warehouse address
-    const receiverAddress = form.receiverAddress;
-    console.log("addres", warehouseAddress);
-
-    setStartLocation(warehouse?.location);
-
-    try {
-      const response = await axios.get(
-        `https://www.mapquestapi.com/directions/v2/route?key=${API_KEY}&from=${encodeURIComponent(
-          warehouseAddress
-        )}&to=${encodeURIComponent(receiverAddress)}`
-      );
-
-      const distanceInMiles = response.data.route.distance; // Distance in miles
-      const distanceInKilometers = (distanceInMiles * 1.6125).toFixed(2); // Convert to kilometers
-      setDistance(distanceInKilometers);
-      setForm((prev) => ({ ...prev, distance: distanceInKilometers })); // Update the form
-    } catch (error) {
-      console.error("Error calculating distance:", error);
-    }
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "receiverAdress") {
@@ -340,8 +308,13 @@ export default function CreateOrderPage() {
       setLoading(true);
       e.preventDefault();
       console.log("Order Created:", form);
-      // const result = await createOrder(form, warehouse?.warehouseId);
-      // console.log(result);
+      const submitForm = {
+        ...form,
+        deliveryZoneId: parseInt(defaultLocation?.id),
+        distance: parseFloat(distance),
+      };
+      const result = await createOrder(submitForm, warehouse?.warehouseId);
+      console.log(result);
       setForm(baseForm);
     } catch (e) {
       console.log(e);
@@ -350,7 +323,7 @@ export default function CreateOrderPage() {
     }
   };
 
-  console.log("inventories", inventories);
+  console.log("deliveryZone", deliveryZone);
 
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
@@ -639,31 +612,39 @@ export default function CreateOrderPage() {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-4 mt-6">
-            <button
-              type="button"
-              onClick={() => {
-                setForm(baseForm);
-                setItem({ productId: 0, productAmount: 0 });
-                setWarehouse(0);
-              }} // Reset form
-              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md shadow hover:bg-gray-300 transition"
-            >
-              {t("Reset")}
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
-            >
-              {t("CreateOrder")}
-            </button>
+          <div className="flex justify-between space-x-4 mt-6 items-center">
+            {distance && (
+              <p className="mt-4 text-lg">
+                {t("Distance")}: {distance.toFixed(3)} {"km"}
+              </p>
+            )}
+            <div className="flex  gap-8">
+              <button
+                type="button"
+                onClick={() => {
+                  setForm(baseForm);
+                  setItem({ productId: 0, productAmount: 0 });
+                  setWarehouse(0);
+                }} // Reset form
+                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md shadow hover:bg-gray-300 transition"
+              >
+                {t("Reset")}
+              </button>
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
+              >
+                {t("CreateOrder")}
+              </button>
+            </div>
           </div>
         </form>
         <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
           <Mapping
-            showLocation={warehouse?.location}
-            toLocation={validLocation}
+            showLocation={detailWarehouse}
+            toLocation={deliveryZone?.name + " " + deliveryZone?.provinceName}
             defaultLocation={defaultLocation}
+            setDistance={setDistance}
 
             // cloneWarehouseData={cloneWarehouseData}
           />
@@ -673,12 +654,6 @@ export default function CreateOrderPage() {
             height="90%"
           /> */}
           {/* <Mapping showLocation="Xã Phước Tỉnh, Huyện Long Điền, Tỉnh Bà Rịa Vũng Tàu" /> */}
-
-          {distance && (
-            <p className="mt-4 text-lg">
-              {t("Distance")}: {distance} {t("km")}
-            </p>
-          )}
         </div>
       </div>
     </div>

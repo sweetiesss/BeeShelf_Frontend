@@ -7,13 +7,15 @@ import { OrderDetailCard } from "../../component/partner/order/OrderCard";
 import { useDetail } from "../../context/DetailContext";
 import { useNavigate } from "react-router-dom";
 import AxiosInventory from "../../services/Inventory";
+import { t } from "i18next";
+import SpinnerLoading from "../../component/shared/Loading";
 
 export default function OrderPage() {
   const { userInfor } = useContext(AuthContext);
   const { getOrderByUserId } = AxiosOrder();
   const { getInventory1000ByUserId } = AxiosInventory();
   const [orders, setOrders] = useState();
-  const [inventories, setInventories] = useState();
+
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isShowDetailOrder, setShowDetailOrder] = useState(null);
@@ -30,22 +32,28 @@ export default function OrderPage() {
 
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
-    filterByStatus: undefined,
-    sortBy: undefined,
-    descending: undefined,
+    filterByStatus: "",
+    sortBy: "CreateDate",
+    descending: true,
     pageIndex: 0,
     size: 10,
   });
   useEffect(() => {
     debouncedFetchOrders();
-    getInventoriesList();
   }, []);
   useEffect(() => {
-    if (refresh == -1) debouncedFetchOrders();
-  }, [refresh]);
-  useEffect(() => {
     debouncedFetchOrders();
-  }, [filterField]);
+  }, [refresh, filterField]);
+  // useEffect(() => {
+  //   try {
+  //     debouncedFetchOrders();
+  //     setLoading(true);
+  //   } catch (e) {
+  //     console.log(e);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [filterField]);
 
   const debounce = (func, delay) => {
     let timeout;
@@ -59,29 +67,25 @@ export default function OrderPage() {
 
   const debouncedFetchOrders = useCallback(
     debounce(async () => {
-      const response = await getOrderByUserId(
-        filterField.userId,
-        filterField.filterByStatus,
-        filterField.sortBy,
-        filterField.descending,
-        filterField.pageIndex,
-        filterField.size
-      );
-      setOrders(response?.data);
+      try {
+        setLoading(true);
+        const response = await getOrderByUserId(
+          filterField.userId,
+          filterField.filterByStatus,
+          filterField.sortBy,
+          filterField.descending,
+          filterField.pageIndex,
+          filterField.size
+        );
+        setOrders(response?.data);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false);
+      }
     }, 500),
     [filterField]
   );
-  const getInventoriesList =async () => {
-    try {
-      const result=await getInventory1000ByUserId(userInfor?.id);
-      if(result?.status==200){
-        setInventories(result?.data?.items);
-      }
-    } catch (e) {
-    } finally {
-      setLoading(false);
-    }
-  };
 
   console.log(filterField);
 
@@ -127,14 +131,14 @@ export default function OrderPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6">Request Management</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("OrderManagement")}</h1>
 
-      <select
-        name="status"
-        value={filterField.status}
+      {/* <select
+        name="filterByStatus"
+        value={filterField.filterByStatus}
         onChange={handleFiltered}
       >
-        <option>Select Request Status</option>
+        <option value={""}>Select Request Status</option>
         <option value={"Draft"}>Draft</option>
         <option value={"Pending"}>Pending</option>
         <option value={"Canceled"}>Canceled</option>
@@ -142,21 +146,57 @@ export default function OrderPage() {
         <option value={"Delivered"}>Delivered</option>
         <option value={"Failed"}>Failed</option>
         <option value={"Completed"}>Completed</option>
-      </select>
+      </select> */}
+      <div className="flex gap-10">
+        <div
+          className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-fit  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+            filterField.filterByStatus != ""
+              ? "text-black ring-[var(--Xanh-Base)] ring-2"
+              : "text-[var(--en-vu-300)]"
+          }`}
+        >
+          <label>{t("Status")}: </label>
+          <select
+            className="outline-none"
+            name="status"
+            value={filterField.filterByStatus}
+            onChange={handleFiltered}
+          >
+            <option value={""}>Select Request Status</option>
+            <option value={"Draft"}>Draft</option>
+            <option value={"Pending"}>Pending</option>
+            <option value={"Canceled"}>Canceled</option>
+            <option value={"Processing"}>Processing</option>
+            <option value={"Shipped"}>Shipped</option>
+            <option value={"Delivered"}>Delivered</option>
+            <option value={"Returned"}>Returned</option>
+            <option value={"Refunded"}>Refunded</option>
+            <option value={"Completed"}>Completed</option>
+          </select>
+        </div>
 
-      <button onClick={() => nav("create-order")}>Create Order</button>
-
+        <button
+          className="outline-2 outline flex items-center gap-2 outline-[var(--line-main-color)] text-[var(--en-vu-500-disable)] hover:outline-[var(--Xanh-Base)] hover:text-black  pr-4 pl-3 py-1 rounded-xl font-semibold"
+          onClick={() => nav("create-order")}
+        >
+         + Create Order
+        </button>
+      </div>
       <div className="flex justify-left gap-4 mt-6 ">
         <div className="w-full">
-          <OrderList
-            orders={orders}
-            onDeleteOrder={handleDeleteOrder}
-            handleSelectOrder={handleSelectOrder}
-            selectedOrder={selectedOrder}
-            filterField={filterField}
-            setFilterField={setFilterField}
-            handleShowDetailOrder={handleShowDetailOrder}
-          />
+          {loading ? (
+            <SpinnerLoading loading={loading} />
+          ) : (
+            <OrderList
+              orders={orders}
+              onDeleteOrder={handleDeleteOrder}
+              handleSelectOrder={handleSelectOrder}
+              selectedOrder={selectedOrder}
+              filterField={filterField}
+              setFilterField={setFilterField}
+              handleShowDetailOrder={handleShowDetailOrder}
+            />
+          )}
         </div>
       </div>
     </div>

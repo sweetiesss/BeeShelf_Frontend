@@ -7,6 +7,7 @@ import AxiosLot from "../../services/Lot";
 import AxiosRequest from "../../services/Request";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
+import defaultImg from "../../assets/img/defaultImg.jpg";
 import AxiosOrder from "../../services/Order";
 import { addMonths, format } from "date-fns";
 import AxiosInventory from "../../services/Inventory";
@@ -973,13 +974,13 @@ export default function DetailSlide() {
 
     return (
       <>
-        <div className="w-[455px] h-full bg-white p-6 flex flex-col gap-8 text-black">
+        <div className="w-[500px] h-full bg-white p-6 flex flex-col gap-8 text-black">
           {/* Header */}
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-semibold text-black">
-                  Request information
+                  Order information
                 </h2>
               </div>
               <div
@@ -994,25 +995,12 @@ export default function DetailSlide() {
 
           <div className="w-full flex flex-col items-center gap-8">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-32 h-32 bg-gray-300 rounded-lg relative">
-                <div
-                  className={`absolute rounded-xl px-1 py-1 right-0 top-0 translate-x-5 -translate-y-5 ${
-                    dataDetail?.status === "Completed"
-                      ? "bg-green-200 text-green-800"
-                      : dataDetail?.status === "Shipped"
-                      ? "bg-yellow-200 text-yellow-800"
-                      : dataDetail?.status === "Pending"
-                      ? "bg-blue-200 text-blue-800"
-                      : dataDetail?.status === "Draft"
-                      ? "bg-gray-200 text-gray-800"
-                      : "bg-red-200 text-red-800"
-                  }`}
-                >
-                  {dataDetail?.status}
-                </div>
-              </div>
+              <img
+                src={dataDetail?.pictureLink || defaultImg}
+                className="w-32 h-32 bg-gray-300 border-2 rounded-lg relative object-cover object-center"
+              />
               <div className="text-center">
-                <p className="text-xl font-medium">{dataDetail?.name}</p>
+                <p className="text-xl font-medium">{dataDetail?.orderCode}</p>
                 <p
                   className={`text-gray-600 text-lg ${
                     dataDetail?.requestType === "Import"
@@ -1028,37 +1016,123 @@ export default function DetailSlide() {
             {/* Product Info Table */}
             <div className="w-full flex flex-col gap-4">
               {[
+                { label: "Receiver Phone:", value: dataDetail?.receiverPhone },
                 {
                   label: "Receiver Address:",
-                  value: dataDetail?.receiverAddress,
+                  value:
+                    dataDetail?.receiverAddress +
+                    " " +
+                    dataDetail?.deliveryZoneName,
                 },
-                { label: "Receiver Phone:", value: dataDetail?.receiverPhone },
-                { label: "Create date:", value: dataDetail?.createDate },
-                { label: "Description:", value: dataDetail?.description },
+                {
+                  label: "From Warehouse:",
+                  value: (
+                    <div className="flex flex-col items-end">
+                      <p>{dataDetail?.warehouseName}</p>
+                      <p className="text-gray-400">
+                        {"(" + dataDetail?.warehouseLocation + ")"}
+                      </p>
+                    </div>
+                  ),
+                },
+                {
+                  label: "Create date:",
+                  value: format(dataDetail?.createDate, "HH:mm - dd/MM/yyyy"),
+                },
+                {
+                  label: "Start delivery date:",
+                  value: format(
+                    dataDetail?.deliverStartDate,
+                    "HH:mm - dd/MM/yyyy"
+                  ),
+                },
+                {
+                  label: "End deliver date:",
+                  value: format(
+                    dataDetail?.deliverFinishDate,
+                    "HH:mm - dd/MM/yyyy"
+                  ),
+                },
+                { label: "Distance:", value: dataDetail?.distance + " km" },
               ]?.map((item, index) => (
                 <div key={index} className="flex justify-between ">
                   <span className="text-gray-600">{item.label}</span>
                   <span className="text-black">{item.value}</span>
                 </div>
               ))}
+              <div className="flex justify-between ">
+                <span className="text-gray-600">{t("Status")}</span>
+                <span
+                  className={`px-2 py-1 rounded-xl  ${
+                    dataDetail?.status === "Delivered"
+                      ? "bg-lime-200 text-lime-800"
+                      : dataDetail?.status === "Shipped"
+                      ? "bg-cyan-200 text-cyan-800"
+                      : dataDetail?.status === "Processing"
+                      ? "bg-blue-200 text-blue-800"
+                      : dataDetail?.status === "Draft"
+                      ? "bg-gray-200 text-gray-800"
+                      : dataDetail?.status === "Pending"
+                      ? "bg-orange-200 text-orange-800"
+                      : dataDetail?.status === "Canceled"
+                      ? "bg-red-200 text-red-800"
+                      : dataDetail?.status === "Returned"
+                      ? "bg-purple-200 text-purple-800"
+                      : dataDetail?.status === "Refunded"
+                      ? "bg-teal-200 text-teal-800"
+                      : dataDetail?.status === "Completed"
+                      ? "bg-green-200 text-green-800"
+                      : "bg-gray-200 text-gray-800"
+                  }`}
+                >
+                  {dataDetail?.status}
+                </span>
+              </div>
               <div className="w-full h-[0.2rem] bg-gray-200" />
               <label className="font-medium text-lg flex justify-between items-center">
                 Order Details
               </label>
+              <div className="grid grid-cols-10 items-center gap-4 text-sm">
+                <p className="col-span-2">Image</p>
+                <p className="text-black  col-span-3 text-ellipsis overflow-hidden text-nowrap">
+                  {t("ProductName")}
+                </p>
+                <p className="text-black  col-span-2">
+                  {t("Price")} <span className="text-gray-400">(vnd)</span>
+                </p>
+                <p className="text-black  col-span-1">{t("x")}</p>
+                <p className="text-black  col-span-2">
+                  {t("Total")} <span className="text-gray-400">(vnd)</span>
+                </p>
+              </div>
               {dataDetail?.orderDetails?.map((item, index) => (
-                <div key={index} className="flex justify-between items-center">
-                  <div className="w-16 h-16 bg-gray-300 rounded-lg relative"></div>
-                  <span className="text-gray-600">{item.productName}</span>
-                  <span className="text-black">
-                    {item.productPrice}$*{item.productAmount}
+                <div
+                  key={index}
+                  className="grid grid-cols-10 items-center gap-4"
+                >
+                  <img
+                    src={item?.productImage || defaultImg}
+                    className="w-16 h-16 border-2 bg-gray-300 rounded-lg relative col-span-2 object-cover object-center"
+                  />
+                  <span className="text-black  col-span-3 text-ellipsis overflow-hidden text-nowrap">
+                    {item.productName}
                   </span>
-                  <span className="text-black">
-                    {item.productPrice * item.productAmount}
+                  <span className="text-black  col-span-2">
+                    {new Intl.NumberFormat().format(item.productPrice)}
+                  </span>
+                  <span className="text-black  col-span-1">
+                    {new Intl.NumberFormat().format(item.productAmount)}
+                  </span>
+                  <span className="text-black  col-span-2">
+                    {new Intl.NumberFormat().format(
+                      item.productPrice * item.productAmount
+                    )}
                   </span>
                 </div>
               ))}
+              <div className="w-full h-[0.2rem] bg-gray-200" />
               <label className="font-medium text-lg flex justify-between items-center">
-                Order Fees
+                Total Fees
               </label>
               {[
                 {
@@ -1073,11 +1147,16 @@ export default function DetailSlide() {
                   label: "Storage Fee:",
                   value: dataDetail?.orderFees?.[0]?.storageFee || 0,
                 },
-                { label: "Total Price:", value: dataDetail?.totalPrice },
+                {
+                  label: "Total Price:",
+                  value: dataDetail?.totalPriceAfterFee,
+                },
               ]?.map((item, index) => (
                 <div key={index} className="flex justify-between ">
                   <span className="text-gray-600">{item.label}</span>
-                  <span className="text-black">{item.value}</span>
+                  <span className="text-black">
+                    {new Intl.NumberFormat().format(item.value)} vnd
+                  </span>
                 </div>
               ))}
             </div>

@@ -16,7 +16,7 @@ export default function AxiosOrder() {
   ) => {
     try {
       const queryParams = new URLSearchParams();
-      if (typeof filterByStatus !== "undefined")
+      if (typeof filterByStatus !== "")
         queryParams.append("filterByStatus", filterByStatus);
       if (typeof sortBy !== "undefined") queryParams.append("sortBy", sortBy);
       if (typeof descending !== "undefined")

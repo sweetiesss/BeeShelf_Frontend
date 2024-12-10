@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
-import { Bell } from "@phosphor-icons/react";
+import { Bell, CreditCard } from "@phosphor-icons/react";
 import { SettingContext } from "../../context/SettingContext";
 
 import { LanguageSelector } from "../shared/ChangeLanguages";
@@ -145,16 +145,7 @@ export function HeaderAuthenticated() {
     refrestAuthWallet,
     setRefrestAuthWallet,
   } = useContext(AuthContext);
-  const {
-    dataDetail,
-    typeDetail,
-    updateDataDetail,
-    updateTypeDetail,
-    refresh,
-    setRefresh,
-    createRequest,
-    setCreateRequest,
-  } = useDetail();
+  const { typeDetail, updateTypeDetail } = useDetail();
 
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
@@ -239,9 +230,9 @@ export function HeaderAuthenticated() {
 
   return (
     <div className="flex items-center justify-end w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2 header">
-      <div className="flex space-x-5 items-center">
+      <div className="flex gap-10 items-center">
         <LanguageSelector />
-        <div className="p-4 relative">
+        {/* <div className="p-4 relative">
           <input
             type="checkbox"
             className="theme-input"
@@ -261,14 +252,17 @@ export function HeaderAuthenticated() {
             </div>
             <div id="moon"></div>
           </label>
-        </div>
+        </div> */}
 
         {authWallet && (
           <div
-            className="w-[10rem] cursor-pointer"
+            className="w-fit cursor-pointer flex gap-4 items-center"
             onClick={handleAddingCoinsButton}
           >
-            {new Intl.NumberFormat().format(authWallet?.totalAmount)} vnd
+            <CreditCard weight="duotone" className="text-3xl" />
+            <span className="border-b-2 border-black">
+              {new Intl.NumberFormat().format(authWallet?.totalAmount)} vnd
+            </span>
           </div>
         )}
         <button

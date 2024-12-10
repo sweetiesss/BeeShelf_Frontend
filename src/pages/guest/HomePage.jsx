@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
-  const {  t } = useTranslation();
+  const { t } = useTranslation();
 
   const nav = useNavigate();
   return (

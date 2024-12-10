@@ -33,7 +33,10 @@ export default function PartnerRoutes() {
           <Route path={"order/create-order"} element={<CreateOrderPage />} />
 
           <Route path={"request"} element={<RequestPage />} />
-          <Route path={"request/create-request"} element={<CreateRequestPage />} />
+          <Route
+            path={"request/create-request"}
+            element={<CreateRequestPage />}
+          />
 
           <Route
             path="product/import_product"
