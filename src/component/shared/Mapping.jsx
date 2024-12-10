@@ -10,6 +10,7 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 // import fromIcon from "../../assets/img/fromIcon.png";
 import fromIcon from "../../assets/img/fromIcon.svg";
 import { toast } from "react-toastify";
+import { t } from "i18next";
 
 // Define the custom icon globally
 const customIcon = L.icon({
@@ -29,10 +30,16 @@ const showFromIcon = L.icon({
   shadowSize: [41, 41], // Shadow size
 });
 
-export default function Mapping({ showLocation, toLocation, defaultLocation }) {
+export default function Mapping({
+  showLocation,
+  toLocation,
+  defaultLocation,
+  setDistance,
+}) {
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null); // Ref for the map container div
   const routingControlRef = useRef(null);
+  console.log("Location", showLocation);
 
   const fetchCoordinates = async (address, defaultAddress) => {
     try {
@@ -82,11 +89,12 @@ export default function Mapping({ showLocation, toLocation, defaultLocation }) {
       const fromCoordinates = showLocation?.location
         ? await fetchCoordinates(showLocation?.location, defaultLocation)
         : null;
-      console.log("Tolocation here", toLocation);
 
       const toCoordinates = toLocation
         ? await fetchCoordinates(toLocation, defaultLocation)
         : null;
+      console.log("fromCoordinates", fromCoordinates);
+      console.log("toCoordinates", toCoordinates);
 
       // Ensure the map container is available
       if (!mapContainerRef.current) {
@@ -96,10 +104,11 @@ export default function Mapping({ showLocation, toLocation, defaultLocation }) {
 
       // Initialize the map if not already initialized
       if (!mapRef.current) {
-        const initialCoordinates = fromCoordinates || {
-          lat: 21.028511, // Default to Hanoi's coordinates
-          lon: 105.804817,
-        };
+        const initialCoordinates = fromCoordinates ||
+          toCoordinates || {
+            lat: 21.028511, // Default to Hanoi's coordinates
+            lon: 105.804817,
+          };
         mapRef.current = L.map(mapContainerRef.current).setView(
           [initialCoordinates.lat, initialCoordinates.lon],
           13
@@ -127,21 +136,19 @@ export default function Mapping({ showLocation, toLocation, defaultLocation }) {
             `<b style="text-align:center">${showLocation?.name}</b><br>${showLocation?.location}`
           )
           .openPopup();
-
         return;
       }
-      if (!fromCoordinates && toCoordinates) {
-        L.marker([toCoordinates.lat, toCoordinates.lon], {
-          icon: showFromIcon,
-        })
-          .addTo(mapRef.current)
-          .bindPopup(
-            `<b style="text-align:center">Your address</b><br>${toLocation}`
-          )
-          .openPopup();
 
-        return;
-      }
+      // if (toCoordinates) {
+      //   L.marker([toCoordinates.lat, toCoordinates.lon], {
+      //     icon: showFromIcon,
+      //   })
+      //     .addTo(mapRef.current)
+      //     .bindPopup(
+      //       `<b style="text-align:center">Your address</b><br>${toLocation}`
+      //     )
+      //     .openPopup();
+      // }
 
       if (fromCoordinates && toCoordinates) {
         routingControlRef.current = L.Routing.control({
@@ -152,9 +159,52 @@ export default function Mapping({ showLocation, toLocation, defaultLocation }) {
           routeWhileDragging: true,
           show: false, // Hide the direction table
           addWaypoints: false,
-          createMarker: (i, waypoint) =>
-            L.marker(waypoint.latLng, { icon: customIcon }),
-        }).addTo(mapRef.current);
+          createMarker: (i, waypoint) => {
+            if (i === 0) {
+              return L.marker(waypoint.latLng, {
+                icon: showFromIcon,
+              }).bindPopup(
+                `
+                <b>From Location:</b><br>
+                ${showLocation?.name || "Unknown"}<br>
+                ${showLocation?.location || "No Address"}
+              `
+              );
+            }
+            if (i === 1) {
+              return L.marker(waypoint.latLng, {
+                icon: customIcon,
+              }).bindPopup(
+                `
+                 <b>To Location:</b><br>
+                ${toLocation}<br>
+              `
+              );
+            }
+            return L.marker(waypoint.latLng, { icon: customIcon });
+          },
+        })
+          .on("routesfound", function (e) {
+            const routes = e.routes;
+            const distance = routes[0].summary.totalDistance / 1000; // Convert to kilometers
+            setDistance(distance);
+
+            const duration = routes[0].summary.totalTime / 60; // Convert to minutes
+
+            L.popup()
+              .setLatLng([toCoordinates.lat, toCoordinates.lon])
+              .setContent(
+                `
+                <b>To Location:</b><br>
+                ${toLocation}<br>
+                <b>Route Information:</b><br>
+                Distance: ${distance.toFixed(2)} km<br>
+                Duration: ${duration.toFixed(0)} minutes
+              `
+              )
+              .openOn(mapRef.current);
+          })
+          .addTo(mapRef.current);
 
         const routingContainer = document.querySelector(
           ".leaflet-routing-container"

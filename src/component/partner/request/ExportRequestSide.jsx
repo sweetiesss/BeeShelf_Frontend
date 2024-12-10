@@ -73,7 +73,7 @@ export default function ExportRequestSide({
     console.log(updatedForm);
 
     try {
-      // const result = await createRequest(updatedForm, "Export", send);
+       const result = await createRequest(updatedForm, "Export", send);
     } catch (error) {
       console.error("Error submitting request:", error);
     }
@@ -101,7 +101,8 @@ export default function ExportRequestSide({
     setSelectedProductImported();
   };
 
-  console.log("products", selectedProductImported);
+  console.log("products", productsImported);
+  console.log("invents", inventories);
 
   // Render the form
   return (
@@ -191,11 +192,17 @@ export default function ExportRequestSide({
               }
               onChange={(selectedOption) => setInventory(selectedOption)}
               options={inventories.filter(
-                (item) => item?.isCold === selectedProduct?.isCold
+                (item) =>
+                  (item?.isCold === 0 ? false : true) ===
+                    selectedProduct?.isCold &&
+                  item?.warehouseName !== selectedProduct?.warehouseName
               )}
               formatOptionLabel={(selectedOption) => (
                 <div className="">
-                  <p>{selectedOption?.name}</p>
+                  <p>
+                    {selectedOption?.name}{" "}
+                    {"(" + selectedOption?.warehouseName + ")"}
+                  </p>
                   <div
                     className={`flex items-center justify-between text-sm text-gray-500`}
                   >
@@ -254,19 +261,29 @@ export default function ExportRequestSide({
         </div>
         {selectedProduct ? (
           <div
-            className={`  relative text-base h-fit gap-4 flex flex-col border-2 p-4 px-6 shadow-lg `}
+            className={`  relative text-base h-fit gap-4 grid grid-cols-6 items-end  border-2 p-4 px-6 shadow-lg `}
           >
-            <div className="flex gap-10">
-              <p>
+            <div className="col-span-1 h-[6rem] w-[6rem] overflow-hidden">
+              <img
+                className="w-full h-full object-cover object-center rounded-lg border-2 "
+                src={selectedProduct?.productPictureLink}
+              />
+            </div>
+            <div className="col-span-3 h-full  flex flex-col items-start py-2  justify-between">
+              <p className="text-lg">
                 <span className="font-medium">{t("Lot")}: </span>
                 {selectedProduct?.name}
               </p>
-            </div>
-            <div className="flex justify-between text-gray-400">
-              <p>
-                <span className="font-medium">{t("WarehouseName") + ": "}</span>
+              <p className="text-gray-400">
+                <span className="font-medium">{t("Product")}: </span>
+                {selectedProduct?.productName}
+              </p>
+              <p className="text-gray-400">
+                <span className="font-medium">{t("Warehouse") + ": "}</span>
                 {selectedProduct?.warehouseName}
               </p>
+            </div>
+            <div className=" text-gray-400 col-span-2 text-end">
               <p>
                 {selectedProduct?.expirationDate
                   ? `${differenceInDays(

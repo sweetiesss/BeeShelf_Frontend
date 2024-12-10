@@ -49,20 +49,7 @@ export default function RequestList({
       <table className="w-full">
         <thead>
           <tr>
-            <td className="text-center pb-2  ">
-              {requests?.length > 0 ? (
-                <input
-                  type="checkbox"
-                  // checked={overall?.checked}
-                  // onChange={handleClickOverall}
-                  // ref={(input) =>
-                  //   input && (input.indeterminate = overall?.indeterminate)
-                  // }
-                />
-              ) : (
-                "#"
-              )}
-            </td>
+            <td className="text-center pb-2  ">#</td>
             <td className="text-left pb-2  px-3">{t("Order")}</td>
             <td className="text-left pb-2 ">{t("RequestName")}</td>
             <td className="text-left pb-2 ">{t("Description")}</td>
@@ -94,7 +81,9 @@ export default function RequestList({
                       />
                     </td>
                     <td className=" px-1 py-2 ">{request?.name}</td>
-                    <td className=" px-1 py-2 max-w-[20rem]">{request?.description}</td>
+                    <td className=" px-1 py-2 max-w-[20rem]">
+                      {request?.description}
+                    </td>
                     <td className=" px-1 py-2 ">{request?.requestType}</td>
                     <td className=" px-1 py-2 text-center align-middle">
                       <p
@@ -136,7 +125,7 @@ export default function RequestList({
                             <div onClick={() => handleShowDetail(request)}>
                               Show detail
                             </div>
-                            {(request?.status === "Draft") && (
+                            {request?.status === "Draft" && (
                               <div
                                 onClick={(e) => {
                                   handleDeleteClick(e, request);
