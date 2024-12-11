@@ -262,22 +262,21 @@ const Payment = () => {
         </Form>
       </Modal>
 
-      {loading ? (
-        <Spin tip="Loading payments..." />
-      ) : (
-        <Table
-          dataSource={payments}
-          columns={columns}
-          rowKey="id"
-          pagination={{
-            current: pagination.pageIndex + 1,
-            pageSize: pagination.pageSize,
-            total: pagination.totalItemsCount,
-            onChange: (page) =>
-              setPagination((prev) => ({ ...prev, pageIndex: page - 1 })),
-          }}
-        />
-      )}
+      <Table
+        dataSource={payments}
+        columns={columns}
+        rowKey="id"
+        loading={{
+          spinning: loading,
+        }}
+        pagination={{
+          current: pagination.pageIndex + 1,
+          pageSize: pagination.pageSize,
+          total: pagination.totalItemsCount,
+          onChange: (page) =>
+            setPagination((prev) => ({ ...prev, pageIndex: page - 1 })),
+        }}
+      />
     </div>
   );
 };
