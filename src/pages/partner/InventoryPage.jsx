@@ -8,10 +8,12 @@ import {
   WarehouseHeader,
 } from "../../component/partner/inventory/Header";
 import {
+  ArrowCounterClockwise,
   CaretLeft,
   CaretRight,
   LockKeyOpen,
   MagnifyingGlass,
+  XCircle,
 } from "@phosphor-icons/react";
 import InventoryProduct from "../../component/partner/inventory/InventoryProduct";
 import AxiosWarehouse from "../../services/Warehouse";
@@ -22,50 +24,93 @@ import AxiosInventory from "../../services/Inventory";
 import AxiosPartner from "../../services/Partner";
 import { useDetail } from "../../context/DetailContext";
 import AxiosProduct from "../../services/Product";
+import AxiosOthers from "../../services/Others";
+import { WarehouseListSkeleton } from "../shared/SkeletonLoader";
+import { addMonths, format } from "date-fns";
+import SpinnerLoading from "../../component/shared/Loading";
 
 export default function InventoryPage() {
   const [warehouses, setWareHouses] = useState();
   const [warehousesOwned, setWareHousesOwned] = useState();
   const [warehousesShowList, setWareHouseShowList] = useState();
+  const [warehousesBased, setWareHouseBased] = useState();
   const [warehouse, setWareHouse] = useState();
 
   const [inventories, setInventories] = useState();
   const [inventoriesOwned, setInventoriesOwned] = useState();
   const [inventoriesShowList, setInventoriesShowList] = useState();
+  const [inventoriesBased, setInventoriesBased] = useState();
   const [inventory, setInventory] = useState();
-
-  const [allProductsInWarehouse, setAllProductsInWarehouse] = useState();
 
   const [checkBuyInventory, setCheckBuyInventory] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [refetching, setRefetching] = useState(false);
+
   const [refetchingInventory, setRefetchingInventory] = useState(false);
-  const [setFiltersVisible, filtersVisible] = useState(true);
 
-  const [search, setSearch] = useState(null);
   const [sortCriteria, setSortCriteria] = useState(null);
-  const [descending, setDescending] = useState(false);
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
 
-  const { userInfor } = useAuth();
+  const { userInfor, setRefrestAuthWallet } = useAuth();
   const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
-  const { getAllProduct } = AxiosPartner();
-  const { getProductByUserId } = AxiosProduct();
-  const { updateDataDetail, updateTypeDetail } = useDetail();
+  const { updateDataDetail, updateTypeDetail, refresh, setRefresh } =
+    useDetail();
+  const { getProvinces } = AxiosOthers();
+
+  const [provinceList, setProvinencesList] = useState([]);
+  const [provinceAvailableList, setProvinencesAvailableList] = useState([]);
+
+  const [monthBuyInvrentory, setMonthToBuyInventory] = useState(1);
+
+  const [warehouseOnId, setWareHouseOnId] = useState(0);
+
+  const [filters, setFilters] = useState({
+    name: "",
+    provinceId: 0,
+    isCold: -1,
+    capacityFrom: 1,
+    status: -1,
+    capacityTo: 9999999999,
+  });
+
+  const defaultFilter = {
+    name: "",
+    provinceId: 0,
+    isCold: -1,
+    capacityFrom: 1,
+    status: -1,
+    capacityTo: 9999999999,
+  };
+  const [inventoryFilters, setInventoryFilters] = useState({
+    status: -1,
+    weightFrom: 0,
+    weightTo: 9999999999,
+    maxWeightFrom: 0,
+    maxWeightTo: 9999999999,
+    priceFrom: 0,
+    priceTo: 9999999999,
+  });
+
+  const defaultInventoryFilter = {
+    status: -1,
+    weightFrom: 0,
+    weightTo: 9999999999,
+    maxWeightFrom: 0,
+    maxWeightTo: 9999999999,
+    priceFrom: 0,
+    priceTo: 9999999999,
+  };
 
   const {
     getInventory1000ByWarehouseId,
     getInventory1000ByUserIdAndWareHouseId,
     buyInventory,
-    getInventoryById,
   } = AxiosInventory();
   const { t } = useTranslation();
 
   useEffect(() => {
     fetchingDataWarehouses();
     fetchingDataWarehousesByUserId();
+    getProvincesAPI();
   }, []);
 
   useEffect(() => {
@@ -73,30 +118,237 @@ export default function InventoryPage() {
   }, [warehousesOwned, warehouses]);
 
   useEffect(() => {
+    getBackWarehouseOn();
+  }, [warehousesBased]);
+
+  const getBackWarehouseOn = () => {
+    if (warehousesBased) {
+      if (warehouseOnId > 0) {
+        const warehouse = warehousesBased.find(
+          (item) => parseInt(item.id) === parseInt(warehouseOnId)
+        );
+        setWareHouse(warehouse);
+        setWareHouseOnId(0);
+      }
+    }
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [filters]);
+  useEffect(() => {
+    applyInventoryFilters();
+  }, [inventoryFilters]);
+
+  useEffect(() => {
     const fetching = async () => {
       if (warehouse) {
         fetchingDataInventories();
         fetchingDataInventoriesByUserId();
-        fetchingDataProductByUserIdAndWareHouseId();
       }
     };
     fetching();
   }, [warehouse, refetchingInventory]);
 
   useEffect(() => {
-    getInventoriesList();
+    const fetching = async () => {
+      if (refresh > -1) {
+        if (warehouse) {
+          setRefetchingInventory((prev) => !prev);
+        }
+      }
+    };
+    fetching();
+  }, [refresh]);
+
+  useEffect(() => {
+    const fetching = () => {
+      getInventoriesList();
+      if (refresh >= -1) {
+        getDetailInventory();
+        setRefresh(-1);
+      }
+    };
+    fetching();
   }, [inventoriesOwned, inventories]);
+
+  const getProvincesAPI = async () => {
+    try {
+      const result = await getProvinces();
+      console.log("provinces", result);
+      setProvinencesList(result?.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const applyFilters = () => {
+    console.log("???", warehousesBased);
+    console.log("?????", filters);
+
+    if (warehousesBased) {
+      let filtered = [...warehousesBased];
+
+      if (filters.name) {
+        filtered = filtered.filter((warehouse) => {
+          return warehouse.name
+            .toLowerCase()
+            .includes(filters.name.toLowerCase());
+        });
+      }
+
+      if (filters.provinceId > 0) {
+        console.log("here");
+
+        filtered = filtered.filter(
+          (warehouse) => warehouse.provinceId === parseInt(filters.provinceId)
+        );
+      }
+
+      if (filters.isCold > -1) {
+        console.log("here");
+
+        filtered = filtered.filter(
+          (warehouse) =>
+            (filters.isCold == 1 && warehouse.isCold == 1) ||
+            (filters.isCold == 0 && warehouse.isCold == 0)
+        );
+      }
+      if (filters.status > -1) {
+        console.log("here");
+
+        filtered = filtered.filter(
+          (warehouse) =>
+            (filters.status == 1 && warehouse.owned) ||
+            (filters.status == 0 && !warehouse?.owned)
+        );
+      }
+
+      if (filters.capacityFrom || filters.capacityTo) {
+        filtered = filtered.filter(
+          (warehouse) =>
+            warehouse.capacity >= filters.capacityFrom &&
+            warehouse.capacity <= filters.capacityTo
+        );
+      }
+      console.log("filterResult", filtered);
+
+      setWareHouseShowList(filtered);
+    }
+  };
+  const applyInventoryFilters = () => {
+    console.log("???", inventoriesBased);
+    console.log("?????", inventoryFilters);
+
+    if (inventoriesBased) {
+      let filtered = [...inventoriesBased];
+
+      if (parseInt(inventoryFilters.status) > -1) {
+        console.log("here");
+
+        filtered = filtered.filter(
+          (warehouse) =>
+            (parseInt(inventoryFilters.status) == 1 &&
+              warehouse.ocopPartnerId) ||
+            (parseInt(inventoryFilters.status) == 0 &&
+              !warehouse?.ocopPartnerId)
+        );
+      }
+
+      if (
+        parseInt(inventoryFilters.status) != 0 &&
+        (inventoryFilters.weightFrom || inventoryFilters.weightTo)
+      ) {
+        filtered = filtered.filter(
+          (warehouse) =>
+            warehouse.weight >= inventoryFilters.weightFrom &&
+            warehouse.weight <= inventoryFilters.weightTo
+        );
+      }
+      if (inventoryFilters.maxWeightFrom || inventoryFilters.maxWeightTo) {
+        filtered = filtered.filter(
+          (warehouse) =>
+            warehouse.maxWeight >= inventoryFilters.maxWeightFrom &&
+            warehouse.maxWeight <= inventoryFilters.maxWeightTo
+        );
+      }
+      if (inventoryFilters.priceFrom || inventoryFilters.priceTo) {
+        filtered = filtered.filter(
+          (warehouse) =>
+            warehouse.price >= inventoryFilters.priceFrom &&
+            warehouse.price <= inventoryFilters.priceTo
+        );
+      }
+      console.log("filterResult", filtered);
+
+      setInventoriesShowList(filtered);
+    }
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "capacityFrom") {
+      if (value < 0 || value === "" || !value) {
+        setFilters((prev) => ({ ...prev, [name]: 1 }));
+      } else if (value > 9999999999) {
+        setFilters((prev) => ({ ...prev, [name]: 9999999999 }));
+      } else {
+        setFilters((prev) => ({ ...prev, [name]: parseInt(value, 10) }));
+      }
+    }
+    if (name === "capacityTo") {
+      if (value < 0 || value === "" || !value || value < 1000) {
+        setInventoryFilters((prev) => ({ ...prev, [name]: 1000 }));
+      } else if (value > 9999999999) {
+        setFilters((prev) => ({ ...prev, [name]: 9999999999 }));
+      } else {
+        setInventoryFilters((prev) => ({
+          ...prev,
+          [name]: parseInt(value, 10),
+        }));
+      }
+    } else {
+      setFilters((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+  const handleInventoryFilterChange = (e) => {
+    const { name, value } = e.target;
+    if (
+      name === "weightFrom" ||
+      name === "maxWeightFrom" ||
+      name === "priceFrom"
+    ) {
+      if (value < 0 || value === "" || !value) {
+        setInventoryFilters((prev) => ({ ...prev, [name]: 0 }));
+      } else if (value > 9999999999) {
+        setFilters((prev) => ({ ...prev, [name]: 9999999999 }));
+      } else {
+        setInventoryFilters((prev) => ({
+          ...prev,
+          [name]: parseInt(value, 10),
+        }));
+      }
+    }
+    if (name === "weightTo" || name === "maxWeightTo" || name === "priceTo") {
+      if (value < 0 || value === "" || !value || value < 1000) {
+        setInventoryFilters((prev) => ({ ...prev, [name]: 1000 }));
+      } else if (value > 9999999999) {
+        setFilters((prev) => ({ ...prev, [name]: 9999999999 }));
+      } else {
+        setInventoryFilters((prev) => ({
+          ...prev,
+          [name]: parseInt(value, 10),
+        }));
+      }
+    } else {
+      setInventoryFilters((prev) => ({ ...prev, [name]: value }));
+    }
+  };
 
   const fetchingDataWarehouses = async () => {
     try {
       setLoading(true);
-      const res = await getWarehouses(
-        search,
-        sortCriteria,
-        descending,
-        pageIndex,
-        1000
-      );
+      const res = await getWarehouses(null, null, null, null, 1000);
       if (res?.status == 200) {
         setWareHouses(res);
       }
@@ -121,6 +373,8 @@ export default function InventoryPage() {
   };
 
   const getWareHouseList = () => {
+    console.log("owned", warehousesOwned);
+
     const warehousesOwnedList = warehousesOwned?.data || [];
     const result =
       warehouses?.data?.items?.filter(
@@ -128,8 +382,28 @@ export default function InventoryPage() {
           !warehousesOwnedList.some((owned) => owned.id === warehouse.id)
       ) || [];
 
-    const combinedList = [...warehousesOwnedList, ...result];
+    const filteredWarehousesOwned =
+      warehouses?.data?.items
+        ?.filter((warehouse) =>
+          warehousesOwnedList.some((owned) => owned.id === warehouse.id)
+        )
+        ?.map((ware) => ({ ...ware, owned: true })) || [];
 
+    const filterProvinces = provinceList.map((province) => ({
+      ...province,
+      haveWarehouse: warehouses?.data?.items.some(
+        (data) => parseInt(data.provinceId) === parseInt(province.id) // Match provinceId with province.id
+      ),
+    }));
+
+    const combinedProvincesList = [...filterProvinces];
+
+    console.log(combinedProvincesList); // Debug log to verify the output
+
+    const combinedList = [...filteredWarehousesOwned, ...result];
+
+    setProvinencesAvailableList(combinedProvincesList);
+    setWareHouseBased(combinedList);
     setWareHouseShowList(combinedList);
   };
 
@@ -175,22 +449,8 @@ export default function InventoryPage() {
 
     const combinedList = [...inventoriesOwnedList, ...result];
     console.log("inventory list", combinedList);
-
+    setInventoriesBased(combinedList);
     setInventoriesShowList(combinedList);
-  };
-  const fetchingDataProductByUserIdAndWareHouseId = async () => {
-    try {
-      setLoading(true);
-      const res = await getAllProduct(userInfor?.id, warehouse?.id);
-      console.log("owned", res);
-      if (res?.status == 200) {
-        setAllProductsInWarehouse(res);
-      }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleBuyClick = (inventory) => {
@@ -199,11 +459,18 @@ export default function InventoryPage() {
   };
   const handleConfirmBuyInventory = async () => {
     try {
-      setLoading(true);
-      const result = await buyInventory(inventory.id, userInfor.id);
+      const result = await buyInventory(
+        inventory.id,
+        userInfor.id,
+        monthBuyInvrentory
+      );
       if (result?.status == 200) {
         handleCancelBuyInventory();
         setRefetchingInventory((prev) => !prev);
+        setLoading(true);
+        getBackWareHouseIsInding();
+        setWareHouseOnId(warehouse?.id);
+        setRefrestAuthWallet((prev) => !prev);
       }
     } catch (e) {
       console.log(e);
@@ -214,64 +481,56 @@ export default function InventoryPage() {
   const handleCancelBuyInventory = () => {
     setCheckBuyInventory(false);
     setInventory();
+    setMonthToBuyInventory(0);
   };
 
-  const handleShowProductDetail = async (e, productName) => {
+  const handleOpenGoogleMaps = (location) => {
+    const encodedLocation = encodeURIComponent(location);
+    const googleMapsUrl = `https://www.google.com/maps?q=${encodedLocation}`;
+    window.open(googleMapsUrl, "_blank"); // Opens in a new tab
+  };
+
+  const handleShowInventoryDetail = async (e, inventory) => {
     try {
       e.stopPropagation();
-      const productResult = await getProductByUserId(
-        userInfor?.id,
-        0,
-        1,
-        productName
-      );
-      console.log(productResult);
-      if (productResult?.status === 200) {
-        updateDataDetail(productResult?.data?.items[0]);
-        updateTypeDetail("product");
-      }
+      // const result = await getInventoryById(inventoryId);
+      // console.log(result);
+      // if (result?.status === 200) {
+      //   updateDataDetail(result?.data);
+      //   updateTypeDetail("inventory");
+      // }
+      updateDataDetail(inventory);
+      updateTypeDetail("inventory");
     } catch (e) {
       console.log(e);
     }
   };
+  const getDetailInventory = () => {
+    console.log("ownedInventory", inventoriesOwned);
+    console.log("refresh", refresh);
 
-  const handleShowInventoryDetail = async (e, inventoryId) => {
-    try {
-      e.stopPropagation();
-      const result = await getInventoryById(inventoryId);
-      console.log(result);
-      if (result?.status === 200) {
-        updateDataDetail(result?.data);
+    if (refresh > -1) {
+      const result = inventoriesOwned?.data?.items.find(
+        (item) => item.id === parseInt(refresh)
+      );
+      console.log("result refreshing", result);
+
+      if (result) {
+        updateDataDetail(result);
         updateTypeDetail("inventory");
       }
-    } catch (e) {
-      console.log(e);
     }
+    setRefresh(-1);
   };
-
-  // Filter state
-  const [filters, setFilters] = useState({
-    location: "",
-    sizeRange: [0, 5000],
-    status: "INSTOCK",
-  });
-
-  // Update filters
-  const updateFilter = (field, value) => {
-    setFilters({
-      ...filters,
-      [field]: value,
-    });
+  const clearDataInventoryOfWarehosue = () => {
+    setWareHouse();
+    setInventories();
+    setInventoriesOwned();
+    setInventoriesShowList();
   };
-
-  // Handle filter submission
-  const handleFilterSubmit = () => {
-    // applyFilters(filters); // This function should filter the warehouses based on the filters
-  };
-
-  // Toggle filter visibility
-  const toggleFilters = () => {
-    setFiltersVisible(!filtersVisible);
+  const getBackWareHouseIsInding = async () => {
+    await fetchingDataWarehouses();
+    await fetchingDataWarehousesByUserId();
   };
 
   return (
@@ -279,56 +538,313 @@ export default function InventoryPage() {
       <div className="text-left">
         {/* Responsive grid for the inventory cards */}
         <div>
-          <p className="text-2xl font-medium">
+          <p className="text-3xl font-bold">
             <span
               className={`${
                 warehouse
                   ? "text-[var(--en-vu-500-disable)]   cursor-pointer"
                   : "text-[var(--en-vu)]"
               }`}
-              onClick={() => warehouse && setWareHouse()}
+              onClick={() => warehouse && clearDataInventoryOfWarehosue()}
             >
-              {warehouse ? warehouse.name : t("Warehouses")}
+              {t("Warehouses")}
             </span>
             <span
               className={`${
                 !warehouse ? "text-[var(--en-vu)]" : "text-[var(--en-vu)]"
               }`}
             >
-              {!warehouse ? "" : " > " + t("DetailInformation")}
+              {!warehouse ? "" : " > " + warehouse?.name}
             </span>
           </p>
         </div>
-        {/* <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <p>{t("Filters")}</p>
-            <div
-              className={`flex items-center border border-gray-300 rounded-2xl  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
-                sortCriteria === "Location"
-                  ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                  : "text-[var(--en-vu-300)]"
-              }`}
-            >
-              <label className="text-xl  pr-0  rounded-s-lg ">
-                <LockKeyOpen weight="fill" />
-              </label>
-              <select
-                className=" w-full rounded-lg outline-none"
-                type="password"
-                // onChange={handleInput}
-                name="password"
-                placeholder="Password"
-                value={sortCriteria || ""}
+        <div className="my-10 ">
+          {/* <p className="text-2xl font-semibold">{t("Filters")}</p> */}
+          {!warehouse ? (
+            <div className="flex items-center gap-10 mt-6">
+              <div className="flex items-center">
+                <p className="text-lg font-medium mr-4">{t("Name")}</p>
+                <div
+                  className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-[12rem] px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+                    filters.name !== ""
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <label className="text-xl pr-0 mr-2  rounded-s-lg ">
+                    <LockKeyOpen weight="fill" />
+                  </label>
+                  <input
+                    className=" w-[8rem] rounded-lg outline-none "
+                    name="name"
+                    onChange={handleFilterChange}
+                    value={filters.name}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center">
+                <p className="text-lg font-medium mr-4">{t("Province")}</p>
+                <div
+                  className={`flex items-center border border-gray-300 rounded-2xl px-4 py-1 overflow-hidden w-fit  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+                    sortCriteria === "Location"
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <label className="text-xl pr-0  rounded-s-lg ">
+                    <LockKeyOpen weight="fill" />
+                  </label>
+                  <select
+                    className=" w-[7rem] rounded-lg outline-none "
+                    name="provinceId"
+                    value={filters?.provinceId}
+                    onChange={handleFilterChange}
+                    disabled={loading}
+                  >
+                    <option value={0}>All</option>
+                    {provinceAvailableList.map(
+                      (item) =>
+                        item?.haveWarehouse && (
+                          <option value={item.id}>
+                            {item?.subDivisionName}
+                          </option>
+                        )
+                    )}
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center w-fit">
+                <p className="text-lg font-medium mr-4">{t("Is Cold")}</p>
+                <div
+                  className={`flex items-center border border-gray-300 rounded-2xl px-4 py-1 overflow-hidden w-fit  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+                    filters.isCold > -1
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <select
+                    className="w-[7rem] outline-none"
+                    type="checkbox"
+                    name="isCold"
+                    value={filters.isCold}
+                    onChange={handleFilterChange}
+                    disabled={loading}
+                  >
+                    <option value={-1}>All</option>
+                    <option value={0}>Normal Warehouse</option>
+                    <option value={1}>Cold Warehouse</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <p className="text-lg font-medium mr-4">{t("Status")}</p>
+                <div
+                  className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-fit  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+                    filters.status > -1
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <label className="text-xl  pr-0  rounded-s-lg ">
+                    <LockKeyOpen weight="fill" />
+                  </label>
+                  <select
+                    className=" rounded-lg outline-none w-[7rem]"
+                    onChange={handleFilterChange}
+                    name="status"
+                    value={filters?.status}
+                    disabled={loading}
+                  >
+                    <option value={-1}>All</option>
+                    <option value={0}>Not Bought</option>
+                    <option value={1}>Bought</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <p className="text-lg font-medium mr-4">{t("Capacity")}:</p>
+                <div
+                  className={`flex items-center border border-gray-300  rounded-2xl px-4 py-1 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)] ${
+                    parseInt(filters?.capacityFrom) > 1 ||
+                    parseInt(filters?.capacityTo) < 9999999999
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <input
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    type="number"
+                    name="capacityFrom"
+                    min={1}
+                    onChange={handleFilterChange}
+                    value={parseInt(filters?.capacityFrom, 10)}
+                    disabled={loading}
+                  ></input>
+                  <label className="mx-2">-</label>
+                  <input
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    type="number"
+                    min={10000}
+                    name="capacityTo"
+                    onChange={handleFilterChange}
+                    value={parseInt(filters?.capacityTo, 10)}
+                    disabled={loading}
+                  ></input>
+                  <label className="ml-2">kg</label>
+                </div>
+              </div>
+              <div
+                className="text-xl bg-gray-100 p-1 rounded-full border-2 border-gray-400 hover:bg-gray-200 hover:border-gray-500 cursor-pointer"
+                onClick={() => setFilters(defaultFilter)}
               >
-                <option>Location</option>
-              </select>
+                <ArrowCounterClockwise />
+              </div>
             </div>
-          </div>
-          <div></div>
-        </div> */}
-        {!warehouse ? (
+          ) : (
+            <div className="flex items-center gap-10 mt-6">
+              <div className="flex items-center">
+                <p className="text-lg font-medium mr-4">{t("Status")}</p>
+                <div
+                  className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-[10rem]  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+                    parseInt(inventoryFilters.status) > -1
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <label className="text-xl  pr-0  rounded-s-lg ">
+                    <LockKeyOpen weight="fill" />
+                  </label>
+                  <select
+                    className="w-[7rem] outline-none"
+                    name="status"
+                    value={inventoryFilters.status}
+                    onChange={handleInventoryFilterChange}
+                    disabled={loading}
+                  >
+                    <option value={-1}>All</option>
+                    <option value={0}>Not Hired</option>
+                    <option value={1}>Hired</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <p className="text-lg font-medium mr-4">{t("Weight")}:</p>
+                <div
+                  className={`flex items-center border border-gray-300  rounded-2xl px-4 py-1 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)] ${
+                    parseInt(inventoryFilters?.weightFrom) > 0 ||
+                    parseInt(inventoryFilters?.weightTo) < 9999999999
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <input
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    type="number"
+                    name="weightFrom"
+                    min={1}
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.weightFrom, 10)}
+                    disabled={loading}
+                  ></input>
+                  <label className="mx-2">-</label>
+                  <input
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    type="number"
+                    min={10000}
+                    name="weightTo"
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.weightTo, 10)}
+                    disabled={loading}
+                  ></input>
+                  <label className="ml-2">kg</label>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <p className="text-lg font-medium mr-4">{t("MaxWeight")}:</p>
+                <div
+                  className={`flex items-center border border-gray-300  rounded-2xl px-4 py-1 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)] ${
+                    parseInt(inventoryFilters?.maxWeightFrom) > 0 ||
+                    parseInt(inventoryFilters?.maxWeightTo) < 9999999999
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <input
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    type="number"
+                    name="maxWeightFrom"
+                    min={0}
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.maxWeightFrom, 10)}
+                    disabled={loading}
+                  ></input>
+                  <label className="mx-2">-</label>
+                  <input
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    type="number"
+                    min={10000}
+                    name="maxWeightTo"
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.maxWeightTo, 10)}
+                    disabled={loading}
+                  ></input>
+                  <label className="ml-2">kg</label>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <p className="text-lg font-medium mr-4">{t("Price")}:</p>
+                <div
+                  className={`flex items-center border border-gray-300  rounded-2xl px-4 py-1 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)] ${
+                    parseInt(inventoryFilters?.priceFrom) > 0 ||
+                    parseInt(inventoryFilters?.priceTo) < 9999999999
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <input
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    type="number"
+                    name="priceFrom"
+                    min={1}
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.priceFrom, 10)}
+                    disabled={loading}
+                  ></input>
+                  <label className="mx-2">-</label>
+                  <input
+                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    type="number"
+                    min={10000}
+                    name="priceTo"
+                    onChange={handleInventoryFilterChange}
+                    value={parseInt(inventoryFilters?.priceTo, 10)}
+                    disabled={loading}
+                  ></input>
+                  <label className="ml-2">vnd</label>
+                </div>
+              </div>
+              <div
+                className="text-xl bg-gray-100 p-1 rounded-full border-2 border-gray-400 hover:bg-gray-200 hover:border-gray-500 cursor-pointer"
+                onClick={() => setInventoryFilters(defaultInventoryFilter)}
+              >
+                <ArrowCounterClockwise />
+              </div>
+            </div>
+          )}
+        </div>
+        {loading ? (
+          // <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-[37rem] items-start">
+          //   {Array(100)
+          //     .fill(0)
+          //     .map((_, index) => (
+          //       <WarehouseListSkeleton key={index} />
+          //     ))}
+          // </div>
+          <SpinnerLoading />
+        ) : !warehouse ? (
           <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-[37rem] items-start">
               {warehousesShowList &&
                 warehousesShowList?.map((warehouse) => (
                   <WarehouseCard
@@ -339,25 +855,61 @@ export default function InventoryPage() {
             </div>
           </div>
         ) : (
-          <div className="h-[70vh] grid grid-cols-4 mt-10 gap-y-4">
-            <p className="text-2xl font-semibold mb-4 ">
-              {t("ProductsInWarehouse")}
+          <div className="h-[65vh] grid grid-cols-4 grid-rows-12 mt-10 gap-y-4 gap-x-10">
+            <p className="text-2xl font-semibold row-span-1">
+              {t("WarehouseInformation")}
             </p>
-            <p className="text-2xl font-semibold mb-4 col-span-3">
-              {t("InventoriesInWareHouse")}
+            <p className="text-2xl font-semibold col-span-3 row-span-1">
+              {t("InventoriesInTheWarehouse")}
             </p>
-            <div className="">
-              {allProductsInWarehouse?.data?.products?.map((pro) => (
-                <div
-                  className="flex gap-10 my-4 text-lg cursor-pointer"
-                  onClick={(e) => handleShowProductDetail(e, pro.productName)}
-                >
-                  <div>{pro?.productName}</div>
-                  <div>{pro?.stock}</div>
-                </div>
-              ))}
+            <div className="flex flex-col row-span-11">
+              <div className="w-full h-fit max-h-1/3">
+                {[
+                  { label: t("Name") + ":", value: warehouse?.name },
+                  {
+                    label: t("Location") + ":",
+                    value: warehouse?.location,
+                    onClick: () => handleOpenGoogleMaps(warehouse?.location),
+                  },
+                  {
+                    label: "Invetories:",
+                    value:
+                      warehouse?.isCold === 0
+                        ? "Only normal inventories"
+                        : "Only cold inventories",
+                  },
+                  {
+                    label: t("Capacity") + ":",
+                    value:
+                      `${new Intl.NumberFormat().format(
+                        Math.max(
+                          warehouse?.capacity - warehouse?.availableCapacity
+                        )
+                      )}/${
+                        new Intl.NumberFormat().format(warehouse?.capacity) ||
+                        "N/A"
+                      }` + " kg",
+                  },
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className={`grid-cols-4 grid gap-4 mb-4 ${
+                      item.onClick ? "cursor-pointer hover:text-blue-600" : ""
+                    }`}
+                    onClick={item.onClick ? item.onClick : undefined}
+                  >
+                    <p className="col-span-1 font-medium text-gray-500">
+                      {item.label}
+                    </p>
+                    <p className="col-span-3">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+              <div className=" w-full h-1/2 flex items-center justify-start z-[10] ">
+                <Mapping showLocation={warehouse?.location} />
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center col-span-3 overflow-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 col-span-3 overflow-auto row-span-11  items-start ">
               {inventoriesShowList?.map((inventenry) => (
                 <InventoryCard
                   inventory={inventenry}
@@ -368,30 +920,109 @@ export default function InventoryPage() {
             </div>
           </div>
         )}
+
         {checkBuyInventory && (
           <>
-            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[20]"></div>
             <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg px-4 py-8 w-[35rem] h-fit z-[30]"
               style={{
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <p>{`Are you sure you want to buy ${inventory.name}?`}</p>
+              <div
+                className="absolute top-2 right-2 text-white text-3xl hover:scale-105 cursor-pointer"
+                onClick={handleCancelBuyInventory}
+              >
+                <XCircle fill="#ef4444" weight="fill" />
+              </div>
+              <p className="text-2xl">{`${t("BuyingInventory")}: ${inventory.name}?`}</p>
+              <div className="flex items-center justify-between my-7">
+                <div
+                  className={`flex items-center overflow-auto py-2 px-4 w-fit border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
+                    monthBuyInvrentory > 0
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  }`}
+                >
+                  <input
+                    type="number"
+                    className="outline-none w-[5rem]"
+                    value={monthBuyInvrentory}
+                    onChange={(e) => setMonthToBuyInventory(e.target.value)}
+                  ></input>
+
+                  <p>{t("Months")}</p>
+                </div>
+                <button
+                  className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
+                  onClick={() => setMonthToBuyInventory(6)}
+                >
+                  6 {t("Months")}
+                </button>
+                <button
+                  className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
+                  onClick={() => setMonthToBuyInventory(12)}
+                >
+                  1 {t("Year")}
+                </button>
+                <button
+                  className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
+                  onClick={() => setMonthToBuyInventory(24)}
+                >
+                  2 {t("Years")}
+                </button>
+              </div>
+
+              <div className="mb-7 grid-cols-8 grid gap-4">
+                <div className="col-span-2 text-gray-500">{t("Weight")}</div>
+                <div className="col-span-2 text-gray-500">{t("Price")}</div>
+                <div className="col-span-2 text-gray-500 text-center">
+                  {t("Amount")}
+                </div>
+
+                <div className="col-span-2 text-gray-500">{t("Total")}</div>
+                <div className="col-span-2">{new Intl.NumberFormat().format(inventory?.maxWeight)} kg</div>
+                <div className="col-span-2">
+                  {new Intl.NumberFormat().format(inventory?.price) + " vnd"}
+                </div>
+                <div className="col-span-2 text-center">
+                  {monthBuyInvrentory} {t("Month")}
+                </div>
+
+                <div className="col-span-2">
+                  {/* {parseInt(cal( inventory?.price*monthBuyInvrentory)) + "VND"} */}
+                  {`${new Intl.NumberFormat().format(
+                    Math.round(
+                      parseFloat(inventory?.price) *
+                        parseFloat(monthBuyInvrentory)
+                    )
+                  )} vnd`}
+                </div>
+                <div className="col-span-8 flex gap-x-4">
+                  <div className="">{t("ExpectExpirationDate")}:</div>
+                  <p>
+                    {format(
+                      addMonths(new Date(), parseInt(monthBuyInvrentory || 0)),
+                      "dd/MM/yyyy"
+                    )}
+                  </p>
+                </div>
+              </div>
               <div className="flex justify-end gap-4">
                 <button
                   onClick={() => handleCancelBuyInventory()}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-red-500 hover:text-white"
                 >
-                  Cancel
+                  {t("Cancel")}
                 </button>
                 <button
                   onClick={handleConfirmBuyInventory}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                 >
-                  Confirm
+                  {t("Confirm")}
                 </button>
               </div>
             </div>

@@ -8,6 +8,9 @@ import {
   AddressBook,
   Archive,
   Aperture,
+  CreditCard,
+  CarProfile,
+  TreasureChest,
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
@@ -16,7 +19,7 @@ export function Sidebar() {
   const [isSlideOut, setSlideOut] = useState(false);
   const { t } = useTranslation();
   const { userInfor } = useContext(AuthContext);
-  const location=useLocation();
+  const location = useLocation();
   return (
     <div
       className={`${
@@ -33,7 +36,7 @@ export function Sidebar() {
           <div className="bg-[var(--main-project-color)] w-2 h-4 "></div>
         </div>
       </button>
-      <div className="w-full flex items-center justify-center text-4xl font-bold h-20">
+      <div className="flex justify-center items-center w-full h-20 text-4xl font-bold">
         {isSlideOut ? (
           <p>
             <span className="text-[var(--main-project-color)]">Bee</span>Shelf
@@ -86,77 +89,129 @@ export function Sidebar() {
         {userInfor?.roleName === "Manager" && (
           <>
             <NavLink
-              to={location.pathname.toLocaleLowerCase() === "/manager" ? "" : "dashboard"}
+              to={
+                location.pathname.toLocaleLowerCase() === "/manager"
+                  ? ""
+                  : "dashboard"
+              }
               className="flex navigate-menu"
             >
               <div className="sidebar-menu-container">
-                <House className="icon"  />
+                <House className="icon" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
 
             <NavLink to="warehouse" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Bag className="icon"  />
+                <Bag className="icon" />
                 <p className="label">{t("Warehouse")}</p>
               </div>
             </NavLink>
 
             <NavLink to="employee" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon"  />
+                <AddressBook className="icon" />
                 <p className="label">{t("Employee")}</p>
               </div>
             </NavLink>
-
-           
           </>
         )}
 
         {userInfor?.roleName === "Staff" && (
           <>
-            <NavLink to="dashboardstaff" className="flex navigate-menu">
+            {/* <NavLink to="dashboardstaff" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <House className="icon" weight="fill" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
-            </NavLink>
-            <NavLink to="batchflow" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <Package className="icon" weight="fill" />
-                <p className="label">{t("Create Batch")}</p>
-              </div>
-            </NavLink>
-            <NavLink to="batchflow" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <Package className="icon" weight="fill" />
-                <p className="label">{t("Create Batch")}</p>
-              </div>
-            </NavLink>
-            <NavLink to="assign" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <Aperture className="icon" weight="fill" />
-                <p className="label">{t("Assign Order")}</p>
-              </div>
-            </NavLink>
+            </NavLink> */}
 
+            <NavLink to="payment" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <CreditCard className="icon" weight="fill" />
+                <p className="label">{t("Transfer")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="batchflow" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Package className="icon" weight="fill" />
+                <p className="label">{t("Batch")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="vehicle" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <CarProfile className="icon" weight="fill" />
+                <p className="label">{t("Vehicle")}</p>
+              </div>
+            </NavLink>
             <NavLink to="ordermanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Bag className="icon" weight="fill" />
-                <p className="label">{t("Ordermanage")}</p>
+                <p className="label">{t("Order")}</p>
               </div>
             </NavLink>
 
             <NavLink to="requestmanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <AddressBook className="icon" weight="fill" />
-                <p className="label">{t("Request Manage")}</p>
+                <p className="label">{t("Request")}</p>
               </div>
             </NavLink>
 
-            <NavLink to="warehouseinventory" className="flex navigate-menu">
+            <NavLink to="inventory" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <TreasureChest className="icon" weight="fill" />
+                <p className="label">{t("Inventory")}</p>
+              </div>
+            </NavLink>
+          </>
+        )}
+
+        {userInfor?.roleName === "Admin" && (
+          <>
+            {/* <NavLink to="dashboardstaff" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <House className="icon" weight="fill" />
+                <p className="label">{t("Dashboard")}</p>
+              </div>
+            </NavLink> */}
+
+            <NavLink to="payment" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <CreditCard className="icon" weight="fill" />
+                <p className="label">{t("Transfer Money")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="batchflow" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Package className="icon" weight="fill" />
+                <p className="label">{t("Batch")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="vehicle" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <CarProfile className="icon" weight="fill" />
+                <p className="label">{t("Vehicle")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="ordermanage" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Bag className="icon" weight="fill" />
+                <p className="label">{t("Order Manage")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="requestmanage" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" weight="fill" />
+                <p className="label">{t("RequestManage")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="inventory" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <TreasureChest className="icon" weight="fill" />
                 <p className="label">{t("Inventory")}</p>
               </div>
             </NavLink>

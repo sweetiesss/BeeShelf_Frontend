@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import { Bell } from "@phosphor-icons/react";
@@ -13,77 +13,119 @@ import axios from "axios";
 
 export function HeaderUnauthenticated() {
   const nav = useNavigate();
+  const [activeSection, setActiveSection] = useState("about");
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ["about", "service", "feature", "customer", "contact"];
+      let currentSection = "";
+
+      sections.forEach((sectionId) => {
+        const section = document.getElementById(sectionId);
+        if (
+          section &&
+          window.scrollY >= section.offsetTop - 100 &&
+          window.scrollY < section.offsetTop + section.offsetHeight
+        ) {
+          currentSection = sectionId;
+        }
+      });
+
+      setActiveSection(currentSection);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleScroll = (sectionId) => {
+    const targetElement = document.getElementById(sectionId);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between h-20 w-full text-black px-4 font-light text-lg header">
-      <div className="flex items-center text-2xl font-bold">
-        <p>BeShelf</p>
+    <div className="w-full px-[300px] py-[23px] fixed bg-white shadow flex justify-between items-center z-10">
+      {/* Logo */}
+      <div className="flex items-center gap-[20px]">
+        <div
+          className="text-[#0db977] text-[25px] font-bold cursor-pointer"
+          onClick={() => handleScroll("home")}
+        >
+          BeeShelf
+        </div>
       </div>
-      <div className="flex space-x-24 navigate-menu">
-        <NavLink
-          to="about"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              "menu-item ",
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          ABOUT
-        </NavLink>
-        <NavLink
-          to="service"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              "menu-item ",
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          SERVICE
-        </NavLink>
-        <NavLink
-          to="package"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              "menu-item ",
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          PACKAGE
-        </NavLink>
-        <NavLink
-          to="contact"
-          className={({ isActive, isPending, isTransitioning }) =>
-            [
-              "menu-item ",
-              isPending ? "pending" : "",
-              isActive ? "active" : "",
-              isTransitioning ? "transitioning" : "",
-            ].join("")
-          }
-        >
-          CONTACT
-        </NavLink>
-      </div>
-      <div className="flex space-x-4 font-semibold">
+
+      {/* Navigation Links */}
+      <div className="flex gap-[20px] pl-[40px]">
         <button
-          className="bg-white text-blue-500 px-3 py-1 rounded hover:bg-blue-600 hover:text-white transition duration-200"
-          onClick={() => nav("/authorize/signin")}
+          className={`menu-item px-[15px] h-[40px] text-lg text-[#848a9f] hover:text-[#0db977] ${
+            activeSection === "about"
+              ? "font-bold border-b-4 border-[#0db977] text-[#0db977]"
+              : ""
+          }`}
+          onClick={() => handleScroll("about")}
         >
-          Sign In
+          {t("About")}
         </button>
         <button
-          className="bg-white text-blue-500 px-3 py-1 rounded hover:bg-blue-600 hover:text-white transition duration-200"
+          className={`menu-item px-[15px] h-[40px] text-lg text-[#848a9f] hover:text-[#0db977] ${
+            activeSection === "service"
+              ? "font-bold border-b-4 border-[#0db977] text-[#0db977]"
+              : ""
+          }`}
+          onClick={() => handleScroll("service")}
+        >
+          {t("Service")}
+        </button>
+        <button
+          className={`menu-item px-[15px] h-[40px] text-lg text-[#848a9f] hover:text-[#0db977] ${
+            activeSection === "feature"
+              ? "font-bold border-b-4 border-[#0db977] text-[#0db977]"
+              : ""
+          }`}
+          onClick={() => handleScroll("feature")}
+        >
+          {t("Feature")}
+        </button>
+        <button
+          className={`menu-item px-[15px] h-[40px] text-lg text-[#848a9f] hover:text-[#0db977] ${
+            activeSection === "customer"
+              ? "font-bold border-b-4 border-[#0db977] text-[#0db977]"
+              : ""
+          }`}
+          onClick={() => handleScroll("customer")}
+        >
+          {t("Customers")}
+        </button>
+        <button
+          className={`menu-item px-[15px] h-[40px] text-lg text-[#848a9f] hover:text-[#0db977] ${
+            activeSection === "contact"
+              ? "font-bold border-b-4 border-[#0db977] text-[#0db977]"
+              : ""
+          }`}
+          onClick={() => handleScroll("contact")}
+        >
+          {t("Contact")}
+        </button>
+      </div>
+
+      {/* Sign In and Sign Up Buttons */}
+      <div className="flex items-center gap-[20px]">
+        <LanguageSelector />
+        <button
+          className="text-[#091540] text-lg font-medium px-4 py-2 rounded hover:bg-[--Xanh-Base] hover:text-white transition focus:outline-none"
+          onClick={() => nav("/authorize/signin")}
+        >
+          {t("SignIn")}
+        </button>
+        <button
+          className="bg-[#0db977] text-white px-4 py-2 rounded hover:bg-[--Xanh-700] transition focus:outline-none"
           onClick={() => nav("/authorize/signup")}
         >
-          Sign Up
+          {t("SignUp")}
         </button>
       </div>
     </div>
@@ -143,15 +185,10 @@ export function HeaderAuthenticated() {
     handleLogout();
     nav("/");
   };
-  const notificationBell = useRef();
+
   const notificationDropwDown = useRef();
   const mouseDownEvent = (event) => {
     if (
-      notificationBell.current &&
-      notificationBell.current.contains(event.target)
-    ) {
-      setOpenNotification((prev) => !prev);
-    } else if (
       notificationDropwDown.current &&
       notificationDropwDown.current.contains(event.target)
     ) {
@@ -225,20 +262,13 @@ export function HeaderAuthenticated() {
             <div id="moon"></div>
           </label>
         </div>
-        <button
-          className={
-            "rounded-full w-8 h-8 flex justify-center items-center notification-bell"
-          }
-          ref={notificationBell}
-        >
-          <Bell size={24} weight="fill" />
-        </button>
+
         {authWallet && (
           <div
             className="w-[10rem] cursor-pointer"
             onClick={handleAddingCoinsButton}
           >
-            {authWallet?.totalAmount}
+            {new Intl.NumberFormat().format(authWallet?.totalAmount)} vnd
           </div>
         )}
         <button

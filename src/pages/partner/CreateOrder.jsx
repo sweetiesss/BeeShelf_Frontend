@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import AxiosPartner from "../../services/Partner";
@@ -7,6 +7,22 @@ import Mapping from "../../component/shared/Mapping";
 import AxiosOrder from "../../services/Order";
 import AxiosWarehouse from "../../services/Warehouse";
 import { toast } from "react-toastify";
+import AxiosOthers from "../../services/Others";
+
+const cloneWarehouseData = {
+  id: 1,
+  name: "Ha Noi Main Warehouse",
+  capacity: 500000,
+  provinceId: 23,
+  provinceName: "Hà Nội",
+  location: "178A Đ. Bưởi, Hà Nội",
+  coordinates: { lat: 21.028511, lon: 105.804817 }, // Example coordinates
+  deliveryZones: [
+    { id: 1, name: "Ba Đình", coordinates: { lat: 21.03333, lon: 105.8145 } },
+    { id: 2, name: "Cầu Giấy", coordinates: { lat: 21.02858, lon: 105.7886 } },
+    // Add more delivery zones as needed
+  ],
+};
 
 export default function CreateOrderPage() {
   const { t } = useTranslation();
@@ -14,6 +30,7 @@ export default function CreateOrderPage() {
   const { getAllProduct } = AxiosPartner();
   const { createOrder } = AxiosOrder();
   const { getWarehouseById } = AxiosWarehouse();
+  const { getAddressProvincesStressWard } = AxiosOthers();
 
   const [inventories, setInventories] = useState();
   const [inventoriesShowList, setInventoriesShowList] = useState();
@@ -23,10 +40,32 @@ export default function CreateOrderPage() {
   const [distance, setDistance] = useState(null); // State for storing calculated distance
   const [item, setItem] = useState({ productId: null, productAmount: null });
 
+  const [provinceList, setProvinencesList] = useState();
+  const [province, setProvinences] = useState(0);
+  const [strictList, setStrictList] = useState();
+  const [strict, setStrict] = useState(0);
+  const [wardList, setWardList] = useState();
+  const [ward, setWard] = useState(0);
+  const [location, setLocation] = useState();
+
   const [warehouses, setWarehouses] = useState();
   const [warehouse, setWarehouse] = useState();
+  const debounceTimeoutRef = useRef(null);
+  const [validLocation, setValidLocation] = useState("");
+
+  const [startLocation, setStartLocation] = useState();
 
   const baseForm = {
+    ocopPartnerId: userInfor?.id,
+    receiverPhone: "",
+    receiverAddress: "",
+    receiverWard: "",
+    receiverStrict: "",
+    receiverProvince: "",
+    distance: null,
+    products: [],
+  };
+  const defaultForm = {
     ocopPartnerId: userInfor?.id,
     receiverPhone: "",
     receiverAddress: "",
@@ -36,8 +75,68 @@ export default function CreateOrderPage() {
   const [form, setForm] = useState(baseForm);
 
   useEffect(() => {
+    const validateAndFormatLocation = async () => {
+      const {
+        receiverAddress,
+        receiverWard,
+        receiverStrict,
+        receiverProvince,
+      } = form;
+      if (
+        receiverProvince.length > 0 &&
+        receiverStrict.length > 0 &&
+        receiverWard.length > 0
+      ) {
+        setValidLocation(
+          ` ${receiverWard} ${receiverStrict} ${receiverProvince}`
+        );
+      } else setValidLocation();
+    };
+
+    validateAndFormatLocation();
+  }, [
+    form.receiverAddress,
+    form.receiverWard,
+    form.receiverStrict,
+    form.receiverProvince,
+  ]);
+
+  useEffect(() => {
     getProductsInWareHouse();
+    getProvinces();
   }, []);
+
+  useEffect(() => {
+    getDistricts();
+  }, [province]);
+  useEffect(() => {
+    getWard();
+  }, [strict]);
+
+  const getProvinces = async () => {
+    const result = await getAddressProvincesStressWard(1, 0);
+    setProvinencesList(result?.data?.data);
+    console.log(result);
+  };
+  const getDistricts = async () => {
+    setForm((prev) => ({ ...prev, receiverStrict: "" }));
+    setForm((prev) => ({ ...prev, receiverWard: "" }));
+
+    if (province !== 0 && province) {
+      const result = await getAddressProvincesStressWard(2, province);
+      setStrictList(result?.data?.data);
+      console.log("district", result);
+    }
+  };
+  const getWard = async () => {
+    setForm((prev) => ({ ...prev, receiverWard: "" }));
+
+    if (strict !== 0 && strict) {
+      const result = await getAddressProvincesStressWard(3, strict);
+      setWardList(result?.data?.data);
+      console.log("ward", result);
+    }
+  };
 
   useEffect(() => {
     if (form.receiverAddress) {
@@ -49,8 +148,7 @@ export default function CreateOrderPage() {
     filterWarehouse();
   }, [warehouse]);
 
-  console.log("t",process.env.REACT_APP_MAP_API_KEY);
-  
+  console.log("t", process.env.REACT_APP_MAP_API_KEY);
 
   useEffect(() => {
     if (inventories) {
@@ -113,10 +211,14 @@ export default function CreateOrderPage() {
   };
 
   const calculateDistance = async () => {
+    setStartLocation();
     const API_KEY = process.env.REACT_APP_MAP_API_KEY;
     const dataLocation = await getWarehouses(warehouse);
     const warehouseAddress = dataLocation?.data?.location; // Replace with your actual warehouse address
     const receiverAddress = form.receiverAddress;
+    console.log("addres", warehouseAddress);
+
+    setStartLocation("178a Đ. Bưởi, Cống Vị, Ba Đình, Ha Noi");
 
     try {
       const response = await axios.get(
@@ -136,7 +238,17 @@ export default function CreateOrderPage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    if (name === "receiverAdress") {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      debounceTimeoutRef.current = setTimeout(() => {
+        setForm((prev) => ({ ...prev, [name]: value }));
+      }, 500);
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleItemChange = (e) => {
@@ -207,6 +319,8 @@ export default function CreateOrderPage() {
     }
   };
 
+  console.log(form);
+
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
       <div className="flex gap-40 h-full text-lg">
@@ -224,7 +338,7 @@ export default function CreateOrderPage() {
               name="receiverPhone"
               value={form.receiverPhone}
               onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 border-b-2 focus:ring-blue-500 focus:border-blue-500 px-2 py-1"
+              className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
               required
             />
           </div>
@@ -232,14 +346,87 @@ export default function CreateOrderPage() {
             <label className="block  font-medium text-gray-700">
               {t("Receiver Address")}
             </label>
+
             <input
               type="text"
               name="receiverAddress"
+              placeholder={t("receiverAddress")}
               value={form.receiverAddress}
               onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 border-b-2 focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
+              className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
               required
             />
+            <div className="flex justify-between mt-4 items-center">
+              <div>
+                <select
+                  className="border-b-2 border-[var(--en-vu-500-disable)]"
+                  value={province}
+                  onChange={(e) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverProvince: "",
+                      receiverStrict: "",
+                      receiverWard: "",
+                    }));
+                    setProvinences(e.target.value);
+                    const provinceName = provinceList.find(
+                      (item) => item?.id == e.target.value
+                    );
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverProvince: provinceName?.full_name,
+                    }));
+                  }}
+                >
+                  <option value={0}>Select Province</option>
+                  {provinceList?.map((pro) => (
+                    <option value={pro?.id}>{pro?.full_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <select
+                  className="border-b-2 border-[var(--en-vu-500-disable)]"
+                  value={strict}
+                  onChange={(e) => {
+                    setStrict(e.target.value);
+                    const stirctName = strictList.find(
+                      (item) => item?.id == e.target.value
+                    );
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverStrict: stirctName?.full_name,
+                    }));
+                  }}
+                >
+                  <option value={0}>Select Districts</option>
+                  {strictList?.map((pro) => (
+                    <option value={pro?.id}>{pro?.full_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <select
+                  className="border-b-2 border-[var(--en-vu-500-disable)]"
+                  value={ward}
+                  onChange={(e) => {
+                    setWard(e.target.value);
+                    const wardName = wardList.find(
+                      (item) => item?.id == e.target.value
+                    );
+                    setForm((prev) => ({
+                      ...prev,
+                      receiverWard: wardName?.full_name,
+                    }));
+                  }}
+                >
+                  <option value={0}>Select Ward</option>
+                  {wardList?.map((pro) => (
+                    <option value={pro?.id}>{pro?.full_name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
           <div className="space-y-6 w-full">
             <h2 className="text-lg font-semibold">{t("OrderInformation")}</h2>
@@ -337,7 +524,9 @@ export default function CreateOrderPage() {
             <button
               type="button"
               onClick={() => {
-                setForm(baseForm);setItem({productId:0,productAmount:0});setWarehouse(0)
+                setForm(baseForm);
+                setItem({ productId: 0, productAmount: 0 });
+                setWarehouse(0);
               }} // Reset form
               className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md shadow hover:bg-gray-300 transition"
             >
@@ -352,7 +541,18 @@ export default function CreateOrderPage() {
           </div>
         </form>
         <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
-          <Mapping showLocation={form.receiverAddress} height="90%" />
+          <Mapping
+            showLocation={validLocation}
+            toLocation={startLocation}
+
+            // cloneWarehouseData={cloneWarehouseData}
+          />
+          {/* <Mapping
+              showLocation="123 Main St, New York, NY"
+  startLocation="456 Elm St, Boston, MA"
+            height="90%"
+          /> */}
+          {/* <Mapping showLocation="Xã Phước Tỉnh, Huyện Long Điền, Tỉnh Bà Rịa Vũng Tàu" /> */}
 
           {distance && (
             <p className="mt-4 text-lg">

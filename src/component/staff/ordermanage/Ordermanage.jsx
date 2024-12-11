@@ -1,103 +1,95 @@
-import React, { useState, useEffect } from "react";
-import {
-  Table,
-  Tag,
-  Input,
-  Dropdown,
-  Button,
-  Menu,
-  Space,
-  Drawer,
-  Typography,
-  Divider,
-  message,
-  List,
-  Select,
-} from "antd";
-import { DownOutlined, SearchOutlined } from "@ant-design/icons";
-import useAxios from "../../../services/CustomizeAxios";
+// export default Ordermanage;
+import { Button, Image, Input, Modal, Select, Table, Tag, message } from "antd";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
+import useAxios from "../../../services/CustomizeAxios"; // Giả sử bạn đang sử dụng Axios hook
 
 const { Option } = Select;
 
 const Ordermanage = () => {
-  const [filter, setFilter] = useState("All"); // Default filter is "All"
-  const [data, setData] = useState([]); // State to hold API data
-  const [filteredData, setFilteredData] = useState([]); // State for filtered data
-  const [loading, setLoading] = useState(false); // Loading state
-  const [selectedOrder, setSelectedOrder] = useState(null); // Selected order for drawer
-  const { fetchDataBearer } = useAxios(); // Custom Axios hook
-
-  const [warehouseId, setWarehouseId] = useState("");
-  const [requests, setRequests] = useState([]);
+  const [data, setData] = useState([]); // Dữ liệu đơn hàng
+  const [loading, setLoading] = useState(false); // Trạng thái loading
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
     pageSize: 10,
     totalPagesCount: 0,
     pageIndex: 0,
   });
-  const [email, setEmail] = useState("");
-  const [employeeDetails, setEmployeeDetails] = useState(null);
-  const { userInfor } = useAuth();
-  useEffect(() => {
-    fetchRequests(0);
-  }, []);
+  const { fetchDataBearer } = useAxios(); // Giả sử bạn đã tạo một hook Axios tùy chỉnh
+  const { userInfor } = useAuth(); // Giả sử bạn có context để lấy thông tin người dùng
+  const [cancellationReason, setCancellationReason] = useState("");
+  const [newStatus, setNewStatus] = useState(undefined);
 
-  // Fetch data from API
-  useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true); // Start loading
-      try {
-        console.log(userInfor?.workAtWarehouseId);
-        const response = await fetchDataBearer({
-          url: `/order/get-warehouse-orders`,
-          method: "GET",
-          params: {
-            warehouseId: userInfor?.workAtWarehouseId,
-            pageIndex: 0,
-            pageSize: pagination.pageSize,
-          },
-        });
-
-        const formattedData = response.data.items
-          .filter((item) => item.status !== "Draft") // Lọc bỏ trạng thái Draft
-          .map((item) => ({
-            key: item.id, // Unique key for table row
-            order: item, // Store full order data
-            orderName: item.partner_email, // Use partner email as the "order name"
-            status: item.status,
-            receiverPhone: item.receiverPhone,
-            receiverAddress: item.receiverAddress,
-            date: item.createDate.split("T")[0], // Extract date from ISO format
-            totalPrice: `$${item.totalPrice}`, // Format total price
-          }));
-
-        setData(formattedData);
-        setFilteredData(formattedData); // Initialize filtered data
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      } finally {
-        setLoading(false); // Stop loading
-      }
-    };
-
-    fetchOrders();
-  }, []);
-
-  const updateRequestStatus = async (id, newStatus) => {
+  // Hàm gọi API để lấy danh sách đơn hàng theo warehouseId
+  const GetOrderWarehouse = async () => {
     setLoading(true);
     try {
-      // Log dữ liệu trước khi gửi
-      console.log("Updating status for ID:", id, "to new status:", newStatus);
+      const response = await fetchDataBearer({
+        url: "/order/get-warehouse-orders",
+        method: "GET",
+        params: {
+          warehouseId: userInfor?.workAtWarehouseId, // Lấy warehouseId từ thông tin người dùng
+          pageIndex: pagination.pageIndex,
+          pageSize: pagination.pageSize,
+        },
+      });
+
+      if (response && response.data) {
+        const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
+          response.data;
+        // const filteredItems = items.filter((item) => item.status !== "Draft");
+        const filteredItems = items.filter((item) => item.status !== "Draft");
+
+        // Cập nhật dữ liệu vào state
+        setData(filteredItems);
+        setPagination({
+          totalItemsCount,
+          pageSize,
+          totalPagesCount,
+          pageIndex,
+        });
+
+        message.success("Data loaded successfully!");
+      } else {
+        message.error("No data returned from the server.");
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      message.error("Failed to fetch orders. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cập nhật trạng thái đơn hàng
+  const updateRequestStatus = async (id) => {
+    setLoading(true);
+    try {
+      const currentOrder = data.find((order) => order.id === id);
+      const validTransitions = getValidStatusTransitions(currentOrder.status);
+
+      if (!validTransitions.includes(newStatus)) {
+        message.error(
+          `Invalid status transition from ${currentOrder.status} to ${newStatus}`
+        );
+        return;
+      }
 
       const response = await fetchDataBearer({
-        url: `/order/update-order-status/${id}?orderStatus=${newStatus}`,
+        url: `/order/update-order-status/${id}`,
         method: "PUT",
+        params: {
+          orderStatus: newStatus,
+          cancellationReason: cancellationReason,
+        },
       });
 
       if (response && response.status === 200) {
         message.success("Status updated successfully!");
-        fetchRequests(pagination.pageIndex); // Làm mới bảng sau khi cập nhật
+        GetOrderWarehouse(); // Refresh order list
+        if (selectedOrder?.id === id) {
+          setSelectedOrder({ ...selectedOrder, status: newStatus }); // Update modal if open
+        }
       } else {
         const errorMessage =
           response?.data?.message || "Failed to update status.";
@@ -111,18 +103,13 @@ const Ordermanage = () => {
       );
     } finally {
       setLoading(false);
+      setIsModalVisible(false);
+      setNewStatus(undefined);
+      setCancellationReason("");
     }
   };
-  // Filter data based on selected status
-  useEffect(() => {
-    if (filter === "All") {
-      setFilteredData(data);
-    } else {
-      setFilteredData(data.filter((item) => item.status === filter));
-    }
-  }, [filter, data]);
 
-  // Render function for "Status" column in the table
+  // Render function cho status
   const renderStatusTag = (status) => {
     let color;
     switch (status) {
@@ -141,9 +128,6 @@ const Ordermanage = () => {
       case "Shipping":
         color = "blue";
         break;
-      case "Draft":
-        color = "gray";
-        break;
       case "Returned":
         color = "magenta";
         break;
@@ -156,44 +140,81 @@ const Ordermanage = () => {
       default:
         color = "default";
     }
-    return <Tag color={color}>{status}</Tag>;
+    return (
+      <Tag color={color} className="m-0 w-full text-center">
+        {status}
+      </Tag>
+    );
   };
 
-  // Table columns
+  // Show order detail
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  const showOrderDetail = (order) => {
+    setSelectedOrder(order);
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedOrder(null);
+  };
+
+  // Cột trong bảng
   const columns = [
     {
-      title: "Order Code",
-      dataIndex: "key",
-      key: "key",
+      title: "Order ID",
+      dataIndex: "id",
+      key: "id",
       render: (text) => <span>{text}</span>,
     },
     {
+      title: "Order Code",
+      dataIndex: "orderCode",
+      key: "orderCode",
+    },
+    {
       title: "Partner Email",
-      dataIndex: "orderName",
-      key: "orderName",
+      dataIndex: "partner_email",
+      key: "partner_email",
       render: (text) => <span>{text}</span>,
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status, record) => (
-        <Space direction="vertical">
-          {renderStatusTag(status)}
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div className="p-2">
           <Select
-            style={{ width: 75, padding: 0 }}
-            placeholder="Update Status"
-            onChange={(newStatus) => updateRequestStatus(record.id, newStatus)}
-            defaultValue={status}
+            className="w-[120px]"
+            value={selectedKeys[0]}
+            onChange={(value) => {
+              setSelectedKeys(value ? [value] : []);
+              confirm();
+            }}
+            allowClear
           >
             <Option value="Pending">Pending</Option>
+            <Option value="Canceled">Canceled</Option>
             <Option value="Processing">Processing</Option>
             <Option value="Delivered">Delivered</Option>
-            <Option value="Completed">Completed</Option>
+            <Option value="Shipping">Shipping</Option>
+            <Option value="Returned">Returned</Option>
             <Option value="Refunded">Refunded</Option>
+            <Option value="Approved">Approved</Option>
+            <Option value="Rejected">Rejected</Option>
+            <Option value="Completed">Completed</Option>
           </Select>
-        </Space>
+        </div>
       ),
+      onFilter: (value, record) => record.status === value,
+      render: (status) => renderStatusTag(status),
     },
     {
       title: "Receiver Phone",
@@ -206,292 +227,235 @@ const Ordermanage = () => {
       key: "receiverAddress",
     },
     {
-      title: "Date",
-      dataIndex: "date",
-      key: "date",
+      title: "Create Date",
+      dataIndex: "createDate",
+      key: "createDate",
+      sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+      sortDirections: ["descend", "ascend"],
+      render: (text) => {
+        const date = new Date(text);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() bắt đầu từ 0
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+      },
     },
     {
       title: "Total Price",
       dataIndex: "totalPrice",
       key: "totalPrice",
+      sorter: (a, b) => a.totalPrice - b.totalPrice,
+      sortDirections: ["descend", "ascend"],
+      render: (text) =>
+        new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(text), // Định dạng theo tiền tệ VNĐ
     },
     {
       title: "Action",
-      key: "action",
+      dataIndex: "",
+      key: "x",
       render: (_, record) => (
-        <Button onClick={() => setSelectedOrder(record.order)}>
-          View Details
-        </Button>
+        <div className="flex flex-col gap-2 items-center">
+          <Button
+            className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+            onClick={() => showOrderDetail(record)}
+          >
+            View Details
+          </Button>
+        </div>
       ),
     },
   ];
 
-  // Fetch requests by warehouseId
-  const fetchRequests = async (pageIndex = 0) => {
-    // if (!warehouseId) {
-    //   message.error("Please enter a Warehouse ID!");
-    //   return;
-    // }
-
-    setLoading(true);
-
-    try {
-      console.log(userInfor?.workAtWarehouseId);
-      const response = await fetchDataBearer({
-        url: `/order/get-warehouse-orders`,
-        method: "GET",
-        params: {
-          warehouseId: userInfor?.workAtWarehouseId,
-          pageIndex,
-          pageSize: pagination.pageSize,
-        },
-      });
-
-      if (response && response.data) {
-        const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
-          response.data;
-
-        setRequests(
-          items.map((item) => ({
-            key: item.id,
-            ...item,
-          }))
-        );
-
-        setPagination({
-          totalItemsCount,
-          pageSize,
-          totalPagesCount,
-          pageIndex,
-        });
-
-        message.success("Data loaded successfully!");
-      } else {
-        message.error("No data returned from the server.");
-      }
-    } catch (error) {
-      console.error("Error fetching requests:", error);
-      message.error("Failed to fetch requests. Please check the Warehouse ID.");
-    } finally {
-      setLoading(false);
+  // Add this function to check valid status transitions
+  const getValidStatusTransitions = (currentStatus) => {
+    switch (currentStatus) {
+      case "Draft":
+        return ["Pending"];
+      case "Pending":
+        return ["Processing"]; // Staff confirmed or OCOP Partner Cancelled
+      case "Processing":
+        return ["Canceled"]; // Shipper delivery or Out of stock
+      case "Shipping":
+        return ["Delivered", "Canceled"]; // Shipping Finish delivery or OCOP Partner Cancelled
+      case "Delivered":
+        return ["Completed"]; // Receiver returns or Return window expire
+      case "Returned":
+        return ["Refunded"]; // Refund processed
+      case "Completed":
+      case "Canceled":
+      case "Refunded":
+        return []; // Final states - no further transitions allowed
+      default:
+        return [];
     }
   };
 
-  // const handleEmailSubmit = async () => {
-  //   if (!email) {
-  //     message.error("Please enter an email!");
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   try {
-  //     const response = await fetchDataBearer({
-  //       url: `/user/get-employee/${email}`,
-  //       method: "GET",
-  //     });
-
-  //     if (response && response.data) {
-  //       const {
-  //         workAtWarehouseId,
-  //         workAtWarehouseName,
-  //         lastName,
-  //         email: employeeEmail,
-  //       } = response.data;
-  //       setEmployeeDetails({
-  //         workAtWarehouseId,
-  //         workAtWarehouseName,
-  //         lastName,
-  //         email: employeeEmail,
-  //       });
-  //       message.success("Employee details fetched successfully!");
-  //     } else {
-  //       message.error("No data returned from the server.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching employee details:", error);
-  //     message.error(
-  //       "Failed to fetch employee details. Please check the email."
-  //     );
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // Dropdown menu for filtering by status
-  const statusMenu = (
-    <Menu
-      onClick={(e) => {
-        setFilter(e.key); // Update selected filter
-      }}
-    >
-      <Menu.Item key="All">All</Menu.Item>
-      <Menu.Item key="Pending">Pending</Menu.Item>
-      <Menu.Item key="Processing">Processing</Menu.Item>
-      <Menu.Item key="Delivered">Delivered</Menu.Item>
-      <Menu.Item key="Canceled">Canceled</Menu.Item>
-      <Menu.Item key="Shipping">Shipping</Menu.Item>
-      <Menu.Item key="Returned">Returned</Menu.Item>
-      <Menu.Item key="Refunded">Refunded</Menu.Item>
-      <Menu.Item key="Completed">Completed</Menu.Item>
-    </Menu>
-  );
+  // Sử dụng useEffect để tự động lấy dữ liệu khi component được render
+  useEffect(() => {
+    GetOrderWarehouse();
+  }, []); // Chạy một lần khi component mount
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Order Management</h1>
-
-      <div className="flex items-center justify-between">
-        <Space
-          style={{
-            marginBottom: "20px",
-            display: "flex",
-            justifyContent: "flex-start",
-          }}
-        >
-          {/* <Input
-            placeholder="Enter Email"
-            style={{ width: 300 }}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Button type="primary" onClick={handleEmailSubmit} loading={loading}>
-            Submit Email
-          </Button> */}
-        </Space>
-        <Space style={{ marginBottom: 16 }}>
-          <Dropdown overlay={statusMenu}>
-            <Button>
-              Filter by: {filter} <DownOutlined />
-            </Button>
-          </Dropdown>
-          <Input
-            prefix={<SearchOutlined />}
-            placeholder="Search for order"
-            style={{ width: 300 }}
-          />
-        </Space>
-      </div>
-      {employeeDetails && (
+    <>
+      <div className="overflow-auto">
+        <h1>Order Management</h1>
         <Table
-          dataSource={[{ key: 1, ...employeeDetails }]}
-          columns={[
-            {
-              title: "Warehouse ID",
-              dataIndex: "workAtWarehouseId",
-              key: "workAtWarehouseId",
+          className="overflow-x-scroll min-w-[800px] w-full"
+          dataSource={data}
+          columns={columns}
+          loading={loading}
+          pagination={{
+            current: pagination.pageIndex + 1,
+            pageSize: pagination.pageSize,
+            total: pagination.totalItemsCount,
+            onChange: (page) => {
+              setPagination((prev) => ({
+                ...prev,
+                pageIndex: page - 1,
+              }));
+              GetOrderWarehouse();
             },
-            {
-              title: "Warehouse Name",
-              dataIndex: "workAtWarehouseName",
-              key: "workAtWarehouseName",
-            },
-            {
-              title: "Last Name",
-              dataIndex: "lastName",
-              key: "lastName",
-            },
-            {
-              title: "Email",
-              dataIndex: "email",
-              key: "email",
-            },
-          ]}
-          pagination={false}
+          }}
         />
-      )}
+      </div>
+      <Modal
+        title="Order Details"
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button key="close" onClick={handleModalClose}>
+            Close
+          </Button>,
+        ]}
+      >
+        {selectedOrder && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div>
+                <Image
+                  src={selectedOrder.pictureLink}
+                  alt="Order Image"
+                  className="w-full"
+                />
+              </div>
+              <label htmlFor="statusSelect" className="font-bold">
+                Status:
+              </label>
+              <Select
+                id="statusSelect"
+                className="w-full"
+                value={newStatus}
+                onChange={(newStatus) =>
+                  // updateRequestStatus(selectedOrder.id, newStatus)
+                  setNewStatus(newStatus)
+                }
+                placeholder="Select a status"
+                disabled={
+                  getValidStatusTransitions(selectedOrder.status).length === 0
+                }
+              >
+                {getValidStatusTransitions(selectedOrder.status).map(
+                  (status) => (
+                    <Option key={status} value={status}>
+                      {status}
+                    </Option>
+                  )
+                )}
+              </Select>
+              {newStatus === "Canceled" && (
+                <div>
+                  <label htmlFor="cancellationReason" className="font-bold">
+                    Cancellation Reason:
+                  </label>
+                  <Input
+                    id="cancellationReason"
+                    value={cancellationReason}
+                    onChange={(e) => setCancellationReason(e.target.value)}
+                  />
+                </div>
+              )}
+              <Button
+                className="px-4 py-2 mt-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+                onClick={() => updateRequestStatus(selectedOrder.id)}
+                disabled={
+                  !newStatus ||
+                  (newStatus === "Canceled" && !cancellationReason)
+                }
+              >
+                Update Status
+              </Button>
+            </div>
+            <div>
+              <div className="grid grid-cols-1 gap-2">
+                <div>
+                  <p className="font-bold">Order ID:</p>
+                  <p>{selectedOrder.id}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Order Code:</p>
+                  <p>{selectedOrder.orderCode}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Partner Email:</p>
+                  <p>{selectedOrder.partner_email}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Status:</p>
+                  <p>{renderStatusTag(selectedOrder.status)}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Receiver Phone:</p>
+                  <p>{selectedOrder.receiverPhone}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Receiver Address:</p>
+                  <p>{selectedOrder.receiverAddress}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Create Date:</p>
+                  <p>
+                    {(() => {
+                      const date = new Date(selectedOrder.createDate);
+                      const day = String(date.getDate()).padStart(2, "0");
+                      const month = String(date.getMonth() + 1).padStart(
+                        2,
+                        "0"
+                      ); // getMonth() bắt đầu từ 0
+                      const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+                      return `${day}/${month}/${year}`;
+                    })()}
+                  </p>
+                </div>
 
-      <Space
-        style={{
-          marginBottom: "20px",
-          display: "flex",
-          justifyContent: "flex-start",
-        }}
-      ></Space>
-      {/* <Table
-        dataSource={requests}
-        columns={columns}
-        loading={loading} // Show loading spinner while fetching data
-        pagination={{
-          pageSize: 10,
-          position: ["bottomCenter"],
-        }}
-        rowSelection={{
-          type: "checkbox",
-        }}
-      /> */}
-      <Table
-        dataSource={data.filter((item) => item.status !== "Draft")} // Lọc bỏ Draft
-        columns={columns}
-        loading={loading}
-        pagination={{
-          pageSize: 10,
-          position: ["bottomCenter"],
-        }}
-        rowSelection={{
-          type: "checkbox",
-        }}
-      />
-
-      {selectedOrder && (
-        <OrderDetailDrawer
-          order={selectedOrder}
-          onClose={() => setSelectedOrder(null)}
-        />
-      )}
-    </div>
+                <div>
+                  <p className="font-bold">Total Price:</p>
+                  <p>
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(selectedOrder.totalPrice)}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-bold">Warehouse Name:</p>
+                  <p>{selectedOrder.warehouseName}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Warehouse Location:</p>
+                  <p>{selectedOrder.warehouseLocation}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+    </>
   );
 };
-
-// Drawer Component for Order Details
-const OrderDetailDrawer = ({ order, onClose }) => (
-  <Drawer
-    title={`Order Details - ID: ${order.id}`}
-    width={400}
-    onClose={onClose}
-    open={!!order}
-  >
-    <Typography.Title level={5}>Order Information</Typography.Title>
-    <Divider />
-    <p>
-      <strong>Status:</strong> {order.status}
-    </p>
-    <p>
-      <strong>Partner Email:</strong> {order.partner_email}
-    </p>
-    <p>
-      <strong>Receiver Phone:</strong> {order.receiverPhone}
-    </p>
-    <p>
-      <strong>Receiver Address:</strong> {order.receiverAddress}
-    </p>
-    <p>
-      <strong>Total Price:</strong> ${order.totalPrice.toLocaleString()}
-    </p>
-    <Divider />
-    <Typography.Title level={5}>Order Items</Typography.Title>
-    <List
-      dataSource={order.orderDetails}
-      renderItem={(item) => (
-        <List.Item>
-          <List.Item.Meta
-            title={`${item.productName} (x${item.productAmount})`}
-            description={`Price: $${item.productPrice}`}
-          />
-        </List.Item>
-      )}
-    />
-    <Divider />
-    <Typography.Title level={5}>Fees</Typography.Title>
-    <p>
-      <strong>Delivery Fee:</strong> ${order.orderFees[0]?.deliveryFee || 0}
-    </p>
-    <p>
-      <strong>Storage Fee:</strong> ${order.orderFees[0]?.storageFee || 0}
-    </p>
-    <p>
-      <strong>Additional Fee:</strong> ${order.orderFees[0]?.additionalFee || 0}
-    </p>
-  </Drawer>
-);
 
 export default Ordermanage;

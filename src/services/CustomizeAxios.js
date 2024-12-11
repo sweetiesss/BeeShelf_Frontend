@@ -1,11 +1,13 @@
 import axios from "axios";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export function useAxios() {
   const instance = axios.create({
     baseURL: process.env.REACT_APP_BASE_URL_API,
   });
+  const navigate = useNavigate();
   instance.interceptors.request.use(
     function (config) {
       return config;
@@ -21,6 +23,9 @@ export function useAxios() {
       return response;
     },
     function (error) {
+      if (error.response?.status === 401) {
+        navigate("/authorize/signin");
+      }
       return Promise.reject(error);
     }
   );
@@ -46,6 +51,9 @@ export function useAxios() {
       });
       return resultPromise;
     } catch (error) {
+      if (error.response?.status === 401) {
+        navigate("/authorize/signin");
+      }
       console.log(error);
       return error;
     } finally {
@@ -58,6 +66,7 @@ export default function useAxiosBearer() {
   const instance = axios.create({
     baseURL: process.env.REACT_APP_BASE_URL_API,
   });
+  const navigate = useNavigate();
   instance.interceptors.request.use(
     function (config) {
       return config;
@@ -73,6 +82,9 @@ export default function useAxiosBearer() {
       return response;
     },
     function (error) {
+      if (error.response?.status === 401) {
+        navigate("/login");
+      }
       return Promise.reject(error);
     }
   );
@@ -88,7 +100,6 @@ export default function useAxiosBearer() {
     params = {},
     header = {},
   }) => {
-    console.log(isAuthenticated);
 
     setLoading(true);
     try {
@@ -104,6 +115,9 @@ export default function useAxiosBearer() {
       });
       return resultPromise;
     } catch (error) {
+      if (error.response?.status === 401) {
+        navigate("/login");
+      }
       const errorMessage = error.response ? error.response.data : error.message;
 
       return Promise.reject(errorMessage);

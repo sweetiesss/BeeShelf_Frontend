@@ -21,7 +21,6 @@ export default function AxiosWarehouse() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
@@ -91,7 +90,7 @@ export default function AxiosWarehouse() {
           warehouseId: warehouseId,
         },
       ];
-      console.log(submitForm);
+
       
       const fetching = fetchDataBearer({
         url: `warehouse/add-staffs-to-warehouse`,
@@ -107,7 +106,7 @@ export default function AxiosWarehouse() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
+
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
@@ -134,7 +133,6 @@ export default function AxiosWarehouse() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
@@ -161,7 +159,6 @@ export default function AxiosWarehouse() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
@@ -188,7 +185,6 @@ export default function AxiosWarehouse() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
