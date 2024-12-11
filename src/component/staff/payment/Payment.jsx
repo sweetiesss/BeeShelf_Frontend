@@ -51,7 +51,12 @@ const Payment = () => {
           .filter((item) => item.isTransferred === 0)
           .map((item) => ({
             value: item.id,
-            label: `MoneyTransferId: ${item.id} - OCOP Partner ID: ${item.ocopPartnerId} - Amount: ${new Intl.NumberFormat('vi-VN', { style: 'decimal', maximumFractionDigits: 0 }).format(item.amount)} VNĐ`,
+            label: `MoneyTransferId: ${item.id} - OCOP Partner ID: ${
+              item.ocopPartnerId
+            } - Amount: ${new Intl.NumberFormat("vi-VN", {
+              style: "decimal",
+              maximumFractionDigits: 0,
+            }).format(item.amount)} VNĐ`,
           }));
 
         setPaymentIdOptions(options);
@@ -80,7 +85,6 @@ const Payment = () => {
 
     try {
       const response = await fetchDataBearer({
-       
         url: "/picture/upload-image", // Sử dụng API mới
         method: "POST",
         data: formData,
@@ -119,8 +123,12 @@ const Payment = () => {
       formData.append("moneyTransferId", moneyTransferId);
       formData.append("picture_link", pictureLink);
 
+      const pictureLinkParam = encodeURIComponent(
+        pictureLink.name || pictureLink
+      );
+
       const response = await fetchDataBearer({
-        url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}`,
+        url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}?picture_link=${pictureLinkParam}`,
         method: "POST",
         data: formData,
       });
@@ -132,7 +140,8 @@ const Payment = () => {
         setPictureLink(null);
         setPaymentId("");
       } else {
-        const errorMessage = response?.data?.message || "Failed to confirm money transfer.";
+        const errorMessage =
+          response?.data?.message || "Failed to confirm money transfer.";
         message.error(errorMessage);
       }
     } catch (error) {
@@ -146,14 +155,26 @@ const Payment = () => {
   // Định nghĩa các cột trong bảng
   const columns = [
     { title: "ID", dataIndex: "id", key: "id" },
-    { title: "Ocop Partner ID", dataIndex: "ocopPartnerId", key: "ocopPartnerId" },
+    {
+      title: "Ocop Partner ID",
+      dataIndex: "ocopPartnerId",
+      key: "ocopPartnerId",
+    },
     { title: "Transfer By", dataIndex: "transferBy", key: "transferBy" },
-    { title: "Transfer By Staff Email", dataIndex: "transferByStaffEmail", key: "transferByStaffEmail" },
+    {
+      title: "Transfer By Staff Email",
+      dataIndex: "transferByStaffEmail",
+      key: "transferByStaffEmail",
+    },
     {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
-      render: (amount) => `${new Intl.NumberFormat('vi-VN', { style: 'decimal', maximumFractionDigits: 0 }).format(amount)} VNĐ`,
+      render: (amount) =>
+        `${new Intl.NumberFormat("vi-VN", {
+          style: "decimal",
+          maximumFractionDigits: 0,
+        }).format(amount)} VNĐ`,
     },
     {
       title: "Create Date",
@@ -162,7 +183,7 @@ const Payment = () => {
       render: (text) => {
         if (!text) return "N/A";
         const date = new Date(text);
-        return new Intl.DateTimeFormat('vi-VN').format(date);
+        return new Intl.DateTimeFormat("vi-VN").format(date);
       },
     },
     {
@@ -187,7 +208,11 @@ const Payment = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <Button type="primary" onClick={() => setVisible(true)} style={{ marginBottom: 20 }}>
+      <Button
+        type="primary"
+        onClick={() => setVisible(true)}
+        style={{ marginBottom: 20 }}
+      >
         Confirm Money Transfer
       </Button>
 
@@ -201,7 +226,12 @@ const Payment = () => {
           <Button key="back" onClick={() => setVisible(false)}>
             Cancel
           </Button>,
-          <Button key="submit" type="primary" loading={loading} onClick={createPayment}>
+          <Button
+            key="submit"
+            type="primary"
+            loading={loading}
+            onClick={createPayment}
+          >
             Confirm Money Transfer Request
           </Button>,
         ]}
@@ -243,7 +273,8 @@ const Payment = () => {
             current: pagination.pageIndex + 1,
             pageSize: pagination.pageSize,
             total: pagination.totalItemsCount,
-            onChange: (page) => setPagination((prev) => ({ ...prev, pageIndex: page - 1 })),
+            onChange: (page) =>
+              setPagination((prev) => ({ ...prev, pageIndex: page - 1 })),
           }}
         />
       )}
