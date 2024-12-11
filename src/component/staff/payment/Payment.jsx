@@ -74,33 +74,35 @@ const Payment = () => {
         setLoading(false);
         return;
       }
-
+  
       if (!pictureLink) {
         message.error("Please select a picture to upload.");
         setLoading(false);
         return;
       }
-
+  
+      // Giả sử pictureLink là một file và bạn cần tên file cho URL
+      const pictureLinkName = pictureLink.name;
+  
       const formData = new FormData();
       formData.append("moneyTransferId", moneyTransferId);
       formData.append("picture_link", pictureLink);
-
+  
       const response = await fetchDataBearer({
-        url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}`,
+        url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}?picture_link=${encodeURIComponent(pictureLinkName)}`,
         method: "POST",
-        
         data: formData,
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
+  
       if (response && response.status === 200) {
         message.success("Payment confirmed successfully!");
         fetchPayments(); // Cập nhật lại danh sách thanh toán
         setVisible(false); // Đóng modal khi tạo payment thành công
         setPictureLink(null); // Reset pictureLink sau khi thành công
-        setPaymentId("");
+        setPaymentId(""); // Reset Payment ID sau khi thành công
       } else {
         const errorMessage = response?.data?.message || "Failed to confirm money transfer.";
         message.error(errorMessage);
@@ -112,6 +114,7 @@ const Payment = () => {
       setLoading(false);
     }
   };
+  
 
   // Cột trong bảng
   const columns = [
@@ -135,7 +138,22 @@ const Payment = () => {
         return new Intl.DateTimeFormat('vi-VN').format(date);
       },
     },
+    {
+      title: "Picture Link",
+      dataIndex: "pictureLink",
+      key: "pictureLink",
+      render: (link) => {
+        return link ? (
+          <a href={link} target="_blank" rel="noopener noreferrer">
+            View Image
+          </a>
+        ) : (
+          "No Image"
+        );
+      },
+    },
   ];
+  
 
   // Gọi hàm fetchPayments khi component mount
   useEffect(() => {
