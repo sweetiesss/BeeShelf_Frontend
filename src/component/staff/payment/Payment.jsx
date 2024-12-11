@@ -9,6 +9,7 @@ const Payment = () => {
   const { moneyTransferId: urlPaymentId } = useParams(); // Lấy paymentId từ URL
   const [moneyTransferId, setPaymentId] = useState(urlPaymentId || ""); // Trạng thái cho paymentId (lấy từ URL nếu có)
   const [pictureLink, setPictureLink] = useState(null); // Trạng thái cho picture_link
+  const [file, setFile] = useState(null); // Trạng thái cho file ảnh
   const [visible, setVisible] = useState(false); // Trạng thái hiển thị modal
   const [payments, setPayments] = useState([]);
   const [paymentIdOptions, setPaymentIdOptions] = useState([]); // Trạng thái cho danh sách paymentId options
@@ -47,7 +48,7 @@ const Payment = () => {
 
         // Tạo danh sách paymentId cho Select component
         const options = response.data
-          .filter((item) => item.isTransferred === 0) // Chỉ lấy các mục chưa được chuyển
+          .filter((item) => item.isTransferred === 0)
           .map((item) => ({
             value: item.id,
             label: `MoneyTransferId: ${item.id} - OCOP Partner ID: ${item.ocopPartnerId} - Amount: ${new Intl.NumberFormat('vi-VN', { style: 'decimal', maximumFractionDigits: 0 }).format(item.amount)} VNĐ`,
@@ -65,6 +66,39 @@ const Payment = () => {
     }
   };
 
+  // Xử lý thay đổi file ảnh và upload ảnh lên server
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files[0];
+
+    if (!selectedFile) {
+      message.error("Please select a valid image file.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    try {
+      const response = await fetchDataBearer({
+       
+        url: "/picture/upload-image", // Sử dụng API mới
+        method: "POST",
+        data: formData,
+      });
+
+      if (response && response.data) {
+        setFile(selectedFile);
+        setPictureLink(response.data); // Giả sử response.data chứa URL của ảnh
+        message.success("Image uploaded successfully!");
+      } else {
+        message.error("Failed to upload image.");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      message.error("An error occurred while uploading the image.");
+    }
+  };
+
   // Hàm gọi API để tạo một payment mới
   const createPayment = async () => {
     setLoading(true);
@@ -74,49 +108,42 @@ const Payment = () => {
         setLoading(false);
         return;
       }
-  
+
       if (!pictureLink) {
-        message.error("Please select a picture to upload.");
+        message.error("Please upload a picture.");
         setLoading(false);
         return;
       }
-  
-      // Giả sử pictureLink là một file và bạn cần tên file cho URL
-      const pictureLinkName = pictureLink.name;
-  
+
       const formData = new FormData();
       formData.append("moneyTransferId", moneyTransferId);
       formData.append("picture_link", pictureLink);
-  
+
       const response = await fetchDataBearer({
-        url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}?picture_link=${encodeURIComponent(pictureLinkName)}`,
+        url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}`,
         method: "POST",
         data: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
       });
-  
+
       if (response && response.status === 200) {
         message.success("Payment confirmed successfully!");
-        fetchPayments(); // Cập nhật lại danh sách thanh toán
-        setVisible(false); // Đóng modal khi tạo payment thành công
-        setPictureLink(null); // Reset pictureLink sau khi thành công
-        setPaymentId(""); // Reset Payment ID sau khi thành công
+        fetchPayments();
+        setVisible(false);
+        setPictureLink(null);
+        setPaymentId("");
       } else {
         const errorMessage = response?.data?.message || "Failed to confirm money transfer.";
         message.error(errorMessage);
       }
     } catch (error) {
       console.error("Error confirming payment:", error);
-      message.error(error.response?.data?.message || "An error occurred.");
+      message.error("An error occurred while confirming the payment.");
     } finally {
       setLoading(false);
     }
   };
-  
 
-  // Cột trong bảng
+  // Định nghĩa các cột trong bảng
   const columns = [
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "Ocop Partner ID", dataIndex: "ocopPartnerId", key: "ocopPartnerId" },
@@ -153,9 +180,7 @@ const Payment = () => {
       },
     },
   ];
-  
 
-  // Gọi hàm fetchPayments khi component mount
   useEffect(() => {
     fetchPayments();
   }, [pagination.pageIndex]);
@@ -189,7 +214,7 @@ const Payment = () => {
           <Form.Item label="Payment ID" required>
             <Select
               value={moneyTransferId}
-              onChange={(value) => setPaymentId(value)}
+              onChange={setPaymentId}
               placeholder="Select Payment ID"
               allowClear
             >
@@ -201,33 +226,25 @@ const Payment = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item label="Picture Link" required>
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setPictureLink(e.target.files[0])}
-            />
+          <Form.Item label="Upload Picture" required>
+            <Input type="file" accept="image/*" onChange={handleFileChange} />
           </Form.Item>
         </Form>
       </Modal>
 
       {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "300px" }}>
-          <Spin tip="Loading payments..." />
-        </div>
+        <Spin tip="Loading payments..." />
       ) : (
         <Table
           dataSource={payments}
           columns={columns}
+          rowKey="id"
           pagination={{
             current: pagination.pageIndex + 1,
             pageSize: pagination.pageSize,
             total: pagination.totalItemsCount,
-            onChange: (page) => {
-              setPagination((prev) => ({ ...prev, pageIndex: page - 1 }));
-            },
+            onChange: (page) => setPagination((prev) => ({ ...prev, pageIndex: page - 1 })),
           }}
-          rowKey="id"
         />
       )}
     </div>
