@@ -126,7 +126,57 @@ export function Sidebar() {
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink> */}
-        
+
+            <NavLink to="payment" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <CreditCard className="icon" weight="fill" />
+                <p className="label">{t("Transfer")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="batchflow" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Package className="icon" weight="fill" />
+                <p className="label">{t("Batch")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="vehicle" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <CarProfile className="icon" weight="fill" />
+                <p className="label">{t("Vehicle")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="ordermanage" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Bag className="icon" weight="fill" />
+                <p className="label">{t("Order")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="requestmanage" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" weight="fill" />
+                <p className="label">{t("Request")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="inventory" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <TreasureChest className="icon" weight="fill" />
+                <p className="label">{t("Inventory")}</p>
+              </div>
+            </NavLink>
+          </>
+        )}
+
+        {userInfor?.roleName === "Admin" && (
+          <>
+            {/* <NavLink to="dashboardstaff" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <House className="icon" weight="fill" />
+                <p className="label">{t("Dashboard")}</p>
+              </div>
+            </NavLink> */}
+
             <NavLink to="payment" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <CreditCard className="icon" weight="fill" />

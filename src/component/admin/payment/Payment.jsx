@@ -46,15 +46,13 @@ const Payment = () => {
         message.success("Data loaded successfully!");
 
         // Map the response data to paymentId options for the Select component
-        const options = response.data
-        .filter((moneyTransferId) => moneyTransferId.isTransferred === 0) // Chỉ lấy các mục có isTransferred = 0
-        .map((moneyTransferId) => ({
+        const options = response.data.map((moneyTransferId) => ({
           value: moneyTransferId.id, // ID của payment sẽ là value
           label: `MoneyTransferId: ${moneyTransferId.id} - 
           OCOP Partner ID: ${moneyTransferId.ocopPartnerId} - 
           Amount: ${new Intl.NumberFormat('vi-VN', { style: 'decimal', maximumFractionDigits: 0 }).format(moneyTransferId.amount)} VNĐ`,
+           // Hiển thị Payment ID trong label
         }));
-      
         setPaymentIdOptions(options);
       } else {
         message.error("No data returned from the server.");

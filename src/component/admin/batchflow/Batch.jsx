@@ -68,7 +68,6 @@ const BatchManage = () => {
         assignTo: batch.assignTo,
         deliveryZoneId: batch.deliveryZoneId,
         orders: batch.orders,
-        deliveryZoneName: batch.deliveryZoneName,
         shipperId: batch.shipperId,
         shipperName: batch.shipperName,
       }));
@@ -122,7 +121,7 @@ const BatchManage = () => {
             orderFilterBy: "DeliveryZoneId",
             filterQuery: selectedDeliveryZone,
             filterByStatus: "Processing",
-            hasBatch: false,
+            hasBatch: false
           },
         });
         console.log("Orders data:", response);
@@ -158,21 +157,16 @@ const BatchManage = () => {
         }
 
         const response = await fetchDataBearer({
-          url: `/warehouse/get-warehouse-shippers/${warehouseId}`,
+          url: `/warehouse/get-warehouse-shippers`,
           method: "GET",
           params: {
             pageIndex: 0,
             pageSize: 100,
             filterBy: "DeliveryZoneId",
             filterQuery: selectedDeliveryZone,
-            // vehicleFilter: "notEmpty" // Giả sử API hỗ trợ điều kiện lọc này
           },
         });
-        // Kiểm tra và lọc các shipper có vehicles không rỗng
-        // const filteredShippers = response.data.filter(
-        //   (shipper) => shipper.vehicles && shipper.vehicles.length > 0
-        // );
-        // console.log(filteredShippers);
+
         if (response.status === 200 && response.data) {
           console.log("Shippers data:", response.data);
           setShippers(response.data.items || []); // Ensure this is correct
@@ -216,25 +210,6 @@ const BatchManage = () => {
     } finally {
       setLoading(false);
     }
-  };
-  const formatDateTimeVN = (dateString) => {
-    if (!dateString) return { date: "", time: "" };
-
-    const date = new Date(dateString);
-
-    const formattedDate = date.toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-
-    const formattedTime = date.toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-
-    return { date: formattedDate, time: formattedTime };
   };
 
   // Handle create batch
@@ -310,37 +285,6 @@ const BatchManage = () => {
       ),
     },
     {
-      title: "DeliveryZoneName",
-      dataIndex: "deliveryZoneName",
-      key: "deliveryZoneName",
-      filterDropdown: ({
-        setSelectedKeys,
-        selectedKeys,
-        confirm,
-        clearFilters,
-      }) => (
-        <div style={{ padding: 8 }}>
-          <Select
-            style={{ width: 120 }}
-            value={selectedKeys[0]}
-            onChange={(value) => {
-              setSelectedKeys(value ? [value] : []);
-              confirm();
-            }}
-            allowClear
-          >
-            {deliveryZones.map((zone) => (
-              <Option key={zone.id} value={zone.name}>
-                {zone.name}
-              </Option>
-            ))}
-          </Select>
-        </div>
-      ),
-      onFilter: (value, record) => record.deliveryZoneName === value,
-      render: (deliveryZoneName) => deliveryZoneName,
-    },
-    {
       title: "Shipper",
       dataIndex: "shipperName",
       key: "shipperName",
@@ -404,13 +348,7 @@ const BatchManage = () => {
           <Form.Item
             name="name"
             label="Batch Name"
-            rules={[
-              { required: true, message: "Please enter a batch name" },
-              {
-                max: 250,
-                message: "Batch name must be 250 characters or fewer",
-              },
-            ]}
+            rules={[{ required: true }]}
           >
             <Input />
           </Form.Item>
@@ -500,150 +438,34 @@ const BatchManage = () => {
               dataSource={selectedBatch?.orders || []}
               renderItem={(order) => (
                 <List.Item key={order.id}>
-                  {/* <div className="p-4 space-y-3 bg-white rounded-lg shadow-md"> */}
-                  <div className="p-6 space-y-4 w-full max-w-xl bg-white rounded-lg shadow-lg">
+                  {/* <div className="bg-white p-4 rounded-lg shadow-md space-y-3"> */}
+                  <div className="bg-white p-6 w-full max-w-xl rounded-lg shadow-lg space-y-4">
                     {/* Order Code */}
                     <div className="flex justify-between items-center">
-                      <div className="text-base">
-                        <span className="font-bold text-gray-10000">
-                          Order ID:
-                        </span>
-                        <span className="text-gray-700"> {order.id}</span>
+                      <div className="text-sm text-gray-500 font-semibold">
+                        Order ID: {order.id}
                       </div>
+                      {/* <div className="text-sm text-gray-700">{order.id}</div> */}
                     </div>
-
                     <Divider />
 
                     {/* Order Details */}
                     <div className="flex justify-between">
                       <div className="w-[80%]">
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Order Code:</span>
+                        <div className="text-sm text-gray-500">
+                          Order Code:
                           <span className="text-gray-700">
-                            {" "}
+                            {"     "}
                             {order.orderCode}
                           </span>
                         </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Warehouse Name:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.warehouseName}
-                          </span>
+                        <div className="text-sm text-gray-700"></div>
+                        <div className="text-sm text-gray-500">
+                          Order Code: {order.orderCode}
                         </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Partner Email:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.partner_email}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Order Status:</span>
-                          <span className="text-gray-700"> {order.status}</span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">
-                            Reason For Cancellation:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.cancellationReason}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-1000">
-                          <span className="font-bold">
-                            Order Creation Date:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDateTimeVN(order.createDate).date}{" "}
-                            {formatDateTimeVN(order.createDate).time}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-1000">
-                          <span className="font-bold">Approval Date:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDateTimeVN(order.approveDate).date}{" "}
-                            {formatDateTimeVN(order.approveDate).time}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">
-                            Delivery Start Date:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDateTimeVN(order.deliverStartDate).date}{" "}
-                            {formatDateTimeVN(order.deliverStartDate).time}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">
-                            Delivery Finish Date:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {
-                              formatDateTimeVN(order.deliverFinishDate).date
-                            }{" "}
-                            {formatDateTimeVN(order.deliverFinishDate).time}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Completion Date:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDateTimeVN(order.completeDate).date}{" "}
-                            {formatDateTimeVN(order.completeDate).time}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Return Date:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDateTimeVN(order.returnDate).date}{" "}
-                            {formatDateTimeVN(order.returnDate).time}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Cancellation Date:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDateTimeVN(order.cancelDate).date}{" "}
-                            {formatDateTimeVN(order.cancelDate).time}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">
-                            Recipient Phone Number:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.receiverPhone}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Recipient Address:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.receiverAddress}
-                          </span>
-                        </div>
+                      </div>
+                      <div className="w-[48%]">
+                        <div className="text-sm text-gray-500">Status:</div>
                       </div>
                     </div>
                   </div>
@@ -653,7 +475,7 @@ const BatchManage = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 justify-end pt-4">
+          <div className="flex justify-end gap-4 pt-4">
             <button
               className="px-4 py-2 text-white bg-gray-600 rounded-md hover:bg-gray-700"
               onClick={() => setSelectedBatch(null)}

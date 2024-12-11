@@ -4,6 +4,7 @@ import { Table, message, Spin, Button, Input, Modal, Form, Select } from "antd";
 import { useParams } from "react-router-dom";
 import useAxios from "../../../services/CustomizeAxios";
 import { useAuth } from "../../../context/AuthContext";
+import { toast } from "react-toastify";
 
 const Vehicle = () => {
   const { userInfor } = useAuth(); // Lấy thông tin user từ hook useAuth
@@ -23,6 +24,7 @@ const Vehicle = () => {
     pageIndex: 0,
   });
   const { fetchDataBearer } = useAxios();
+  const typeVehicles = ["Truck", "Van", "Motorcycle"];
 
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchVehicles = async () => {
@@ -51,6 +53,7 @@ const Vehicle = () => {
 
         const options = (response?.data?.items || [])
           ?.filter((vehicle) => vehicle.status === "Available")
+          ?.filter((item) => !item.assignedDriverId)
           .map((vehicle) => ({
             value: vehicle.id,
             label: `VehicleId: ${vehicle.id} - Name Vehicle: ${vehicle.name} - License Plate: ${vehicle.licensePlate}`,
@@ -70,11 +73,11 @@ const Vehicle = () => {
   };
 
   // Hàm gọi API để tạo một payment mới
-  const assignVehicleToShipper = async (shipperId, vehicleId) => {
+  const assignVehicleToShipper = async (vehicleId,shipperId) => {
     setLoading(true);
     try {
       const response = await fetchDataBearer({
-        url: `/vehicle/assign-driver/${shipperId}/${vehicleId}`,
+        url: `/vehicle/assign-driver/${vehicleId}/${shipperId}`,
         method: "POST",
       });
 
@@ -106,7 +109,7 @@ const Vehicle = () => {
         }
 
         const response = await fetchDataBearer({
-          url: `/warehouse/get-warehouse-shippers`,
+          url: `/warehouse/get-warehouse-shippers/${warehouseId}`,
           method: "GET",
           params: {
             pageIndex: 0,
@@ -118,7 +121,11 @@ const Vehicle = () => {
 
         if (response.status === 200 && response.data) {
           console.log("Shippers data:", response.data);
-          setShipperIdOptions(response.data.items || []);
+          // Lọc shipper chua co xe
+          setShipperIdOptions(
+            response.data.items.filter((item) => item.vehicles.length <= 0) ||
+              []
+          );
         } else {
           console.error("Failed to fetch shippers data");
         }
@@ -131,6 +138,28 @@ const Vehicle = () => {
       fetchShippers();
     }
   }, [userInfor]);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedVehicle(null);
+  };
+
+  const handleViewDetail = async (id) => {
+    try {
+      const response = await fetchDataBearer({
+        url: `/vehicle/get-vehicle/${id}`,
+        method: "GET",
+      });
+      console.log(response);
+      setSelectedVehicle(response.data);
+      setIsModalVisible(true);
+    } catch (error) {
+      toast.error("Failed to fetch vehicle data");
+    }
+  };
 
   // Cột trong bảng
   const columns = [
@@ -169,9 +198,121 @@ const Vehicle = () => {
       onFilter: (value, record) => record.status === value,
       render: (status) => status,
     },
+    {
+      title: "Assigned Driver Email",
+      dataIndex: "assignedDriverEmail",
+      key: "assignedDriverEmail",
+    },
+    {
+      title: "Assigned Driver Name",
+      dataIndex: "assignedDriverName",
+      key: "assignedDriverName",
+    },
     { title: "LicensePlate", dataIndex: "licensePlate", key: "licensePlate" },
+    {
+      title: "Action",
+      key: "action",
+      render: (record) => (
+        <Button type="primary" onClick={() => handleViewDetail(record.id)}>
+          View Detail
+        </Button>
+      ),
+    },
     // Cột bổ sung có thể bỏ qua nếu không cần thiết
   ];
+
+  // Update vehicle status
+  const updateVehicleStatus = async (id, newStatus) => {
+    setLoading(true);
+    try {
+      const currentVehicle = vehicles.find((vehicle) => vehicle.id === id);
+      const validTransitions = getValidStatusTransitions(currentVehicle.status);
+
+      if (!validTransitions.includes(newStatus)) {
+        message.error(
+          `Invalid status transition from ${currentVehicle.status} to ${newStatus}`
+        );
+        return;
+      }
+
+      const response = await fetchDataBearer({
+        url: `/vehicle/update-vehicle-status/${id}`,
+        method: "PUT",
+        params: {
+          status: newStatus,
+        },
+      });
+
+      if (response && response.status === 200) {
+        message.success("Status updated successfully!");
+        fetchVehicles();
+      } else {
+        const errorMessage =
+          response?.data?.message || "Failed to update status.";
+        message.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      message.error(
+        error.response?.data?.message ||
+          "Failed to update status. Please try again."
+      );
+    } finally {
+      setLoading(false);
+      setIsModalVisible(false);
+    }
+  };
+
+  // Update vehicle type
+  const updateVehicle = async (id, values) => {
+    setLoading(true);
+    try {
+      const response = await fetchDataBearer({
+        url: `/vehicle/update-vehicle/${id}`,
+        method: "PUT",
+        params: {
+          type: values.type,
+        },
+        data: {
+          name: values.name,
+          licensePlate: values.licensePlate,
+          warehouseId: values.warehouseId,
+          isCold: values.isCold,
+        },
+      });
+
+      if (response && response.status === 200) {
+        message.success("Type updated successfully!");
+        fetchVehicles();
+      } else {
+        const errorMessage =
+          response?.data?.message || "Failed to update type.";
+        message.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error updating type:", error);
+      message.error(
+        error.response?.data?.message ||
+          "Failed to update type. Please try again."
+      );
+    } finally {
+      setLoading(false);
+      setIsModalVisible(false);
+    }
+  };
+  // Add this function to check valid status transitions
+  const getValidStatusTransitions = (currentStatus) => {
+    switch (currentStatus) {
+      case "Available":
+        return ["Repair", "InService"];
+      case "InService":
+        return [];
+      case "Repair":
+        return ["Available"];
+      default:
+        return [];
+    }
+  };
 
   // Lấy dữ liệu thanh toán khi component mount và khi pagination thay đổi
   useEffect(() => {
@@ -179,7 +320,7 @@ const Vehicle = () => {
   }, [pagination.pageIndex]);
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="p-[20px]">
       <Button
         type="primary"
         onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
@@ -202,7 +343,7 @@ const Vehicle = () => {
             key="submit"
             type="primary"
             loading={loading}
-            onClick={() => assignVehicleToShipper(shipperId, vehicleId)}
+            onClick={() => assignVehicleToShipper(vehicleId,shipperId)}
           >
             Assign Vehicle To Shipper
           </Button>,
@@ -226,7 +367,7 @@ const Vehicle = () => {
                   shipper.warehouseId && (
                     // eslint-disable-next-line react/jsx-no-undef
                     <Option key={shipper.employeeId} value={shipper.employeeId}>
-                      EmployeeId: {shipper.employeeId} - WarehouseId:{" "}
+                      Employee Name: {shipper.shipperName} - WarehouseId:{" "}
                       {shipper.warehouseId}
                     </Option>
                   )
@@ -268,6 +409,138 @@ const Vehicle = () => {
         rowKey="id"
         loading={loading}
       />
+
+      <Modal
+        title="Order Details"
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button key="close" onClick={handleModalClose}>
+            Close
+          </Button>,
+        ]}
+        className="!w-[700px]"
+      >
+        {selectedVehicle && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div>
+                <label htmlFor="statusSelect" className="font-bold">
+                  Status:
+                </label>
+                <Select
+                  id="statusSelect"
+                  className="w-full"
+                  value={selectedVehicle.status}
+                  onChange={(newStatus) =>
+                    updateVehicleStatus(selectedVehicle.id, newStatus)
+                  }
+                  placeholder="Select a status"
+                  disabled={
+                    getValidStatusTransitions(selectedVehicle.status).length ===
+                    0
+                  }
+                >
+                  {getValidStatusTransitions(selectedVehicle.status).map(
+                    (status) => (
+                      <Option key={status} value={status}>
+                        {status}
+                      </Option>
+                    )
+                  )}
+                </Select>
+              </div>
+              {/* <div>
+                <label htmlFor="typeSelect" className="font-bold">
+                  Type:
+                </label>
+                <Select
+                  id="typeSelect"
+                  className="w-full"
+                  value={selectedVehicle.type}
+                  onChange={(newType) =>
+                    updateVehicleType(selectedVehicle.id, newType)
+                  }
+                  placeholder="Select a type"
+                >
+                  {typeVehicles.map((type) => (
+                    <Option key={type} value={type}>
+                      {type}
+                    </Option>
+                  ))}
+                </Select>
+              </div> */}
+            </div>
+            <div>
+              <Form
+                name="basic"
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+                initialValues={selectedVehicle}
+                onFinish={(values) => {
+                  updateVehicle(selectedVehicle.id, values);
+                }}
+              >
+                <Form.Item
+                  label="Vehicle ID"
+                  name="id"
+                  rules={[
+                    { required: true, message: "Please input vehicle id!" },
+                  ]}
+                >
+                  <Input disabled />
+                </Form.Item>
+                <Form.Item
+                  label="Vehicle Name"
+                  name="name"
+                  rules={[
+                    { required: true, message: "Please input vehicle name!" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="License Plate"
+                  name="licensePlate"
+                  rules={[
+                    { required: true, message: "Please input license plate!" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="Type"
+                  name="type"
+                  rules={[{ required: true, message: "Please select type!" }]}
+                >
+                  <Select placeholder="Select a type">
+                    {typeVehicles.map((type) => (
+                      <Option key={type} value={type}>
+                        {type}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  className="hidden"
+                  label="warehouseId"
+                  name="warehouseId"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item className="hidden" label="isCold" name="isCold">
+                  <Input />
+                </Form.Item>
+                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                  <Button type="primary" htmlType="submit">
+                    Update
+                  </Button>
+                </Form.Item>
+              </Form>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
