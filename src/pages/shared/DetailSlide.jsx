@@ -191,7 +191,7 @@ export default function DetailSlide() {
             <div className="flex flex-col items-center gap-4">
               <img
                 src={dataDetail?.pictureLink}
-                className="w-fit h-32 rounded-lg relative border-2 border-black"
+                className="w-32 h-32 object-cover object-center rounded-lg relative border-2 "
               />
             </div>
             <div className="text-center  flex flex-col justify-center items-center">
@@ -812,18 +812,32 @@ export default function DetailSlide() {
           <div className="flex justify-between items-center w-full px-20">
             {dataDetail?.status === "Draft" ? (
               <>
-                <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  onClick={(e) => handleDeleteClick(e, dataDetail)}
+                >
                   Delete
                 </button>
-                <button>Edit</button>
-                <button onClick={handleSendRequest}>Send</button>
+                <button className="bg-gray-500 text-white px-4 py-2 rounded-md">
+                  Edit
+                </button>
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded-md"
+                  onClick={handleSendRequest}
+                >
+                  Send
+                </button>
               </>
             ) : dataDetail?.status === "Pending" ? (
               <>
-                <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  onClick={(e) => handleDeleteClick(e, dataDetail)}
+                >
                   Delete
                 </button>
                 <button
+                  className="bg-gray-500 text-white px-4 py-2 rounded-md"
                   onClick={(e) =>
                     handleUpdateStatusClick(e, dataDetail, "Canceled")
                   }
@@ -974,7 +988,7 @@ export default function DetailSlide() {
 
     return (
       <>
-        <div className="w-[500px] h-full bg-white p-6 flex flex-col gap-8 text-black">
+        <div className="w-[500px] h-full bg-white p-6 flex flex-col gap-8 text-black max-h-[100vh] overflow-auto">
           {/* Header */}
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
@@ -1164,18 +1178,32 @@ export default function DetailSlide() {
           <div className="flex justify-between items-center w-full px-20">
             {dataDetail?.status === "Draft" ? (
               <>
-                <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  onClick={(e) => handleDeleteClick(e, dataDetail)}
+                >
                   Delete
                 </button>
-                <button>Edit</button>
-                <button onClick={handleSendRequest}>Send</button>
+                <button className="bg-gray-500 text-white px-4 py-2 rounded-md">
+                  Edit
+                </button>
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded-md"
+                  onClick={handleSendRequest}
+                >
+                  Send
+                </button>
               </>
             ) : dataDetail?.status === "Pending" ? (
               <>
-                <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  onClick={(e) => handleDeleteClick(e, dataDetail)}
+                >
                   Delete
                 </button>
                 <button
+                className="bg-gray-500 text-white px-4 py-2 rounded-md"
                 // onClick={(e) =>handleUpdateStatusClick(e, dataDetail, "Canceled")}
                 >
                   Cancel
@@ -1766,6 +1794,358 @@ export default function DetailSlide() {
     );
   };
 
+  const LotDetail = () => {
+    const { sendOrderById, deleteOrderById } = AxiosOrder();
+    const [lotData, setLotData] = useState();
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+    const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
+
+    console.log("dataDetail", dataDetail);
+
+    useEffect(() => {
+      const handleClickOutSide = (event) => {
+        if (
+          detailComponent.current &&
+          !detailComponent.current.contains(event.target)
+        ) {
+          handleCloseDetail();
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutSide);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutSide);
+      };
+    }, []);
+
+    // const handleSendRequest = async () => {
+    //   await sendOrderById(dataDetail?.id);
+    //   setRefresh(dataDetail?.id);
+    // };
+
+    // const handleDeleteClick = (e, request) => {
+    //   e.stopPropagation();
+    //   setShowDeleteConfirmation(request);
+    // };
+
+    // const confirmDelete = async () => {
+    //   try {
+    //     setRefresh(0);
+    //     const res = await deleteOrderById(showDeleteConfirmation?.id);
+    //     console.log(res);
+    //   } catch (e) {
+    //   } finally {
+    //     setRefresh(-1);
+    //     updateDataDetail();
+    //     updateTypeDetail();
+    //     cancelDelete();
+    //   }
+    // };
+    // const cancelDelete = () => {
+    //   setShowDeleteConfirmation(null);
+    // };
+
+    // const handleUpdateStatusClick = (e, request, status) => {
+    //   e.stopPropagation();
+    //   setShowUpdateConfirmation([request, status]);
+    // };
+
+    // const confirmUpdateStatus = async () => {
+    //   try {
+    //     const res = await updateRequestStatus(
+    //       showUpdateConfirmation[0]?.id,
+    //       showUpdateConfirmation[1]
+    //     );
+    //     console.log(res);
+    //   } catch (e) {
+    //   } finally {
+    //     setRefresh(showUpdateConfirmation[0]?.id);
+    //     cancelDelete();
+    //   }
+    // };
+    // const exitUpdateStatus = () => {
+    //   setShowUpdateConfirmation(null);
+    // };
+
+    return (
+      <>
+        <div className="w-[500px] h-full bg-white p-6 flex flex-col gap-8 text-black max-h-[100vh] overflow-auto">
+          {/* Header */}
+          <div className="w-full flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <h2 className="text-2xl font-semibold text-black">
+                  Lots information
+                </h2>
+              </div>
+              <div
+                className="text-3xl cursor-pointer text-gray-500 hover:text-black"
+                onClick={handleCloseDetail}
+              >
+                <X weight="bold" />
+              </div>
+            </div>
+            <div className="w-full h-px bg-gray-300"></div>
+          </div>
+
+          <div className="w-full flex flex-col items-center gap-8">
+            <div className="flex flex-col items-center gap-4">
+              <img
+                src={dataDetail?.productPictureLink || defaultImg}
+                className="w-32 h-32 bg-gray-300 border-2 rounded-lg relative object-cover object-center"
+              />
+              <div className="text-center">
+                <p className="text-xl font-medium">{dataDetail?.name}</p>
+                <p
+                  className={`text-gray-600 text-lg ${
+                    dataDetail?.requestType === "Import"
+                      ? "text-green-500"
+                      : "text-blue-500"
+                  }`}
+                >
+                  {dataDetail?.requestType}
+                </p>
+              </div>
+            </div>
+
+            {/* Product Info Table */}
+            <div className="w-full flex flex-col gap-4">
+              {[
+                { label: "Receiver Phone:", value: dataDetail?.receiverPhone },
+                {
+                  label: "Receiver Address:",
+                  value:
+                    dataDetail?.receiverAddress +
+                    " " +
+                    dataDetail?.deliveryZoneName,
+                },
+                {
+                  label: "From Warehouse:",
+                  value: (
+                    <div className="flex flex-col items-end">
+                      <p>{dataDetail?.warehouseName}</p>
+                      <p className="text-gray-400">
+                        {"(" + dataDetail?.warehouseLocation + ")"}
+                      </p>
+                    </div>
+                  ),
+                },
+                {
+                  label: "Create date:",
+                  value: format(dataDetail?.createDate, "HH:mm - dd/MM/yyyy"),
+                },
+                {
+                  label: "Start delivery date:",
+                  value: format(
+                    dataDetail?.deliverStartDate,
+                    "HH:mm - dd/MM/yyyy"
+                  ),
+                },
+                {
+                  label: "End deliver date:",
+                  value: format(
+                    dataDetail?.deliverFinishDate,
+                    "HH:mm - dd/MM/yyyy"
+                  ),
+                },
+                { label: "Distance:", value: dataDetail?.distance + " km" },
+              ]?.map((item, index) => (
+                <div key={index} className="flex justify-between ">
+                  <span className="text-gray-600">{item.label}</span>
+                  <span className="text-black">{item.value}</span>
+                </div>
+              ))}
+              <div className="flex justify-between ">
+                <span className="text-gray-600">{t("Status")}</span>
+                <span
+                  className={`px-2 py-1 rounded-xl  ${
+                    dataDetail?.status === "Delivered"
+                      ? "bg-lime-200 text-lime-800"
+                      : dataDetail?.status === "Shipped"
+                      ? "bg-cyan-200 text-cyan-800"
+                      : dataDetail?.status === "Processing"
+                      ? "bg-blue-200 text-blue-800"
+                      : dataDetail?.status === "Draft"
+                      ? "bg-gray-200 text-gray-800"
+                      : dataDetail?.status === "Pending"
+                      ? "bg-orange-200 text-orange-800"
+                      : dataDetail?.status === "Canceled"
+                      ? "bg-red-200 text-red-800"
+                      : dataDetail?.status === "Returned"
+                      ? "bg-purple-200 text-purple-800"
+                      : dataDetail?.status === "Refunded"
+                      ? "bg-teal-200 text-teal-800"
+                      : dataDetail?.status === "Completed"
+                      ? "bg-green-200 text-green-800"
+                      : "bg-gray-200 text-gray-800"
+                  }`}
+                >
+                  {dataDetail?.status}
+                </span>
+              </div>
+              <div className="w-full h-[0.2rem] bg-gray-200" />
+              <label className="font-medium text-lg flex justify-between items-center">
+                Order Details
+              </label>
+              <div className="grid grid-cols-10 items-center gap-4 text-sm">
+                <p className="col-span-2">Image</p>
+                <p className="text-black  col-span-3 text-ellipsis overflow-hidden text-nowrap">
+                  {t("ProductName")}
+                </p>
+                <p className="text-black  col-span-2">
+                  {t("Price")} <span className="text-gray-400">(vnd)</span>
+                </p>
+                <p className="text-black  col-span-1">{t("x")}</p>
+                <p className="text-black  col-span-2">
+                  {t("Total")} <span className="text-gray-400">(vnd)</span>
+                </p>
+              </div>
+              {dataDetail?.orderDetails?.map((item, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-10 items-center gap-4"
+                >
+                  <img
+                    src={item?.productImage || defaultImg}
+                    className="w-16 h-16 border-2 bg-gray-300 rounded-lg relative col-span-2 object-cover object-center"
+                  />
+                  <span className="text-black  col-span-3 text-ellipsis overflow-hidden text-nowrap">
+                    {item.productName}
+                  </span>
+                  <span className="text-black  col-span-2">
+                    {new Intl.NumberFormat().format(item.productPrice)}
+                  </span>
+                  <span className="text-black  col-span-1">
+                    {new Intl.NumberFormat().format(item.productAmount)}
+                  </span>
+                  <span className="text-black  col-span-2">
+                    {new Intl.NumberFormat().format(
+                      item.productPrice * item.productAmount
+                    )}
+                  </span>
+                </div>
+              ))}
+              <div className="w-full h-[0.2rem] bg-gray-200" />
+              <label className="font-medium text-lg flex justify-between items-center">
+                Total Fees
+              </label>
+              {[
+                {
+                  label: "Additional Fee:",
+                  value: dataDetail?.orderFees?.[0]?.additionalFee || 0,
+                },
+                {
+                  label: "Delivery Fee:",
+                  value: dataDetail?.orderFees?.[0]?.deliveryFee || 0,
+                },
+                {
+                  label: "Storage Fee:",
+                  value: dataDetail?.orderFees?.[0]?.storageFee || 0,
+                },
+                {
+                  label: "Total Price:",
+                  value: dataDetail?.totalPriceAfterFee,
+                },
+              ]?.map((item, index) => (
+                <div key={index} className="flex justify-between ">
+                  <span className="text-gray-600">{item.label}</span>
+                  <span className="text-black">
+                    {new Intl.NumberFormat().format(item.value)} vnd
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* <div className="flex justify-between items-center w-full px-20">
+            {dataDetail?.status === "Draft" ? (
+              <>
+                <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
+                  Delete
+                </button>
+                <button>Edit</button>
+                <button onClick={handleSendRequest}>Send</button>
+              </>
+            ) : dataDetail?.status === "Pending" ? (
+              <>
+                <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
+                  Delete
+                </button>
+                <button
+                // onClick={(e) =>handleUpdateStatusClick(e, dataDetail, "Canceled")}
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <></>
+            )}
+          </div> */}
+        </div>
+        {/* {showDeleteConfirmation && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              style={{
+                top: "50%",
+                left: "-100%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <p>{`Are you sure you want to delete order ${dataDetail?.id} ?`}</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => confirmDelete(showDeleteConfirmation)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={cancelDelete}
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </>
+        )} */}
+
+        {/*
+        {showUpdateConfirmation && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div
+              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              style={{
+                top: "50%",
+                left: "-100%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <p>{`Are you sure you want to ${
+                showUpdateConfirmation[1] === "Canceled" ? "cancel:" : ""
+              } ${dataDetail?.name}?`}</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={confirmUpdateStatus}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={exitUpdateStatus}
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                >
+                  Exist
+                </button>
+              </div>
+            </div>
+          </>
+        )} */}
+      </>
+    );
+  };
+
   return (
     <div className="detail-slider">
       <div ref={detailComponent} className="h-full">
@@ -1774,6 +2154,7 @@ export default function DetailSlide() {
         {typeDetail == "profile" && ProfileDetail()}
         {typeDetail == "order" && OrderDetail()}
         {typeDetail == "inventory" && InventoryDetail()}
+        {typeDetail == "lots" && LotDetail()}
       </div>
     </div>
   );

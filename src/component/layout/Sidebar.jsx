@@ -84,6 +84,12 @@ export function Sidebar() {
                 <p className="label">{t("Request")}</p>
               </div>
             </NavLink>
+            <NavLink to="lots" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" weight="bold" />
+                <p className="label">{t("Lots")}</p>
+              </div>
+            </NavLink>
           </>
         )}
         {userInfor?.roleName === "Manager" && (
