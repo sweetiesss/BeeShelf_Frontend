@@ -70,7 +70,7 @@ const BatchManage = () => {
         orders: batch.orders,
         deliveryZoneName: batch.deliveryZoneName,
         shipperId: batch.shipperId,
-        shipperName: batch.shipperName,
+        shipperName: batch?.shipperName,
       }));
       setBatches(formattedBatches);
     } catch (error) {
@@ -490,12 +490,29 @@ const BatchManage = () => {
         onClose={() => setSelectedBatch(null)}
         width={500}
       >
-        <div className="px-8 py-4">
+        <div>
           {/* Title */}
-          {/* <Typography.Title level={5} className="mb-4">Orders</Typography.Title> */}
+          <Typography.Title level={5} className="mb-4">
+            Shipper Name: {selectedBatch?.shipperName}
+          </Typography.Title>
+          <Typography.Title level={5} className="mb-4">
+            Shipper Email: {selectedBatch?.shipperEmail}
+          </Typography.Title>
+          <Typography.Title level={5} className="mb-4">
+            Delivery Zone: {selectedBatch?.deliveryZoneName}
+          </Typography.Title>
+          <div className="flex items-center">
+            <strong className="mr-2">Status: </strong>
+            <Tag
+              color={selectedBatch?.status === "completed" ? "green" : "red"}
+            >
+              {selectedBatch?.status}
+            </Tag>
+          </div>
 
           {/* Orders List */}
-          <div className="space-y-4">
+          <div className="mt-2 space-y-4">
+            <strong>Order List</strong>
             <List
               dataSource={selectedBatch?.orders || []}
               renderItem={(order) => (
@@ -516,7 +533,7 @@ const BatchManage = () => {
 
                     {/* Order Details */}
                     <div className="flex justify-between">
-                      <div className="w-[80%]">
+                      <div className="w-full">
                         <div className="text-base text-gray-10000">
                           <span className="font-bold">Order Code:</span>
                           <span className="text-gray-700">

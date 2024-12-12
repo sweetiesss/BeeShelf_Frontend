@@ -1,10 +1,23 @@
 // export default Ordermanage;
-import { Button, Image, Input, Modal, Select, Table, Tag, message } from "antd";
+import {
+  Button,
+  Card,
+  Image,
+  Input,
+  Modal,
+  Select,
+  Table,
+  Tag,
+  Typography,
+  message,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import useAxios from "../../../services/CustomizeAxios"; // Giả sử bạn đang sử dụng Axios hook
 
 const { Option } = Select;
+
+const { Title, Paragraph } = Typography;
 
 const Ordermanage = () => {
   const [data, setData] = useState([]); // Dữ liệu đơn hàng
@@ -302,7 +315,7 @@ const Ordermanage = () => {
 
   return (
     <>
-      <div className="overflow-auto">
+      <div>
         <h1>Order Management</h1>
         <Table
           className="overflow-x-scroll min-w-[800px] w-full"
@@ -343,52 +356,82 @@ const Ordermanage = () => {
                   className="w-full"
                 />
               </div>
-              <label htmlFor="statusSelect" className="font-bold">
-                Status:
-              </label>
-              <Select
-                id="statusSelect"
-                className="w-full"
-                value={newStatus}
-                onChange={(newStatus) =>
-                  // updateRequestStatus(selectedOrder.id, newStatus)
-                  setNewStatus(newStatus)
-                }
-                placeholder="Select a status"
-                disabled={
-                  getValidStatusTransitions(selectedOrder.status).length === 0
-                }
-              >
-                {getValidStatusTransitions(selectedOrder.status).map(
-                  (status) => (
-                    <Option key={status} value={status}>
-                      {status}
-                    </Option>
-                  )
+              <div>
+                <label htmlFor="statusSelect" className="font-bold">
+                  Status:
+                </label>
+                <Select
+                  id="statusSelect"
+                  className="w-full"
+                  value={newStatus}
+                  onChange={(newStatus) =>
+                    // updateRequestStatus(selectedOrder.id, newStatus)
+                    setNewStatus(newStatus)
+                  }
+                  placeholder="Select a status"
+                  disabled={
+                    getValidStatusTransitions(selectedOrder.status).length === 0
+                  }
+                >
+                  {getValidStatusTransitions(selectedOrder.status).map(
+                    (status) => (
+                      <Option key={status} value={status}>
+                        {status}
+                      </Option>
+                    )
+                  )}
+                </Select>
+                {newStatus === "Canceled" && (
+                  <div>
+                    <label htmlFor="cancellationReason" className="font-bold">
+                      Cancellation Reason:
+                    </label>
+                    <Input
+                      id="cancellationReason"
+                      value={cancellationReason}
+                      onChange={(e) => setCancellationReason(e.target.value)}
+                    />
+                  </div>
                 )}
-              </Select>
-              {newStatus === "Canceled" && (
-                <div>
-                  <label htmlFor="cancellationReason" className="font-bold">
-                    Cancellation Reason:
-                  </label>
-                  <Input
-                    id="cancellationReason"
-                    value={cancellationReason}
-                    onChange={(e) => setCancellationReason(e.target.value)}
-                  />
-                </div>
-              )}
-              <Button
-                className="px-4 py-2 mt-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
-                onClick={() => updateRequestStatus(selectedOrder.id)}
-                disabled={
-                  !newStatus ||
-                  (newStatus === "Canceled" && !cancellationReason)
-                }
-              >
-                Update Status
-              </Button>
+                <Button
+                  className="px-4 py-2 mt-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+                  onClick={() => updateRequestStatus(selectedOrder.id)}
+                  disabled={
+                    !newStatus ||
+                    (newStatus === "Canceled" && !cancellationReason)
+                  }
+                >
+                  Update Status
+                </Button>
+              </div>
+              <div>
+                {selectedOrder?.orderDetails?.map((item, index) => (
+                  <Card className="mt-2" key={index}>
+                    <Typography>
+                      <Title level={5}>Detail</Title>
+                      <Paragraph>Name: {item.productName}</Paragraph>
+                      <Paragraph>Price: {item.productPrice}</Paragraph>
+                      <Paragraph>Amount: {item.productAmount}</Paragraph>
+                      <Paragraph>Weight: {item.weight}</Paragraph>
+                      <Paragraph>Unit: {item.unit}</Paragraph>
+                    </Typography>
+                  </Card>
+                ))}
+              </div>
+              <div>
+                {selectedOrder?.orderFees?.map((item, idx) => (
+                  <Card className="mt-2" key={idx}>
+                    <Typography>
+                      <Title level={5}>Fee</Title>
+                      <Paragraph>Storage Fee: {item.storageFee}</Paragraph>
+                      <Paragraph>Delivery Fee: {item.deliveryFee}</Paragraph>
+                      <Paragraph>
+                        Additional Fee: {item.additionalFee}
+                      </Paragraph>
+                    </Typography>
+                  </Card>
+                ))}
+              </div>
             </div>
             <div>
               <div className="grid grid-cols-1 gap-2">

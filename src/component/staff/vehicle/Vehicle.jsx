@@ -73,7 +73,7 @@ const Vehicle = () => {
   };
 
   // Hàm gọi API để tạo một payment mới
-  const assignVehicleToShipper = async (vehicleId,shipperId) => {
+  const assignVehicleToShipper = async (vehicleId, shipperId) => {
     setLoading(true);
     try {
       const response = await fetchDataBearer({
@@ -343,7 +343,7 @@ const Vehicle = () => {
             key="submit"
             type="primary"
             loading={loading}
-            onClick={() => assignVehicleToShipper(vehicleId,shipperId)}
+            onClick={() => assignVehicleToShipper(vehicleId, shipperId)}
           >
             Assign Vehicle To Shipper
           </Button>,
@@ -497,7 +497,7 @@ const Vehicle = () => {
                     { required: true, message: "Please input vehicle name!" },
                   ]}
                 >
-                  <Input />
+                  <Input disabled />
                 </Form.Item>
                 <Form.Item
                   label="License Plate"
@@ -506,14 +506,14 @@ const Vehicle = () => {
                     { required: true, message: "Please input license plate!" },
                   ]}
                 >
-                  <Input />
+                  <Input disabled />
                 </Form.Item>
                 <Form.Item
                   label="Type"
                   name="type"
                   rules={[{ required: true, message: "Please select type!" }]}
                 >
-                  <Select placeholder="Select a type">
+                  <Select placeholder="Select a type" disabled>
                     {typeVehicles.map((type) => (
                       <Option key={type} value={type}>
                         {type}
@@ -532,7 +532,7 @@ const Vehicle = () => {
                   <Input />
                 </Form.Item>
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                  <Button type="primary" htmlType="submit">
+                  <Button type="primary" htmlType="submit" disabled>
                     Update
                   </Button>
                 </Form.Item>
