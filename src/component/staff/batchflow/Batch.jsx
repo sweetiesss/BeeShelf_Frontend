@@ -356,19 +356,12 @@ const BatchManage = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Batch Management</h1>
-      <Space style={{ marginBottom: 16 }}>
+      <div className="flex justify-between items-center mb-4">
+        <h1>Batch Management</h1>
         <Button type="primary" onClick={() => setCreateBatchModalVisible(true)}>
           Create Batch
         </Button>
-        {/* <Button
-          type="danger"
-          onClick={handleDelete}
-          disabled={selectedBatchIds.length === 0}
-        >
-          Delete Selected Batches
-        </Button> */}
-      </Space>
+      </div>
       <Table
         dataSource={batches}
         columns={columns}
