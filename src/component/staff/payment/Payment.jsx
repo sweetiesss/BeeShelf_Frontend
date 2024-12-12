@@ -213,7 +213,7 @@ const Payment = () => {
         onClick={() => setVisible(true)}
         style={{ marginBottom: 20 }}
       >
-        Confirm Money Transfer
+        Confirm Money Transfer Request
       </Button>
 
       <h1>Transfer Money Request List</h1>
