@@ -21,23 +21,31 @@ const VehicleManage = () => {
   // Hàm fetch danh sách vehicles từ API
   const fetchVehicles = async () => {
     setLoading(true);
+    let allVehicles = [];
+    let currentPage = 0;
+    const pageSize = 10;
+  
     try {
-      const response = await fetchDataBearer({
-        url: `/vehicle/get-vehicles`,
-        method: "GET",
-        params: {
-          descending: false,
-          pageIndex: 0,
-          pageSize: 10,
-        },
-      });
-
-      if (response) {
-        setVehicles(response.data.items || []);
-      } else {
-        message.error("No data returned or invalid data format.");
-        setVehicles([]);
+      while (true) {
+        const response = await fetchDataBearer({
+          url: `/vehicle/get-vehicles`,
+          method: "GET",
+          params: {
+            descending: false,
+            pageIndex: currentPage,
+            pageSize: pageSize,
+          },
+        });
+  
+        if (response && response.data.items.length > 0) {
+          allVehicles = [...allVehicles, ...response.data.items];
+          currentPage += 1;
+        } else {
+          break;
+        }
       }
+  
+      setVehicles(allVehicles);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
       message.error("Failed to fetch vehicles.");
@@ -46,6 +54,7 @@ const VehicleManage = () => {
       setLoading(false);
     }
   };
+  
 
   // Hàm fetch danh sách warehouses từ API
   const fetchWarehouses = async () => {
@@ -92,10 +101,10 @@ const VehicleManage = () => {
       setLoading(true);
   
       const response = await fetchDataBearer({
-        url: `/vehicle/create-vehicle`,
+        url: `/vehicle/create-vehicle/?type=${values.type}`,
         method: "POST",
         data: {
-          type: values.type,
+         
           name: values.name,
           licensePlate: values.licensePlate,
           warehouseId: values.warehouseId,
