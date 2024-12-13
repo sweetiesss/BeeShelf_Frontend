@@ -339,7 +339,6 @@ const VehicleManage = () => {
             <Select placeholder="Select Option" disabled>
               <Option value={1}>Yes</Option>
               <Option value={0}>No</Option>
-              
             </Select>
           </Form.Item>
         </Form>
@@ -491,28 +490,54 @@ const VehicleManage = () => {
       <Table
         dataSource={vehicles}
         columns={[
-          { title: "ID", dataIndex: "id", key: "id" },
-          { title: "Vehicle Name", dataIndex: "name", key: "name" },
+          {
+            title: "ID",
+            dataIndex: "id",
+            key: "id",
+            width: 70,
+            align: "center",
+          },
+          {
+            title: "Vehicle Name",
+            dataIndex: "name",
+            key: "name",
+            width: 150,
+            align: "center",
+          },
           {
             title: "License Plate",
             dataIndex: "licensePlate",
             key: "licensePlate",
+            width: 120,
+            align: "center",
           },
           {
             title: "Warehouse ID",
             dataIndex: "warehouseId",
             key: "warehouseId",
+            width: 120,
+            align: "center",
           },
           {
             title: "Status",
             dataIndex: "status",
             key: "status",
+            width: 120,
+            align: "center",
           },
           {
             title: "Actions",
             key: "actions",
+            width: 220,
+            align: "center",
             render: (text, record) => (
-              <div style={{ display: "flex", gap: "8px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "4px",
+                  justifyContent: "center",
+                }}
+              >
                 {/* Nút Vehicle Detail */}
                 <Button
                   type="default"
@@ -522,10 +547,11 @@ const VehicleManage = () => {
                     color: "#52c41a",
                     borderColor: "#52c41a",
                     borderRadius: "5px",
+                    padding: "0 6px",
                   }}
                   loading={loadingDetail}
                 >
-                  Vehicle Detail
+                  Detail
                 </Button>
 
                 {/* Nút Update Vehicle */}
@@ -549,6 +575,7 @@ const VehicleManage = () => {
                         ? "#d9d9d9"
                         : "#1890ff",
                     borderRadius: "5px",
+                    padding: "0 6px",
                     cursor:
                       record.status === "InService" ||
                       record.status === "Available"
@@ -556,7 +583,7 @@ const VehicleManage = () => {
                         : "pointer",
                   }}
                 >
-                  Update Vehicle
+                  Update
                 </Button>
 
                 {/* Nút Delete Vehicle */}
@@ -570,11 +597,12 @@ const VehicleManage = () => {
                     borderColor:
                       record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
                     borderRadius: "5px",
+                    padding: "0 6px",
                     cursor:
                       record.status === "Repair" ? "pointer" : "not-allowed",
                   }}
                 >
-                  Delete Vehicle
+                  Delete
                 </Button>
               </div>
             ),
