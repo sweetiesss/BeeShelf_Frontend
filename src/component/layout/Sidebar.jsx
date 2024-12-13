@@ -121,6 +121,14 @@ export function Sidebar() {
                 <p className="label">{t("Employee")}</p>
               </div>
             </NavLink>
+
+            <NavLink to="vehiclemanage" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Vehicle")}</p>
+              </div>
+            </NavLink>  
+
           </>
         )}
 
