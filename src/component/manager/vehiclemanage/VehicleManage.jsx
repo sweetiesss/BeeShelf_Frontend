@@ -100,17 +100,14 @@ const VehicleManage = () => {
     setUpdateVisible(true);
   };
   //Hàm xử lí detail:
-  //   const handleVehicleDetail = (record) => {
-  //     console.log("Vehicle Details:", record);
-  //     message.info(`Viewing details for vehicle: ${record.name}`);
-  //   };
   const [detailVisible, setDetailVisible] = useState(false);
   const [vehicleDetail, setVehicleDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
-
+  const [loadingDetailId, setLoadingDetailId] = useState(null);
   // Hàm mở modal và fetch chi tiết vehicle
   const handleVehicleDetail = async (record) => {
-    setLoadingDetail(true);
+    // setLoadingDetail(record.id);
+    setLoadingDetailId(record.id); // Set loading cho dòng cụ thể
     try {
       const response = await fetchDataBearer({
         url: `/vehicle/get-vehicle/${record.id}`,
@@ -129,7 +126,8 @@ const VehicleManage = () => {
       console.error("Error fetching vehicle details:", error);
       message.error("Something went wrong while fetching vehicle details!");
     } finally {
-      setLoadingDetail(false);
+    //   setLoadingDetail(null);
+    setLoadingDetailId(null);
     }
   };
 
@@ -543,13 +541,13 @@ const VehicleManage = () => {
                   type="default"
                   size="small"
                   onClick={() => handleVehicleDetail(record)}
+                  loading={loadingDetailId === record.id}
                   style={{
                     color: "#52c41a",
                     borderColor: "#52c41a",
                     borderRadius: "5px",
                     padding: "0 6px",
                   }}
-                  loading={loadingDetail}
                 >
                   Detail
                 </Button>
