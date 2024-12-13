@@ -11,41 +11,49 @@ import AxiosRequest from "../../../services/Request";
 import Select from "react-select";
 import { differenceInDays, format } from "date-fns";
 
-export default function ImportRequestSide({ inventories, products }) {
+export default function ImportRequestSide({
+  inventories,
+  products,
+  updateDataBased,
+}) {
   const { userInfor } = useContext(AuthContext);
-  const [product, setProduct] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [product, setProduct] = useState();
 
-  const [selectedProductImported, setSelectedProductImported] = useState();
-
-  const [inventory, setInventory] = useState();
+  const [selectedProduct, setSelectedProduct] = useState(
+    products.find((item) => item?.id === updateDataBased?.lot?.productId)
+  );
+  const [inventory, setInventory] = useState({
+    id: updateDataBased?.sendToInventoryId,
+  });
+  useEffect(() => {
+    if (products && updateDataBased) {
+      setProduct(
+        products.find((item) => item?.id === updateDataBased?.lot?.productId)
+      );
+      setSelectedProduct(
+        products.find((item) => item?.id === updateDataBased?.lot?.productId)
+      );
+    }
+  }, [products]);
 
   const baseForm = {
     ocopPartnerId: userInfor?.id,
-    name: "",
-    description: "",
-    sendToInventoryId: 0,
+    name: updateDataBased?.name || "",
+    description: updateDataBased?.description || "",
+    exportFromLotId: 0,
+    sendToInventoryId: updateDataBased?.sendToInventoryId || 0,
     lot: {
-      lotNumber: "",
-      name: "",
-      lotAmount: null,
-      productId: 0,
-      productPerLot: null,
-    },
-  };
-  const exportBaseForm = {
-    ocopPartnerId: userInfor?.id,
-    name: "",
-    description: "",
-    sendToInventoryId: 0,
-    lot: {
-      lotAmount: null,
+      lotNumber: updateDataBased?.lot?.lotNumber || "",
+      name: updateDataBased?.lot?.name || "",
+      lotAmount: updateDataBased?.lot?.lotAmount || 0,
+      productId: updateDataBased?.lot?.productId || 0,
+      productPerLot: updateDataBased?.lot?.productPerLot || 0,
     },
   };
 
   const [form, setForm] = useState(baseForm);
   const [loading, setLoading] = useState(false);
-  const { createRequest } = AxiosRequest();
+  const { createRequest, updateRequest } = AxiosRequest();
   const { t } = useTranslation();
 
   // Handle input changes
@@ -67,22 +75,9 @@ export default function ImportRequestSide({ inventories, products }) {
   };
 
   // Handle confirm
-  const handleConfirm = async (send) => {
-    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Generate unique timestamp
-
-    const updatedForm = {
-      ...form,
-      sendToInventoryId: parseInt(inventory?.id),
-      lot: {
-        ...form.lot,
-        productId: parseInt(selectedProduct?.id),
-        lotNumber: `${form.lot.productId}-${currentDateTime}`, // Lot number format
-        name: `${product?.name || "Unnamed"}-${userInfor?.name || "User"}`, // Lot name format
-      },
-    };
-
+  const handleConfirm = async () => {
     try {
-      const result = await createRequest(updatedForm, "Import", send);
+      const result = await updateRequest(form, updateDataBased?.id);
     } catch (error) {
       console.error("Error submitting request:", error);
     }
@@ -102,20 +97,22 @@ export default function ImportRequestSide({ inventories, products }) {
     }
     setInventory();
   };
-  const handleSlectImportedProduct = (pro) => {
-    const selectedImportProduct = products.find((item) => item?.id === pro?.id);
-    setSelectedProduct(selectedImportProduct);
-    setSelectedProductImported(pro);
-  };
 
   const handleReset = () => {
     setForm(baseForm);
-    setSelectedProduct();
-    setInventory();
-    setSelectedProductImported();
+    if (updateDataBased) {
+      setProduct(
+        products.find((item) => item?.id === updateDataBased?.lot?.productId)
+      );
+      setSelectedProduct(
+        products.find((item) => item?.id === updateDataBased?.lot?.productId)
+      );
+      setInventory({ id: updateDataBased?.sendToInventoryId });
+    } else {
+      setSelectedProduct();
+      setInventory();
+    }
   };
-
-  console.log("products", selectedProductImported);
 
   return (
     <div className="flex gap-10 justify-start items-start">

@@ -7,12 +7,11 @@ import { DotsThreeVertical } from "@phosphor-icons/react";
 import {format} from "date-fns"
 export default function OrderList({
   orders,
-  onDeleteOrder,
-  handleSelectOrder,
   selectedOrder,
   filterField,
   setFilterField,
   handleShowDetailOrder,
+  handleDeleteClick,
 }) {
   const { t } = useTranslation();
   const [openAction, setOpenAction] = useState();
@@ -44,9 +43,7 @@ export default function OrderList({
   const handleCloseAction = () => {
     setOpenAction();
   };
-  const handleDeleteClick = (e, order) => {
-    // setOpenAction();
-  };
+
 
   return (
     <div className="shadow-lg bg-white rounded-lg p-4  mb-3 overflow-y-scroll max-h-[70vh] w-full relative">
@@ -141,7 +138,7 @@ export default function OrderList({
                           {order?.status === "Draft" && (
                             <div
                               onClick={(e) => {
-                                handleDeleteClick(e, order);
+                                handleDeleteClick(order);
                                 handleCloseAction();
                               }}
                             >
