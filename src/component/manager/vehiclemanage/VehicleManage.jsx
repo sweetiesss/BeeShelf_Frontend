@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, message, Button, Input, Modal, Form, Select } from "antd";
 import useAxios from "../../../services/CustomizeAxios";
+import { Descriptions } from "antd";
 
 const { Option } = Select;
 
@@ -98,6 +99,45 @@ const VehicleManage = () => {
     });
     setUpdateVisible(true);
   };
+  //Hàm xử lí detail:
+  //   const handleVehicleDetail = (record) => {
+  //     console.log("Vehicle Details:", record);
+  //     message.info(`Viewing details for vehicle: ${record.name}`);
+  //   };
+  const [detailVisible, setDetailVisible] = useState(false);
+  const [vehicleDetail, setVehicleDetail] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
+  // Hàm mở modal và fetch chi tiết vehicle
+  const handleVehicleDetail = async (record) => {
+    setLoadingDetail(true);
+    try {
+      const response = await fetchDataBearer({
+        url: `/vehicle/get-vehicle/${record.id}`,
+        method: "GET",
+      });
+
+      if (response && response.status === 200) {
+        setVehicleDetail(response.data);
+        setDetailVisible(true);
+      } else {
+        message.error(
+          response?.data?.message || "Failed to fetch vehicle details."
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching vehicle details:", error);
+      message.error("Something went wrong while fetching vehicle details!");
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
+  // Hàm đóng modal
+  const handleCloseDetailModal = () => {
+    setDetailVisible(false);
+    setVehicleDetail(null);
+  };
 
   // Hàm cập nhật vehicle
   const handleUpdateVehicle = async () => {
@@ -132,14 +172,14 @@ const VehicleManage = () => {
       message.error("duplicate license plates");
     }
   };
-// Hàm Delete vehicle:
-const handleDeleteVehicle = async (record) => {
+  // Hàm Delete vehicle:
+  const handleDeleteVehicle = async (record) => {
     try {
       const response = await fetchDataBearer({
         url: `/vehicle/delete-vehicle/${record.id}`,
         method: "DELETE",
       });
-  
+
       if (response && response.status === 200) {
         message.success("Vehicle deleted successfully!");
         fetchVehicles(); // Refresh the vehicle list
@@ -151,7 +191,7 @@ const handleDeleteVehicle = async (record) => {
       message.error("Something went wrong!");
     }
   };
-  
+
   // Hàm tạo vehicle
   const createVehicle = async () => {
     try {
@@ -229,6 +269,104 @@ const handleDeleteVehicle = async (record) => {
         ]}
       >
         <Form form={form} layout="vertical">
+          {/* Vehicle Type */}
+          <Form.Item
+            label="Vehicle Type"
+            name="type"
+            rules={[{ required: true, message: "Please select vehicle type!" }]}
+          >
+            <Select placeholder="Select Vehicle Type">
+              <Option value="Truck">Truck</Option>
+              <Option value="Van">Van</Option>
+              <Option value="Motorbike">Motorbike</Option>
+            </Select>
+          </Form.Item>
+
+          {/* Vehicle Name */}
+          <Form.Item
+            label="Vehicle Name"
+            name="name"
+            rules={[{ required: true, message: "Please enter vehicle name!" }]}
+          >
+            <Input placeholder="Enter Vehicle Name" />
+          </Form.Item>
+
+          {/* License Plate */}
+          <Form.Item
+            label="License Plate"
+            name="licensePlate"
+            rules={[{ required: true, message: "Please enter license plate!" }]}
+          >
+            <Input placeholder="Enter License Plate" />
+          </Form.Item>
+
+          {/* Warehouse ID */}
+          <Form.Item
+            label="Warehouse ID"
+            name="warehouseId"
+            rules={[{ required: true, message: "Please select warehouse!" }]}
+          >
+            <Select
+              placeholder="Select Warehouse"
+              onChange={(value) => {
+                const selectedWarehouse = warehouseOptions.find(
+                  (warehouse) => warehouse.id === value
+                );
+
+                // Set isCold based on selected warehouse
+                form.setFieldsValue({
+                  isCold: selectedWarehouse.isCold ? 1 : 0,
+                });
+              }}
+            >
+              {warehouseOptions.map((warehouse) => (
+                <Option key={warehouse.id} value={warehouse.id}>
+                  ID: {warehouse.id} - Name: {warehouse.name} -{" "}
+                  {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          {/* Is Cold Storage? */}
+          <Form.Item
+            label="Is Cold Storage?"
+            name="isCold"
+            rules={[
+              { required: true, message: "Please select cold storage option!" },
+            ]}
+          >
+            <Select placeholder="Select Option" disabled>
+              <Option value={1}>Yes</Option>
+              <Option value={0}>No</Option>
+              
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="Update Vehicle"
+        open={updateVisible}
+        onCancel={() => {
+          setUpdateVisible(false);
+          form.resetFields();
+        }}
+        footer={[
+          <Button key="back" onClick={() => setUpdateVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={loading}
+            onClick={handleUpdateVehicle}
+          >
+            Update Vehicle
+          </Button>,
+        ]}
+      >
+        <Form form={form} layout="vertical">
           <Form.Item
             label="Vehicle Type"
             name="type"
@@ -289,7 +427,10 @@ const handleDeleteVehicle = async (record) => {
               { required: true, message: "Please select cold storage option!" },
             ]}
           >
-            <Select placeholder="Select Option">
+            <Select
+              placeholder="Select Option"
+              disabled={true} // Luôn disable để không cho phép người dùng thay đổi
+            >
               <Option value={1}>Yes</Option>
               <Option value={0}>No</Option>
             </Select>
@@ -298,166 +439,150 @@ const handleDeleteVehicle = async (record) => {
       </Modal>
 
       <Modal
-  title="Update Vehicle"
-  open={updateVisible}
-  onCancel={() => {
-    setUpdateVisible(false);
-    form.resetFields();
-  }}
-  footer={[
-    <Button key="back" onClick={() => setUpdateVisible(false)}>
-      Cancel
-    </Button>,
-    <Button
-      key="submit"
-      type="primary"
-      loading={loading}
-      onClick={handleUpdateVehicle}
-    >
-      Update Vehicle
-    </Button>,
-  ]}
->
-  <Form form={form} layout="vertical">
-    <Form.Item
-      label="Vehicle Type"
-      name="type"
-      rules={[{ required: true, message: "Please select vehicle type!" }]}
-    >
-      <Select placeholder="Select Vehicle Type">
-        <Option value="Truck">Truck</Option>
-        <Option value="Van">Van</Option>
-        <Option value="Motorbike">Motorbike</Option>
-      </Select>
-    </Form.Item>
-
-    <Form.Item
-      label="Vehicle Name"
-      name="name"
-      rules={[{ required: true, message: "Please enter vehicle name!" }]}
-    >
-      <Input placeholder="Enter Vehicle Name" />
-    </Form.Item>
-
-    <Form.Item
-      label="License Plate"
-      name="licensePlate"
-      rules={[{ required: true, message: "Please enter license plate!" }]}
-    >
-      <Input placeholder="Enter License Plate" />
-    </Form.Item>
-
-    <Form.Item
-      label="Warehouse ID"
-      name="warehouseId"
-      rules={[{ required: true, message: "Please select warehouse!" }]}
-    >
-      <Select
-        placeholder="Select Warehouse"
-        onChange={(value) => {
-          const selectedWarehouse = warehouseOptions.find((warehouse) => warehouse.id === value);
-          form.setFieldsValue({ isCold: selectedWarehouse.isCold ? 1 : 0 });
-        }}
+        title="Vehicle Details"
+        open={detailVisible}
+        onCancel={handleCloseDetailModal}
+        footer={[
+          <Button key="close" onClick={handleCloseDetailModal}>
+            Close
+          </Button>,
+        ]}
       >
-        {warehouseOptions.map((warehouse) => (
-          <Option key={warehouse.id} value={warehouse.id}>
-            {warehouse.name} {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
-          </Option>
-        ))}
-      </Select>
-    </Form.Item>
-
-    <Form.Item
-      label="Is Cold Storage?"
-      name="isCold"
-      rules={[{ required: true, message: "Please select cold storage option!" }]}
-    >
-      <Select
-        placeholder="Select Option"
-        disabled={true} // Luôn disable để không cho phép người dùng thay đổi
-      >
-        <Option value={1}>Yes</Option>
-        <Option value={0}>No</Option>
-      </Select>
-    </Form.Item>
-  </Form>
-</Modal>
-
+        {vehicleDetail ? (
+          <Descriptions bordered column={1}>
+            <Descriptions.Item label="ID">{vehicleDetail.id}</Descriptions.Item>
+            <Descriptions.Item label="Name">
+              {vehicleDetail.name}
+            </Descriptions.Item>
+            <Descriptions.Item label="License Plate">
+              {vehicleDetail.licensePlate}
+            </Descriptions.Item>
+            <Descriptions.Item label="Capacity">
+              {vehicleDetail.capacity}
+            </Descriptions.Item>
+            <Descriptions.Item label="Type">
+              {vehicleDetail.type}
+            </Descriptions.Item>
+            <Descriptions.Item label="Is Cold Storage?">
+              {vehicleDetail.isCold ? "Yes" : "No"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Status">
+              {vehicleDetail.status}
+            </Descriptions.Item>
+            <Descriptions.Item label="Warehouse ID">
+              {vehicleDetail.warehouseId}
+            </Descriptions.Item>
+            <Descriptions.Item label="Assigned Driver ID">
+              {vehicleDetail.assignedDriverId ?? "N/A"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Assigned Driver Email">
+              {vehicleDetail.assignedDriverEmail ?? "N/A"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Assigned Driver Name">
+              {vehicleDetail.assignedDriverName ?? "N/A"}
+            </Descriptions.Item>
+          </Descriptions>
+        ) : (
+          <p>Loading vehicle details...</p>
+        )}
+      </Modal>
 
       {/* Bảng hiển thị vehicles */}
       <Table
-  dataSource={vehicles}
-  columns={[
-    { title: "ID", dataIndex: "id", key: "id" },
-    { title: "Vehicle Name", dataIndex: "name", key: "name" },
-    {
-      title: "License Plate",
-      dataIndex: "licensePlate",
-      key: "licensePlate",
-    },
-    {
-      title: "Warehouse ID",
-      dataIndex: "warehouseId",
-      key: "warehouseId",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (text, record) => (
-        <div style={{ display: "flex", gap: "10px" }}>
-          {/* Nút Update Vehicle */}
-          <Button
-            type="default"
-            onClick={() => openUpdateModal(record)}
-            disabled={
-              record.status === "InService" || record.status === "Available"
-            }
-            style={{
-              color:
-                record.status === "InService" || record.status === "Available"
-                  ? "#d9d9d9"
-                  : "#1890ff",
-              borderColor:
-                record.status === "InService" || record.status === "Available"
-                  ? "#d9d9d9"
-                  : "#1890ff",
-              borderRadius: "5px",
-              cursor:
-                record.status === "InService" || record.status === "Available"
-                  ? "not-allowed"
-                  : "pointer",
-            }}
-          >
-            Update Vehicle
-          </Button>
+        dataSource={vehicles}
+        columns={[
+          { title: "ID", dataIndex: "id", key: "id" },
+          { title: "Vehicle Name", dataIndex: "name", key: "name" },
+          {
+            title: "License Plate",
+            dataIndex: "licensePlate",
+            key: "licensePlate",
+          },
+          {
+            title: "Warehouse ID",
+            dataIndex: "warehouseId",
+            key: "warehouseId",
+          },
+          {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+          },
+          {
+            title: "Actions",
+            key: "actions",
+            render: (text, record) => (
+              <div style={{ display: "flex", gap: "8px" }}>
+                {/* Nút Vehicle Detail */}
+                <Button
+                  type="default"
+                  size="small"
+                  onClick={() => handleVehicleDetail(record)}
+                  style={{
+                    color: "#52c41a",
+                    borderColor: "#52c41a",
+                    borderRadius: "5px",
+                  }}
+                  loading={loadingDetail}
+                >
+                  Vehicle Detail
+                </Button>
 
-          {/* Nút Delete Vehicle */}
-          <Button
-            type="default"
-            onClick={() => handleDeleteVehicle(record)}
-            disabled={record.status !== "Repair"}
-            style={{
-              color: record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
-              borderColor: record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
-              borderRadius: "5px",
-              cursor: record.status === "Repair" ? "pointer" : "not-allowed",
-            }}
-          >
-            Delete Vehicle
-          </Button>
-        </div>
-      ),
-    },
-  ]}
-  rowKey="id"
-  loading={loading}
-/>
+                {/* Nút Update Vehicle */}
+                <Button
+                  type="default"
+                  size="small"
+                  onClick={() => openUpdateModal(record)}
+                  disabled={
+                    record.status === "InService" ||
+                    record.status === "Available"
+                  }
+                  style={{
+                    color:
+                      record.status === "InService" ||
+                      record.status === "Available"
+                        ? "#d9d9d9"
+                        : "#1890ff",
+                    borderColor:
+                      record.status === "InService" ||
+                      record.status === "Available"
+                        ? "#d9d9d9"
+                        : "#1890ff",
+                    borderRadius: "5px",
+                    cursor:
+                      record.status === "InService" ||
+                      record.status === "Available"
+                        ? "not-allowed"
+                        : "pointer",
+                  }}
+                >
+                  Update Vehicle
+                </Button>
 
+                {/* Nút Delete Vehicle */}
+                <Button
+                  type="default"
+                  size="small"
+                  onClick={() => handleDeleteVehicle(record)}
+                  disabled={record.status !== "Repair"}
+                  style={{
+                    color: record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
+                    borderColor:
+                      record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
+                    borderRadius: "5px",
+                    cursor:
+                      record.status === "Repair" ? "pointer" : "not-allowed",
+                  }}
+                >
+                  Delete Vehicle
+                </Button>
+              </div>
+            ),
+          },
+        ]}
+        rowKey="id"
+        loading={loading}
+      />
     </div>
   );
 };
