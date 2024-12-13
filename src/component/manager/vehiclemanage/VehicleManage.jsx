@@ -87,6 +87,53 @@ const VehicleManage = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [updateVisible, setUpdateVisible] = useState(false);
 
+  // const [selectedStatus, setSelectedStatus] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState({});
+  const [showDropdownId, setShowDropdownId] = useState(null);
+
+  const handleApproveClick = (record) => {
+    if (!record) {
+      message.error("Invalid record.");
+      return;
+    }
+
+    if (selectedStatus[record.id]) {
+      handleApproveVehicle(record, selectedStatus[record.id]);
+      setSelectedStatus((prev) => ({ ...prev, [record.id]: null }));
+      setShowDropdownId(null);
+    } else {
+      message.warning("Please select a status before approving.");
+    }
+  };
+
+  const handleApproveVehicle = async (record, status) => {
+    try {
+      const response = await fetchDataBearer({
+        url: `/vehicle/update-vehicle-status/${record.id}`,
+        method: "PUT",
+        params: {
+          status: status,
+        },
+      });
+
+      if (response && response.status === 200) {
+        message.success(
+          `Vehicle ID: ${record.id} has been approved with status: ${status}`
+        );
+        fetchVehicles(); // Refresh danh sách sau khi approve thành công
+        setShowDropdownId(null); // Ẩn dropdown
+      } else {
+        const errorData = await response?.data;
+        message.error(
+          `Failed to approve vehicle: ${errorData?.message || "Unknown error"}`
+        );
+      }
+    } catch (error) {
+      console.error("Error approving vehicle:", error);
+      message.error("Something went wrong!");
+    }
+  };
+
   // Hàm mở modal và gán dữ liệu vehicle cần update
   const openUpdateModal = (record) => {
     setSelectedVehicle(record);
@@ -104,6 +151,12 @@ const VehicleManage = () => {
   const [vehicleDetail, setVehicleDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingDetailId, setLoadingDetailId] = useState(null);
+  //Hàm xử lí cho Approve Status
+  // const [showDropdownId, setShowDropdownId] = useState(null);
+  // const handleStatusChange = (id, status) => {
+  //   setSelectedStatus((prev) => ({ ...prev, [id]: status }));
+  // };
+
   // Hàm mở modal và fetch chi tiết vehicle
   const handleVehicleDetail = async (record) => {
     // setLoadingDetail(record.id);
@@ -126,8 +179,8 @@ const VehicleManage = () => {
       console.error("Error fetching vehicle details:", error);
       message.error("Something went wrong while fetching vehicle details!");
     } finally {
-    //   setLoadingDetail(null);
-    setLoadingDetailId(null);
+      //   setLoadingDetail(null);
+      setLoadingDetailId(null);
     }
   };
 
@@ -526,14 +579,15 @@ const VehicleManage = () => {
           {
             title: "Actions",
             key: "actions",
-            width: 220,
+            width: 320,
             align: "center",
             render: (text, record) => (
               <div
                 style={{
                   display: "flex",
-                  gap: "4px",
+                  gap: "6px",
                   justifyContent: "center",
+                  flexWrap: "wrap",
                 }}
               >
                 {/* Nút Vehicle Detail */}
@@ -541,12 +595,12 @@ const VehicleManage = () => {
                   type="default"
                   size="small"
                   onClick={() => handleVehicleDetail(record)}
-                  loading={loadingDetailId === record.id}
                   style={{
                     color: "#52c41a",
                     borderColor: "#52c41a",
                     borderRadius: "5px",
-                    padding: "0 6px",
+                    padding: "0 8px",
+                    minWidth: "80px",
                   }}
                 >
                   Detail
@@ -573,7 +627,8 @@ const VehicleManage = () => {
                         ? "#d9d9d9"
                         : "#1890ff",
                     borderRadius: "5px",
-                    padding: "0 6px",
+                    padding: "0 8px",
+                    minWidth: "80px",
                     cursor:
                       record.status === "InService" ||
                       record.status === "Available"
@@ -595,13 +650,58 @@ const VehicleManage = () => {
                     borderColor:
                       record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
                     borderRadius: "5px",
-                    padding: "0 6px",
+                    padding: "0 8px",
+                    minWidth: "80px",
                     cursor:
                       record.status === "Repair" ? "pointer" : "not-allowed",
                   }}
                 >
                   Delete
                 </Button>
+
+                {/* Dropdown và Button Approve */}
+                <div
+                  style={{ display: "flex", gap: "6px", alignItems: "center" }}
+                >
+                  {showDropdownId === record?.id && (
+                    <Select
+                      placeholder="Select Status"
+                      style={{ width: 120 }}
+                      onChange={(value) =>
+                        setSelectedStatus((prev) => ({
+                          ...prev,
+                          [record.id]: value,
+                        }))
+                      }
+                      value={selectedStatus[record.id] || null}
+                    >
+                      <Option value="Available">Available</Option>
+                      <Option value="InService">InService</Option>
+                      <Option value="Repair">Repair</Option>
+                    </Select>
+                  )}
+
+                  <Button
+                    type="default"
+                    size="small"
+                    onClick={() => {
+                      if (showDropdownId === record?.id) {
+                        handleApproveClick(record);
+                      } else {
+                        setShowDropdownId(record?.id);
+                      }
+                    }}
+                    style={{
+                      color: "#52c41a",
+                      borderColor: "#52c41a",
+                      borderRadius: "5px",
+                      padding: "0 8px",
+                      minWidth: "80px",
+                    }}
+                  >
+                    {showDropdownId === record?.id ? "Submit" : "Approve"}
+                  </Button>
+                </div>
               </div>
             ),
           },
