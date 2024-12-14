@@ -24,7 +24,7 @@ const Ordermanage = () => {
   const [loading, setLoading] = useState(false); // Trạng thái loading
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
-    pageSize: 10,
+    pageSize: 5,
     totalPagesCount: 0,
     pageIndex: 0,
   });
@@ -34,7 +34,7 @@ const Ordermanage = () => {
   const [newStatus, setNewStatus] = useState(undefined);
 
   // Hàm gọi API để lấy danh sách đơn hàng theo warehouseId
-  const GetOrderWarehouse = async () => {
+  const GetOrderWarehouse = async (pageIndex, pageSize) => {
     setLoading(true);
     try {
       const response = await fetchDataBearer({
@@ -42,8 +42,8 @@ const Ordermanage = () => {
         method: "GET",
         params: {
           warehouseId: userInfor?.workAtWarehouseId, // Lấy warehouseId từ thông tin người dùng
-          pageIndex: pagination.pageIndex,
-          pageSize: pagination.pageSize,
+          pageIndex: pageIndex,
+          pageSize: pageSize,
         },
       });
 
@@ -310,7 +310,7 @@ const Ordermanage = () => {
 
   // Sử dụng useEffect để tự động lấy dữ liệu khi component được render
   useEffect(() => {
-    GetOrderWarehouse();
+    GetOrderWarehouse(0, pagination.pageSize);
   }, []); // Chạy một lần khi component mount
 
   return (
@@ -327,11 +327,12 @@ const Ordermanage = () => {
             pageSize: pagination.pageSize,
             total: pagination.totalItemsCount,
             onChange: (page) => {
+              console.log("Current page:", page);
               setPagination((prev) => ({
                 ...prev,
-                pageIndex: page - 1,
+                pageIndex: page - 1, // Chuyển trang (index bắt đầu từ 0)
               }));
-              GetOrderWarehouse();
+              GetOrderWarehouse(page - 1, pagination.pageSize);
             },
           }}
         />

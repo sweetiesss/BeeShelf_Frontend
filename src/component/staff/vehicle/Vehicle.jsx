@@ -19,7 +19,7 @@ const Vehicle = () => {
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
-    pageSize: 10,
+    pageSize: 5,
     totalPagesCount: 0,
     pageIndex: 0,
   });
@@ -27,7 +27,7 @@ const Vehicle = () => {
   const typeVehicles = ["Truck", "Van", "Motorcycle"];
 
   // Hàm gọi API để lấy danh sách thanh toán
-  const fetchVehicles = async () => {
+  const fetchVehicles = async (pageIndex, pageSize) => {
     setLoading(true);
     try {
       const response = await fetchDataBearer({
@@ -36,22 +36,24 @@ const Vehicle = () => {
         params: {
           warehouseId: userInfor?.workAtWarehouseId,
           descending: false,
-          pageIndex: pagination.pageIndex,
-          pageSize: pagination.pageSize,
+          pageIndex: pageIndex,
+          pageSize: pageSize,
         },
       });
 
-      if (response) {
-        setVehicles(response?.data?.items || []);
+      if (response && response.data) {
+        const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
+          response.data;
+        setVehicles(items || []);
         message.success("Data loaded successfully!");
 
-        setPagination((prevPagination) => ({
-          ...prevPagination,
-          totalItemsCount: response.totalCount || 0,
-          totalPagesCount: Math.ceil(response.totalCount / pagination.pageSize),
-        }));
-
-        const options = (response?.data?.items || [])
+        setPagination({
+          totalItemsCount,
+          pageSize,
+          totalPagesCount,
+          pageIndex,
+        });
+        const options = (items || [])
           ?.filter((vehicle) => vehicle.status === "Available")
           ?.filter((item) => !item.assignedDriverId)
           .map((vehicle) => ({
@@ -83,7 +85,7 @@ const Vehicle = () => {
 
       if (response && response.status === 200) {
         message.success("vehicle Assign successfully!");
-        fetchVehicles(); // Cập nhật lại danh sách vehicle
+        fetchVehicles(pagination.pageIndex, pagination.pageSize); // Cập nhật lại danh sách vehicle
         setVisible(false); // Đóng modal khi tạo Assign thành công
       } else {
         const errorMessage =
@@ -316,8 +318,8 @@ const Vehicle = () => {
 
   // Lấy dữ liệu thanh toán khi component mount và khi pagination thay đổi
   useEffect(() => {
-    fetchVehicles();
-  }, [pagination.pageIndex]);
+    fetchVehicles(0, pagination.pageSize);
+  }, []);
 
   return (
     <div className="p-[20px]">
@@ -395,6 +397,7 @@ const Vehicle = () => {
       <Table
         dataSource={vehicles}
         columns={columns}
+        loading={loading}
         pagination={{
           current: pagination.pageIndex + 1, // Trang bắt đầu từ 1
           pageSize: pagination.pageSize,
@@ -404,10 +407,9 @@ const Vehicle = () => {
               ...prev,
               pageIndex: page - 1, // Chuyển trang (index bắt đầu từ 0)
             }));
+            fetchVehicles(page - 1, pagination.pageSize);
           },
         }}
-        rowKey="id"
-        loading={loading}
       />
 
       <Modal
