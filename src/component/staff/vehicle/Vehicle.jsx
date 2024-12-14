@@ -73,24 +73,22 @@ const Vehicle = () => {
       setLoading(false);
     }
   };
-// Hàm Unassign Vehicle
-const handleUnassignVehicle = async (vehicleId) => {
-  try {
-    // Giả lập gọi API để unassign vehicle
-    await fetchDataBearer({
-      url: `/vehicle/unassign-vehicle/${vehicleId}`,
-      method: "POST",
-    });
+  // Hàm Unassign Vehicle
+  const handleUnassignVehicle = async (vehicleId) => {
+    try {
+      // Giả lập gọi API để unassign vehicle
+      await fetchDataBearer({
+        url: `/vehicle/unassign-vehicle/${vehicleId}`,
+        method: "POST",
+      });
 
-    message.success("Vehicle unassigned successfully!");
-    fetchVehicles(); // Refresh the vehicle list
-  } catch (error) {
-    console.error("Error unassigning vehicle:", error);
-    message.error("Failed to unassign vehicle.");
-  }
-};
-
-
+      message.success("Vehicle unassigned successfully!");
+      fetchVehicles(pagination.pageIndex, pagination.pageSize); // Refresh the vehicle list
+    } catch (error) {
+      console.error("Error unassigning vehicle:", error);
+      message.error("Failed to unassign vehicle.");
+    }
+  };
 
   // Hàm gọi API để assignVehicle mới
   const assignVehicleToShipper = async (vehicleId, shipperId) => {
@@ -244,7 +242,7 @@ const handleUnassignVehicle = async (vehicleId) => {
           >
             View Detail
           </Button>
-  
+
           {/* Nút Unassign Vehicle */}
           <Button
             type="default"
@@ -255,7 +253,8 @@ const handleUnassignVehicle = async (vehicleId) => {
               minWidth: "120px",
               padding: "0 10px",
               color: record.status === "Available" ? "#ff4d4f" : "#d9d9d9",
-              borderColor: record.status === "Available" ? "#ff4d4f" : "#d9d9d9",
+              borderColor:
+                record.status === "Available" ? "#ff4d4f" : "#d9d9d9",
               cursor: record.status === "Available" ? "pointer" : "not-allowed",
             }}
             onClick={() => handleUnassignVehicle(record.id)}
@@ -265,8 +264,7 @@ const handleUnassignVehicle = async (vehicleId) => {
         </div>
       ),
     },
-    
-    
+
     // Cột bổ sung có thể bỏ qua nếu không cần thiết
   ];
 
@@ -370,18 +368,17 @@ const handleUnassignVehicle = async (vehicleId) => {
 
   return (
     <div className="p-[20px]">
-   <div className="flex justify-between items-center mb-4">
-  <h1 className="text-lg font-bold">Vehicle List</h1>
-  <div className="flex gap-4">
-    <Button
-      type="primary"
-      onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
-    >
-      Assign Vehicle To Shipper
-    </Button>
-  </div>
-</div>
-
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-lg font-bold">Vehicle List</h1>
+        <div className="flex gap-4">
+          <Button
+            type="primary"
+            onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
+          >
+            Assign Vehicle To Shipper
+          </Button>
+        </div>
+      </div>
 
       {/* Modal hiển thị form nhập staffId và paymentId */}
       <Modal
