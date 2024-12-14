@@ -208,15 +208,16 @@ const Payment = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <Button
-        type="primary"
-        onClick={() => setVisible(true)}
-        style={{ marginBottom: 20 }}
-      >
-        Confirm Money Transfer Request
-      </Button>
-
-      <h1>Transfer Money Request List</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1>Transfer Money Request List</h1>
+        <Button
+          type="primary"
+          onClick={() => setVisible(true)}
+          style={{ marginBottom: 20 }}
+        >
+          Confirm Money Transfer Request
+        </Button>
+      </div>
 
       <Modal
         title="Confirm Money Transfer Request"
