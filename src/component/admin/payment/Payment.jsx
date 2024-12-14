@@ -138,7 +138,7 @@ const Payment = () => {
         onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
         style={{ marginBottom: 20 }}
       >
-        Confirm Money Transfer
+        Confirm Money Transfer Request
       </Button>
       <h1>Transfer Money Request List</h1>
       

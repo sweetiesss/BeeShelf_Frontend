@@ -17,6 +17,7 @@ import { PaymentPage } from "../pages/partner/PaymentPage";
 import PaymentResult from "../pages/partner/PaymentResult";
 import CreateOrderPage from "../pages/partner/CreateOrder";
 import CreateRequestPage from "../pages/partner/CreateRequestPage";
+import LotsPage from "../pages/partner/LotsPage";
 export default function PartnerRoutes() {
   const { dataDetail, typeDetail } = useDetail();
 
@@ -28,6 +29,7 @@ export default function PartnerRoutes() {
           <Route index element={<OrderDashboard />} />
           <Route path={"dashboard"} element={<OrderDashboard />} />
           <Route path={"inventory"} element={<InventoryPage />} />
+          <Route path={"lots"} element={<LotsPage />} />
           <Route path={"product"} element={<ProductPage />} />
           <Route path={"order"} element={<OrderPage />} />
           <Route path={"order/create-order"} element={<CreateOrderPage />} />

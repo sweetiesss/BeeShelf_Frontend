@@ -73,8 +73,26 @@ const Vehicle = () => {
       setLoading(false);
     }
   };
+// Hàm Unassign Vehicle
+const handleUnassignVehicle = async (vehicleId) => {
+  try {
+    // Giả lập gọi API để unassign vehicle
+    await fetchDataBearer({
+      url: `/vehicle/unassign-vehicle/${vehicleId}`,
+      method: "POST",
+    });
 
-  // Hàm gọi API để tạo một payment mới
+    message.success("Vehicle unassigned successfully!");
+    fetchVehicles(); // Refresh the vehicle list
+  } catch (error) {
+    console.error("Error unassigning vehicle:", error);
+    message.error("Failed to unassign vehicle.");
+  }
+};
+
+
+
+  // Hàm gọi API để assignVehicle mới
   const assignVehicleToShipper = async (vehicleId, shipperId) => {
     setLoading(true);
     try {
@@ -214,12 +232,41 @@ const Vehicle = () => {
     {
       title: "Action",
       key: "action",
+      align: "center",
       render: (record) => (
-        <Button type="primary" onClick={() => handleViewDetail(record.id)}>
-          View Detail
-        </Button>
+        <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+          {/* Nút View Detail */}
+          <Button
+            type="primary"
+            size="small"
+            style={{ minWidth: "100px", padding: "0 10px" }}
+            onClick={() => handleViewDetail(record.id)}
+          >
+            View Detail
+          </Button>
+  
+          {/* Nút Unassign Vehicle */}
+          <Button
+            type="default"
+            danger
+            size="small"
+            disabled={record.status !== "Available"}
+            style={{
+              minWidth: "120px",
+              padding: "0 10px",
+              color: record.status === "Available" ? "#ff4d4f" : "#d9d9d9",
+              borderColor: record.status === "Available" ? "#ff4d4f" : "#d9d9d9",
+              cursor: record.status === "Available" ? "pointer" : "not-allowed",
+            }}
+            onClick={() => handleUnassignVehicle(record.id)}
+          >
+            Unassign Vehicle
+          </Button>
+        </div>
       ),
     },
+    
+    
     // Cột bổ sung có thể bỏ qua nếu không cần thiết
   ];
 
@@ -306,7 +353,7 @@ const Vehicle = () => {
   const getValidStatusTransitions = (currentStatus) => {
     switch (currentStatus) {
       case "Available":
-        return ["Repair", "InService"];
+        return ["Repair"];
       case "InService":
         return [];
       case "Repair":
@@ -323,14 +370,18 @@ const Vehicle = () => {
 
   return (
     <div className="p-[20px]">
-      <Button
-        type="primary"
-        onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
-        style={{ marginBottom: 20 }}
-      >
-        Assign Vehicle To Shipper
-      </Button>
-      <h1>Vehicle List</h1>
+   <div className="flex justify-between items-center mb-4">
+  <h1 className="text-lg font-bold">Vehicle List</h1>
+  <div className="flex gap-4">
+    <Button
+      type="primary"
+      onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
+    >
+      Assign Vehicle To Shipper
+    </Button>
+  </div>
+</div>
+
 
       {/* Modal hiển thị form nhập staffId và paymentId */}
       <Modal

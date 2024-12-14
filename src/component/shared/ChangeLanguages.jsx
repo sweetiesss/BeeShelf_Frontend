@@ -1,4 +1,4 @@
-import React, {  useState } from "react"; // Ensure React is imported for type usage
+import React, { useState } from "react"; // Ensure React is imported for type usage
 import { useTranslation } from "react-i18next";
 import { LANGUAGES } from "../constants/Language";
 import { GlobeHemisphereWest } from "@phosphor-icons/react";
@@ -13,15 +13,9 @@ export const LanguageSelector = () => {
     console.log(selectedLanguage);
   };
 
-  
-
   return (
     <div className="text-black flex">
-      <GlobeHemisphereWest
-        weight="duotone"
-        className="text-3xl"
-    
-      />
+      <GlobeHemisphereWest weight="duotone" className="text-3xl" />
       <select
         id="languageSelect"
         defaultValue={i18n.language}

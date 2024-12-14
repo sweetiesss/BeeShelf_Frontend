@@ -46,7 +46,7 @@ export default function AxiosLot() {
       return e;
     }
   };
-  const getLotByUserIdX1000 = async (
+  const getLotByUserId = async (
     userId,
     search,
     productId,
@@ -80,5 +80,5 @@ export default function AxiosLot() {
       return e;
     }
   };
-  return { createLot, getLotById, getLotByProductIdX1000, getLotByUserIdX1000 };
+  return { createLot, getLotById, getLotByProductIdX1000, getLotByUserId };
 }

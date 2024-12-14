@@ -2,19 +2,19 @@ import { useState } from "react";
 import SignIn from "../../component/guest/SignIn";
 import SignUp from "../../component/guest/SignUp";
 import ForgotPassword from "../../component/guest/ForgotPassword";
+import SignInAndLoginGif from "../../assets/img/loginAndSignup.gif";
 
-
-export default function LoginAndSignInPage({toAction}) {
+export default function LoginAndSignInPage({ toAction }) {
   const [action, setAction] = useState(toAction);
-
-
 
   return (
     <div className="flex h-screen w-screen justify-between items-center  bg-gray-100">
       {/* Sidebar or background */}
-      <div className="bg-blue-500 w-[60%] h-full flex items-center justify-center text-white">
-        <h1 className="text-4xl font-bold">Brand</h1>
-      </div>
+
+      <img
+        src={SignInAndLoginGif}
+        className="h-full w-[60%] object-fill object-center"
+      />
 
       {/* Animated Content */}
       <div className="relative w-[40%] h-full overflow-hidden bg-white">
@@ -54,7 +54,7 @@ export default function LoginAndSignInPage({toAction}) {
               : "translate-y-[200%]"
           }`}
         >
-          <SignUp setAction={setAction}/>
+          <SignUp setAction={setAction} />
         </div>
       </div>
     </div>
