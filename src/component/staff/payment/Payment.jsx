@@ -154,22 +154,41 @@ const Payment = () => {
 
   // Định nghĩa các cột trong bảng
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id" },
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      align: "center",
+    },
     {
       title: "Ocop Partner ID",
       dataIndex: "ocopPartnerId",
       key: "ocopPartnerId",
+      align: "center",
     },
-    { title: "Transfer By", dataIndex: "transferBy", key: "transferBy" },
+    {
+      title: "Ocop Partner Email",
+      dataIndex: "partner_email",
+      key: "partner_email",
+      align: "center",
+    },
+    {
+      title: "Transfer By",
+      dataIndex: "transferBy",
+      key: "transferBy",
+      align: "center",
+    },
     {
       title: "Transfer By Staff Email",
       dataIndex: "transferByStaffEmail",
       key: "transferByStaffEmail",
+      align: "center",
     },
     {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
+      align: "center",
       render: (amount) =>
         `${new Intl.NumberFormat("vi-VN", {
           style: "decimal",
@@ -180,23 +199,87 @@ const Payment = () => {
       title: "Create Date",
       dataIndex: "createDate",
       key: "createDate",
+      align: "center",
       render: (text) => {
         if (!text) return "N/A";
         const date = new Date(text);
-        return new Intl.DateTimeFormat("vi-VN").format(date);
+        const formattedDate = new Intl.DateTimeFormat("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          timeZone: "Asia/Ho_Chi_Minh",
+        }).format(date);
+
+        const formattedTime = new Intl.DateTimeFormat("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+          timeZone: "Asia/Ho_Chi_Minh",
+        }).format(date);
+
+        return (
+          <>
+            {formattedDate}
+            <br />
+            {formattedTime}
+          </>
+        );
       },
     },
+
     {
       title: "Picture Link",
       dataIndex: "pictureLink",
       key: "pictureLink",
+      align: "center",
       render: (link) => {
+        const baseStyle = {
+          borderRadius: "4px",
+          padding: "6px 12px",
+          display: "inline-block",
+          color: "#fff",
+          textDecoration: "none",
+          cursor: "pointer",
+          transition: "transform 0.2s, opacity 0.2s",
+        };
+
+        const viewImageStyle = {
+          ...baseStyle,
+          backgroundColor: "#1890ff", // Màu xanh cho View Image
+        };
+
+        const noImageStyle = {
+          ...baseStyle,
+          backgroundColor: "#ffcccc", // Màu đỏ nhạt cho No Image
+          color: "#a8071a", // Màu chữ đỏ đậm
+        };
+
         return link ? (
-          <a href={link} target="_blank" rel="noopener noreferrer">
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={viewImageStyle}
+            onMouseDown={(e) =>
+              (e.currentTarget.style.transform = "scale(0.95)")
+            }
+            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
             View Image
           </a>
         ) : (
-          "No Image"
+          <span
+            style={noImageStyle}
+            onMouseDown={(e) =>
+              (e.currentTarget.style.transform = "scale(0.95)")
+            }
+            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            No Image
+          </span>
         );
       },
     },
