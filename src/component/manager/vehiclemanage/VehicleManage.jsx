@@ -579,14 +579,15 @@ const VehicleManage = () => {
           {
             title: "Actions",
             key: "actions",
-            width: 320,
+            width: 350,
             align: "center",
             render: (text, record) => (
               <div
                 style={{
                   display: "flex",
-                  gap: "6px",
+                  gap: "8px",
                   justifyContent: "center",
+                  alignItems: "center",
                   flexWrap: "wrap",
                 }}
               >
@@ -600,45 +601,30 @@ const VehicleManage = () => {
                     borderColor: "#52c41a",
                     borderRadius: "5px",
                     padding: "0 8px",
-                    minWidth: "80px",
+                    minWidth: "85px",
                   }}
                 >
                   Detail
                 </Button>
-
+          
                 {/* Nút Update Vehicle */}
                 <Button
                   type="default"
                   size="small"
                   onClick={() => openUpdateModal(record)}
-                  disabled={
-                    record.status === "InService" ||
-                    record.status === "Available"
-                  }
+                  disabled={record.status === "InService" || record.status === "Available"}
                   style={{
-                    color:
-                      record.status === "InService" ||
-                      record.status === "Available"
-                        ? "#d9d9d9"
-                        : "#1890ff",
-                    borderColor:
-                      record.status === "InService" ||
-                      record.status === "Available"
-                        ? "#d9d9d9"
-                        : "#1890ff",
+                    color: record.status === "InService" || record.status === "Available" ? "#d9d9d9" : "#1890ff",
+                    borderColor: record.status === "InService" || record.status === "Available" ? "#d9d9d9" : "#1890ff",
                     borderRadius: "5px",
                     padding: "0 8px",
-                    minWidth: "80px",
-                    cursor:
-                      record.status === "InService" ||
-                      record.status === "Available"
-                        ? "not-allowed"
-                        : "pointer",
+                    minWidth: "85px",
+                    cursor: record.status === "InService" || record.status === "Available" ? "not-allowed" : "pointer",
                   }}
                 >
                   Update
                 </Button>
-
+          
                 {/* Nút Delete Vehicle */}
                 <Button
                   type="default"
@@ -647,26 +633,29 @@ const VehicleManage = () => {
                   disabled={record.status !== "Repair"}
                   style={{
                     color: record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
-                    borderColor:
-                      record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
+                    borderColor: record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
                     borderRadius: "5px",
                     padding: "0 8px",
-                    minWidth: "80px",
-                    cursor:
-                      record.status === "Repair" ? "pointer" : "not-allowed",
+                    minWidth: "85px",
+                    cursor: record.status === "Repair" ? "pointer" : "not-allowed",
                   }}
                 >
                   Delete
                 </Button>
-
+          
                 {/* Dropdown và Button Approve */}
                 <div
-                  style={{ display: "flex", gap: "6px", alignItems: "center" }}
+                  style={{
+                    display: "flex",
+                    gap: "6px",
+                    alignItems: "center",
+                    flexWrap: "nowrap",
+                  }}
                 >
                   {showDropdownId === record?.id && (
                     <Select
                       placeholder="Select Status"
-                      style={{ width: 120 }}
+                      style={{ width: 130 }}
                       onChange={(value) =>
                         setSelectedStatus((prev) => ({
                           ...prev,
@@ -680,7 +669,7 @@ const VehicleManage = () => {
                       <Option value="Repair">Repair</Option>
                     </Select>
                   )}
-
+          
                   <Button
                     type="default"
                     size="small"
@@ -696,7 +685,7 @@ const VehicleManage = () => {
                       borderColor: "#52c41a",
                       borderRadius: "5px",
                       padding: "0 8px",
-                      minWidth: "80px",
+                      minWidth: "85px",
                     }}
                   >
                     {showDropdownId === record?.id ? "Submit" : "Approve"}
@@ -705,6 +694,7 @@ const VehicleManage = () => {
               </div>
             ),
           },
+          
         ]}
         rowKey="id"
         loading={loading}
