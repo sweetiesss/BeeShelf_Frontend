@@ -122,13 +122,18 @@ export function Sidebar() {
               </div>
             </NavLink>
 
-            <NavLink to="vehiclemanage" className="flex navigate-menu">
+            <NavLink to="vehicle" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <AddressBook className="icon" />
                 <p className="label">{t("Vehicle")}</p>
               </div>
-            </NavLink>  
-
+            </NavLink>
+            <NavLink to="category" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Category")}</p>
+              </div>
+            </NavLink>
           </>
         )}
 
@@ -140,7 +145,7 @@ export function Sidebar() {
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink> */}
-        
+
             <NavLink to="payment" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <CreditCard className="icon" weight="fill" />

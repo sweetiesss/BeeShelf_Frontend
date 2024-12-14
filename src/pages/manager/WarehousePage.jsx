@@ -69,11 +69,9 @@ export default function WarehousesPage() {
     totalItems: 0,
     totalPages: 0,
   });
+
   useEffect(() => {
-    fetchWarehousesList();
-  }, []);
-  useEffect(() => {
-    fetchEmployeeList();
+    if (warehouses && warehouses.length > 0) fetchEmployeeList();
   }, [warehouses]);
 
   useEffect(() => {
