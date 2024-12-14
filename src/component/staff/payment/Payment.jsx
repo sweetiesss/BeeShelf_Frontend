@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Table, message, Spin, Button, Input, Modal, Form, Select } from "antd";
 import { useParams } from "react-router-dom";
 import useAxios from "../../../services/CustomizeAxios";
@@ -20,6 +21,7 @@ const Payment = () => {
     pageIndex: 0,
   });
   const { fetchDataBearer } = useAxios();
+  const { t } = useTranslation();
 
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchPayments = async () => {
@@ -28,7 +30,8 @@ const Payment = () => {
       const warehouseId = userInfor?.workAtWarehouseId;
 
       if (!warehouseId) {
-        message.error("Warehouse ID is not available. Please log in again.");
+       
+        message.error(t("WarehouseIDisnotavailable.Pleaseloginagain."));
         setLoading(false);
         return;
       }
@@ -44,7 +47,7 @@ const Payment = () => {
 
       if (response && response.data) {
         setPayments(response.data);
-        message.success("Data loaded successfully!");
+        message.success(t("Dataloadedsuccessfully!"));
 
         // Tạo danh sách paymentId cho Select component
         const options = response.data
@@ -61,11 +64,11 @@ const Payment = () => {
 
         setPaymentIdOptions(options);
       } else {
-        message.error("No data returned from the server.");
+        message.error(t("Nodatareturnedfromtheserver."));
       }
     } catch (error) {
-      console.error("Error fetching payments:", error);
-      message.error("Failed to fetch payments.");
+      console.error(t("Errorfetchingpayments:"), error);
+      message.error(t("Failedtofetchpayments."));
     } finally {
       setLoading(false);
     }
@@ -76,7 +79,7 @@ const Payment = () => {
     const selectedFile = e.target.files[0];
 
     if (!selectedFile) {
-      message.error("Please select a valid image file.");
+      message.error(t("Pleaseselectavalidimagefile."));
       return;
     }
 
@@ -93,13 +96,13 @@ const Payment = () => {
       if (response && response.data) {
         setFile(selectedFile);
         setPictureLink(response.data); // Giả sử response.data chứa URL của ảnh
-        message.success("Image uploaded successfully!");
+        message.success(t("Imageuploadedsuccessfully!"));
       } else {
-        message.error("Failed to upload image.");
+        message.error(t("Failedtouploadimage."));
       }
     } catch (error) {
-      console.error("Error uploading image:", error);
-      message.error("An error occurred while uploading the image.");
+      console.error(t("Erroruploadingimage:"), error);
+      message.error(t("Anerroroccurredwhileuploadingtheimage."));
     }
   };
 
@@ -108,13 +111,13 @@ const Payment = () => {
     setLoading(true);
     try {
       if (!moneyTransferId) {
-        message.error("Please select a Payment ID.");
+        message.error(t("PleaseselectaPaymentID."));
         setLoading(false);
         return;
       }
 
       if (!pictureLink) {
-        message.error("Please upload a picture.");
+        message.error(t("Pleaseuploadapicture."));
         setLoading(false);
         return;
       }
@@ -134,19 +137,19 @@ const Payment = () => {
       });
 
       if (response && response.status === 200) {
-        message.success("Payment confirmed successfully!");
+        message.success(t("Paymentconfirmedsuccessfully!"));
         fetchPayments();
         setVisible(false);
         setPictureLink(null);
         setPaymentId("");
       } else {
         const errorMessage =
-          response?.data?.message || "Failed to confirm money transfer.";
+          response?.data?.message || t("Failedtoconfirmmoneytransfer");
         message.error(errorMessage);
       }
     } catch (error) {
-      console.error("Error confirming payment:", error);
-      message.error("An error occurred while confirming the payment.");
+      console.error(t("Errorconfirmingpayment:"), error);
+      message.error(t("Anerroroccurredwhileconfirmingthpayment"));
     } finally {
       setLoading(false);
     }
@@ -155,37 +158,37 @@ const Payment = () => {
   // Định nghĩa các cột trong bảng
   const columns = [
     {
-      title: "ID",
+      title: t("ID"), 
       dataIndex: "id",
       key: "id",
       align: "center",
     },
     {
-      title: "Ocop Partner ID",
+      title: t("ocopPartnerId"),
       dataIndex: "ocopPartnerId",
       key: "ocopPartnerId",
       align: "center",
     },
     {
-      title: "Ocop Partner Email",
+      title: t("OcopPartnerEmail"),
       dataIndex: "partner_email",
       key: "partner_email",
       align: "center",
     },
     {
-      title: "Transfer By",
+      title: t("TransferBy"),
       dataIndex: "transferBy",
       key: "transferBy",
       align: "center",
     },
     {
-      title: "Transfer By Staff Email",
+      title: t("TransferByStaffEmail"),
       dataIndex: "transferByStaffEmail",
       key: "transferByStaffEmail",
       align: "center",
     },
     {
-      title: "Amount",
+      title: t("Amount"),
       dataIndex: "amount",
       key: "amount",
       align: "center",
@@ -196,7 +199,7 @@ const Payment = () => {
         }).format(amount)} VNĐ`,
     },
     {
-      title: "Create Date",
+      title: t("CreateDate"),
       dataIndex: "createDate",
       key: "createDate",
       align: "center",
@@ -229,7 +232,7 @@ const Payment = () => {
     },
 
     {
-      title: "Picture Link",
+      title: t("PictureLink"), 
       dataIndex: "pictureLink",
       key: "pictureLink",
       align: "center",
@@ -267,7 +270,7 @@ const Payment = () => {
             onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
             onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
-            View Image
+            {t("ViewImage")}
           </a>
         ) : (
           <span
@@ -278,7 +281,7 @@ const Payment = () => {
             onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
             onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
-            No Image
+            {t("NoImage")}
           </span>
         );
       },
@@ -292,23 +295,23 @@ const Payment = () => {
   return (
     <div style={{ padding: "20px" }}>
       <div className="flex justify-between items-center mb-4">
-        <h1>Transfer Money Request List</h1>
+        <h1>{t("TransferMoneyRequestList")}</h1>
         <Button
           type="primary"
           onClick={() => setVisible(true)}
           style={{ marginBottom: 20 }}
         >
-          Confirm Money Transfer Request
+         {t("ConfirmMoneyTransferRequest")}
         </Button>
       </div>
 
       <Modal
-        title="Confirm Money Transfer Request"
+        title={t("ConfirmMoneyTransferRequest")}
         visible={visible}
         onCancel={() => setVisible(false)}
         footer={[
           <Button key="back" onClick={() => setVisible(false)}>
-            Cancel
+            {t("Cancel")}
           </Button>,
           <Button
             key="submit"
@@ -316,20 +319,20 @@ const Payment = () => {
             loading={loading}
             onClick={createPayment}
           >
-            Confirm Money Transfer Request
+            {t("ConfirmMoneyTransferRequest")} 
           </Button>,
         ]}
       >
         <Form layout="vertical">
-          <Form.Item label="Staff ID" required>
+          <Form.Item label={t("StaffID")}  required>
             <Input value={userInfor?.id} disabled placeholder="Staff ID" />
           </Form.Item>
 
-          <Form.Item label="Payment ID" required>
+          <Form.Item label={t("PaymentID")} required>
             <Select
               value={moneyTransferId}
               onChange={setPaymentId}
-              placeholder="Select Payment ID"
+              placeholder={t("SelectPaymentID")} 
               allowClear
             >
               {paymentIdOptions.map((option) => (
@@ -340,7 +343,7 @@ const Payment = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item label="Upload Picture" required>
+          <Form.Item label={t("UploadPicture")}  required>
             <Input type="file" accept="image/*" onChange={handleFileChange} />
           </Form.Item>
         </Form>
