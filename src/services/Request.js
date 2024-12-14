@@ -35,6 +35,35 @@ export default function AxiosRequest() {
       };
     }
   };
+  const updateRequest = async (data, id) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `request/update-request/${id && id} `,
+        method: "PUT",
+        data: data,
+      });
+      const result = await toast.promise(fetching, {
+        pending: "Request in progress...",
+        success: {
+          render() {
+            return `Request updated`;
+          },
+        },
+        error: {
+          render({ data }) {
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return result;
+    } catch (e) {
+      console.log(e);
+      return {
+        error: true,
+        message: e.response?.data?.message || "Something went wrong!",
+      };
+    }
+  };
   const getRequestByUserId = async (
     userId,
     status,
@@ -150,5 +179,6 @@ export default function AxiosRequest() {
     sendRequestById,
     deleteRequestById,
     updateRequestStatus,
+    updateRequest,
   };
 }

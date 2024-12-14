@@ -9,10 +9,14 @@ import AxiosProduct from "../../services/Product";
 import AxiosLot from "../../services/Lot";
 import ImportRequestSide from "../../component/partner/request/ImportRequestSide";
 import ExportRequestSide from "../../component/partner/request/ExportRequestSide";
+import { useLocation } from "react-router-dom";
 
-export default function CreateRequestPage({ handleCancel, handleClose }) {
+export default function UpdateRequestPage() {
+  const location = useLocation();
+  const [updateDataBased, setUpdateDataBased] = useState(location?.state || {});
+
   const { userInfor } = useContext(AuthContext);
-  const [typeRequest, setTypeRequest] = useState("Import");
+  const [typeRequest, setTypeRequest] = useState(updateDataBased?.requestType);
 
   const [products, setProducts] = useState([]);
   const [productsImported, setProductsImported] = useState([]);
@@ -23,7 +27,7 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
   const { t } = useTranslation();
   const { getInventory1000ByUserId } = AxiosInventory();
   const { getProductByUserId } = AxiosProduct();
-  const { getLotByUserId } = AxiosLot();
+  const { getLotByUserId, getLotById } = AxiosLot();
 
   useEffect(() => {
     const fetchingBeginData = async () => {
@@ -64,8 +68,19 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
     };
     fetchingBeginData();
   }, []);
-
-  console.log("ImportedProduts", productsImported);
+  useEffect(() => {
+    const fetchingData = async () => {
+      if (updateDataBased && updateDataBased?.lotId > 0) {
+        const result = await getLotById(updateDataBased?.lotId);
+        console.log("resultghere", result);
+        if (result?.status === 200) {
+          setUpdateDataBased((prev) => ({ ...prev, lot: result?.data }));
+        }
+      }
+    };
+    fetchingData();
+  }, []);
+  console.log("updateDataBased", updateDataBased);
 
   // Render the form
   return (
@@ -76,74 +91,21 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
           {t("TypeOfRequest")}
         </div>
 
-        <Select
-          className="col-span-2"
-          styles={{
-            menu: (provided) => ({
-              ...provided,
-
-              // Restrict the dropdown height
-              overflowY: "hidden", // Enable scrolling for content
-            }),
-            menuList: (provided) => ({
-              ...provided,
-              padding: 0, // Ensure no extra padding
-              maxHeight: "11.5rem",
-              overflow: "auto",
-            }),
-            control: (baseStyles) => ({
-              ...baseStyles,
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              boxShadow: "none",
-              "&:hover": {
-                border: "1px solid #888",
-              },
-            }),
-            option: (baseStyles, { isFocused, isSelected }) => ({
-              ...baseStyles,
-              backgroundColor: isSelected
-                ? "var(--Xanh-Base)"
-                : isFocused
-                ? "var(--Xanh-100)"
-                : "white",
-              color: isSelected ? "white !important" : "black",
-              cursor: "pointer",
-              padding: "0.5rem 1rem", // Option padding
-              textAlign: "left", // Center-align text
-            }),
-          }}
-          value={{
-            value: typeRequest,
-            label: typeRequest,
-          }} // Map string to object
-          onChange={(selectedOption) => setTypeRequest(selectedOption.value)}
-          options={[
-            { value: "Import", label: "Import" },
-            { value: "Export", label: "Export" },
-          ]}
-          formatOptionLabel={({ value }) => (
-            <div className="flex items-center gap-4">
-              <p>{value}</p>
-              <p className="text-gray-400">
-                {"("}
-                {value === "Import"
-                  ? t("ImportProductToInventory")
-                  : "ExportProductFromInventory"}
-                {")"}
-              </p>
-            </div>
-          )}
-        />
+        <span className="text-xl font-medium ">{typeRequest}</span>
       </div>
 
       {typeRequest === "Import" && (
-        <ImportRequestSide products={products} inventories={inventories} />
+        <ImportRequestSide
+          products={products}
+          inventories={inventories}
+          updateDataBased={updateDataBased}
+        />
       )}
       {typeRequest === "Export" && (
         <ExportRequestSide
           productsImported={productsImported}
           inventories={inventories}
+          updateDataBased={updateDataBased}
         />
       )}
       {/* <div className="flex gap-10 justify-start items-start">
