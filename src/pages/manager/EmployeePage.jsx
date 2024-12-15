@@ -25,7 +25,7 @@ export default function EmployeePage() {
 
   const [newEmployee, setNewEmployee] = useState({
     email: "",
-    password: "",
+  
     firstName: "",
     lastName: "",
     phone: "",
@@ -33,7 +33,7 @@ export default function EmployeePage() {
   });
   const defaultNewEmployee = {
     email: "",
-    password: "",
+  
     firstName: "",
     lastName: "",
     phone: "",
@@ -315,14 +315,6 @@ export default function EmployeePage() {
               value={newEmployee.email}
               onChange={handleInputChange}
               placeholder="Enter email"
-            />
-          </Form.Item>
-          <Form.Item label="Password" required>
-            <Input.Password
-              name="password"
-              value={newEmployee.password}
-              onChange={handleInputChange}
-              placeholder="Enter password"
             />
           </Form.Item>
           <Form.Item label="First Name" required>

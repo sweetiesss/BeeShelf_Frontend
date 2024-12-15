@@ -757,7 +757,11 @@ export default function DetailSlide() {
 
           <div className="w-full flex flex-col items-center gap-8">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-32 h-32 bg-gray-300 rounded-lg relative">
+              <div className="w-32 h-32  relative border-2 rounded-lg ">
+                <img
+                  src={dataDetail?.productImage}
+                  className="w-full h-full object-cover object-center border-2 rounded-lg"
+                />
                 <div
                   className={`absolute rounded-xl px-1 py-1 right-0 top-0 translate-x-5 -translate-y-5 ${
                     dataDetail?.status === "Completed"
@@ -774,6 +778,7 @@ export default function DetailSlide() {
                   {dataDetail?.status}
                 </div>
               </div>
+
               <div className="text-center">
                 <p className="text-xl font-medium">{dataDetail?.name}</p>
                 <p
@@ -795,12 +800,22 @@ export default function DetailSlide() {
                 { label: "Product Name:", value: lotData?.lotNumber },
                 { label: "Create date:", value: dataDetail?.createDate },
                 { label: "Description:", value: dataDetail?.description },
-                { label: "Amount:", value: lotData?.amount },
+                { label: "Amount:", value: lotData?.lotAmount + " lots" },
+                { label: "ProductPerLot:", value: lotData?.productPerLot },
                 // { label: "Product ID:", value: "#ID394812" },
-                { label: "Product amount:", value: lotData?.productAmount },
-                { label: "Import date:", value: "notYet" },
-                { label: "Export date:", value: "NotYet" },
-                { label: "Expiration date:", value: "NotYet" },
+                {
+                  label: "TotalProductAmount:",
+                  value: lotData?.totalProductAmount,
+                },
+                {
+                  label: "ApporveDate:",
+                  value: dataDetail?.apporveDate ? dataDetail?.apporveDate : "notYet",
+                },
+                {
+                  label: "DeliverDate:",
+                  value: dataDetail?.deliverDate ? dataDetail?.deliverDate : "notYet",
+                },
+
                 { label: "To Warehouse:", value: dataDetail?.warehouseName },
               ]?.map((item, index) => (
                 <div key={index} className="flex justify-between text-lg">
@@ -1915,7 +1930,9 @@ export default function DetailSlide() {
               src={dataDetail?.productPictureLink || defaultImg}
               className="w-32 h-32 bg-gray-300 border-2 rounded-lg relative object-cover object-center"
             />
-            <p className="text-xl text-center font-medium">{dataDetail?.name}</p>
+            <p className="text-xl text-center font-medium">
+              {dataDetail?.name}
+            </p>
           </div>
 
           <div className="w-full flex flex-col gap-4">

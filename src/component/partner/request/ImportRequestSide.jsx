@@ -23,6 +23,7 @@ export default function ImportRequestSide({ inventories, products }) {
     ocopPartnerId: userInfor?.id,
     name: "",
     description: "",
+    exportFromLotId: 0,
     sendToInventoryId: 0,
     lot: {
       lotNumber: "",
@@ -36,6 +37,7 @@ export default function ImportRequestSide({ inventories, products }) {
     ocopPartnerId: userInfor?.id,
     name: "",
     description: "",
+    exportFromLotId: 0,
     sendToInventoryId: 0,
     lot: {
       lotAmount: null,

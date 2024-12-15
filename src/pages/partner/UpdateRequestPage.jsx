@@ -11,6 +11,7 @@ import ImportRequestSide from "../../component/partner/request/ImportRequestSide
 import ExportRequestSide from "../../component/partner/request/ExportRequestSide";
 import { useLocation } from "react-router-dom";
 import ImportRequestSideUpdate from "../../component/partner/request/ImportRequestSideUpdate";
+import ExportRequestSideUpdate from "../../component/partner/request/ExportRequestSideUpdate";
 
 export default function UpdateRequestPage() {
   const location = useLocation();
@@ -101,7 +102,7 @@ export default function UpdateRequestPage() {
         />
       )}
       {typeRequest === "Export" && (
-        <ExportRequestSide
+        <ExportRequestSideUpdate
           productsImported={productsImported}
           inventories={inventories}
           updateDataBased={updateDataBased}

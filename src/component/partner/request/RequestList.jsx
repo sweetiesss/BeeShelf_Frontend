@@ -75,9 +75,10 @@ export default function RequestList({
 
                     <td className=" px-3 py-2  flex justify-left items-center ">
                       <img
-                        src={request?.image ? request?.image : defaultImg}
+                        src={request?.productImage ? request?.productImage : defaultImg}
                         alt={request?.name}
-                        className="h-20 w-20 rounded-xl"
+                        className="h-20 w-20 rounded-xl object-cover object-center"
+
                       />
                     </td>
                     <td className=" px-1 py-2 ">{request?.name}</td>

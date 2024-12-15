@@ -10,30 +10,37 @@ import {
   Drawer,
   Descriptions,
   Select,
+  Checkbox,
 } from "antd";
 import AxiosWarehouse from "../../services/Warehouse";
 import AxiosEmployee from "../../services/Employee";
 import AxiosInventory from "../../services/Inventory";
-
+import AxiosOthers from "../../services/Others";
+const { Option } = Select;
 export default function WarehousesPage() {
   const [form] = Form.useForm();
   const [warehouses, setWarehouses] = useState([]); // Warehouse data
+  const [provinces, setProvinces] = useState([]);
   const [loading, setLoading] = useState(false); // Loading state
   const [editingKey, setEditingKey] = useState(""); // Track the editing key
   const {
     getWarehouses,
     createWarehouse,
+    updateWarehouse,
+    deleteWarehouseById,
     getWarehouseById,
     assignStaff,
     assignShipper,
   } = AxiosWarehouse(); // API calls
   const { getEmployees } = AxiosEmployee();
   const { createInventory } = AxiosInventory();
+  const { getProvinces } = AxiosOthers();
   const [search, setSearch] = useState(); // Search term
   const [sortCriteria, setSortCriteria] = useState(); // Search term
   const [descending, setDescending] = useState(false); // Sort order
 
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility
+  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false); // Modal visibility
 
   const [isDrawerVisible, setIsDrawerVisible] = useState(false); // Drawer visibility
 
@@ -53,16 +60,20 @@ export default function WarehousesPage() {
   const [newInventory, setNewInventory] = useState({
     name: "",
     maxWeight: 0,
+    price: 0,
     weight: 0,
     warehouseId: 0,
   });
 
   const [newWarehouse, setNewWarehouse] = useState({
+    id: 0,
     name: "",
     capacity: "",
     location: "",
+    isCold: 0,
+    provinceId: 0,
   });
-  const newWarehouseForm = { name: "", capacity: "", location: "" };
+
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -78,6 +89,32 @@ export default function WarehousesPage() {
     fetchWarehousesList();
   }, [pagination.pageIndex, pagination.pageSize, search, descending]);
 
+  useEffect(() => {
+    fetchBeginData();
+  }, []);
+
+  const fetchBeginData = async () => {
+    const result = await getWarehouses(
+      undefined,
+      undefined, // Example sort by name
+      undefined,
+      0,
+      1000
+    );
+    if (result?.status === 200) {
+      const { items, totalItemsCount, totalPagesCount } = result.data;
+      setWarehouseListSelection(
+        items.map((ware) => ({
+          label: ware.name + "-" + ware.location,
+          value: ware.id,
+        }))
+      );
+    }
+    const result2 = await getProvinces();
+    if (result2?.status === 200) {
+      setProvinces(result2?.data);
+    }
+  };
   // Fetch warehouse list
   const fetchWarehousesList = async () => {
     try {
@@ -89,13 +126,7 @@ export default function WarehousesPage() {
         pagination.pageIndex,
         pagination.pageSize
       );
-      const result2 = await getWarehouses(
-        undefined,
-        undefined, // Example sort by name
-        undefined,
-        0,
-        1000
-      );
+
       if (result?.status === 200) {
         const { items, totalItemsCount, totalPagesCount } = result.data;
         setWarehouses(items.map((item) => ({ ...item, key: item.id }))); // Add key for table rows
@@ -104,15 +135,6 @@ export default function WarehousesPage() {
           totalItems: totalItemsCount,
           totalPages: totalPagesCount,
         }));
-      }
-      if (result2?.status === 200) {
-        const { items, totalItemsCount, totalPagesCount } = result.data;
-        setWarehouseListSelection(
-          items.map((ware) => ({
-            label: ware.name + "-" + ware.location,
-            value: ware.id,
-          }))
-        );
       }
     } catch (e) {
       console.error("Failed to fetch warehouses:", e);
@@ -168,12 +190,12 @@ export default function WarehousesPage() {
 
         console.log(warehouseListSelection);
 
-        const unassignedWarehouses = warehouseListSelection.filter(
-          (warehouse) => !assignedWarehouseIds.has(warehouse.value)
-        );
-        console.log("unassignedWarehouses", unassignedWarehouses);
+        // const unassignedWarehouses = warehouseListSelection.filter(
+        //   (warehouse) => !assignedWarehouseIds.has(warehouse.value)
+        // );
+        console.log("unassignedWarehouses", warehouseListSelection);
 
-        setWarehouseList(unassignedWarehouses);
+        setWarehouseList(warehouseListSelection);
       }
     } catch (e) {
       console.error("Failed to fetch warehouses:", e);
@@ -182,18 +204,18 @@ export default function WarehousesPage() {
     }
   };
 
-  // Determine if a row is being edited
-  const isEditing = (record) => record.key === editingKey;
-
-  // Cancel editing
-  const cancel = () => {
-    setEditingKey("");
-  };
-
   const handleModalOpen = () => setIsModalVisible(true);
   const handleModalClose = () => {
-    setNewWarehouse({ name: "", capacity: "", location: "" });
+    setNewWarehouse({
+      id: 0,
+      name: "",
+      capacity: "",
+      location: "",
+      isCold: 0,
+      provinceId: 0,
+    });
     setIsModalVisible(false);
+    setIsUpdateModalVisible(false);
   };
 
   // Handle Assign Staff
@@ -206,28 +228,42 @@ export default function WarehousesPage() {
       console.log(!selectedStaff);
 
       if (
-        !assignWarehouseId ||
-        selectedShippers.length === 0 ||
-        !selectedStaff
+        !assignWarehouseId &&
+        selectedShippers.length === 0 &&
+        selectedStaff.length === 0
       ) {
         console.error("Required parameters are missing.");
         return;
       }
-      const submitShipper = selectedShippers.map((ship) => ({
+      const submitShipper = selectedShippers?.map((ship) => ({
         employeeId: ship,
         warehouseId: assignWarehouseId,
       }));
 
       console.log("submitShipper", submitShipper);
+      console.log(selectedStaff);
+      const submitSelectStaff = selectedStaff?.map((item) => ({
+        employeeId: item,
+        warehouseId: assignWarehouseId,
+      }));
 
-      const result1 = await assignStaff(assignWarehouseId, selectedStaff);
-      const result2 = await assignShipper(submitShipper);
+      let checkrefresh = false;
+      console.log("submitSelectStaff", submitSelectStaff);
+      if (submitSelectStaff.length > 0) {
+        const result1 = await assignStaff(submitSelectStaff);
+        console.log(result1);
+        if (result1?.status === 200) checkrefresh = true;
+      }
+      if (selectedShippers.length > 0) {
+        const result2 = await assignShipper(submitShipper);
+        console.log(result2);
+        if (result2?.status === 200) checkrefresh = true;
+      }
+      if (checkrefresh === true) {
+        setIsAssignModalVisible(false);
+        fetchWarehousesList();
+      }
 
-      console.log(result1);
-      console.log(result2);
-
-      setIsAssignModalVisible(false);
-      fetchWarehousesList();
       setAssignWarehouseId();
       setSelectedStaff();
       setSelectedShippers([]);
@@ -311,17 +347,56 @@ export default function WarehousesPage() {
     const { name, value } = e.target;
     setNewWarehouse((prev) => ({ ...prev, [name]: value }));
   };
+  const handleProvinceChange = (value) => {
+    setNewWarehouse((prev) => ({ ...prev, provinceId: value }));
+  };
+  const handleIsColdChange = (e) => {
+    setNewWarehouse((prev) => ({ ...prev, isCold: e.target.checked ? 1 : 0 }));
+  };
 
   // Save updated data
-  const save = async (key) => {};
+  const handleUpdateWarehouse = async () => {
+    try {
+      const resut = await updateWarehouse(newWarehouse?.id, newWarehouse);
+      if (resut?.status === 200) {
+        handleModalClose();
+        fetchWarehousesList();
+      }
+    } catch (error) {
+      console.error("Failed to create warehouse:", error);
+    }
+  };
 
   // Edit row
-  const edit = (key) => {
-    setEditingKey(key);
+  const edit = (record) => {
+    setIsUpdateModalVisible(true);
+    const parts = record?.location.split(",");
+
+    parts.pop();
+
+    const updatedLocation = parts.join(",").trim();
+
+    setNewWarehouse({
+      id: record?.id,
+      name: record?.name,
+      capacity: record?.capacity,
+      location: updatedLocation,
+      isCold: record?.isCold,
+      provinceId: record?.provinceId,
+    });
   };
 
   // Delete row
-  const handleDelete = async (key) => {};
+  const handleDelete = async (id) => {
+    try {
+      const resut = await deleteWarehouseById(id);
+      if (resut?.status === 200) {
+        fetchWarehousesList();
+      }
+    } catch (error) {
+      console.error("Failed to create warehouse:", error);
+    }
+  };
 
   // Table columns
   const columns = [
@@ -336,6 +411,12 @@ export default function WarehousesPage() {
       editable: true,
     },
     {
+      title: "isCold",
+      dataIndex: "isCold",
+      editable: true,
+      render: (_, record) => (record?.isCold === 1 ? "Cold" : "Normal"),
+    },
+    {
       title: "Location",
       dataIndex: "location",
     },
@@ -348,21 +429,11 @@ export default function WarehousesPage() {
       title: "Operation",
       dataIndex: "operation",
       render: (_, record) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <Space>
-            <Button onClick={() => save(record.key)} type="link">
-              Save
-            </Button>
-            <Popconfirm title="Cancel edit?" onConfirm={cancel}>
-              <Button type="link">Cancel</Button>
-            </Popconfirm>
-          </Space>
-        ) : (
+        return (
           <Space>
             <Button
               disabled={editingKey !== ""}
-              onClick={() => edit(record.key)}
+              onClick={() => edit(record)}
               type="link"
             >
               Edit
@@ -374,7 +445,7 @@ export default function WarehousesPage() {
 
             <Popconfirm
               title="Are you sure to delete this warehouse?"
-              onConfirm={() => handleDelete(record.key)}
+              onConfirm={() => handleDelete(record.id)}
             >
               <Button type="link" danger>
                 Delete
@@ -401,44 +472,9 @@ export default function WarehousesPage() {
             : "text",
         dataIndex: col.dataIndex,
         title: col.title,
-        editing: isEditing(record),
       }),
     };
   });
-
-  // Editable cell component
-  const EditableCell = ({
-    editing,
-    dataIndex,
-    title,
-    inputType,
-    record,
-    index,
-    children,
-    ...restProps
-  }) => {
-    return (
-      <td {...restProps}>
-        {editing ? (
-          <Form.Item
-            name={dataIndex}
-            style={{ margin: 0 }}
-            initialValue={record[dataIndex]} // Ensure the initial value matches the record
-            rules={[
-              {
-                required: true,
-                message: `Please Input ${title}!`,
-              },
-            ]}
-          >
-            {inputType === "number" ? <Input type="number" /> : <Input />}
-          </Form.Item>
-        ) : (
-          children
-        )}
-      </td>
-    );
-  };
 
   // Open details drawer
   const openDetailsDrawer = async (id) => {
@@ -480,11 +516,6 @@ export default function WarehousesPage() {
           </Button>
         </div>
         <Table
-          components={{
-            body: {
-              cell: EditableCell,
-            },
-          }}
           bordered
           dataSource={warehouses}
           columns={mergedColumns}
@@ -530,13 +561,99 @@ export default function WarehousesPage() {
               type="number"
             />
           </Form.Item>
-          <Form.Item label="Location" required>
+          <Form.Item label="Address">
+            <Space.Compact style={{ width: "100%" }}>
+              <Form.Item style={{ width: "60%" }} required>
+                <Input
+                  name="location"
+                  value={newWarehouse.location}
+                  onChange={handleInputChange}
+                  placeholder="Enter location"
+                />
+              </Form.Item>
+              <Form.Item style={{ width: "40%" }} required>
+                <Select
+                  name="provinceId"
+                  onChange={handleProvinceChange}
+                  value={newWarehouse?.provinceId}
+                  placeholder="Select Province"
+                >
+                  {provinces?.map((item) => (
+                    <Option value={item?.id}>{item?.subDivisionName}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Space.Compact>
+          </Form.Item>
+          <Form.Item>
+            <span> Is Cold Storage? </span>
+            <Checkbox
+              checked={newWarehouse.isCold === 1}
+              onChange={handleIsColdChange}
+            >
+              Yes
+            </Checkbox>
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="Update Warehouse"
+        visible={isUpdateModalVisible}
+        onCancel={handleModalClose}
+        onOk={handleUpdateWarehouse}
+        okText="Create"
+        cancelText="Cancel"
+      >
+        <Form layout="vertical">
+          <Form.Item label="Warehouse Name" required>
             <Input
-              name="location"
-              value={newWarehouse.location}
+              name="name"
+              value={newWarehouse.name}
               onChange={handleInputChange}
-              placeholder="Enter location"
+              placeholder="Enter warehouse name"
             />
+          </Form.Item>
+          <Form.Item label="Capacity" required>
+            <Input
+              name="capacity"
+              value={newWarehouse.capacity}
+              onChange={handleInputChange}
+              placeholder="Enter capacity"
+              type="number"
+            />
+          </Form.Item>
+          <Form.Item label="Address">
+            <Space.Compact style={{ width: "100%" }}>
+              <Form.Item style={{ width: "60%" }} required>
+                <Input
+                  name="location"
+                  value={newWarehouse.location}
+                  onChange={handleInputChange}
+                  placeholder="Enter location"
+                />
+              </Form.Item>
+              <Form.Item style={{ width: "40%" }} required>
+                <Select
+                  name="provinceId"
+                  onChange={handleProvinceChange}
+                  value={newWarehouse?.provinceId}
+                  placeholder="Select Province"
+                >
+                  {provinces?.map((item) => (
+                    <Option value={item?.id}>{item?.subDivisionName}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Space.Compact>
+          </Form.Item>
+          <Form.Item>
+            <span> Is Cold Storage? </span>
+            <Checkbox
+              checked={newWarehouse.isCold == 1}
+              onChange={handleIsColdChange}
+            >
+              Yes
+            </Checkbox>
           </Form.Item>
         </Form>
       </Modal>
@@ -556,6 +673,7 @@ export default function WarehousesPage() {
           style={{ width: "100%" }}
         />
         <Select
+          mode="multiple"
           placeholder="Select staff to assign"
           options={staffList}
           onChange={(value) => setSelectedStaff(value)}
@@ -594,6 +712,15 @@ export default function WarehousesPage() {
               value={newInventory.name}
               onChange={handleInventoryInputChange}
               placeholder="Enter inventory's name"
+            />
+          </Form.Item>
+          <Form.Item label="Price" required>
+            <Input
+              name="price"
+              value={newInventory.price}
+              onChange={handleInventoryInputChange}
+              placeholder="Enter price"
+              type="number"
             />
           </Form.Item>
           <Form.Item label="Max weight" required>
