@@ -34,11 +34,11 @@ export default function AxiosOrder() {
       return e;
     }
   };
-  const createOrder = async (data, warehouseId) => {
+  const createOrder = async (data, warehouseId, send) => {
     try {
       const fetching = fetchDataBearer({
         url: `order/create-order?${
-          warehouseId && "warehouseId=" + warehouseId
+          warehouseId && "warehouseId=" + warehouseId + "&send=" + send
         }`,
         method: "POST",
         data: data,
@@ -48,6 +48,37 @@ export default function AxiosOrder() {
         success: {
           render() {
             return `Order created`;
+          },
+        },
+        error: {
+          render({ data }) {
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return result;
+    } catch (e) {
+      console.log(e);
+      return {
+        error: true,
+        message: e.response?.data?.message || "Something went wrong!",
+      };
+    }
+  };
+  const updateOrder = async (data, orderId, warehouseId, send) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `order/update-order/${orderId}?${
+          warehouseId && "warehouseId=" + warehouseId + "&send=" + send
+        }`,
+        method: "PUT",
+        data: data,
+      });
+      const result = await toast.promise(fetching, {
+        pending: "Order is updating...",
+        success: {
+          render() {
+            return `Order updated`;
           },
         },
         error: {
@@ -142,5 +173,5 @@ export default function AxiosOrder() {
     }
   };
 
-  return { getOrderByUserId,createOrder, sendOrderById, deleteOrderById };
+  return { getOrderByUserId, createOrder, sendOrderById, deleteOrderById ,updateOrder};
 }
