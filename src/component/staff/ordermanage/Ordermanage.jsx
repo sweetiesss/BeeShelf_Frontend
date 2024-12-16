@@ -466,51 +466,52 @@ const Ordermanage = () => {
               </div>
 
               <div>
-  {selectedOrder?.orderFees?.map((item, idx) => (
-    <Card className="mt-2" key={idx}>
-      <Typography>
-        <Title level={5}>Fee</Title>
-        
-        <Paragraph>
-          <strong>Storage Fee:</strong>{" "}
-          {new Intl.NumberFormat("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          }).format(item.storageFee)}
-        </Paragraph>
-        
-        <Paragraph>
-          <strong>Delivery Fee:</strong>{" "}
-          {new Intl.NumberFormat("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          }).format(item.deliveryFee)}
-        </Paragraph>
-        
-        <Paragraph>
-          <strong>Additional Fee:</strong>{" "}
-          {new Intl.NumberFormat("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          }).format(item.additionalFee)}
-        </Paragraph>
+                {selectedOrder?.orderFees?.map((item, idx) => (
+                  <Card className="mt-2" key={idx}>
+                    <Typography>
+                      <Title level={5}>Fee</Title>
 
-        <Paragraph>
-          <strong className="text-gray-700">Total Fee:</strong>{" "}
-          <span className="text-green-600 font-bold">
-            {new Intl.NumberFormat("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            }).format(
-              item.storageFee + item.deliveryFee + item.additionalFee
-            )}
-          </span>
-        </Paragraph>
-      </Typography>
-    </Card>
-  ))}
-</div>
+                      <Paragraph>
+                        <strong>Storage Fee:</strong>{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.storageFee)}
+                      </Paragraph>
 
+                      <Paragraph>
+                        <strong>Delivery Fee:</strong>{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.deliveryFee)}
+                      </Paragraph>
+
+                      <Paragraph>
+                        <strong>Additional Fee:</strong>{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.additionalFee)}
+                      </Paragraph>
+
+                      <Paragraph>
+                        <strong className="text-gray-700">Total Fee:</strong>{" "}
+                        <span className="text-green-600 font-bold">
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(
+                            item.storageFee +
+                              item.deliveryFee +
+                              item.additionalFee
+                          )}
+                        </span>
+                      </Paragraph>
+                    </Typography>
+                  </Card>
+                ))}
+              </div>
             </div>
             <div>
               <div className="grid grid-cols-1 gap-2">
