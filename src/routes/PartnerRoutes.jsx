@@ -18,6 +18,8 @@ import PaymentResult from "../pages/partner/PaymentResult";
 import CreateOrderPage from "../pages/partner/CreateOrder";
 import CreateRequestPage from "../pages/partner/CreateRequestPage";
 import LotsPage from "../pages/partner/LotsPage";
+import UpdateOrderPage from "../pages/partner/UpdateOrder";
+import UpdateRequestPage from "../pages/partner/UpdateRequestPage";
 export default function PartnerRoutes() {
   const { dataDetail, typeDetail } = useDetail();
 
@@ -33,11 +35,16 @@ export default function PartnerRoutes() {
           <Route path={"product"} element={<ProductPage />} />
           <Route path={"order"} element={<OrderPage />} />
           <Route path={"order/create-order"} element={<CreateOrderPage />} />
+          <Route path={"order/update-order"} element={<UpdateOrderPage />} />
 
           <Route path={"request"} element={<RequestPage />} />
           <Route
             path={"request/create-request"}
             element={<CreateRequestPage />}
+          />
+          <Route
+            path={"request/update-request"}
+            element={<UpdateRequestPage />}
           />
 
           <Route

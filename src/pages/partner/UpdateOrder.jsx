@@ -11,7 +11,7 @@ import AxiosOthers from "../../services/Others";
 import Select from "react-select";
 import { useLocation } from "react-router-dom";
 
-export default function CreateOrderPage() {
+export default function UpdateOrderPage() {
   const { t } = useTranslation();
   const { userInfor } = useAuth();
   const { getAllProduct } = AxiosPartner();
@@ -33,19 +33,25 @@ export default function CreateOrderPage() {
   const [detailWarehouse, setDetailWarehouse] = useState();
   const debounceTimeoutRef = useRef(null);
   const location = useLocation();
+  const baseDate = location?.state || {};
+  console.log("baseDate", baseDate);
 
   const [defaultLocation, setDefaultLocation] = useState("");
 
   const baseForm = {
     ocopPartnerId: userInfor?.id,
-    receiverPhone: "",
-    receiverAddress: "",
-    deliveryZoneId: "",
+    receiverPhone: baseDate?.receiverPhone,
+    receiverAddress: baseDate?.receiverAddress,
+    deliveryZoneId: baseDate?.deliveryZoneId,
     // receiverWard: "",
     // receiverStrict: "",
     // receiverProvince: "",
-    distance: 0,
-    products: [],
+    distance: baseDate?.distance,
+    products:
+      baseDate?.orderDetails?.map((item) => ({
+        productId: item?.id ?? "", // Fallback to an empty string if undefined
+        productAmount: item?.productAmount ?? 0, // Fallback to 0 if undefined
+      })) || [], // Fallback to an empty array if orderDetails is null/undefined,
   };
   const defaultForm = {
     ocopPartnerId: userInfor?.id,
@@ -56,6 +62,7 @@ export default function CreateOrderPage() {
     products: [],
   };
   const [form, setForm] = useState(baseForm);
+  console.log("form", form);
 
   // useEffect(() => {
   //   const validateAndFormatLocation = async () => {
@@ -156,6 +163,11 @@ export default function CreateOrderPage() {
 
       const uniqueWarehouses = Array.from(warehouseMap.values());
       setWarehouses(uniqueWarehouses);
+      setWarehouse(
+        uniqueWarehouses?.find(
+          (item) => item?.warehouseId === baseDate?.warehouseID
+        )
+      );
     }
   }, [inventories]);
 
@@ -317,8 +329,6 @@ export default function CreateOrderPage() {
     }
   };
 
-  console.log("location", location);
-
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
       <div className="flex gap-40 h-full text-lg">
@@ -421,7 +431,7 @@ export default function CreateOrderPage() {
               {form?.products &&
                 form?.products?.map((item) => {
                   console.log(item);
-                  const product = inventoriesShowList.find((pro) => {
+                  const product = inventoriesShowList?.find((pro) => {
                     console.log("pro", pro);
                     return parseInt(pro.id) === parseInt(item.productId);
                   });

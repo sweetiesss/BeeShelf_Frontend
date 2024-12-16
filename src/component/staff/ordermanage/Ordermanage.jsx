@@ -416,6 +416,7 @@ const Ordermanage = () => {
                       <Paragraph>Amount: {item.productAmount}</Paragraph>
                       <Paragraph>Weight: {item.weight}</Paragraph>
                       <Paragraph>Unit: {item.unit}</Paragraph>
+                      <Paragraph>Lot ID: {item.lotId}</Paragraph>
                     </Typography>
                   </Card>
                 ))}
@@ -461,20 +462,155 @@ const Ordermanage = () => {
                   <p className="font-bold">Receiver Address:</p>
                   <p>{selectedOrder.receiverAddress}</p>
                 </div>
+                {/* Create Date */}
                 <div>
                   <p className="font-bold">Create Date:</p>
                   <p>
                     {(() => {
                       if (!selectedOrder.createDate) return "";
                       const date = new Date(selectedOrder.createDate);
-                      const day = String(date.getDate()).padStart(2, "0");
-                      const month = String(date.getMonth() + 1).padStart(
-                        2,
-                        "0"
-                      ); // getMonth() bắt đầu từ 0
-                      const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
-                      return `${day}/${month}/${year}`;
+                      return (
+                        date.toLocaleDateString("vi-VN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }) +
+                        "\n" +
+                        date.toLocaleTimeString("vi-VN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
+                        })
+                      );
                     })()}
+                  </p>
+                </div>
+                {/* Delivery Start Date */}
+                <div>
+                  <p className="font-bold">Delivery Start Date:</p>
+                  <p>
+                    {(() => {
+                      const date = new Date(selectedOrder.deliverStartDate);
+                      return (
+                        date.toLocaleDateString("vi-VN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }) +
+                        "\n" +
+                        date.toLocaleTimeString("vi-VN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
+                        })
+                      );
+                    })()}
+                  </p>
+                </div>
+
+                {/* Delivery Finish Date */}
+                <div>
+                  <p className="font-bold">Delivery Finish Date:</p>
+                  <p>
+                    {(() => {
+                      const date = new Date(selectedOrder.deliverFinishDate);
+                      return (
+                        date.toLocaleDateString("vi-VN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }) +
+                        "\n" +
+                        date.toLocaleTimeString("vi-VN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
+                        })
+                      );
+                    })()}
+                  </p>
+                </div>
+
+                {/* Completion Date */}
+                <div>
+                  <p className="font-bold">Completion Date:</p>
+                  <p>
+                    {(() => {
+                      const date = new Date(selectedOrder.completeDate);
+                      return (
+                        date.toLocaleDateString("vi-VN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }) +
+                        "\n" +
+                        date.toLocaleTimeString("vi-VN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
+                        })
+                      );
+                    })()}
+                  </p>
+                </div>
+
+                {/* Return Date */}
+                <div>
+                  <p className="font-bold">Return Date:</p>
+                  <p>
+                    {(() => {
+                      const date = new Date(selectedOrder.returnDate);
+                      return (
+                        date.toLocaleDateString("vi-VN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }) +
+                        "\n" +
+                        date.toLocaleTimeString("vi-VN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
+                        })
+                      );
+                    })()}
+                  </p>
+                </div>
+
+                {/* Cancellation Date */}
+                <div>
+                  <p className="font-bold">Cancellation Date:</p>
+                  <p>
+                    {(() => {
+                      const date = new Date(selectedOrder.cancelDate);
+                      return (
+                        date.toLocaleDateString("vi-VN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }) +
+                        "\n" +
+                        date.toLocaleTimeString("vi-VN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
+                        })
+                      );
+                    })()}
+                  </p>
+                </div>
+
+                {/* Reason For Cancellation */}
+                <div>
+                  <p className="font-bold">Reason For Cancellation:</p>
+                  <p className="text-gray-700">
+                    {selectedOrder.cancellationReason || "N/A"}
                   </p>
                 </div>
 

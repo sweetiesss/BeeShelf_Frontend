@@ -128,7 +128,7 @@ export default function LotsPage() {
     e.stopPropagation();
     setShowDetailLot(isShowDetailLot === order ? null : order);
     updateDataDetail(order);
-    updateTypeDetail("lot");
+    updateTypeDetail("lots");
   };
   const handleFiltered = (e) => {
     const { name, value } = e.target;

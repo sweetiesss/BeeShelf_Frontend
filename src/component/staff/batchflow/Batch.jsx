@@ -39,6 +39,48 @@ const BatchManage = () => {
     totalPagesCount: 0,
     pageIndex: 0,
   });
+  // Hàm xoá bacth 
+
+
+  const handleDeleteBatch = (batchId) => {
+    console.log("Batch ID to be deleted:", batchId);
+  
+    Modal.confirm({
+      title: "Are you sure you want to delete this batch?",
+      // content: "This action cannot be undone.",
+      okText: "Yes, Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        try {
+          const response = await fetchDataBearer({
+            url: `/batch/delete-batch/${batchId}`,
+            method: "POST",
+          });
+  
+          console.log("Response:", response);
+  
+          // Kiểm tra nếu response có data là 'Success.' và status là 200
+          if (response && response.status === 200 && response.data === 'Success.') {
+            message.success("Batch deleted successfully.");
+            // Làm mới danh sách sau khi xóa
+            fetchBatches();
+          } else {
+            message.error(response.data || "Failed to delete batch. Please try again.");
+          }
+        } catch (error) {
+          console.error("Error deleting batch:", error);
+          message.error("An error occurred while deleting the batch. Please try again.");
+        }
+      },
+    });
+  };
+  
+  
+  
+  
+
+  
 
   // Fetch batches data from API
   const fetchBatches = async () => {
@@ -54,6 +96,7 @@ const BatchManage = () => {
           pageIndex: 0,
           pageSize: 100,
         },
+        
       });
       if (!response || !response.data || !response.data.items) {
         console.error("Failed to fetch batches data");
@@ -71,6 +114,9 @@ const BatchManage = () => {
         deliveryZoneName: batch.deliveryZoneName,
         shipperId: batch.shipperId,
         shipperName: batch?.shipperName,
+        shipperEmail: batch?.shipperEmail,
+        deliveryStartDate: batch?.deliveryStartDate,
+        
       }));
       setBatches(formattedBatches);
     } catch (error) {
@@ -161,10 +207,12 @@ const BatchManage = () => {
           url: `/warehouse/get-warehouse-shippers/${warehouseId}`,
           method: "GET",
           params: {
+            hasVehicle: true,
             pageIndex: 0,
             pageSize: 100,
             filterBy: "DeliveryZoneId",
             filterQuery: selectedDeliveryZone,
+            
             // vehicleFilter: "notEmpty" // Giả sử API hỗ trợ điều kiện lọc này
           },
         });
@@ -189,34 +237,6 @@ const BatchManage = () => {
     }
   }, [userInfor, selectedDeliveryZone]);
 
-  // Handle delete action
-  const handleDelete = async () => {
-    if (selectedBatchIds.length === 0) {
-      message.warning("Please select at least one batch to delete.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      for (const batchId of selectedBatchIds) {
-        await fetchDataBearer({
-          url: `/batch/delete-batch/${batchId}`,
-          method: "DELETE",
-        });
-      }
-
-      message.success("Selected batches deleted successfully.");
-      setBatches((prev) =>
-        prev.filter((batch) => !selectedBatchIds.includes(batch.id))
-      );
-      setSelectedBatchIds([]);
-    } catch (error) {
-      console.error("Error deleting batches:", error);
-      message.error("Failed to delete selected batches.");
-    } finally {
-      setLoading(false);
-    }
-  };
   const formatDateTimeVN = (dateString) => {
     if (!dateString) return { date: "", time: "" };
 
@@ -270,27 +290,30 @@ const BatchManage = () => {
       setLoading(false);
     }
   };
+  const [visible, setVisible] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const DetailOrder = ({ orderId }) => {
+    return (
+      <div>
+        <h2 className="text-lg font-bold mb-4">Order Details</h2>
+        <p>Order ID: {orderId}</p>
+        {/* Thêm chi tiết khác tùy ý */}
+      </div>
+    );
+  };
+  // Hàm mở modal và truyền order.id
+  const handleDetailOrder = (id) => {
+    setSelectedOrderId(id);
+    setVisible(true);
+  };
+
+  // Hàm đóng modal
+  const handleClose = () => {
+    setVisible(false);
+    setSelectedOrderId(null);
+  };
 
   const columns = [
-    // {
-    //   title: "Select",
-    //   dataIndex: "select",
-    //   key: "select",
-    //   render: (_, record) => (
-    //     <input
-    //       type="checkbox"
-    //       checked={selectedBatchIds.includes(record.id)}
-    //       onChange={(e) => {
-    //         const selectedId = record.id;
-    //         setSelectedBatchIds((prev) =>
-    //           e.target.checked
-    //             ? [...prev, selectedId]
-    //             : prev.filter((id) => id !== selectedId)
-    //         );
-    //       }}
-    //     />
-    //   ),
-    // },
     {
       title: "Batch ID",
       dataIndex: "id",
@@ -310,15 +333,10 @@ const BatchManage = () => {
       ),
     },
     {
-      title: "DeliveryZoneName",
+      title: "Delivery Zone Name",
       dataIndex: "deliveryZoneName",
       key: "deliveryZoneName",
-      filterDropdown: ({
-        setSelectedKeys,
-        selectedKeys,
-        confirm,
-        clearFilters,
-      }) => (
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
         <div style={{ padding: 8 }}>
           <Select
             style={{ width: 120 }}
@@ -346,12 +364,57 @@ const BatchManage = () => {
       key: "shipperName",
     },
     {
+      title: "Shipper Email",
+      dataIndex: "shipperEmail",
+      key: "shipperEmail",
+    },
+    {
+      title: "Create Date",
+      dataIndex: "deliveryStartDate",
+      key: "deliveryStartDate",
+      render: (date) => {
+        if (!date) return "N/A";
+        const formattedDate = new Intl.DateTimeFormat("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }).format(new Date(date));
+  
+        const formattedTime = new Intl.DateTimeFormat("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        }).format(new Date(date));
+  
+        return (
+          <div>
+            {formattedDate}
+            <br />
+            {formattedTime}
+          </div>
+        );
+      },
+    },
+    
+    {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <Button onClick={() => setSelectedBatch(record)}>View Details</Button>
+        <div className="flex space-x-2">
+          <Button type="primary" onClick={() => setSelectedBatch(record)}>
+            View Details
+          </Button>
+          <Button
+            className="bg-red-500 text-white border-none hover:bg-red-600 focus:bg-red-600"
+            onClick={() => handleDeleteBatch(record.id)}
+          >
+            Delete Batch
+          </Button>
+        </div>
       ),
-    },
+    }
+    
   ];
 
   return (
@@ -636,7 +699,7 @@ const BatchManage = () => {
                             {formatDateTimeVN(order.cancelDate).time}
                           </span>
                         </div>
-
+                            
                         <div className="text-base text-gray-10000">
                           <span className="font-bold">
                             Recipient Phone Number:
@@ -654,8 +717,33 @@ const BatchManage = () => {
                             {order.receiverAddress}
                           </span>
                         </div>
+
+                        {/* Button DetailOrder */}
+                        <div className="mt-4">
+                          <button
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+                            onClick={() => handleDetailOrder(order.id)}
+                          >
+                            Detail Order
+                          </button>
+                        </div>
                       </div>
                     </div>
+                    {/* Modal hiển thị chi tiết đơn hàng */}
+                    <Modal
+                      title="Detail Order"
+                      visible={visible}
+                      onCancel={handleClose}
+                      footer={[
+                        <Button key="close" onClick={handleClose}>
+                          Close
+                        </Button>,
+                      ]}
+                    >
+                      {selectedOrderId && (
+                        <DetailOrder orderId={selectedOrderId} />
+                      )}
+                    </Modal>
                   </div>
                 </List.Item>
               )}
