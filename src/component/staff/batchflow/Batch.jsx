@@ -39,12 +39,11 @@ const BatchManage = () => {
     totalPagesCount: 0,
     pageIndex: 0,
   });
-  // Hàm xoá bacth 
-
+  // Hàm xoá bacth
 
   const handleDeleteBatch = (batchId) => {
     console.log("Batch ID to be deleted:", batchId);
-  
+
     Modal.confirm({
       title: "Are you sure you want to delete this batch?",
       // content: "This action cannot be undone.",
@@ -57,30 +56,32 @@ const BatchManage = () => {
             url: `/batch/delete-batch/${batchId}`,
             method: "POST",
           });
-  
+
           console.log("Response:", response);
-  
+
           // Kiểm tra nếu response có data là 'Success.' và status là 200
-          if (response && response.status === 200 && response.data === 'Success.') {
+          if (
+            response &&
+            response.status === 200 &&
+            response.data === "Success."
+          ) {
             message.success("Batch deleted successfully.");
             // Làm mới danh sách sau khi xóa
             fetchBatches();
           } else {
-            message.error(response.data || "Failed to delete batch. Please try again.");
+            message.error(
+              response.data || "Failed to delete batch. Please try again."
+            );
           }
         } catch (error) {
           console.error("Error deleting batch:", error);
-          message.error("An error occurred while deleting the batch. Please try again.");
+          message.error(
+            "An error occurred while deleting the batch. Please try again."
+          );
         }
       },
     });
   };
-  
-  
-  
-  
-
-  
 
   // Fetch batches data from API
   const fetchBatches = async () => {
@@ -96,7 +97,6 @@ const BatchManage = () => {
           pageIndex: 0,
           pageSize: 100,
         },
-        
       });
       if (!response || !response.data || !response.data.items) {
         console.error("Failed to fetch batches data");
@@ -116,7 +116,6 @@ const BatchManage = () => {
         shipperName: batch?.shipperName,
         shipperEmail: batch?.shipperEmail,
         deliveryStartDate: batch?.deliveryStartDate,
-        
       }));
       setBatches(formattedBatches);
     } catch (error) {
@@ -212,7 +211,7 @@ const BatchManage = () => {
             pageSize: 100,
             filterBy: "DeliveryZoneId",
             filterQuery: selectedDeliveryZone,
-            
+
             // vehicleFilter: "notEmpty" // Giả sử API hỗ trợ điều kiện lọc này
           },
         });
@@ -291,27 +290,42 @@ const BatchManage = () => {
     }
   };
   const [visible, setVisible] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const DetailOrder = ({ orderId }) => {
-    return (
-      <div>
-        <h2 className="text-lg font-bold mb-4">Order Details</h2>
-        <p>Order ID: {orderId}</p>
-        {/* Thêm chi tiết khác tùy ý */}
-      </div>
-    );
-  };
-  // Hàm mở modal và truyền order.id
-  const handleDetailOrder = (id) => {
-    setSelectedOrderId(id);
-    setVisible(true);
-  };
+  //Hàm gọi chi tiết detailorder1
+  const [selectedOrderData, setSelectedOrderData] = useState(null);
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
 
-  // Hàm đóng modal
-  const handleClose = () => {
-    setVisible(false);
-    setSelectedOrderId(null);
+  const DetailOrder1 = async (id) => {
+    // console.log("Fetching details for order ID:", id);
+  
+    try {
+      const response = await fetchDataBearer({
+        url: `/order/get-order/${id}`,
+        method: "GET",
+      });
+  
+      // console.log("Full Response:", response);
+  
+      if (response) {
+        console.log("Response Status:", response.status);
+        console.log("Response Data:", response.data);
+      }
+  
+      if (response && response.data) {
+        console.log("Order Details:", response.data);
+        setSelectedOrderData(response.data);
+        setDetailModalVisible(true);
+      } else {
+        message.error("Failed to fetch order details.");
+      }
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+      message.error(
+        "An error occurred while fetching order details. Please try again."
+      );
+    }
   };
+  
+
 
   const columns = [
     {
@@ -379,14 +393,14 @@ const BatchManage = () => {
           month: "2-digit",
           year: "numeric",
         }).format(new Date(date));
-  
+
         const formattedTime = new Intl.DateTimeFormat("vi-VN", {
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
           hour12: false,
         }).format(new Date(date));
-  
+
         return (
           <div>
             {formattedDate}
@@ -396,7 +410,7 @@ const BatchManage = () => {
         );
       },
     },
-    
+
     {
       title: "Actions",
       key: "actions",
@@ -413,8 +427,7 @@ const BatchManage = () => {
           </Button>
         </div>
       ),
-    }
-    
+    },
   ];
 
   return (
@@ -522,24 +535,6 @@ const BatchManage = () => {
         </Form>
       </Modal>
 
-      {/* Batch Details Drawer */}
-      {/* <Drawer
-        title={`Batch Details - ${selectedBatch?.name}`}
-        open={!!selectedBatch}
-        onClose={() => setSelectedBatch(null)}
-        width={500}
-      >
-        <Typography.Title level={5}>Orders</Typography.Title>
-        <List
-          dataSource={selectedBatch?.orders || []}
-          renderItem={(order) => (
-            <List.Item key={order.id}>
-              Order Code: {order.id}
-              <Divider />
-            </List.Item>
-          )}
-        />
-      </Drawer> */}
       <Drawer
         title={`Batch Details Batch Name: ${selectedBatch?.name}`}
         open={!!selectedBatch}
@@ -699,7 +694,7 @@ const BatchManage = () => {
                             {formatDateTimeVN(order.cancelDate).time}
                           </span>
                         </div>
-                            
+
                         <div className="text-base text-gray-10000">
                           <span className="font-bold">
                             Recipient Phone Number:
@@ -718,32 +713,97 @@ const BatchManage = () => {
                           </span>
                         </div>
 
-                        {/* Button DetailOrder */}
+                        {/* Order Detail Button */}
                         <div className="mt-4">
                           <button
                             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
-                            onClick={() => handleDetailOrder(order.id)}
+                            onClick={() => DetailOrder1(order.id)}
                           >
-                            Detail Order
+                            Order Detail
                           </button>
                         </div>
+                        {/* Modal Detail Order1 */}
+                        <Modal
+                          title="Detail Order"
+                          visible={detailModalVisible}
+                          onCancel={() => setDetailModalVisible(false)}
+                          footer={null}
+                        >
+                          {selectedOrderData && (
+                            <div>
+                              {/* Order Details */}
+                              <h3 className="text-lg font-bold mb-2">
+                                Order Details
+                              </h3>
+                              {selectedOrderData.orderDetails.map((detail) => (
+                                <div
+                                  key={detail.id}
+                                  className="mb-4 p-2 border rounded"
+                                >
+                                  <p>
+                                    <strong>Product Name:</strong>{" "}
+                                    {detail.productName}
+                                  </p>
+                                  <p>
+                                    <strong>Lot ID:</strong>{" "}
+                                    {detail.lotId}
+                                  </p>
+                                  <p>
+                                    <strong>Inventory ID:</strong>{" "}
+                                    {detail.inventoryId}
+                                  </p>
+                                  
+                                  <p>
+                                    <strong>Inventory Name:</strong>{" "}
+                                    {detail.inventoryName}
+                                  </p>
+                                  <p>
+                                    <strong>Price:</strong>{" "}
+                                    {detail.productPrice} VND
+                                  </p>
+                                  <p>
+                                    <strong>Unit:</strong> {detail.unit}
+                                  </p>
+                                  <p>
+                                    <strong>Weight:</strong> {detail.weight} kg
+                                  </p>
+                                  <p>
+                                    <strong>Amount:</strong>{" "}
+                                    {detail.productAmount}
+                                  </p>
+                                  <img
+                                    src={detail.productImage}
+                                    alt={detail.productName}
+                                    className="w-32 h-32 object-cover mt-2"
+                                  />
+                                </div>
+                              ))}
+
+                              {/* Order Fees */}
+                              <h3 className="text-lg font-bold mb-2 mt-4">
+                                Order Fees
+                              </h3>
+                              {selectedOrderData.orderFees.map((fee, index) => (
+                                <div key={index} className="p-2 border rounded">
+                                  <p>
+                                    <strong>Delivery Fee:</strong>{" "}
+                                    {fee.deliveryFee} VND
+                                  </p>
+                                  <p>
+                                    <strong>Storage Fee:</strong>{" "}
+                                    {fee.storageFee} VND
+                                  </p>
+                                  <p>
+                                    <strong>Additional Fee:</strong>{" "}
+                                    {fee.additionalFee} VND
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </Modal>
                       </div>
                     </div>
-                    {/* Modal hiển thị chi tiết đơn hàng */}
-                    <Modal
-                      title="Detail Order"
-                      visible={visible}
-                      onCancel={handleClose}
-                      footer={[
-                        <Button key="close" onClick={handleClose}>
-                          Close
-                        </Button>,
-                      ]}
-                    >
-                      {selectedOrderId && (
-                        <DetailOrder orderId={selectedOrderId} />
-                      )}
-                    </Modal>
                   </div>
                 </List.Item>
               )}
