@@ -7,6 +7,7 @@ import useAxios from "../../../services/CustomizeAxios";
 const { Option } = Select;
 
 const RequestManagement = () => {
+  const [selectedView, setSelectedView] = useState("import"); 
   const [requests, setRequests] = useState([]);
   const [requestExports, setRequestExports] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -323,22 +324,33 @@ const RequestManagement = () => {
       setLoading(false);
     }
   };
-
   return (
     <>
-      <div className="p-[20px] overflow-auto">
-        <h1>Import Request Management</h1>
+  
+  <div className="p-[20px] overflow-auto">
+    <h1>Request Management</h1>
 
-        {/* Request Import Table */}
+    {/* Dropdown lựa chọn giữa Import và Export */}
+    <div className="mb-4">
+      <Select
+        defaultValue="import"
+        style={{ width: 200 }}
+        onChange={(value) => setSelectedView(value)}
+      >
+        <Option value="import">Import Requests</Option>
+        <Option value="export">Export Requests</Option>
+      </Select>
+    </div>
+
+    {/* Hiển thị bảng Import hoặc Export dựa trên lựa chọn */}
+    {selectedView === "import" && (
+      <>
+        <h2>Import Request Management</h2>
         <Table
           dataSource={requests}
           columns={[
             { title: "Request ID", dataIndex: "id", key: "id" },
-            {
-              title: "Partner Email",
-              dataIndex: "partner_email",
-              key: "partner_email",
-            },
+            { title: "Partner Email", dataIndex: "partner_email", key: "partner_email" },
             { title: "Request Name", dataIndex: "name", key: "name" },
             {
               title: "Product Name",
@@ -390,14 +402,14 @@ const RequestManagement = () => {
               sortDirections: ["descend", "ascend"],
               render: (text) => {
                 if (!text) return ""; // Kiểm tra trường hợp giá trị null hoặc undefined
-            
+
                 const date = new Date(text);
                 const day = String(date.getDate()).padStart(2, "0");
-                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+                const month = String(date.getMonth() + 1).padStart(2, "0");
                 const year = date.getFullYear();
                 const hours = String(date.getHours()).padStart(2, "0");
                 const minutes = String(date.getMinutes()).padStart(2, "0");
-            
+
                 return (
                   <>
                     {`${day}/${month}/${year}`}
@@ -415,7 +427,7 @@ const RequestManagement = () => {
                 <div className="flex flex-col gap-2 items-center">
                   <Button
                     className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
-                    onClick={() => showRequestDetail(record)} // Hien thi chi tiet
+                    onClick={() => showRequestDetail(record)}
                   >
                     View Details
                   </Button>
@@ -431,10 +443,14 @@ const RequestManagement = () => {
             onChange: handlePageChange,
           }}
         />
+      </>
+    )}
+      
 
-        <h1>Export Request Management</h1>
-
-        {/* Request Export Table */}
+{/* Hiển thị bảng Export khi selectedView === "export" */}
+{selectedView === "export" && (
+      <>
+        <h2>Export Request Management</h2>
         <Table
           dataSource={requestExports}
           columns={[
@@ -498,55 +514,8 @@ const RequestManagement = () => {
               key: "createDate",
               sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
               sortDirections: ["descend", "ascend"],
-              render: (text) => {
-                if (!text) return ""; // Kiểm tra trường hợp giá trị null hoặc undefined
-
-                const date = new Date(text);
-                const day = String(date.getDate()).padStart(2, "0");
-                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = date.getFullYear();
-                const hours = String(date.getHours()).padStart(2, "0");
-                const minutes = String(date.getMinutes()).padStart(2, "0");
-
-                return `${day}/${month}/${year} ${hours}:${minutes}`;
-              },
+              render: (text) => formatDateTime(text),
             },
-            // {
-            //   title: "Approve Date",
-            //   dataIndex: "apporveDate", // Fix the typo here from 'apporveDate' to 'approveDate'
-            //   key: "apporveDate",
-            //   sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
-            //   sortDirections: ["descend", "ascend"],
-            //   render: (text) => {
-            //     if (!text) return ""; // Trả về chuỗi rỗng nếu không có giá trị
-            //     const date = new Date(text);
-            //     const day = String(date.getDate()).padStart(2, "0");
-            //     const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-            //     const year = date.getFullYear();
-            //     const hours = String(date.getHours()).padStart(2, "0");
-            //     const minutes = String(date.getMinutes()).padStart(2, "0");
-
-            //     return `${day}/${month}/${year} ${hours}:${minutes}`;
-            //   },
-            // },
-            // {
-            //   title: "Deliver Date",
-            //   dataIndex: "deliverDate",
-            //   key: "deliverDate",
-            //   sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
-            //   sortDirections: ["descend", "ascend"],
-            //   render: (text) => {
-            //     if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
-            //     const date = new Date(text);
-            //     const day = String(date.getDate()).padStart(2, "0");
-            //     const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-            //     const year = date.getFullYear();
-            //     const hours = String(date.getHours()).padStart(2, "0");
-            //     const minutes = String(date.getMinutes()).padStart(2, "0");
-
-            //     return `${day}/${month}/${year} ${hours}:${minutes}`;
-            //   },
-            // },
             {
               title: "Action",
               dataIndex: "",
@@ -555,7 +524,7 @@ const RequestManagement = () => {
                 <div className="flex flex-col gap-2 items-center">
                   <Button
                     className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
-                    onClick={() => showRequestDetailExport(record)} // Hien thi chi tiet
+                    onClick={() => showRequestDetailExport(record)}
                   >
                     View Details
                   </Button>
@@ -571,6 +540,9 @@ const RequestManagement = () => {
             onChange: handlePageChangeExport,
           }}
         />
+      </>
+    )}
+
       </div>
 
       <Modal
