@@ -815,6 +815,9 @@ const RequestManagement = () => {
                 <div>
                   <p className="font-bold">Lot ID:</p>
                   <p>{selectedExportRequest.lotId}</p>
+                </div><div>
+                  <p className="font-bold">Inventory ID:</p>
+                  <p>{selectedExportRequest.sendToInventoryId}</p>
                 </div>
               </div>
             </div>

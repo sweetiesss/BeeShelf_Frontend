@@ -115,6 +115,7 @@ const BatchManage = () => {
         shipperId: batch.shipperId,
         shipperName: batch?.shipperName,
         shipperEmail: batch?.shipperEmail,
+        deliveryStartDate: batch?.deliveryStartDate,
         
       }));
       setBatches(formattedBatches);
@@ -236,34 +237,6 @@ const BatchManage = () => {
     }
   }, [userInfor, selectedDeliveryZone]);
 
-  // Handle delete action
-  // const handleDelete = async () => {
-  //   if (selectedBatchIds.length === 0) {
-  //     message.warning("Please select at least one batch to delete.");
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   try {
-  //     for (const batchId of selectedBatchIds) {
-  //       await fetchDataBearer({
-  //         url: `/batch/delete-batch/${batchId}`,
-  //         method: "DELETE",
-  //       });
-  //     }
-
-  //     message.success("Selected batches deleted successfully.");
-  //     setBatches((prev) =>
-  //       prev.filter((batch) => !selectedBatchIds.includes(batch.id))
-  //     );
-  //     setSelectedBatchIds([]);
-  //   } catch (error) {
-  //     console.error("Error deleting batches:", error);
-  //     message.error("Failed to delete selected batches.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const formatDateTimeVN = (dateString) => {
     if (!dateString) return { date: "", time: "" };
 
@@ -395,6 +368,35 @@ const BatchManage = () => {
       dataIndex: "shipperEmail",
       key: "shipperEmail",
     },
+    {
+      title: "Create Date",
+      dataIndex: "deliveryStartDate",
+      key: "deliveryStartDate",
+      render: (date) => {
+        if (!date) return "N/A";
+        const formattedDate = new Intl.DateTimeFormat("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }).format(new Date(date));
+  
+        const formattedTime = new Intl.DateTimeFormat("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        }).format(new Date(date));
+  
+        return (
+          <div>
+            {formattedDate}
+            <br />
+            {formattedTime}
+          </div>
+        );
+      },
+    },
+    
     {
       title: "Actions",
       key: "actions",
@@ -697,7 +699,7 @@ const BatchManage = () => {
                             {formatDateTimeVN(order.cancelDate).time}
                           </span>
                         </div>
-
+                            
                         <div className="text-base text-gray-10000">
                           <span className="font-bold">
                             Recipient Phone Number:
