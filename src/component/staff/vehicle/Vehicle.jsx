@@ -19,7 +19,7 @@ const Vehicle = () => {
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
-    pageSize: 5,
+    pageSize: 10,
     totalPagesCount: 0,
     pageIndex: 0,
   });

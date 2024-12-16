@@ -24,7 +24,7 @@ const Ordermanage = () => {
   const [loading, setLoading] = useState(false); // Trạng thái loading
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
-    pageSize: 5,
+    pageSize: 10,
     totalPagesCount: 0,
     pageIndex: 0,
   });
@@ -246,6 +246,7 @@ const Ordermanage = () => {
       sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
       sortDirections: ["descend", "ascend"],
       render: (text) => {
+        if (!text) return "";
         const date = new Date(text);
         const day = String(date.getDate()).padStart(2, "0");
         const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() bắt đầu từ 0
@@ -318,7 +319,7 @@ const Ordermanage = () => {
       <div>
         <h1>Order Management</h1>
         <Table
-          className="overflow-x-scroll min-w-[800px] w-full"
+          className="overflow-auto min-w-[800px] w-full"
           dataSource={data}
           columns={columns}
           loading={loading}
@@ -464,6 +465,7 @@ const Ordermanage = () => {
                   <p className="font-bold">Create Date:</p>
                   <p>
                     {(() => {
+                      if (!selectedOrder.createDate) return "";
                       const date = new Date(selectedOrder.createDate);
                       const day = String(date.getDate()).padStart(2, "0");
                       const month = String(date.getMonth() + 1).padStart(

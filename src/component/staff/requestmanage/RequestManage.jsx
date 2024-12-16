@@ -697,6 +697,23 @@ const RequestManagement = () => {
                     })()}
                   </p>
                 </div>
+                <div>
+                  <p className="font-bold">Approve Date:</p>
+                  <p>
+                    {selectedRequest.apporveDate
+                      ? new Date(
+                          selectedRequest.apporveDate
+                        ).toLocaleDateString("vi-VN", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })
+                      : ""}
+                  </p>
+                </div>
 
                 {/* <div>
                   <p className="font-bold">Total Price:</p>
