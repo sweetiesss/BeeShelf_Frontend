@@ -81,6 +81,19 @@ const RequestManagement = () => {
       setLoading(false);
     }
   };
+  // format date
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "Null"; // Trả về chuỗi rỗng nếu không có giá trị
+
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  };
 
   const fetchRequestExports = async (pageIndex = 0) => {
     setLoadingExport(true);
@@ -190,7 +203,7 @@ const RequestManagement = () => {
       case "Pending":
         return ["Processing"]; // Staff confirmed or OCOP Partner Cancelled
       case "Processing":
-        return ["Delivered", "Failed"]; // OCOP Partner Delivered or Deliver window expire
+        return ["Delivered"]; // OCOP Partner Delivered or Deliver window expire
       case "Delivered":
         return ["Failed", "Completed"]; // Item stored
       case "Failed":
@@ -377,74 +390,23 @@ const RequestManagement = () => {
               sortDirections: ["descend", "ascend"],
               render: (text) => {
                 if (!text) return ""; // Kiểm tra trường hợp giá trị null hoặc undefined
-
+            
                 const date = new Date(text);
                 const day = String(date.getDate()).padStart(2, "0");
                 const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
                 const year = date.getFullYear();
                 const hours = String(date.getHours()).padStart(2, "0");
                 const minutes = String(date.getMinutes()).padStart(2, "0");
-
-                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            
+                return (
+                  <>
+                    {`${day}/${month}/${year}`}
+                    <br />
+                    {`${hours}:${minutes}`}
+                  </>
+                );
               },
             },
-            {
-              title: "Approve Date",
-              dataIndex: "apporveDate", // Sửa typo ở đây
-              key: "apporveDate",
-              sorter: (a, b) =>
-                new Date(a.apporveDate) - new Date(b.apporveDate),
-              sortDirections: ["descend", "ascend"],
-              render: (text) => {
-                if (!text) return ""; // Trả về chuỗi rỗng nếu không có giá trị
-                const date = new Date(text);
-                const day = String(date.getDate()).padStart(2, "0");
-                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = date.getFullYear();
-                const hours = String(date.getHours()).padStart(2, "0");
-                const minutes = String(date.getMinutes()).padStart(2, "0");
-
-                return `${day}/${month}/${year} ${hours}:${minutes}`;
-              },
-            },
-            {
-              title: "Deliver Date",
-              dataIndex: "deliverDate",
-              key: "deliverDate",
-              sorter: (a, b) =>
-                new Date(a.deliverDate) - new Date(b.deliverDate),
-              sortDirections: ["descend", "ascend"],
-              render: (text) => {
-                if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
-                const date = new Date(text);
-                const day = String(date.getDate()).padStart(2, "0");
-                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = date.getFullYear();
-                const hours = String(date.getHours()).padStart(2, "0");
-                const minutes = String(date.getMinutes()).padStart(2, "0");
-
-                return `${day}/${month}/${year} ${hours}:${minutes}`;
-              },
-            },
-            {
-              title: "Cancel Date",
-              dataIndex: "cancelDate",
-              key: "cancelDate",
-              sorter: (a, b) => new Date(a.cancelDate) - new Date(b.cancelDate),
-              sortDirections: ["descend", "ascend"],
-              render: (text) => {
-                if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
-                const date = new Date(text);
-                const day = String(date.getDate()).padStart(2, "0");
-                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = date.getFullYear();
-                const hours = String(date.getHours()).padStart(2, "0");
-                const minutes = String(date.getMinutes()).padStart(2, "0");
-
-                return `${day}/${month}/${year} ${hours}:${minutes}`;
-              },
-            },
-
             {
               title: "Action",
               dataIndex: "",
@@ -549,42 +511,42 @@ const RequestManagement = () => {
                 return `${day}/${month}/${year} ${hours}:${minutes}`;
               },
             },
-            {
-              title: "Approve Date",
-              dataIndex: "apporveDate", // Fix the typo here from 'apporveDate' to 'approveDate'
-              key: "apporveDate",
-              sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
-              sortDirections: ["descend", "ascend"],
-              render: (text) => {
-                if (!text) return ""; // Trả về chuỗi rỗng nếu không có giá trị
-                const date = new Date(text);
-                const day = String(date.getDate()).padStart(2, "0");
-                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = date.getFullYear();
-                const hours = String(date.getHours()).padStart(2, "0");
-                const minutes = String(date.getMinutes()).padStart(2, "0");
+            // {
+            //   title: "Approve Date",
+            //   dataIndex: "apporveDate", // Fix the typo here from 'apporveDate' to 'approveDate'
+            //   key: "apporveDate",
+            //   sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+            //   sortDirections: ["descend", "ascend"],
+            //   render: (text) => {
+            //     if (!text) return ""; // Trả về chuỗi rỗng nếu không có giá trị
+            //     const date = new Date(text);
+            //     const day = String(date.getDate()).padStart(2, "0");
+            //     const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+            //     const year = date.getFullYear();
+            //     const hours = String(date.getHours()).padStart(2, "0");
+            //     const minutes = String(date.getMinutes()).padStart(2, "0");
 
-                return `${day}/${month}/${year} ${hours}:${minutes}`;
-              },
-            },
-            {
-              title: "Deliver Date",
-              dataIndex: "deliverDate",
-              key: "deliverDate",
-              sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
-              sortDirections: ["descend", "ascend"],
-              render: (text) => {
-                if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
-                const date = new Date(text);
-                const day = String(date.getDate()).padStart(2, "0");
-                const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-                const year = date.getFullYear();
-                const hours = String(date.getHours()).padStart(2, "0");
-                const minutes = String(date.getMinutes()).padStart(2, "0");
+            //     return `${day}/${month}/${year} ${hours}:${minutes}`;
+            //   },
+            // },
+            // {
+            //   title: "Deliver Date",
+            //   dataIndex: "deliverDate",
+            //   key: "deliverDate",
+            //   sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
+            //   sortDirections: ["descend", "ascend"],
+            //   render: (text) => {
+            //     if (!text) return ""; // Kiểm tra nếu giá trị không tồn tại, trả về chuỗi rỗng
+            //     const date = new Date(text);
+            //     const day = String(date.getDate()).padStart(2, "0");
+            //     const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
+            //     const year = date.getFullYear();
+            //     const hours = String(date.getHours()).padStart(2, "0");
+            //     const minutes = String(date.getMinutes()).padStart(2, "0");
 
-                return `${day}/${month}/${year} ${hours}:${minutes}`;
-              },
-            },
+            //     return `${day}/${month}/${year} ${hours}:${minutes}`;
+            //   },
+            // },
             {
               title: "Action",
               dataIndex: "",
@@ -672,53 +634,29 @@ const RequestManagement = () => {
                   <p className="font-bold">Description:</p>
                   <p>{selectedRequest.description}</p>
                 </div>
-                {/* <div>
-                  <p className="font-bold">Receiver Address:</p>
-                  <p>{selectedRequest.receiverAddress}</p>
-                </div> */}
                 <div>
                   <p className="font-bold">Create Date:</p>
-                  <p>
-                    {(() => {
-                      const date = new Date(selectedRequest.createDate);
-                      const day = String(date.getDate()).padStart(2, "0");
-                      const month = String(date.getMonth() + 1).padStart(
-                        2,
-                        "0"
-                      ); // Tháng bắt đầu từ 0, cần cộng 1
-                      const year = date.getFullYear();
-                      const hours = String(date.getHours()).padStart(2, "0");
-                      const minutes = String(date.getMinutes()).padStart(
-                        2,
-                        "0"
-                      );
-
-                      return `${day}/${month}/${year} ${hours}:${minutes}`;
-                    })()}
-                  </p>
+                  <p>{formatDateTime(selectedRequest.createDate)}</p>
                 </div>
+
                 <div>
                   <p className="font-bold">Approve Date:</p>
-                  <p>
-                    {selectedRequest.apporveDate
-                      ? new Date(
-                          selectedRequest.apporveDate
-                        ).toLocaleDateString("vi-VN", {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                        })
-                      : ""}
-                  </p>
+                  <p>{formatDateTime(selectedRequest.apporveDate)}</p>
                 </div>
 
-                {/* <div>
-                  <p className="font-bold">Total Price:</p>
-                  <p>${selectedRequest.totalPrice}</p>
-                </div> */}
+                <div>
+                  <p className="font-bold">Delivery Date:</p>
+                  <p>{formatDateTime(selectedRequest.deliverDate)}</p>
+                </div>
+
+                <div>
+                  <p className="font-bold">Cancel Date:</p>
+                  <p>{formatDateTime(selectedRequest.cancelDate)}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Cancel Reason:</p>
+                  <p>{selectedRequest.cancellationReason}</p>
+                </div>
                 <div>
                   <p className="font-bold">Warehouse Name:</p>
                   <p>{selectedRequest.warehouseName}</p>
@@ -726,6 +664,10 @@ const RequestManagement = () => {
                 <div>
                   <p className="font-bold">Lot ID:</p>
                   <p>{selectedRequest.lotId}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Inventory ID:</p>
+                  <p>{selectedRequest.sendToInventoryId}</p>
                 </div>
               </div>
             </div>
@@ -795,36 +737,29 @@ const RequestManagement = () => {
                   <p className="font-bold">Description:</p>
                   <p>{selectedExportRequest.description}</p>
                 </div>
-                {/* <div>
-                  <p className="font-bold">Receiver Address:</p>
-                  <p>{selectedRequest.receiverAddress}</p>
-                </div> */}
                 <div>
                   <p className="font-bold">Create Date:</p>
-                  <p>
-                    {(() => {
-                      const date = new Date(selectedExportRequest.createDate);
-                      const day = String(date.getDate()).padStart(2, "0");
-                      const month = String(date.getMonth() + 1).padStart(
-                        2,
-                        "0"
-                      ); // Tháng bắt đầu từ 0, cần cộng 1
-                      const year = date.getFullYear();
-                      const hours = String(date.getHours()).padStart(2, "0");
-                      const minutes = String(date.getMinutes()).padStart(
-                        2,
-                        "0"
-                      );
-
-                      return `${day}/${month}/${year} ${hours}:${minutes}`;
-                    })()}
-                  </p>
+                  <p>{formatDateTime(selectedExportRequest.createDate)}</p>
                 </div>
 
-                {/* <div>
-                  <p className="font-bold">Total Price:</p>
-                  <p>${selectedRequest.totalPrice}</p>
-                </div> */}
+                <div>
+                  <p className="font-bold">Approve Date:</p>
+                  <p>{formatDateTime(selectedExportRequest.apporveDate)}</p>
+                </div>
+
+                <div>
+                  <p className="font-bold">Delivery Date:</p>
+                  <p>{formatDateTime(selectedExportRequest.deliverDate)}</p>
+                </div>
+
+                <div>
+                  <p className="font-bold">Cancel Date:</p>
+                  <p>{formatDateTime(selectedExportRequest.cancelDate)}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Cancel Reason:</p>
+                  <p>{selectedExportRequest.cancellationReason}</p>
+                </div>
                 <div>
                   <p className="font-bold">Warehouse Name:</p>
                   <p>{selectedExportRequest.warehouseName}</p>
@@ -832,9 +767,14 @@ const RequestManagement = () => {
                 <div>
                   <p className="font-bold">Lot ID:</p>
                   <p>{selectedExportRequest.lotId}</p>
-                </div><div>
-                  <p className="font-bold">Inventory ID:</p>
+                </div>
+                <div>
+                  <p className="font-bold">Send To Inventory ID:</p>
                   <p>{selectedExportRequest.sendToInventoryId}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Export From Lot ID:</p>
+                  <p>{selectedExportRequest.exportFromLotId}</p>
                 </div>
               </div>
             </div>

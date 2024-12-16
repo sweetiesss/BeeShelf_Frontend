@@ -230,6 +230,39 @@ const Payment = () => {
         );
       },
     },
+    {
+      title: t("CreateDate"),
+      dataIndex: "confirmDate",
+      key: "confirmDate",
+      align: "center",
+      render: (text) => {
+        if (!text) return "Null";
+        const date = new Date(text);
+        const formattedDate = new Intl.DateTimeFormat("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          timeZone: "Asia/Ho_Chi_Minh",
+        }).format(date);
+
+        const formattedTime = new Intl.DateTimeFormat("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+          timeZone: "Asia/Ho_Chi_Minh",
+        }).format(date);
+
+        return (
+          <>
+            {formattedDate}
+            <br />
+            {formattedTime}
+          </>
+        );
+      },
+    },
+
 
     {
       title: t("PictureLink"), 

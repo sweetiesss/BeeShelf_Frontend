@@ -284,6 +284,27 @@ const Ordermanage = () => {
       ),
     },
   ];
+  //Format Date
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "Null"; // Trả về chuỗi rỗng nếu không có giá trị
+
+    const date = new Date(dateString);
+
+    const formattedDate = date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+
+    const formattedTime = date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+
+    return `${formattedDate}\n${formattedTime}`;
+  };
 
   // Add this function to check valid status transitions
   const getValidStatusTransitions = (currentStatus) => {
@@ -411,25 +432,64 @@ const Ordermanage = () => {
                   <Card className="mt-2" key={index}>
                     <Typography>
                       <Title level={5}>Detail</Title>
-                      <Paragraph>Name: {item.productName}</Paragraph>
-                      <Paragraph>Price: {item.productPrice}</Paragraph>
-                      <Paragraph>Amount: {item.productAmount}</Paragraph>
-                      <Paragraph>Weight: {item.weight}</Paragraph>
-                      <Paragraph>Unit: {item.unit}</Paragraph>
-                      <Paragraph>Lot ID: {item.lotId}</Paragraph>
+                      <Paragraph>
+                        <strong>Name:</strong> {item.productName}
+                      </Paragraph>
+                      <Paragraph>
+                        <strong>Price:</strong>{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.productPrice)}
+                      </Paragraph>
+                      <Paragraph>
+                        <strong>Amount:</strong> {item.productAmount}
+                      </Paragraph>
+                      <Paragraph>
+                        <strong>Weight:</strong> {item.weight} kg
+                      </Paragraph>
+                      <Paragraph>
+                        <strong>Unit:</strong> {item.unit}
+                      </Paragraph>
+                      <Paragraph>
+                        <strong>Inventory ID:</strong> {item.inventoryId}
+                      </Paragraph>
+                      <Paragraph>
+                        <strong>Inventory Name:</strong> {item.inventoryName}
+                      </Paragraph>
+                      <Paragraph>
+                        <strong>Lot ID:</strong> {item.lotId}
+                      </Paragraph>
                     </Typography>
                   </Card>
                 ))}
               </div>
+
               <div>
                 {selectedOrder?.orderFees?.map((item, idx) => (
                   <Card className="mt-2" key={idx}>
                     <Typography>
                       <Title level={5}>Fee</Title>
-                      <Paragraph>Storage Fee: {item.storageFee}</Paragraph>
-                      <Paragraph>Delivery Fee: {item.deliveryFee}</Paragraph>
                       <Paragraph>
-                        Additional Fee: {item.additionalFee}
+                        <strong>Storage Fee:</strong>{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.storageFee)}
+                      </Paragraph>
+                      <Paragraph>
+                        <strong>Delivery Fee:</strong>{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.deliveryFee)}
+                      </Paragraph>
+                      <Paragraph>
+                        <strong>Additional Fee:</strong>{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.additionalFee)}
                       </Paragraph>
                     </Typography>
                   </Card>
@@ -465,145 +525,32 @@ const Ordermanage = () => {
                 {/* Create Date */}
                 <div>
                   <p className="font-bold">Create Date:</p>
-                  <p>
-                    {(() => {
-                      if (!selectedOrder.createDate) return "";
-                      const date = new Date(selectedOrder.createDate);
-                      return (
-                        date.toLocaleDateString("vi-VN", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        }) +
-                        "\n" +
-                        date.toLocaleTimeString("vi-VN", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                          hour12: false,
-                        })
-                      );
-                    })()}
-                  </p>
+                  <p>{formatDateTime(selectedOrder.createDate)}</p>
                 </div>
-                {/* Delivery Start Date */}
+
                 <div>
                   <p className="font-bold">Delivery Start Date:</p>
-                  <p>
-                    {(() => {
-                      const date = new Date(selectedOrder.deliverStartDate);
-                      return (
-                        date.toLocaleDateString("vi-VN", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        }) +
-                        "\n" +
-                        date.toLocaleTimeString("vi-VN", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                          hour12: false,
-                        })
-                      );
-                    })()}
-                  </p>
+                  <p>{formatDateTime(selectedOrder.deliverStartDate)}</p>
                 </div>
 
-                {/* Delivery Finish Date */}
                 <div>
                   <p className="font-bold">Delivery Finish Date:</p>
-                  <p>
-                    {(() => {
-                      const date = new Date(selectedOrder.deliverFinishDate);
-                      return (
-                        date.toLocaleDateString("vi-VN", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        }) +
-                        "\n" +
-                        date.toLocaleTimeString("vi-VN", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                          hour12: false,
-                        })
-                      );
-                    })()}
-                  </p>
+                  <p>{formatDateTime(selectedOrder.deliverFinishDate)}</p>
                 </div>
 
-                {/* Completion Date */}
                 <div>
                   <p className="font-bold">Completion Date:</p>
-                  <p>
-                    {(() => {
-                      const date = new Date(selectedOrder.completeDate);
-                      return (
-                        date.toLocaleDateString("vi-VN", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        }) +
-                        "\n" +
-                        date.toLocaleTimeString("vi-VN", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                          hour12: false,
-                        })
-                      );
-                    })()}
-                  </p>
+                  <p>{formatDateTime(selectedOrder.completeDate)}</p>
                 </div>
 
-                {/* Return Date */}
                 <div>
                   <p className="font-bold">Return Date:</p>
-                  <p>
-                    {(() => {
-                      const date = new Date(selectedOrder.returnDate);
-                      return (
-                        date.toLocaleDateString("vi-VN", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        }) +
-                        "\n" +
-                        date.toLocaleTimeString("vi-VN", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                          hour12: false,
-                        })
-                      );
-                    })()}
-                  </p>
+                  <p>{formatDateTime(selectedOrder.returnDate)}</p>
                 </div>
 
-                {/* Cancellation Date */}
                 <div>
                   <p className="font-bold">Cancellation Date:</p>
-                  <p>
-                    {(() => {
-                      const date = new Date(selectedOrder.cancelDate);
-                      return (
-                        date.toLocaleDateString("vi-VN", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        }) +
-                        "\n" +
-                        date.toLocaleTimeString("vi-VN", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                          hour12: false,
-                        })
-                      );
-                    })()}
-                  </p>
+                  <p>{formatDateTime(selectedOrder.cancelDate)}</p>
                 </div>
 
                 {/* Reason For Cancellation */}

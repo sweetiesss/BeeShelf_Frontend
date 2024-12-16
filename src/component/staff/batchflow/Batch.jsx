@@ -46,7 +46,6 @@ const BatchManage = () => {
 
     Modal.confirm({
       title: "Are you sure you want to delete this batch?",
-      // content: "This action cannot be undone.",
       okText: "Yes, Delete",
       okType: "danger",
       cancelText: "Cancel",
@@ -59,7 +58,7 @@ const BatchManage = () => {
 
           console.log("Response:", response);
 
-          // Kiểm tra nếu response có data là 'Success.' và status là 200
+          // Kiểm tra nếu response thành công
           if (
             response &&
             response.status === 200 &&
@@ -69,15 +68,23 @@ const BatchManage = () => {
             // Làm mới danh sách sau khi xóa
             fetchBatches();
           } else {
+            // Hiển thị thông báo lỗi từ server nếu có
             message.error(
-              response.data || "Failed to delete batch. Please try again."
+              response.data.message ||
+                "Failed to delete batch. Please try again."
             );
           }
         } catch (error) {
           console.error("Error deleting batch:", error);
-          message.error(
-            "An error occurred while deleting the batch. Please try again."
-          );
+
+          // Kiểm tra lỗi từ phản hồi của server
+          if (error.response && error.response.data) {
+            message.error(error.response.data.message);
+          } else {
+            message.error(
+              "An error occurred while deleting the batch. Please try again."
+            );
+          }
         }
       },
     });
@@ -237,7 +244,7 @@ const BatchManage = () => {
   }, [userInfor, selectedDeliveryZone]);
 
   const formatDateTimeVN = (dateString) => {
-    if (!dateString) return { date: "", time: "" };
+    if (!dateString) return { date: "Null", time: "Null" };
 
     const date = new Date(dateString);
 
@@ -289,6 +296,27 @@ const BatchManage = () => {
       setLoading(false);
     }
   };
+
+  //Hàm xử lí ngày giờ
+  const formatDate = (dateString) => {
+    if (!dateString) return "Null"; // Trả về chuỗi rỗng nếu không có giá trị
+
+    const date = new Date(dateString);
+    const formattedDate = date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+    const formattedTime = date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+
+    return `${formattedDate} ${formattedTime}`;
+  };
+
   const [visible, setVisible] = useState(false);
   //Hàm gọi chi tiết detailorder1
   const [selectedOrderData, setSelectedOrderData] = useState(null);
@@ -296,20 +324,20 @@ const BatchManage = () => {
 
   const DetailOrder1 = async (id) => {
     // console.log("Fetching details for order ID:", id);
-  
+
     try {
       const response = await fetchDataBearer({
         url: `/order/get-order/${id}`,
         method: "GET",
       });
-  
+
       // console.log("Full Response:", response);
-  
+
       if (response) {
         console.log("Response Status:", response.status);
         console.log("Response Data:", response.data);
       }
-  
+
       if (response && response.data) {
         console.log("Order Details:", response.data);
         setSelectedOrderData(response.data);
@@ -324,8 +352,6 @@ const BatchManage = () => {
       );
     }
   };
-  
-
 
   const columns = [
     {
@@ -536,7 +562,12 @@ const BatchManage = () => {
       </Modal>
 
       <Drawer
-        title={`Batch Details Batch Name: ${selectedBatch?.name}`}
+        title={
+          <>
+            <span className="text-gray-600">Batch Details Name: </span>
+            <span className="text-blue-500">{selectedBatch?.name}</span>
+          </>
+        }
         open={!!selectedBatch}
         onClose={() => setSelectedBatch(null)}
         width={500}
@@ -544,14 +575,22 @@ const BatchManage = () => {
         <div>
           {/* Title */}
           <Typography.Title level={5} className="mb-4">
-            Shipper Name: {selectedBatch?.shipperName}
+            <span className="font-bold">Shipper Name:</span>{" "}
+            <span className="font-normal">{selectedBatch?.shipperName}</span>
           </Typography.Title>
+
           <Typography.Title level={5} className="mb-4">
-            Shipper Email: {selectedBatch?.shipperEmail}
+            <span className="font-bold">Shipper Email:</span>{" "}
+            <span className="font-normal">{selectedBatch?.shipperEmail}</span>
           </Typography.Title>
+
           <Typography.Title level={5} className="mb-4">
-            Delivery Zone: {selectedBatch?.deliveryZoneName}
+            <span className="font-bold">Delivery Zone:</span>{" "}
+            <span className="font-normal">
+              {selectedBatch?.deliveryZoneName}
+            </span>
           </Typography.Title>
+
           <div className="flex items-center">
             <strong className="mr-2">Status: </strong>
             <Tag
@@ -563,7 +602,7 @@ const BatchManage = () => {
 
           {/* Orders List */}
           <div className="mt-2 space-y-4">
-            <strong>Order List</strong>
+            <strong>Order List:</strong>
             <List
               dataSource={selectedBatch?.orders || []}
               renderItem={(order) => (
@@ -614,24 +653,13 @@ const BatchManage = () => {
                           <span className="text-gray-700"> {order.status}</span>
                         </div>
 
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">
-                            Reason For Cancellation:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.cancellationReason}
-                          </span>
-                        </div>
-
                         <div className="text-base text-gray-1000">
                           <span className="font-bold">
                             Order Creation Date:
                           </span>
                           <span className="text-gray-700">
                             {" "}
-                            {formatDateTimeVN(order.createDate).date}{" "}
-                            {formatDateTimeVN(order.createDate).time}
+                            {formatDate(order.createDate)}
                           </span>
                         </div>
 
@@ -639,8 +667,7 @@ const BatchManage = () => {
                           <span className="font-bold">Approval Date:</span>
                           <span className="text-gray-700">
                             {" "}
-                            {formatDateTimeVN(order.approveDate).date}{" "}
-                            {formatDateTimeVN(order.approveDate).time}
+                            {formatDate(order.approveDate)}
                           </span>
                         </div>
 
@@ -650,8 +677,7 @@ const BatchManage = () => {
                           </span>
                           <span className="text-gray-700">
                             {" "}
-                            {formatDateTimeVN(order.deliverStartDate).date}{" "}
-                            {formatDateTimeVN(order.deliverStartDate).time}
+                            {formatDate(order.deliverStartDate)}
                           </span>
                         </div>
 
@@ -661,10 +687,7 @@ const BatchManage = () => {
                           </span>
                           <span className="text-gray-700">
                             {" "}
-                            {
-                              formatDateTimeVN(order.deliverFinishDate).date
-                            }{" "}
-                            {formatDateTimeVN(order.deliverFinishDate).time}
+                            {formatDate(order.deliverFinishDate)}
                           </span>
                         </div>
 
@@ -672,8 +695,7 @@ const BatchManage = () => {
                           <span className="font-bold">Completion Date:</span>
                           <span className="text-gray-700">
                             {" "}
-                            {formatDateTimeVN(order.completeDate).date}{" "}
-                            {formatDateTimeVN(order.completeDate).time}
+                            {formatDate(order.completeDate)}
                           </span>
                         </div>
 
@@ -681,8 +703,7 @@ const BatchManage = () => {
                           <span className="font-bold">Return Date:</span>
                           <span className="text-gray-700">
                             {" "}
-                            {formatDateTimeVN(order.returnDate).date}{" "}
-                            {formatDateTimeVN(order.returnDate).time}
+                            {formatDate(order.returnDate)}
                           </span>
                         </div>
 
@@ -690,8 +711,17 @@ const BatchManage = () => {
                           <span className="font-bold">Cancellation Date:</span>
                           <span className="text-gray-700">
                             {" "}
-                            {formatDateTimeVN(order.cancelDate).date}{" "}
-                            {formatDateTimeVN(order.cancelDate).time}
+                            {formatDate(order.cancelDate)}
+                          </span>
+                        </div>
+
+                        <div className="text-base text-gray-10000">
+                          <span className="font-bold">
+                            Reason For Cancellation:
+                          </span>
+                          <span className="text-gray-700">
+                            {" "}
+                            {order.cancellationReason}
                           </span>
                         </div>
 
@@ -724,81 +754,149 @@ const BatchManage = () => {
                         </div>
                         {/* Modal Detail Order1 */}
                         <Modal
-                          title="Detail Order"
+                          title={
+                            <span
+                              style={{ fontSize: "24px", fontWeight: "bold" }}
+                            >
+                              Detail Order
+                            </span>
+                          }
                           visible={detailModalVisible}
                           onCancel={() => setDetailModalVisible(false)}
                           footer={null}
                         >
                           {selectedOrderData && (
-                            <div>
+                            <div className="space-y-8">
                               {/* Order Details */}
-                              <h3 className="text-lg font-bold mb-2">
-                                Order Details
-                              </h3>
-                              {selectedOrderData.orderDetails.map((detail) => (
-                                <div
-                                  key={detail.id}
-                                  className="mb-4 p-2 border rounded"
-                                >
-                                  <p>
-                                    <strong>Product Name:</strong>{" "}
-                                    {detail.productName}
-                                  </p>
-                                  <p>
-                                    <strong>Lot ID:</strong>{" "}
-                                    {detail.lotId}
-                                  </p>
-                                  <p>
-                                    <strong>Inventory ID:</strong>{" "}
-                                    {detail.inventoryId}
-                                  </p>
-                                  
-                                  <p>
-                                    <strong>Inventory Name:</strong>{" "}
-                                    {detail.inventoryName}
-                                  </p>
-                                  <p>
-                                    <strong>Price:</strong>{" "}
-                                    {detail.productPrice} VND
-                                  </p>
-                                  <p>
-                                    <strong>Unit:</strong> {detail.unit}
-                                  </p>
-                                  <p>
-                                    <strong>Weight:</strong> {detail.weight} kg
-                                  </p>
-                                  <p>
-                                    <strong>Amount:</strong>{" "}
-                                    {detail.productAmount}
-                                  </p>
-                                  <img
-                                    src={detail.productImage}
-                                    alt={detail.productName}
-                                    className="w-32 h-32 object-cover mt-2"
-                                  />
-                                </div>
-                              ))}
+                              <div>
+                                <h3 className="text-2xl font-bold mb-4 border-b pb-2">
+                                  Order Details
+                                </h3>
+                                {selectedOrderData.orderDetails.map(
+                                  (detail) => (
+                                    <div
+                                      key={detail.id}
+                                      className="p-4 border rounded-lg shadow-md mb-6"
+                                    >
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                          <p>
+                                            <strong className="text-gray-700">
+                                              Order ID:
+                                            </strong>{" "}
+                                            {detail.id}
+                                          </p>
+                                          <p>
+                                            <strong className="text-gray-700">
+                                              Product Name:
+                                            </strong>{" "}
+                                            {detail.productName}
+                                          </p>
+                                          <p>
+                                            <strong className="text-gray-700">
+                                              Lot ID:
+                                            </strong>{" "}
+                                            {detail.lotId}
+                                          </p>
+                                          <p>
+                                            <strong className="text-gray-700">
+                                              Inventory ID:
+                                            </strong>{" "}
+                                            {detail.inventoryId}
+                                          </p>
+                                          <p>
+                                            <strong className="text-gray-700">
+                                              Inventory Name:
+                                            </strong>{" "}
+                                            {detail.inventoryName}
+                                          </p>
+                                        </div>
+
+                                        <div>
+                                          <p>
+                                            <strong className="text-gray-700">
+                                              Price:
+                                            </strong>{" "}
+                                            {new Intl.NumberFormat("vi-VN", {
+                                              style: "currency",
+                                              currency: "VND",
+                                            }).format(detail.productPrice)}
+                                          </p>
+                                          <p>
+                                            <strong className="text-gray-700">
+                                              Unit:
+                                            </strong>{" "}
+                                            {detail.unit}
+                                          </p>
+                                          <p>
+                                            <strong className="text-gray-700">
+                                              Weight:
+                                            </strong>{" "}
+                                            {detail.weight} kg
+                                          </p>
+                                          <p>
+                                            <strong className="text-gray-700">
+                                              Amount:
+                                            </strong>{" "}
+                                            {detail.productAmount}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex justify-center mt-4">
+                                        <img
+                                          src={detail.productImage}
+                                          alt={detail.productName}
+                                          className="w-40 h-40 object-cover rounded-lg shadow-md"
+                                        />
+                                      </div>
+                                    </div>
+                                  )
+                                )}
+                              </div>
 
                               {/* Order Fees */}
-                              <h3 className="text-lg font-bold mb-2 mt-4">
-                                Order Fees
-                              </h3>
-                              {selectedOrderData.orderFees.map((fee, index) => (
-                                <div key={index} className="p-2 border rounded">
-                                  <p>
-                                    <strong>Delivery Fee:</strong>{" "}
-                                    {fee.deliveryFee} VND
-                                  </p>
-                                  <p>
-                                    <strong>Storage Fee:</strong>{" "}
-                                    {fee.storageFee} VND
-                                  </p>
-                                  <p>
-                                    <strong>Additional Fee:</strong>{" "}
-                                    {fee.additionalFee} VND
-                                  </p>
-                                </div>
-                              ))}
+                              <div>
+                                <h3 className="text-2xl font-bold mb-4 border-b pb-2">
+                                  Order Fees
+                                </h3>
+                                {selectedOrderData.orderFees.map(
+                                  (fee, index) => (
+                                    <div
+                                      key={index}
+                                      className="p-4 border rounded-lg shadow-md mb-4"
+                                    >
+                                      <p>
+                                        <strong className="text-gray-700">
+                                          Delivery Fee:
+                                        </strong>{" "}
+                                        {new Intl.NumberFormat("vi-VN", {
+                                          style: "currency",
+                                          currency: "VND",
+                                        }).format(fee.deliveryFee)}
+                                      </p>
+                                      <p>
+                                        <strong className="text-gray-700">
+                                          Storage Fee:
+                                        </strong>{" "}
+                                        {new Intl.NumberFormat("vi-VN", {
+                                          style: "currency",
+                                          currency: "VND",
+                                        }).format(fee.storageFee)}
+                                      </p>
+                                      <p>
+                                        <strong className="text-gray-700">
+                                          Additional Fee:
+                                        </strong>{" "}
+                                        {new Intl.NumberFormat("vi-VN", {
+                                          style: "currency",
+                                          currency: "VND",
+                                        }).format(fee.additionalFee)}
+                                      </p>
+                                    </div>
+                                  )
+                                )}
+                              </div>
                             </div>
                           )}
                         </Modal>

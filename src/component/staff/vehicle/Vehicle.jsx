@@ -130,6 +130,7 @@ const Vehicle = () => {
           url: `/warehouse/get-warehouse-shippers/${warehouseId}`,
           method: "GET",
           params: {
+            hasVehicle: false,
             pageIndex: 0,
             pageSize: 100,
             filterBy: "WarehouseId",
