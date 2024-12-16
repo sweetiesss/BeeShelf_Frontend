@@ -231,7 +231,7 @@ const Payment = () => {
       },
     },
     {
-      title: t("CreateDate"),
+      title: t("ConfirmDate"),
       dataIndex: "confirmDate",
       key: "confirmDate",
       align: "center",
