@@ -35,7 +35,7 @@ const BatchManage = () => {
   const [form] = Form.useForm();
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
-    pageSize: 10,
+    pageSize: 8,
     totalPagesCount: 0,
     pageIndex: 0,
   });
@@ -448,12 +448,19 @@ const BatchManage = () => {
           <Button
             className="bg-red-500 text-white border-none hover:bg-red-600 focus:bg-red-600"
             onClick={() => handleDeleteBatch(record.id)}
+            disabled={record.status !== "Pending"} // Disable nếu status không phải là Pending
+            style={{
+              backgroundColor: record.status === "Pending" ? "#ff4d4f" : "#f5f5f5",
+              color: record.status === "Pending" ? "#fff" : "#d9d9d9",
+              borderColor: record.status === "Pending" ? "#ff4d4f" : "#d9d9d9",
+            }}
           >
             Delete Batch
           </Button>
         </div>
       ),
-    },
+    }
+    
   ];
 
   return (
@@ -600,313 +607,190 @@ const BatchManage = () => {
             </Tag>
           </div>
 
-          {/* Orders List */}
-          <div className="mt-2 space-y-4">
-            <strong>Order List:</strong>
-            <List
-              dataSource={selectedBatch?.orders || []}
-              renderItem={(order) => (
-                <List.Item key={order.id}>
-                  {/* <div className="p-4 space-y-3 bg-white rounded-lg shadow-md"> */}
-                  <div className="p-6 space-y-4 w-full max-w-xl bg-white rounded-lg shadow-lg">
-                    {/* Order Code */}
-                    <div className="flex justify-between items-center">
-                      <div className="text-base">
-                        <span className="font-bold text-gray-10000">
-                          Order ID:
-                        </span>
-                        <span className="text-gray-700"> {order.id}</span>
-                      </div>
-                    </div>
-
-                    <Divider />
-
-                    {/* Order Details */}
-                    <div className="flex justify-between">
-                      <div className="w-full">
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Order Code:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.orderCode}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Warehouse Name:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.warehouseName}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Partner Email:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.partner_email}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Order Status:</span>
-                          <span className="text-gray-700"> {order.status}</span>
-                        </div>
-
-                        <div className="text-base text-gray-1000">
-                          <span className="font-bold">
-                            Order Creation Date:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDate(order.createDate)}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-1000">
-                          <span className="font-bold">Approval Date:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDate(order.approveDate)}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">
-                            Delivery Start Date:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDate(order.deliverStartDate)}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">
-                            Delivery Finish Date:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDate(order.deliverFinishDate)}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Completion Date:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDate(order.completeDate)}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Return Date:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDate(order.returnDate)}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Cancellation Date:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {formatDate(order.cancelDate)}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">
-                            Reason For Cancellation:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.cancellationReason}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">
-                            Recipient Phone Number:
-                          </span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.receiverPhone}
-                          </span>
-                        </div>
-
-                        <div className="text-base text-gray-10000">
-                          <span className="font-bold">Recipient Address:</span>
-                          <span className="text-gray-700">
-                            {" "}
-                            {order.receiverAddress}
-                          </span>
-                        </div>
-
-                        {/* Order Detail Button */}
-                        <div className="mt-4">
-                          <button
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
-                            onClick={() => DetailOrder1(order.id)}
-                          >
-                            Order Detail
-                          </button>
-                        </div>
-                        {/* Modal Detail Order1 */}
-                        <Modal
-                          title={
-                            <span
-                              style={{ fontSize: "24px", fontWeight: "bold" }}
-                            >
-                              Detail Order
-                            </span>
-                          }
-                          visible={detailModalVisible}
-                          onCancel={() => setDetailModalVisible(false)}
-                          footer={null}
-                        >
-                          {selectedOrderData && (
-                            <div className="space-y-8">
-                              {/* Order Details */}
-                              <div>
-                                <h3 className="text-2xl font-bold mb-4 border-b pb-2">
-                                  Order Details
-                                </h3>
-                                {selectedOrderData.orderDetails.map(
-                                  (detail) => (
-                                    <div
-                                      key={detail.id}
-                                      className="p-4 border rounded-lg shadow-md mb-6"
-                                    >
-                                      <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                          <p>
-                                            <strong className="text-gray-700">
-                                              Order ID:
-                                            </strong>{" "}
-                                            {detail.id}
-                                          </p>
-                                          <p>
-                                            <strong className="text-gray-700">
-                                              Product Name:
-                                            </strong>{" "}
-                                            {detail.productName}
-                                          </p>
-                                          <p>
-                                            <strong className="text-gray-700">
-                                              Lot ID:
-                                            </strong>{" "}
-                                            {detail.lotId}
-                                          </p>
-                                          <p>
-                                            <strong className="text-gray-700">
-                                              Inventory ID:
-                                            </strong>{" "}
-                                            {detail.inventoryId}
-                                          </p>
-                                          <p>
-                                            <strong className="text-gray-700">
-                                              Inventory Name:
-                                            </strong>{" "}
-                                            {detail.inventoryName}
-                                          </p>
-                                        </div>
-
-                                        <div>
-                                          <p>
-                                            <strong className="text-gray-700">
-                                              Price:
-                                            </strong>{" "}
-                                            {new Intl.NumberFormat("vi-VN", {
-                                              style: "currency",
-                                              currency: "VND",
-                                            }).format(detail.productPrice)}
-                                          </p>
-                                          <p>
-                                            <strong className="text-gray-700">
-                                              Unit:
-                                            </strong>{" "}
-                                            {detail.unit}
-                                          </p>
-                                          <p>
-                                            <strong className="text-gray-700">
-                                              Weight:
-                                            </strong>{" "}
-                                            {detail.weight} kg
-                                          </p>
-                                          <p>
-                                            <strong className="text-gray-700">
-                                              Amount:
-                                            </strong>{" "}
-                                            {detail.productAmount}
-                                          </p>
-                                        </div>
-                                      </div>
-
-                                      <div className="flex justify-center mt-4">
-                                        <img
-                                          src={detail.productImage}
-                                          alt={detail.productName}
-                                          className="w-40 h-40 object-cover rounded-lg shadow-md"
-                                        />
-                                      </div>
-                                    </div>
-                                  )
-                                )}
-                              </div>
-
-                              {/* Order Fees */}
-                              <div>
-                                <h3 className="text-2xl font-bold mb-4 border-b pb-2">
-                                  Order Fees
-                                </h3>
-                                {selectedOrderData.orderFees.map(
-                                  (fee, index) => (
-                                    <div
-                                      key={index}
-                                      className="p-4 border rounded-lg shadow-md mb-4"
-                                    >
-                                      <p>
-                                        <strong className="text-gray-700">
-                                          Delivery Fee:
-                                        </strong>{" "}
-                                        {new Intl.NumberFormat("vi-VN", {
-                                          style: "currency",
-                                          currency: "VND",
-                                        }).format(fee.deliveryFee)}
-                                      </p>
-                                      <p>
-                                        <strong className="text-gray-700">
-                                          Storage Fee:
-                                        </strong>{" "}
-                                        {new Intl.NumberFormat("vi-VN", {
-                                          style: "currency",
-                                          currency: "VND",
-                                        }).format(fee.storageFee)}
-                                      </p>
-                                      <p>
-                                        <strong className="text-gray-700">
-                                          Additional Fee:
-                                        </strong>{" "}
-                                        {new Intl.NumberFormat("vi-VN", {
-                                          style: "currency",
-                                          currency: "VND",
-                                        }).format(fee.additionalFee)}
-                                      </p>
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </Modal>
-                      </div>
-                    </div>
-                  </div>
-                </List.Item>
-              )}
-            />
+{/* Orders List */}
+<div className="mt-4 space-y-6">
+  <strong className="text-2xl text-gray-800">Order List:</strong>
+  <List
+    dataSource={selectedBatch?.orders || []}
+    renderItem={(order) => (
+      <List.Item key={order.id}>
+        <div className="p-6 w-full max-w-4xl bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
+          {/* Order Header */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-lg font-semibold text-gray-700">
+              Order ID: <span className="text-blue-500">{order.id}</span>
+            </div>
           </div>
+
+          <Divider />
+
+          {/* Order Details */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <p className="text-gray-700">
+                <strong className="text-gray-900">Order Code:</strong> {order.orderCode}
+              </p>
+              <p className="text-gray-700">
+                <strong className="text-gray-900">Warehouse Name:</strong> {order.warehouseName}
+              </p>
+              <p className="text-gray-700">
+                <strong className="text-gray-900">Partner Email:</strong> {order.partner_email}
+              </p>
+              <p className="text-gray-700">
+                <strong className="text-gray-900">Order Status:</strong> {order.status}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-gray-700">
+                <strong className="text-gray-900">Order Creation Date:</strong> {formatDate(order.createDate)}
+              </p>
+              <p className="text-gray-700">
+                <strong className="text-gray-900">Approval Date:</strong> {formatDate(order.approveDate)}
+              </p>
+              <p className="text-gray-700">
+                <strong className="text-gray-900">Delivery Start Date:</strong> {formatDate(order.deliverStartDate)}
+              </p>
+              <p className="text-gray-700">
+                <strong className="text-gray-900">Delivery Finish Date:</strong> {formatDate(order.deliverFinishDate)}
+              </p>
+            </div>
+          </div>
+
+          {/* Order Detail Button */}
+          <div className="mt-6 flex justify-end">
+            <button
+              className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+              onClick={() => DetailOrder1(order.id)}
+            >
+              View Order Details
+            </button>
+          </div>
+        </div>
+      </List.Item>
+    )}
+  />
+</div>
+
+<Modal
+  title={<span className="text-2xl font-bold">Detail Order</span>}
+  visible={detailModalVisible}
+  onCancel={() => setDetailModalVisible(false)}
+  footer={null}
+>
+  {selectedOrderData && (
+    <div className="space-y-8">
+      {/* Order Details */}
+      <div>
+        <h3 className="text-xl font-bold mb-4 border-b pb-2">Order Details</h3>
+        {selectedOrderData.orderDetails.map((detail) => (
+          <div key={detail.id} className="p-4 border rounded-lg shadow-md mb-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <p>
+                  <strong className="text-gray-700">Order ID:</strong> {detail.id}
+                </p>
+                <p>
+                  <strong className="text-gray-700">Product Name:</strong> {detail.productName}
+                </p>
+                <p>
+                  <strong className="text-gray-700">Lot ID:</strong> {detail.lotId}
+                </p>
+                <p>
+                  <strong className="text-gray-700">Inventory ID:</strong> {detail.inventoryId}
+                </p>
+                <p>
+                  <strong className="text-gray-700">Inventory Name:</strong> {detail.inventoryName}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p>
+                  <strong className="text-gray-700">Price:</strong>{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(detail.productPrice)}
+                </p>
+                <p>
+                  <strong className="text-gray-700">Unit:</strong> {detail.unit}
+                </p>
+                <p>
+                  <strong className="text-gray-700">Weight:</strong> {detail.weight} kg
+                </p>
+                <p>
+                  <strong className="text-gray-700">Amount:</strong> {detail.productAmount}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-center mt-4">
+              <img
+                src={detail.productImage}
+                alt={detail.productName}
+                className="w-40 h-40 object-cover rounded-lg shadow-md"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Order Fees */}
+      <div>
+        <h3 className="text-xl font-bold mb-4 border-b pb-2">Order Fees</h3>
+        {selectedOrderData.orderFees.map((fee, index) => (
+          <div
+            key={index}
+            className="p-4 border rounded-lg shadow-md mb-4 bg-gray-50"
+          >
+            <div className="grid grid-cols-2 gap-4">
+              <p>
+                <strong className="text-gray-700">Delivery Fee:</strong>{" "}
+                <span className="text-gray-900">
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(fee.deliveryFee)}
+                </span>
+              </p>
+              <p>
+                <strong className="text-gray-700">Storage Fee:</strong>{" "}
+                <span className="text-gray-900">
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(fee.storageFee)}
+                </span>
+              </p>
+              <p>
+                <strong className="text-gray-700">Additional Fee:</strong>{" "}
+                <span className="text-gray-900">
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(fee.additionalFee)}
+                </span>
+              </p>
+              <p>
+                <strong className="text-gray-700">Total Fee:</strong>{" "}
+                <span className="text-green-600 font-bold">
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(
+                    fee.deliveryFee + fee.storageFee + fee.additionalFee
+                  )}
+                </span>
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+</Modal>
+
+
 
           {/* Action Buttons */}
           <div className="flex gap-4 justify-end pt-4">

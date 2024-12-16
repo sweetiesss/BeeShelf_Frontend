@@ -14,13 +14,13 @@ const RequestManagement = () => {
   const [loadingExport, setLoadingExport] = useState(false);
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
-    pageSize: 10,
+    pageSize: 8,
     totalPagesCount: 0,
     pageIndex: 0,
   });
   const [paginationExport, setPaginationExport] = useState({
     totalItemsCount: 0,
-    pageSize: 10,
+    pageSize: 8,
     totalPagesCount: 0,
     pageIndex: 0,
   });

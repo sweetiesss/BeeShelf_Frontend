@@ -225,30 +225,58 @@ const Inventory = () => {
             <Col key={index} xs={24} sm={12} md={12} lg={8} xl={6}>
               <Card
                 style={{
-                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                  borderRadius: "10px",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Bóng đổ tinh tế
+                  borderRadius: "12px", // Bo tròn góc card
+                  border: "1px solid #e6e6e6", // Viền card
+                  transition: "transform 0.2s, box-shadow 0.2s", // Hiệu ứng chuyển đổi mượt mà
+                  backgroundColor: "#f9f9f9", // Màu nền nhạt
                 }}
                 title={
-                  <Title level={4}>
+                  <Title level={4} style={{ margin: 0, color: "#1890ff" }}>
                     Inventory {index + 1 + (currentPage - 1) * pageSize}
                   </Title>
                 }
+                hoverable // Tạo hiệu ứng hover mặc định của Ant Design
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-5px)"; // Di chuyển nhẹ lên trên khi hover
+                  e.currentTarget.style.boxShadow =
+                    "0 8px 20px rgba(0, 0, 0, 0.15)"; // Tăng bóng đổ khi hover
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)"; // Trở lại vị trí ban đầu khi rời chuột
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 12px rgba(0, 0, 0, 0.1)"; // Bóng đổ ban đầu
+                }}
               >
                 <Space direction="vertical" style={{ width: "100%" }}>
                   <Typography>
-                    <Title level={5}>Overview Inventory</Title>
-                    <Paragraph>Name: {item.name}</Paragraph>
-                    <Paragraph>Max Weight: {item.maxWeight}</Paragraph>
-                    <Paragraph>OCOP Partner ID: {item.ocopPartnerId}</Paragraph>
-                    <Paragraph>Weight: {item.weight}</Paragraph>
-                    <Paragraph>Total Product: {item.totalProduct}</Paragraph>
-                    <Paragraph>Warehouse Name: {item.warehouseName}</Paragraph>
+                    <Title level={5} style={{ color: "#555" }}>
+                      Overview Inventory
+                    </Title>
                     <Paragraph>
-                      Bought Date:{" "}
+                      <strong>Name:</strong> {item.name}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Max Weight:</strong> {item.maxWeight}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>OCOP Partner ID:</strong> {item.ocopPartnerId}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Weight:</strong> {item.weight}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Total Product:</strong> {item.totalProduct}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Warehouse Name:</strong> {item.warehouseName}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Bought Date:</strong>{" "}
                       {new Date(item.boughtDate).toLocaleDateString("vi-VN")}
                     </Paragraph>
                     <Paragraph>
-                      Expiration Date:{" "}
+                      <strong>Expiration Date:</strong>{" "}
                       {new Date(item.expirationDate).toLocaleDateString(
                         "vi-VN"
                       )}
@@ -299,34 +327,58 @@ const Inventory = () => {
       >
         <div className="grid grid-cols-2 gap-4">
           {paginatedSelectedInventory?.map((item, idx) => (
-            <Card key={idx}>
-              <div className="flex justify-between items-center">
-                <p className="font-bold">Lot ID:</p>
-                <p>{item.id}</p>
-              </div>
-              <div className="flex justify-between items-center">
-                <p className="font-bold">Lot Number:</p>
-                <p>{item.lotNumber}</p>
-              </div>
-              <div className="flex justify-between items-center">
-                <p className="font-bold">Lot Name:</p>
-                <p>{item.name}</p>
-              </div>
-              <div className="flex justify-between items-center">
-                <p className="font-bold">Lot Amount:</p>
-                <p>{item.lotAmount}</p>
-              </div>
-              <div className="flex justify-between items-center">
-                <p className="font-bold">Product PerLot:</p>
-                <p>{item.productPerLot}</p>
-              </div>
-              <div className="flex justify-between items-center">
-                <p className="font-bold">Product Name:</p>
-                <p>{item.productName}</p>
-              </div>
-              <div className="flex justify-between items-center">
-                <p className="font-bold">Total Product Amount:</p>
-                <p>{item.totalProductAmount}</p>
+            <Card
+              key={idx}
+              style={{
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Bóng đổ nhẹ
+                borderRadius: "12px", // Bo tròn góc
+                border: "1px solid #f0f0f0", // Viền nhạt
+                backgroundColor: "#ffffff", // Màu nền trắng
+                transition: "transform 0.3s, box-shadow 0.3s", // Hiệu ứng chuyển đổi mượt mà
+              }}
+              hoverable // Hiệu ứng hover mặc định của Ant Design
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-5px)";
+                e.currentTarget.style.boxShadow =
+                  "0 8px 20px rgba(0, 0, 0, 0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(0, 0, 0, 0.1)";
+              }}
+            >
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-gray-600">Lot ID:</p>
+                  <p className="text-gray-800">{item.id}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-gray-600">Lot Number:</p>
+                  <p className="text-gray-800">{item.lotNumber}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-gray-600">Lot Name:</p>
+                  <p className="text-gray-800">{item.name}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-gray-600">Lot Amount:</p>
+                  <p className="text-gray-800">{item.lotAmount}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-gray-600">Product PerLot:</p>
+                  <p className="text-gray-800">{item.productPerLot}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-gray-600">Product Name:</p>
+                  <p className="text-gray-800">{item.productName}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-gray-600">
+                    Total Product Amount:
+                  </p>
+                  <p className="text-gray-800">{item.totalProductAmount}</p>
+                </div>
               </div>
             </Card>
           ))}

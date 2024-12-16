@@ -17,7 +17,7 @@ const Payment = () => {
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
-    pageSize: 10,
+    pageSize: 8,
     pageIndex: 0,
   });
   const { fetchDataBearer } = useAxios();

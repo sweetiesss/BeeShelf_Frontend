@@ -19,7 +19,7 @@ const Vehicle = () => {
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
-    pageSize: 10,
+    pageSize: 8,
     totalPagesCount: 0,
     pageIndex: 0,
   });
@@ -461,137 +461,75 @@ const Vehicle = () => {
         }}
       />
 
-      <Modal
-        title="Order Details"
-        open={isModalVisible}
-        onCancel={handleModalClose}
-        footer={[
-          <Button key="close" onClick={handleModalClose}>
-            Close
-          </Button>,
-        ]}
-        className="!w-[700px]"
-      >
-        {selectedVehicle && (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div>
-                <label htmlFor="statusSelect" className="font-bold">
-                  Status:
-                </label>
-                <Select
-                  id="statusSelect"
-                  className="w-full"
-                  value={selectedVehicle.status}
-                  onChange={(newStatus) =>
-                    updateVehicleStatus(selectedVehicle.id, newStatus)
-                  }
-                  placeholder="Select a status"
-                  disabled={
-                    getValidStatusTransitions(selectedVehicle.status).length ===
-                    0
-                  }
-                >
-                  {getValidStatusTransitions(selectedVehicle.status).map(
-                    (status) => (
-                      <Option key={status} value={status}>
-                        {status}
-                      </Option>
-                    )
-                  )}
-                </Select>
-              </div>
-              {/* <div>
-                <label htmlFor="typeSelect" className="font-bold">
-                  Type:
-                </label>
-                <Select
-                  id="typeSelect"
-                  className="w-full"
-                  value={selectedVehicle.type}
-                  onChange={(newType) =>
-                    updateVehicleType(selectedVehicle.id, newType)
-                  }
-                  placeholder="Select a type"
-                >
-                  {typeVehicles.map((type) => (
-                    <Option key={type} value={type}>
-                      {type}
-                    </Option>
-                  ))}
-                </Select>
-              </div> */}
-            </div>
-            <div>
-              <Form
-                name="basic"
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
-                initialValues={selectedVehicle}
-                onFinish={(values) => {
-                  updateVehicle(selectedVehicle.id, values);
-                }}
-              >
-                <Form.Item
-                  label="Vehicle ID"
-                  name="id"
-                  rules={[
-                    { required: true, message: "Please input vehicle id!" },
-                  ]}
-                >
-                  <Input disabled />
-                </Form.Item>
-                <Form.Item
-                  label="Vehicle Name"
-                  name="name"
-                  rules={[
-                    { required: true, message: "Please input vehicle name!" },
-                  ]}
-                >
-                  <Input disabled />
-                </Form.Item>
-                <Form.Item
-                  label="License Plate"
-                  name="licensePlate"
-                  rules={[
-                    { required: true, message: "Please input license plate!" },
-                  ]}
-                >
-                  <Input disabled />
-                </Form.Item>
-                <Form.Item
-                  label="Type"
-                  name="type"
-                  rules={[{ required: true, message: "Please select type!" }]}
-                >
-                  <Select placeholder="Select a type" disabled>
-                    {typeVehicles.map((type) => (
-                      <Option key={type} value={type}>
-                        {type}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-                <Form.Item
-                  className="hidden"
-                  label="warehouseId"
-                  name="warehouseId"
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item className="hidden" label="isCold" name="isCold">
-                  <Input />
-                </Form.Item>
-                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                  <Button type="primary" htmlType="submit" disabled>
-                    Update
-                  </Button>
-                </Form.Item>
-              </Form>
-            </div>
-          </div>
-        )}
-      </Modal>
+<Modal
+  title={<div className="text-2xl font-bold text-gray-800">Vehicle Details</div>}
+  open={isModalVisible}
+  onCancel={handleModalClose}
+  footer={[
+    <Button
+      key="close"
+      onClick={handleModalClose}
+      className="bg-red-500 text-white hover:bg-red-600 transition duration-200"
+    >
+      Close
+    </Button>,
+  ]}
+  className="!w-[700px]"
+>
+  {selectedVehicle && (
+    <div className="grid grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg shadow-md">
+      {/* Vehicle Status Section */}
+      <div className="space-y-6">
+        <div>
+          <label htmlFor="statusSelect" className="block text-lg font-bold mb-2 text-gray-700">
+            Status:
+          </label>
+          <Select
+            id="statusSelect"
+            className="w-full"
+            value={selectedVehicle.status}
+            onChange={(newStatus) =>
+              updateVehicleStatus(selectedVehicle.id, newStatus)
+            }
+            placeholder="Select a status"
+            disabled={getValidStatusTransitions(selectedVehicle.status).length === 0}
+          >
+            {getValidStatusTransitions(selectedVehicle.status).map((status) => (
+              <Option key={status} value={status}>
+                {status}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      </div>
+
+      {/* Vehicle Information Display */}
+      <div className="p-4 bg-white rounded-lg shadow space-y-4">
+        <div className="flex justify-between items-center">
+          <span className="font-semibold text-gray-700">Vehicle ID:</span>
+          <span className="text-gray-900">{selectedVehicle.id}</span>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <span className="font-semibold text-gray-700">Vehicle Name:</span>
+          <span className="text-gray-900">{selectedVehicle.name}</span>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <span className="font-semibold text-gray-700">License Plate:</span>
+          <span className="text-gray-900">{selectedVehicle.licensePlate}</span>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <span className="font-semibold text-gray-700">Type:</span>
+          <span className="text-gray-900">{selectedVehicle.type}</span>
+        </div>
+      </div>
+    </div>
+  )}
+</Modal>
+
+
     </div>
   );
 };
