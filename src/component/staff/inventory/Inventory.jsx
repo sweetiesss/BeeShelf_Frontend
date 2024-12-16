@@ -15,6 +15,7 @@ import {
 import { useAuth } from "../../../context/AuthContext";
 import useAxiosBearer from "../../../services/CustomizeAxios";
 import { useNavigate } from "react-router-dom";
+import { Pagination } from "antd"; // Import Pagination từ Ant Design
 
 const { Title, Paragraph } = Typography;
 const { Search } = Input;
@@ -34,6 +35,26 @@ const Inventory = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState([]);
   const navigate = useNavigate();
+
+  //Phân trang cho Card Inventory
+  const [currentPage, setCurrentPage] = useState(1); // State lưu trang hiện tại
+  const pageSize = 8; // Số lượng card hiển thị trên mỗi trang
+
+  // Tính toán card cần hiển thị dựa trên trang hiện tại
+  const paginatedInventories = filteredInventories.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  //Phân trang cho card Inventory Detail
+  const [modalCurrentPage, setModalCurrentPage] = useState(1);
+  const modalPageSize = 6; // Số lượng card hiển thị trên mỗi trang trong modal
+
+  // Tính toán card cần hiển thị trong modal dựa trên trang hiện tại
+  const paginatedSelectedInventory = selectedInventory?.slice(
+    (modalCurrentPage - 1) * modalPageSize,
+    modalCurrentPage * modalPageSize
+  );
 
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchInventories = async () => {
@@ -200,14 +221,18 @@ const Inventory = () => {
             <Spin size="large" tip="Loading..." />
           </div>
         ) : (
-          filteredInventories.map((item, index) => (
+          paginatedInventories.map((item, index) => (
             <Col key={index} xs={24} sm={12} md={12} lg={8} xl={6}>
               <Card
                 style={{
                   boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
                   borderRadius: "10px",
                 }}
-                title={<Title level={4}>Inventory {index + 1}</Title>}
+                title={
+                  <Title level={4}>
+                    Inventory {index + 1 + (currentPage - 1) * pageSize}
+                  </Title>
+                }
               >
                 <Space direction="vertical" style={{ width: "100%" }}>
                   <Typography>
@@ -248,20 +273,32 @@ const Inventory = () => {
         )}
       </Row>
 
+      {/* Pagination */}
+      <div className="flex justify-center mt-8">
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={filteredInventories.length}
+          onChange={(page) => setCurrentPage(page)}
+        />
+      </div>
+
       <Modal
         className="!w-[800px]"
         title="Inventory Details"
         open={isModalVisible}
-        onCancel={handleModalClose}
+        onCancel={() => {
+          handleModalClose();
+          setModalCurrentPage(1); // Reset về trang đầu khi đóng modal
+        }}
         footer={[
           <Button key="close" onClick={handleModalClose}>
             Close
           </Button>,
         ]}
       >
-        {/* Wrap content with Spin */}
         <div className="grid grid-cols-2 gap-4">
-          {selectedInventory?.map((item, idx) => (
+          {paginatedSelectedInventory?.map((item, idx) => (
             <Card key={idx}>
               <div className="flex justify-between items-center">
                 <p className="font-bold">Lot ID:</p>
@@ -294,6 +331,18 @@ const Inventory = () => {
             </Card>
           ))}
         </div>
+
+        {/* Pagination trong modal */}
+        {selectedInventory && selectedInventory.length > modalPageSize && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={modalCurrentPage}
+              pageSize={modalPageSize}
+              total={selectedInventory.length}
+              onChange={(page) => setModalCurrentPage(page)}
+            />
+          </div>
+        )}
       </Modal>
     </div>
   );
