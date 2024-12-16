@@ -327,8 +327,13 @@ const Payment = () => {
 
   return (
     <div style={{ padding: "20px" }}>
+       <h1 className="text-4xl font-bold text-gray-800 mb-8">
+      Transfer Request Management
+    </h1>
       <div className="flex justify-between items-center mb-4">
-        <h1>{t("TransferMoneyRequestList")}</h1>
+        <h1 className="text-lg font-bold">
+        {t("TransferMoneyRequestList")}
+      </h1>
         <Button
           type="primary"
           onClick={() => setVisible(true)}

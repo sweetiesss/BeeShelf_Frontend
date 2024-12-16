@@ -328,24 +328,29 @@ const RequestManagement = () => {
     <>
   
   <div className="p-[20px] overflow-auto">
-    <h1>Request Management</h1>
+  <h1 className="text-4xl font-bold text-gray-800  mb-8">
+    Request Management
+  </h1>
 
-    {/* Dropdown lựa chọn giữa Import và Export */}
-    <div className="mb-4">
-      <Select
-        defaultValue="import"
-        style={{ width: 200 }}
-        onChange={(value) => setSelectedView(value)}
-      >
-        <Option value="import">Import Requests</Option>
-        <Option value="export">Export Requests</Option>
-      </Select>
-    </div>
+
+{/* Dropdown lựa chọn giữa Import và Export */}
+<div className="flex  mb-6">
+    <Select
+      defaultValue="import"
+      style={{ width: 220 }}
+      onChange={(value) => setSelectedView(value)}
+      className="rounded-lg shadow-md"
+    >
+      <Option value="import">Import Requests</Option>
+      <Option value="export">Export Requests</Option>
+    </Select>
+  </div>
 
     {/* Hiển thị bảng Import hoặc Export dựa trên lựa chọn */}
     {selectedView === "import" && (
       <>
-        <h2>Import Request Management</h2>
+
+        <h2 className="text-lg font-bold">Import Request Management</h2>
         <Table
           dataSource={requests}
           columns={[
@@ -450,7 +455,7 @@ const RequestManagement = () => {
 {/* Hiển thị bảng Export khi selectedView === "export" */}
 {selectedView === "export" && (
       <>
-        <h2>Export Request Management</h2>
+        <h2 className="text-lg font-bold">Export Request Management</h2>
         <Table
           dataSource={requestExports}
           columns={[

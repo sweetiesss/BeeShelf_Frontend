@@ -190,7 +190,10 @@ const Inventory = () => {
   return (
     <div style={{ padding: "20px" }}>
       <div style={{ marginBottom: "20px" }}>
-        <Title level={2}>Inventory Management</Title>
+        <Title level={2} style={{ fontSize: "2.5rem", fontWeight: "bold" }}>
+          Inventory Management
+        </Title>
+
         <div className="flex flex-col gap-4 mb-4">
           <Search
             placeholder="Search by Inventory Name"

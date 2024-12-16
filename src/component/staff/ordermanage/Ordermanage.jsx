@@ -338,7 +338,12 @@ const Ordermanage = () => {
   return (
     <>
       <div>
-        <h1>Order Management</h1>
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">
+      Order Management
+    </h1>
+    <h1 className="text-lg font-bold">
+      Order List
+      </h1>
         <Table
           className="overflow-auto min-w-[800px] w-full"
           dataSource={data}

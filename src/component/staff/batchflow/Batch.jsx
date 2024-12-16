@@ -465,8 +465,11 @@ const BatchManage = () => {
 
   return (
     <div style={{ padding: "20px" }}>
+       <h1 className="text-4xl font-bold text-gray-800 mb-8">
+      Batch Management
+    </h1>
       <div className="flex justify-between items-center mb-4">
-        <h1>Batch Management</h1>
+        <h1 className="text-lg font-bold">Batch List</h1>
         <Button type="primary" onClick={() => setCreateBatchModalVisible(true)}>
           Create Batch
         </Button>
