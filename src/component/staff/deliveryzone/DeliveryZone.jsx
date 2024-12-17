@@ -10,54 +10,42 @@ const DeliveryZone = () => {
   const { fetchDataBearer } = useAxios();
   const [deliveryZones, setDeliveryZones] = useState([]);
   const [shippers, setShippers] = useState([]);
+  const [loadingShippers, setLoadingShippers] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
   // Fetch Delivery Zones
-  useEffect(() => {
-    const fetchDeliveryZones = async () => {
-      if (hasFetched) return;
+  const fetchDeliveryZones = async () => {
+    try {
+      setLoading(true);
+      const warehouseId = userInfor?.workAtWarehouseId;
 
-      try {
-        setLoading(true);
-        const warehouseId = userInfor?.workAtWarehouseId;
-
-        if (!warehouseId) {
-          console.error("Warehouse ID is not available");
-          message.error("Warehouse ID is not available. Please log in again.");
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetchDataBearer({
-          url: `/warehouse/get-warehouse/${warehouseId}`,
-          method: "GET",
-        });
-
-        if (response && response.data && response.data.deliveryZones) {
-          setDeliveryZones(response.data.deliveryZones);
-          setHasFetched(true);
-          message.success("Data loaded successfully!");
-        } else {
-          message.error("No data returned from the server.");
-        }
-      } catch (error) {
-        console.error("Error fetching Delivery Zones:", error);
-        message.error("Error fetching data from the server.");
-      } finally {
+      if (!warehouseId) {
+        message.error("Warehouse ID is not available. Please log in again.");
         setLoading(false);
+        return;
       }
-    };
 
-    if (userInfor?.workAtWarehouseId && !hasFetched) {
-      fetchDeliveryZones();
-      fetchShippers();
+      const response = await fetchDataBearer({
+        url: `/warehouse/get-warehouse/${warehouseId}`,
+        method: "GET",
+      });
+
+      if (response && response.data && response.data.deliveryZones) {
+        setDeliveryZones(response.data.deliveryZones);
+        message.success("Delivery Zones loaded successfully!");
+      } else {
+        message.error("No delivery zones returned from the server.");
+      }
+    } catch (error) {
+      console.error("Error fetching Delivery Zones:", error);
+      message.error("Error fetching delivery zones from the server.");
+    } finally {
+      setLoading(false);
     }
-  }, [fetchDataBearer, userInfor, hasFetched]);
-
-  const [loadingShippers, setLoadingShippers] = useState(false);
+  };
 
   // Fetch Shippers
   const fetchShippers = async () => {
@@ -81,10 +69,8 @@ const DeliveryZone = () => {
         },
       });
 
-      // Check if response.data.items is an array
       if (response && response.data && Array.isArray(response.data.items)) {
         setShippers(response.data.items);
-        console.log("Shipper List:", response.data.items);
         message.success("Shippers loaded successfully!");
       } else {
         setShippers([]);
@@ -99,6 +85,15 @@ const DeliveryZone = () => {
     }
   };
 
+  // Initial Fetch for Delivery Zones and Shippers
+  useEffect(() => {
+    if (userInfor?.workAtWarehouseId && !hasFetched) {
+      fetchDeliveryZones();
+      fetchShippers();
+      setHasFetched(true);
+    }
+  }, [userInfor, hasFetched]);
+
   // Show Modal
   const showModal = () => {
     setIsModalVisible(true);
@@ -112,115 +107,152 @@ const DeliveryZone = () => {
 
   // Handle Submit Form
   const handleAssign = async (values) => {
-    console.log("Assigned Values:", values);
-    message.success("Shipper assigned successfully!");
-    setIsModalVisible(false);
-    form.resetFields();
+    const { shipperId, deliveryZoneId } = values;
+
+    try {
+      const response = await fetchDataBearer({
+        url: `/warehouse/assign-shipper-to-delivery-zone/${shipperId}/${deliveryZoneId}`,
+        method: "POST",
+      });
+
+      if (response) {
+        message.success("Shipper assigned to Delivery Zone successfully!");
+        setIsModalVisible(false);
+        form.resetFields();
+        fetchShippers(); // Refresh the shipper list after assignment
+      } else {
+        message.error("Failed to assign Shipper to Delivery Zone.");
+      }
+    } catch (error) {
+      console.error("Error assigning Shipper to Delivery Zone:", error);
+      message.error(
+        `Error: ${
+          error.response?.statusText || "An unexpected error occurred."
+        }`
+      );
+    }
   };
 
+  // Shippers Table Columns
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "Employee ID",
+      dataIndex: "employeeId",
+      key: "employeeId",
       align: "center",
     },
     {
-      title: "Zone Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Shipper Name",
+      dataIndex: "shipperName",
+      key: "shipperName",
       align: "center",
     },
     {
-      title: "Province/City ID",
-      dataIndex: "provinceId",
-      key: "provinceId",
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
       align: "center",
     },
     {
-      title: "Province/City Name",
-      dataIndex: "provinceName",
-      key: "provinceName",
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+      render: (text) => text || "N/A",
+    },
+    {
+      title: "Delivery Zone ID",
+      dataIndex: "deliveryZoneId",
+      key: "deliveryZoneId",
+      align: "center",
+    },
+    {
+      title: "Delivery Zone Name",
+      dataIndex: "deliveryZoneName",
+      key: "deliveryZoneName",
+      align: "center",
+    },
+    {
+      title: "Warehouse ID",
+      dataIndex: "warehouseId",
+      key: "warehouseId",
+      align: "center",
+    },
+    {
+      title: "Warehouse Name",
+      dataIndex: "warehouseName",
+      key: "warehouseName",
       align: "center",
     },
   ];
 
   return (
     <div className="p-[20px] overflow-auto">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">
-        DeliveryZone List
-      </h1>
-      <Button type="primary" onClick={showModal} style={{ marginBottom: 20 }}>
-        Assign Shipper To DeliveryZone
-      </Button>
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">DeliveryZone Management</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-lg font-bold">Vehicle List</h1>
+        <div className="flex gap-4">
+          <Button
+            type="primary"
+            onClick={showModal}
+            style={{ marginBottom: 20 }}
+          >
+            Assign Shipper To DeliveryZone
+          </Button>
+        </div>
+      </div>
 
-      {loading ? (
+      {loadingShippers ? (
         <Spin size="large" style={{ display: "block", margin: "auto" }} />
       ) : (
         <Table
-          dataSource={deliveryZones}
+          dataSource={shippers}
           columns={columns}
-          rowKey="id"
+          rowKey="employeeId"
           pagination={{ pageSize: 10 }}
           bordered={false}
+          className="custom-table"
         />
       )}
 
-<Modal
-  title="Assign Shipper To Delivery Zone"
-  visible={isModalVisible}
-  onCancel={handleCancel}
-  onOk={() => form.submit()}
->
-  <Form form={form} layout="vertical" onFinish={handleAssign}>
-    
-    {/* Shipper Selection */}
-    <Form.Item
-      name="shipperId"
-      label="Shipper"
-      rules={[{ required: true, message: "Please select a Shipper!" }]}
-    >
-      <Select
-        placeholder="Select a Shipper"
-        loading={loadingShippers}
-        optionLabelProp="label"
+      <Modal
+        title="Assign Shipper To Delivery Zone"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        onOk={() => form.submit()}
       >
-        {shippers.map((shipper) => (
-          <Option 
-            key={shipper.employeeId} 
-            value={shipper.employeeId}
-            label={`${shipper.shipperName} (ID: ${shipper.employeeId})`}
+        <Form form={form} layout="vertical" onFinish={handleAssign}>
+          <Form.Item
+            name="shipperId"
+            label="Shipper"
+            rules={[{ required: true, message: "Please select a Shipper!" }]}
           >
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontWeight: "bold" }}>{shipper.shipperName}</span>
-              <span style={{ color: "gray" }}>ID: {shipper.employeeId}</span>
-            </div>
-          </Option>
-        ))}
-      </Select>
-    </Form.Item>
+            <Select placeholder="Select a Shipper" loading={loadingShippers}>
+              {shippers.map((shipper) => (
+                <Option key={shipper.employeeId} value={shipper.employeeId}>
+                  {`${shipper.shipperName} (ID: ${shipper.employeeId})`}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
 
-    {/* Delivery Zone Selection */}
-    <Form.Item
-      name="deliveryZoneId"
-      label="Delivery Zone"
-      rules={[{ required: true, message: "Please select a Delivery Zone!" }]}
-    >
-      <Select placeholder="Select a Delivery Zone">
-        {deliveryZones.map((zone) => (
-          <Option key={zone.id} value={zone.id}>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontWeight: "bold" }}>{zone.name}</span>
-              <span style={{ color: "gray" }}>ID: {zone.id}</span>
-            </div>
-          </Option>
-        ))}
-      </Select>
-    </Form.Item>
-
-  </Form>
-</Modal>
-
+          <Form.Item
+            name="deliveryZoneId"
+            label="Delivery Zone"
+            rules={[
+              { required: true, message: "Please select a Delivery Zone!" },
+            ]}
+          >
+            <Select placeholder="Select a Delivery Zone" loading={loading}>
+              {deliveryZones.map((zone) => (
+                <Option key={zone.id} value={zone.id}>
+                  {`${zone.name} (ID: ${zone.id})`}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
