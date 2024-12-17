@@ -64,12 +64,12 @@ const DeliveryZone = () => {
     try {
       setLoadingShippers(true);
       const warehouseId = userInfor?.workAtWarehouseId;
-
+  
       if (!warehouseId) {
         message.error("Warehouse ID is not available. Please log in again.");
         return;
       }
-
+  
       const response = await fetchDataBearer({
         url: "/warehouse/get-warehouse-shippers",
         method: "GET",
@@ -80,10 +80,11 @@ const DeliveryZone = () => {
           pageSize: 10,
         },
       });
-
-      if (response && Array.isArray(response.data)) {
-        setShippers(response.data);
-        console.log("Shipper List:", response.data);
+  
+      // Check if response.data.items is an array
+      if (response && response.data && Array.isArray(response.data.items)) {
+        setShippers(response.data.items);
+        console.log("Shipper List:", response.data.items);
         message.success("Shippers loaded successfully!");
       } else {
         setShippers([]);
@@ -97,6 +98,7 @@ const DeliveryZone = () => {
       setLoadingShippers(false);
     }
   };
+  
 
   // Show Modal
   const showModal = () => {
