@@ -162,6 +162,8 @@ i18n
           NoFileUploaded: "No file uploaded",
           ItemsPerPage: "Items Per Page",
           //Staff:
+          "DeliveryZone":"DeliveryZone",
+          "TransferManage":"Transfer Request Management",
           "ConfirmDate":"Confirm Date",
           "Batch": "Batch",
           "Vehicle": "Vehicle",
@@ -349,6 +351,8 @@ i18n
           NoFileUploaded: "Chưa tải lên tệp nào",
           ItemsPerPage: "Số mục mỗi trang",
           //Staff
+          "DeliveryZone":"Khu dân cư",
+          "TransferManage":"Quản lý Yêu cầu Chuyển giao",
           "ConfirmDate":"Ngày Xác Nhận",
           "Batch": "Lô Hàng",
           "Vehicle": "Phương Tiện",
@@ -535,6 +539,8 @@ i18n
           NoFileUploaded: "ファイルがアップロードされていません",
           ItemsPerPage: "ページあたりの項目数",
           //Staff
+          "DeliveryZone":"住宅地域",
+          "TransferManage":"転送依頼管理",
           "ConfirmDate":"確認日",
           "Batch":"バッチ",
           "Vehicle": "車両",

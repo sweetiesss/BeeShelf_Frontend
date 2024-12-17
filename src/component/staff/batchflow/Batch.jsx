@@ -243,25 +243,25 @@ const BatchManage = () => {
     }
   }, [userInfor, selectedDeliveryZone]);
 
-  const formatDateTimeVN = (dateString) => {
-    if (!dateString) return { date: "Null", time: "Null" };
+  // const formatDateTimeVN = (dateString) => {
+  //   if (!dateString) return { date: "Null", time: "Null" };
 
-    const date = new Date(dateString);
+  //   const date = new Date(dateString);
 
-    const formattedDate = date.toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
+  //   const formattedDate = date.toLocaleDateString("vi-VN", {
+  //     day: "2-digit",
+  //     month: "2-digit",
+  //     year: "numeric",
+  //   });
 
-    const formattedTime = date.toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+  //   const formattedTime = date.toLocaleTimeString("vi-VN", {
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //     hour12: false,
+  //   });
 
-    return { date: formattedDate, time: formattedTime };
-  };
+  //   return { date: formattedDate, time: formattedTime };
+  // };
 
   // Handle create batch
   const handleCreateBatch = async (values) => {
@@ -368,9 +368,22 @@ const BatchManage = () => {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status) => (
-        <Tag color={status === "completed" ? "green" : "red"}>{status}</Tag>
-      ),
+      render: (status) => {
+        let color = "";
+
+        switch (status.toLowerCase()) {
+          case "completed":
+            color = "green";
+            break;
+          case "pending":
+            color = "red";
+            break;
+          default:
+            color = "default"; // Màu mặc định cho các trạng thái khác
+        }
+
+        return <Tag color={color}>{status}</Tag>;
+      },
     },
     {
       title: "Delivery Zone Name",
@@ -465,9 +478,9 @@ const BatchManage = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-       <h1 className="text-4xl font-bold text-gray-800 mb-8">
-      Batch Management
-    </h1>
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">
+        Batch Management
+      </h1>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-lg font-bold">Batch List</h1>
         <Button type="primary" onClick={() => setCreateBatchModalVisible(true)}>
@@ -653,6 +666,52 @@ const BatchManage = () => {
                           </strong>{" "}
                           {order.status}
                         </p>
+                        <p className="text-gray-700">
+                          <strong className="text-gray-900">
+                            Total Price:
+                          </strong>{" "}
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(order.totalPrice)}
+                        </p>
+
+                        <p className="text-gray-700">
+                          <strong className="text-gray-900">
+                            Total Price After Fee:
+                          </strong>{" "}
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(order.totalPriceAfterFee)}
+                        </p>
+                        <p className="text-gray-700">
+                          <strong className="text-gray-900">
+                            Receiver Phone:
+                          </strong>{" "}
+                          {order.receiverPhone}
+                        </p>
+
+                        <p className="text-gray-700">
+                          <strong className="text-gray-900">
+                            Receiver Address:
+                          </strong>{" "}
+                          {order.receiverAddress}
+                        </p>
+
+                        <p className="text-gray-700">
+                          <strong className="text-gray-900">
+                            DeliveryZone Name:
+                          </strong>{" "}
+                          {order.deliveryZoneName}
+                        </p>
+
+                        <p className="text-gray-700">
+                          <strong className="text-gray-900">
+                            Cancellation Reason:
+                          </strong>{" "}
+                          {order.cancellationReason}
+                        </p>
                       </div>
 
                       <div className="space-y-2">
@@ -676,9 +735,21 @@ const BatchManage = () => {
                         </p>
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Delivery Finish Date:
+                            Complete Date:
                           </strong>{" "}
-                          {formatDate(order.deliverFinishDate)}
+                          {formatDate(order.completeDate)}
+                        </p>
+                        <p className="text-gray-700">
+                          <strong className="text-gray-900">
+                            Return Date:
+                          </strong>{" "}
+                          {formatDate(order.returnDate)}
+                        </p>
+                        <p className="text-gray-700">
+                          <strong className="text-gray-900">
+                            Cancel Date:
+                          </strong>{" "}
+                          {formatDate(order.cancelDate)}
                         </p>
                       </div>
                     </div>
@@ -824,7 +895,7 @@ const BatchManage = () => {
                             }).format(fee.additionalFee)}
                           </span>
                         </p>
-                        <p>
+                        {/* <p>
                           <strong className="text-gray-700">Total Fee:</strong>{" "}
                           <span className="text-green-600 font-bold">
                             {new Intl.NumberFormat("vi-VN", {
@@ -836,7 +907,7 @@ const BatchManage = () => {
                                 fee.additionalFee
                             )}
                           </span>
-                        </p>
+                        </p> */}
                       </div>
                     </div>
                   ))}

@@ -11,6 +11,7 @@ import {
   CreditCard,
   CarProfile,
   TreasureChest,
+  MapPinArea,
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
@@ -170,6 +171,14 @@ export function Sidebar() {
               <div className="sidebar-menu-container">
                 <AddressBook className="icon" weight="fill" />
                 <p className="label">{t("Request")}</p>
+              </div>
+            </NavLink>
+
+
+            <NavLink to="deliveryzone" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <MapPinArea className="icon" weight="fill" />
+                <p className="label">{t("DeliveryZone")}</p>
               </div>
             </NavLink>
 

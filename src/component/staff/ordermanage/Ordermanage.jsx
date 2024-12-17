@@ -74,6 +74,32 @@ const Ordermanage = () => {
     }
   };
 
+
+    // Format Date with UTC+7 Conversion
+    const formatDateTime = (dateString) => {
+      if (!dateString) return "Null"; // Return "Null" if the input is falsy
+  
+      const date = new Date(dateString);
+  
+      // Convert to UTC+7 by adding 7 hours
+      const utc7Date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+  
+      // Format the date part
+      const formattedDate = utc7Date.toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+  
+      // Format the time part
+      const formattedTime = utc7Date.toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+  
+      return `${formattedDate} ${formattedTime}`;
+    };
   // Cập nhật trạng thái đơn hàng
   const updateRequestStatus = async (id) => {
     setLoading(true);
@@ -247,13 +273,7 @@ const Ordermanage = () => {
       sortDirections: ["descend", "ascend"],
       render: (text) => {
         if (!text) return "";
-        const date = new Date(text);
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() bắt đầu từ 0
-        const year = date.getFullYear();
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-        return `${day}/${month}/${year} ${hours}:${minutes}`;
+        return formatDateTime(text);
       },
     },
     {
@@ -284,27 +304,7 @@ const Ordermanage = () => {
       ),
     },
   ];
-  //Format Date
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "Null"; // Trả về chuỗi rỗng nếu không có giá trị
 
-    const date = new Date(dateString);
-
-    const formattedDate = date.toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-
-    const formattedTime = date.toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
-
-    return `${formattedDate}\n${formattedTime}`;
-  };
 
   // Add this function to check valid status transitions
   const getValidStatusTransitions = (currentStatus) => {
@@ -338,12 +338,10 @@ const Ordermanage = () => {
   return (
     <>
       <div>
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">
-      Order Management
-    </h1>
-    <h1 className="text-lg font-bold">
-      Order List
-      </h1>
+        <h1 className="text-4xl font-bold text-gray-800 mb-8">
+          Order Management
+        </h1>
+        <h1 className="text-lg font-bold">Order List</h1>
         <Table
           className="overflow-auto min-w-[800px] w-full"
           dataSource={data}
@@ -500,7 +498,7 @@ const Ordermanage = () => {
                         }).format(item.additionalFee)}
                       </Paragraph>
 
-                      <Paragraph>
+                      {/* <Paragraph>
                         <strong className="text-gray-700">Total Fee:</strong>{" "}
                         <span className="text-green-600 font-bold">
                           {new Intl.NumberFormat("vi-VN", {
@@ -512,7 +510,7 @@ const Ordermanage = () => {
                               item.additionalFee
                           )}
                         </span>
-                      </Paragraph>
+                      </Paragraph> */}
                     </Typography>
                   </Card>
                 ))}
@@ -590,6 +588,15 @@ const Ordermanage = () => {
                       style: "currency",
                       currency: "VND",
                     }).format(selectedOrder.totalPrice)}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-bold">Total Price After Fee:</p>
+                  <p>
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(selectedOrder.totalPriceAfterFee)}
                   </p>
                 </div>
                 <div>

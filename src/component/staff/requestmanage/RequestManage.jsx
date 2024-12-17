@@ -7,7 +7,7 @@ import useAxios from "../../../services/CustomizeAxios";
 const { Option } = Select;
 
 const RequestManagement = () => {
-  const [selectedView, setSelectedView] = useState("import"); 
+  const [selectedView, setSelectedView] = useState("import");
   const [requests, setRequests] = useState([]);
   const [requestExports, setRequestExports] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -82,19 +82,23 @@ const RequestManagement = () => {
       setLoading(false);
     }
   };
-  // format date
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "Null"; // Trả về chuỗi rỗng nếu không có giá trị
+// format date with UTC+7 conversion
+const formatDateTime = (dateString) => {
+  if (!dateString) return "Null"; // Return "Null" if the input is falsy
 
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0, cần cộng 1
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
+  const date = new Date(dateString);
 
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
-  };
+  // Convert to UTC+7 by adding 7 hours
+  const utc7Date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+
+  const day = String(utc7Date.getUTCDate()).padStart(2, "0");
+  const month = String(utc7Date.getUTCMonth() + 1).padStart(2, "0"); // Months are zero-based
+  const year = utc7Date.getUTCFullYear();
+  const hours = String(utc7Date.getUTCHours()).padStart(2, "0");
+  const minutes = String(utc7Date.getUTCMinutes()).padStart(2, "0");
+
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
+};
 
   const fetchRequestExports = async (pageIndex = 0) => {
     setLoadingExport(true);
@@ -326,228 +330,229 @@ const RequestManagement = () => {
   };
   return (
     <>
-  
-  <div className="p-[20px] overflow-auto">
-  <h1 className="text-4xl font-bold text-gray-800  mb-8">
-    Request Management
-  </h1>
+      <div className="p-[20px] overflow-auto">
+        <h1 className="text-4xl font-bold text-gray-800  mb-8">
+          Request Management
+        </h1>
 
+        {/* Dropdown lựa chọn giữa Import và Export */}
+        <div className="flex  mb-6">
+          <Select
+            defaultValue="import"
+            style={{ width: 220 }}
+            onChange={(value) => setSelectedView(value)}
+            className="rounded-lg shadow-md"
+          >
+            <Option value="import">Import Requests</Option>
+            <Option value="export">Export Requests</Option>
+          </Select>
+        </div>
 
-{/* Dropdown lựa chọn giữa Import và Export */}
-<div className="flex  mb-6">
-    <Select
-      defaultValue="import"
-      style={{ width: 220 }}
-      onChange={(value) => setSelectedView(value)}
-      className="rounded-lg shadow-md"
-    >
-      <Option value="import">Import Requests</Option>
-      <Option value="export">Export Requests</Option>
-    </Select>
-  </div>
+        {/* Hiển thị bảng Import hoặc Export dựa trên lựa chọn */}
+        {selectedView === "import" && (
+          <>
+            <h2 className="text-lg font-bold">Import Request Management</h2>
+            <Table
+              dataSource={requests}
+              columns={[
+                { title: "Request ID", dataIndex: "id", key: "id" },
+                {
+                  title: "Partner Email",
+                  dataIndex: "partner_email",
+                  key: "partner_email",
+                },
+                { title: "Request Name", dataIndex: "name", key: "name" },
+                {
+                  title: "Product Name",
+                  dataIndex: "productName",
+                  key: "productName",
+                },
+                {
+                  title: "Request Type",
+                  dataIndex: "requestType",
+                  key: "requestType",
+                },
+                {
+                  title: "Status",
+                  dataIndex: "status",
+                  key: "status",
+                  filterDropdown: ({
+                    setSelectedKeys,
+                    selectedKeys,
+                    confirm,
+                    clearFilters,
+                  }) => (
+                    <div style={{ padding: 8 }}>
+                      <Select
+                        style={{ width: 120 }}
+                        value={selectedKeys[0]}
+                        onChange={(value) => {
+                          setSelectedKeys(value ? [value] : []);
+                          confirm();
+                        }}
+                        allowClear
+                      >
+                        <Option value="Pending">Pending</Option>
+                        <Option value="Processing">Processing</Option>
+                        <Option value="Failed">Failed</Option>
+                        <Option value="Delivered">Delivered</Option>
+                        <Option value="Canceled">Canceled</Option>
+                        <Option value="Completed">Completed</Option>
+                      </Select>
+                    </div>
+                  ),
+                  onFilter: (value, record) => record.status === value,
+                  render: (status) => renderStatusTag(status),
+                },
+                {
+                  title: "Create Date",
+                  dataIndex: "createDate",
+                  key: "createDate",
+                  sorter: (a, b) =>
+                    new Date(a.createDate) - new Date(b.createDate),
+                  sortDirections: ["descend", "ascend"],
+                  render: (text) => {
+                    if (!text) return ""; // Kiểm tra trường hợp giá trị null hoặc undefined
 
-    {/* Hiển thị bảng Import hoặc Export dựa trên lựa chọn */}
-    {selectedView === "import" && (
-      <>
+                    const date = new Date(text);
+                    const day = String(date.getDate()).padStart(2, "0");
+                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                    const year = date.getFullYear();
+                    const hours = String(date.getHours()).padStart(2, "0");
+                    const minutes = String(date.getMinutes()).padStart(2, "0");
 
-        <h2 className="text-lg font-bold">Import Request Management</h2>
-        <Table
-          dataSource={requests}
-          columns={[
-            { title: "Request ID", dataIndex: "id", key: "id" },
-            { title: "Partner Email", dataIndex: "partner_email", key: "partner_email" },
-            { title: "Request Name", dataIndex: "name", key: "name" },
-            {
-              title: "Product Name",
-              dataIndex: "productName",
-              key: "productName",
-            },
-            {
-              title: "Request Type",
-              dataIndex: "requestType",
-              key: "requestType",
-            },
-            {
-              title: "Status",
-              dataIndex: "status",
-              key: "status",
-              filterDropdown: ({
-                setSelectedKeys,
-                selectedKeys,
-                confirm,
-                clearFilters,
-              }) => (
-                <div style={{ padding: 8 }}>
-                  <Select
-                    style={{ width: 120 }}
-                    value={selectedKeys[0]}
-                    onChange={(value) => {
-                      setSelectedKeys(value ? [value] : []);
-                      confirm();
-                    }}
-                    allowClear
-                  >
-                    <Option value="Pending">Pending</Option>
-                    <Option value="Processing">Processing</Option>
-                    <Option value="Failed">Failed</Option>
-                    <Option value="Delivered">Delivered</Option>
-                    <Option value="Canceled">Canceled</Option>
-                    <Option value="Completed">Completed</Option>
-                  </Select>
-                </div>
-              ),
-              onFilter: (value, record) => record.status === value,
-              render: (status) => renderStatusTag(status),
-            },
-            {
-              title: "Create Date",
-              dataIndex: "createDate",
-              key: "createDate",
-              sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
-              sortDirections: ["descend", "ascend"],
-              render: (text) => {
-                if (!text) return ""; // Kiểm tra trường hợp giá trị null hoặc undefined
+                    return (
+                      <>
+                        {`${day}/${month}/${year}`}
+                        <br />
+                        {`${hours}:${minutes}`}
+                      </>
+                    );
+                  },
+                },
+                {
+                  title: "Action",
+                  dataIndex: "",
+                  key: "x",
+                  render: (_, record) => (
+                    <div className="flex flex-col gap-2 items-center">
+                      <Button
+                        className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+                        onClick={() => showRequestDetail(record)}
+                      >
+                        View Details
+                      </Button>
+                    </div>
+                  ),
+                },
+              ]}
+              loading={loading}
+              pagination={{
+                current: pagination.pageIndex + 1,
+                pageSize: pagination.pageSize,
+                total: pagination.totalItemsCount,
+                onChange: handlePageChange,
+              }}
+            />
+          </>
+        )}
 
-                const date = new Date(text);
-                const day = String(date.getDate()).padStart(2, "0");
-                const month = String(date.getMonth() + 1).padStart(2, "0");
-                const year = date.getFullYear();
-                const hours = String(date.getHours()).padStart(2, "0");
-                const minutes = String(date.getMinutes()).padStart(2, "0");
-
-                return (
-                  <>
-                    {`${day}/${month}/${year}`}
-                    <br />
-                    {`${hours}:${minutes}`}
-                  </>
-                );
-              },
-            },
-            {
-              title: "Action",
-              dataIndex: "",
-              key: "x",
-              render: (_, record) => (
-                <div className="flex flex-col gap-2 items-center">
-                  <Button
-                    className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
-                    onClick={() => showRequestDetail(record)}
-                  >
-                    View Details
-                  </Button>
-                </div>
-              ),
-            },
-          ]}
-          loading={loading}
-          pagination={{
-            current: pagination.pageIndex + 1,
-            pageSize: pagination.pageSize,
-            total: pagination.totalItemsCount,
-            onChange: handlePageChange,
-          }}
-        />
-      </>
-    )}
-      
-
-{/* Hiển thị bảng Export khi selectedView === "export" */}
-{selectedView === "export" && (
-      <>
-        <h2 className="text-lg font-bold">Export Request Management</h2>
-        <Table
-          dataSource={requestExports}
-          columns={[
-            { title: "Request ID", dataIndex: "id", key: "id" },
-            {
-              title: "Partner Email",
-              dataIndex: "partner_email",
-              key: "partner_email",
-            },
-            { title: "Request Name", dataIndex: "name", key: "name" },
-            {
-              title: "Product Name",
-              dataIndex: "productName",
-              key: "productName",
-            },
-            {
-              title: "Request Type",
-              dataIndex: "requestType",
-              key: "requestType",
-            },
-            {
-              title: "Warehouse Name",
-              dataIndex: "warehouseName",
-              key: "warehouseName",
-            },
-            {
-              title: "Status",
-              dataIndex: "status",
-              key: "status",
-              filterDropdown: ({
-                setSelectedKeys,
-                selectedKeys,
-                confirm,
-                clearFilters,
-              }) => (
-                <div style={{ padding: 8 }}>
-                  <Select
-                    style={{ width: 120 }}
-                    value={selectedKeys[0]}
-                    onChange={(value) => {
-                      setSelectedKeys(value ? [value] : []);
-                      confirm();
-                    }}
-                    allowClear
-                  >
-                    <Option value="Pending">Pending</Option>
-                    <Option value="Processing">Processing</Option>
-                    <Option value="Failed">Failed</Option>
-                    <Option value="Delivered">Delivered</Option>
-                    <Option value="Canceled">Canceled</Option>
-                    <Option value="Completed">Completed</Option>
-                  </Select>
-                </div>
-              ),
-              onFilter: (value, record) => record.status === value,
-              render: (status) => renderStatusTag(status),
-            },
-            {
-              title: "Create Date",
-              dataIndex: "createDate",
-              key: "createDate",
-              sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
-              sortDirections: ["descend", "ascend"],
-              render: (text) => formatDateTime(text),
-            },
-            {
-              title: "Action",
-              dataIndex: "",
-              key: "x",
-              render: (_, record) => (
-                <div className="flex flex-col gap-2 items-center">
-                  <Button
-                    className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
-                    onClick={() => showRequestDetailExport(record)}
-                  >
-                    View Details
-                  </Button>
-                </div>
-              ),
-            },
-          ]}
-          loading={loadingExport}
-          pagination={{
-            current: paginationExport.pageIndex + 1,
-            pageSize: paginationExport.pageSize,
-            total: paginationExport.totalItemsCount,
-            onChange: handlePageChangeExport,
-          }}
-        />
-      </>
-    )}
-
+        {/* Hiển thị bảng Export khi selectedView === "export" */}
+        {selectedView === "export" && (
+          <>
+            <h2 className="text-lg font-bold">Export Request Management</h2>
+            <Table
+              dataSource={requestExports}
+              columns={[
+                { title: "Request ID", dataIndex: "id", key: "id" },
+                {
+                  title: "Partner Email",
+                  dataIndex: "partner_email",
+                  key: "partner_email",
+                },
+                { title: "Request Name", dataIndex: "name", key: "name" },
+                {
+                  title: "Product Name",
+                  dataIndex: "productName",
+                  key: "productName",
+                },
+                {
+                  title: "Request Type",
+                  dataIndex: "requestType",
+                  key: "requestType",
+                },
+                {
+                  title: "Warehouse Name",
+                  dataIndex: "warehouseName",
+                  key: "warehouseName",
+                },
+                {
+                  title: "Status",
+                  dataIndex: "status",
+                  key: "status",
+                  filterDropdown: ({
+                    setSelectedKeys,
+                    selectedKeys,
+                    confirm,
+                    clearFilters,
+                  }) => (
+                    <div style={{ padding: 8 }}>
+                      <Select
+                        style={{ width: 120 }}
+                        value={selectedKeys[0]}
+                        onChange={(value) => {
+                          setSelectedKeys(value ? [value] : []);
+                          confirm();
+                        }}
+                        allowClear
+                      >
+                        <Option value="Pending">Pending</Option>
+                        <Option value="Processing">Processing</Option>
+                        <Option value="Failed">Failed</Option>
+                        <Option value="Delivered">Delivered</Option>
+                        <Option value="Canceled">Canceled</Option>
+                        <Option value="Completed">Completed</Option>
+                      </Select>
+                    </div>
+                  ),
+                  onFilter: (value, record) => record.status === value,
+                  render: (status) => renderStatusTag(status),
+                },
+                {
+                  title: "Create Date",
+                  dataIndex: "createDate",
+                  key: "createDate",
+                  sorter: (a, b) =>
+                    new Date(a.createDate) - new Date(b.createDate),
+                  sortDirections: ["descend", "ascend"],
+                  render: (text) => formatDateTime(text),
+                },
+                {
+                  title: "Action",
+                  dataIndex: "",
+                  key: "x",
+                  render: (_, record) => (
+                    <div className="flex flex-col gap-2 items-center">
+                      <Button
+                        className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+                        onClick={() => showRequestDetailExport(record)}
+                      >
+                        View Details
+                      </Button>
+                    </div>
+                  ),
+                },
+              ]}
+              loading={loadingExport}
+              pagination={{
+                current: paginationExport.pageIndex + 1,
+                pageSize: paginationExport.pageSize,
+                total: paginationExport.totalItemsCount,
+                onChange: handlePageChangeExport,
+              }}
+            />
+          </>
+        )}
       </div>
 
       <Modal
@@ -632,8 +637,9 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">Cancel Reason:</p>
-                  <p>{selectedRequest.cancellationReason}</p>
+                  <p>{selectedRequest.cancellationReason || "Null"}</p>
                 </div>
+
                 <div>
                   <p className="font-bold">Warehouse Name:</p>
                   <p>{selectedRequest.warehouseName}</p>
@@ -735,8 +741,9 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">Cancel Reason:</p>
-                  <p>{selectedExportRequest.cancellationReason}</p>
+                  <p>{selectedExportRequest.cancellationReason || "Null"}</p>
                 </div>
+
                 <div>
                   <p className="font-bold">Warehouse Name:</p>
                   <p>{selectedExportRequest.warehouseName}</p>
