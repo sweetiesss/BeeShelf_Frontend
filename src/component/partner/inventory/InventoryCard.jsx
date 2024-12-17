@@ -84,8 +84,7 @@ export function InventoryCard({
             ? new Intl.NumberFormat().format(inventory?.weight) +
                 "/" +
                 new Intl.NumberFormat().format(inventory?.maxWeight) || "N/A"
-            : new Intl.NumberFormat().format(inventory?.maxWeight)}
-          kg
+            : new Intl.NumberFormat().format(inventory?.maxWeight)} kg
         </div>
         <div className="text-gray-700 mb-1 flex gap-x-4">
           <p className="font-semibold">{t("Price")}:</p>
@@ -93,7 +92,7 @@ export function InventoryCard({
         </div>
         {inventory.ocopPartnerId && (
           <div className="text-gray-700 mb-1 flex gap-x-4">
-            <p className="font-semibold">{t("Expiredin")}:</p>
+            <p className="font-semibold">{t("ExpiredIn")}:</p>
             <p>
               {/* {format(inventory?.boughtDate, "dd/MM/yyyy")} -{" "}
               {format(inventory?.expirationDate, "dd/MM/yyyy")} */}

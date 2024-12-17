@@ -130,8 +130,7 @@ export function HomePage() {
       data,
     });
   };
-  console.log("orderData",orderData);
-  
+  console.log("orderData", orderData);
 
   // Function to render the selected chart
   const renderChart = () => {
@@ -291,8 +290,7 @@ export function Dashboard() {
       data,
     });
   };
-  console.log("orderData",orderData);
-  
+  console.log("orderData", orderData);
 
   // Function to render the selected chart
   const renderChart = () => {

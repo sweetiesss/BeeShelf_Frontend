@@ -32,7 +32,7 @@ const OrderDashboard = () => {
   const [orders, setOrders] = useState();
   const { userInfor } = useAuth();
   const { getOrderRevunue } = AxiosPartner();
-  const salesOverviewData = {
+  const  salesOverviewData = {
     labels: ["Profit", "Expense"],
     datasets: [
       {

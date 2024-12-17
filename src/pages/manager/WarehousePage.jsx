@@ -16,6 +16,7 @@ import AxiosWarehouse from "../../services/Warehouse";
 import AxiosEmployee from "../../services/Employee";
 import AxiosInventory from "../../services/Inventory";
 import AxiosOthers from "../../services/Others";
+import { format } from "date-fns";
 const { Option } = Select;
 export default function WarehousesPage() {
   const [form] = Form.useForm();
@@ -58,7 +59,7 @@ export default function WarehousesPage() {
   const [isCreateInventoryModalVisible, setIsCreateInventoryModalVisible] =
     useState(false);
   const [newInventory, setNewInventory] = useState({
-    name: "",
+    inventoryAmount: 0,
     maxWeight: 0,
     price: 0,
     weight: 0,
@@ -322,12 +323,12 @@ export default function WarehousesPage() {
     try {
       if (
         !newInventory.warehouseId ||
-        !newInventory.name ||
+        !newInventory.inventoryAmount ||
         !newInventory.maxWeight
       ) {
         console.error("Please fill all required fields.");
         console.log(newInventory.warehouseId);
-        console.log(newInventory.name);
+        console.log(newInventory.inventoryAmount);
         console.log(newInventory.maxWeight);
         return;
       }
@@ -406,12 +407,12 @@ export default function WarehousesPage() {
       editable: true,
     },
     {
-      title: "Capacity",
+      title: "Capacity (kg)",
       dataIndex: "capacity",
       editable: true,
     },
     {
-      title: "isCold",
+      title: "Frozen",
       dataIndex: "isCold",
       editable: true,
       render: (_, record) => (record?.isCold === 1 ? "Cold" : "Normal"),
@@ -424,6 +425,7 @@ export default function WarehousesPage() {
       title: "Create Date",
       dataIndex: "createDate",
       editable: true,
+      render: (_, record) => format(record?.createDate, "dd/MM/yyyy"),
     },
     {
       title: "Operation",
@@ -552,12 +554,12 @@ export default function WarehousesPage() {
               placeholder="Enter warehouse name"
             />
           </Form.Item>
-          <Form.Item label="Capacity" required>
+          <Form.Item label="Capacity (kg)" required>
             <Input
               name="capacity"
               value={newWarehouse.capacity}
               onChange={handleInputChange}
-              placeholder="Enter capacity"
+              placeholder="Enter capacity (kg)"
               type="number"
             />
           </Form.Item>
@@ -613,12 +615,12 @@ export default function WarehousesPage() {
               placeholder="Enter warehouse name"
             />
           </Form.Item>
-          <Form.Item label="Capacity" required>
+          <Form.Item label="Capacity (kg)" required>
             <Input
               name="capacity"
               value={newWarehouse.capacity}
               onChange={handleInputChange}
-              placeholder="Enter capacity"
+              placeholder="Enter capacity (kg)"
               type="number"
             />
           </Form.Item>
@@ -706,15 +708,16 @@ export default function WarehousesPage() {
               value={newInventory.warehouseId}
             />
           </Form.Item>
-          <Form.Item label="Name" required>
+          <Form.Item label="Inventory Amount" required>
             <Input
-              name="name"
-              value={newInventory.name}
+              name="inventoryAmount"
+              value={newInventory.inventoryAmount}
+              type="number"
               onChange={handleInventoryInputChange}
-              placeholder="Enter inventory's name"
+              placeholder="Enter amount of inventory"
             />
           </Form.Item>
-          <Form.Item label="Price" required>
+          <Form.Item label="Price (vnd)" required>
             <Input
               name="price"
               value={newInventory.price}
@@ -723,7 +726,7 @@ export default function WarehousesPage() {
               type="number"
             />
           </Form.Item>
-          <Form.Item label="Max weight" required>
+          <Form.Item label="Max weight (kg)" required>
             <Input
               name="maxWeight"
               value={newInventory.maxWeight}

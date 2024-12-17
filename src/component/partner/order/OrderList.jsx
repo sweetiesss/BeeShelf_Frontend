@@ -52,12 +52,12 @@ export default function OrderList({
           <tr>
             <td className="text-center pb-2">#</td>
             <td className="text-left pb-2  px-3">{t("Order")}</td>
-            <td className="text-left pb-2 ">{t("orderCode")}</td>
+            <td className="text-left pb-2 ">{t("OrderCode")}</td>
             <td className="text-left pb-2 ">{t("Warehouse")}</td>
             <td className="text-left pb-2 ">{t("ReceiverAddress")}</td>
             <td className="text-left pb-2 ">{t("ReceiverPhone")}</td>
             <td className="text-left pb-2 ">{t("CreateDate")}</td>
-            <td className="text-left pb-2 ">{t("Total")}</td>
+            <td className="text-left pb-2 ">{t("Total")}{" (vnd)"}</td>
             <td className="text-center pb-2">{t("Status")}</td>
             <td className="text-left pb-2 ">{t("")}</td>
           </tr>
@@ -91,8 +91,8 @@ export default function OrderList({
                     {format(order?.createDate, "dd/MM/yyyy")}
                   </td>
                   <td className=" px-1 py-2 ">
-                    {new Intl.NumberFormat().format(order?.totalPriceAfterFee)}{" "}
-                    vnd
+                    {new Intl.NumberFormat().format(order?.totalPriceAfterFee)}
+    
                   </td>
                   <td className=" px-1 py-2 text-center align-middle">
                     <p
@@ -118,7 +118,7 @@ export default function OrderList({
                           : "bg-gray-200 text-gray-800"
                       }`}
                     >
-                      {order?.status}
+                      {t(order?.status)}
                     </p>
                   </td>
                   <td className=" text-end">
@@ -133,7 +133,7 @@ export default function OrderList({
                           ref={actionComponent}
                         >
                           <div onClick={(e) => handleShowDetailOrder(e, order)}>
-                            Show detail
+                            {t("ShowDetail")}
                           </div>
                           {order?.status === "Draft" && (
                             <div
@@ -142,7 +142,7 @@ export default function OrderList({
                                 handleCloseAction();
                               }}
                             >
-                              Delete
+                              {t("Delete")}
                             </div>
                           )}
                         </div>

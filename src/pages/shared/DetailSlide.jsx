@@ -11,12 +11,14 @@ import defaultImg from "../../assets/img/defaultImg.jpg";
 import AxiosOrder from "../../services/Order";
 import { addMonths, format } from "date-fns";
 import AxiosInventory from "../../services/Inventory";
-import { t } from "i18next";
+
 import Select from "react-select";
 import AxiosCategory from "../../services/Category";
+import { useTranslation } from "react-i18next";
 
 export default function DetailSlide() {
   const { userInfor, setRefrestAuthWallet } = useContext(AuthContext);
+  const { t } = useTranslation();
   const {
     dataDetail,
     typeDetail,
@@ -339,7 +341,7 @@ export default function DetailSlide() {
               </span>
             )}
             <span className="text-black text-lg font-semibold col-span-1">
-              {t("unit")}:
+              {t("Unit")}:
             </span>
             {inputField?.unit ? (
               // <input
@@ -400,11 +402,11 @@ export default function DetailSlide() {
               />
             ) : (
               <span className="text-gray-700 text-lg col-span-1">
-                {dataDetail?.unit}
+                {t(dataDetail?.unit)}
               </span>
             )}
             <span className="text-black text-lg font-semibold col-span-1">
-              {t("isCold")}:
+              {t("Frozen")}:
             </span>
             {inputField?.isCold ? (
               // <input
@@ -418,8 +420,8 @@ export default function DetailSlide() {
               // />
               <Select
                 value={[
-                  { value: 0, label: t("NormailInventory") },
-                  { value: 1, label: t("FrozenInventory") },
+                  { value: 0, label: t("NormalProduct") },
+                  { value: 1, label: t("FrozenProduct") },
                 ].find((option) => option.value === form?.isCold)}
                 onChange={(selectedOption) =>
                   handleInput({
@@ -433,8 +435,8 @@ export default function DetailSlide() {
                 className="react-select-container"
                 classNamePrefix="react-select"
                 options={[
-                  { value: 0, label: t("NormailInventory") },
-                  { value: 1, label: t("FrozenInventory") },
+                  { value: 0, label: t("NormalProduct") },
+                  { value: 1, label: t("FrozenProduct") },
                 ]}
                 getOptionLabel={(option) => `${t(option.label)}`}
                 styles={{
@@ -469,7 +471,9 @@ export default function DetailSlide() {
               />
             ) : (
               <span className="text-gray-700 text-lg col-span-1">
-                {dataDetail?.isCold}
+                {dataDetail?.isCold === 0
+                  ? t("NormalProduct")
+                  : t("FrozenProduct")}
               </span>
             )}
             <span className="text-black text-lg font-semibold col-span-1">
@@ -497,7 +501,7 @@ export default function DetailSlide() {
               {t("TotalLotsImported")}:
             </span>
             <span className="text-gray-700 text-lg col-span-1">
-              {lotsList?.data?.totalItemsCount} lot
+              {lotsList?.data?.totalItemsCount} {t("lot")}
             </span>
           </div>
           <div className="flex justify-between items-center w-full gap-4">
@@ -507,13 +511,13 @@ export default function DetailSlide() {
                   className="mt-auto hover:bg-red-500 bg-red-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
                   onClick={() => setInputField()}
                 >
-                  Cancel
+                  {t("Cancel")}
                 </button>
                 <button
                   className="mt-auto hover:bg-green-500 bg-green-300 hover:text-white text-black py-2 px-4 rounded-lg w-full"
                   onClick={handeUpdate}
                 >
-                  Update
+                  {t("Update")}
                 </button>
               </>
             ) : (
@@ -550,7 +554,7 @@ export default function DetailSlide() {
             >
               <p>
                 <span className="text-[var(--en-vu-600)]">
-                  Are you sure you want to update:
+                  {t("AreYouSureYouWantToUpdate")}:
                 </span>{" "}
                 <span className="font-semibold">{dataDetail?.name}</span>?
               </p>
@@ -559,13 +563,13 @@ export default function DetailSlide() {
                   onClick={() => setShowUpdateConfirm(false)}
                   className="bg-red-500 text-white px-4 py-2 rounded-md"
                 >
-                  Cancel
+                  {t("Cancel")}
                 </button>
                 <button
                   onClick={() => confirmUpdate()}
                   className="bg-green-500 text-white px-4 py-2 rounded-md"
                 >
-                  Update
+                  {t("Update")}
                 </button>
               </div>
             </div>
@@ -1020,7 +1024,7 @@ export default function DetailSlide() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-semibold text-black">
-                  Order information
+                  {t("OrdersInformation")}
                 </h2>
               </div>
               <div
@@ -1056,16 +1060,19 @@ export default function DetailSlide() {
             {/* Product Info Table */}
             <div className="w-full flex flex-col gap-4">
               {[
-                { label: "Receiver Phone:", value: dataDetail?.receiverPhone },
                 {
-                  label: "Receiver Address:",
+                  label: t("ReceiverPhone") + ":",
+                  value: dataDetail?.receiverPhone,
+                },
+                {
+                  label: t("ReceiverAddress") + ":",
                   value:
                     dataDetail?.receiverAddress +
                     " " +
                     dataDetail?.deliveryZoneName,
                 },
                 {
-                  label: "From Warehouse:",
+                  label: t("FromWarehouse") + ":",
                   value: (
                     <div className="flex flex-col items-end">
                       <p>{dataDetail?.warehouseName}</p>
@@ -1076,30 +1083,25 @@ export default function DetailSlide() {
                   ),
                 },
                 {
-                  label: "Create date:",
+                  label: t("CreateDate") + ":",
                   value: format(dataDetail?.createDate, "HH:mm - dd/MM/yyyy"),
                 },
                 {
-                  label: "Start delivery date:",
-                  value:
-                    dataDetail?.status !== "Draft"
-                      ? format(
-                          dataDetail?.deliverStartDate,
-                          "HH:mm - dd/MM/yyyy"
-                        )
-                      : t("NotYet"),
+                  label: "StartDeliveryDate" + ":",
+                  value: dataDetail?.deliverStartDate
+                    ? format(dataDetail?.deliverStartDate, "HH:mm - dd/MM/yyyy")
+                    : t("NotYet"),
                 },
                 {
-                  label: "End deliver date:",
-                  value:
-                    dataDetail?.status !== "Draft"
-                      ? format(
-                          dataDetail?.deliverFinishDate,
-                          "HH:mm - dd/MM/yyyy"
-                        )
-                      : t("NotYet"),
+                  label: "CompleteDeliveryDate" + ":",
+                  value: dataDetail?.deliverFinishDate
+                    ? format(
+                        dataDetail?.deliverFinishDate,
+                        "HH:mm - dd/MM/yyyy"
+                      )
+                    : t("NotYet"),
                 },
-                { label: "Distance:", value: dataDetail?.distance + " km" },
+                { label: t("Distance")+":", value: dataDetail?.distance + " km" },
               ]?.map((item, index) => (
                 <div key={index} className="flex justify-between ">
                   <span className="text-gray-600">{item.label}</span>
@@ -1131,15 +1133,15 @@ export default function DetailSlide() {
                       : "bg-gray-200 text-gray-800"
                   }`}
                 >
-                  {dataDetail?.status}
+                  {t(dataDetail?.status)}
                 </span>
               </div>
               <div className="w-full h-[0.2rem] bg-gray-200" />
               <label className="font-medium text-lg flex justify-between items-center">
-                Order Details
+                {t("OrderDetail")}
               </label>
               <div className="grid grid-cols-11 items-center gap-4 text-sm">
-                <p className="col-span-2">Image</p>
+                <p className="col-span-2">{t("Image")}</p>
                 <p className="text-black  col-span-3 text-ellipsis overflow-hidden text-nowrap">
                   {t("ProductName")}
                 </p>
@@ -1170,7 +1172,9 @@ export default function DetailSlide() {
                   <span className="text-black  col-span-1">
                     {new Intl.NumberFormat().format(item.productAmount)}
                   </span>
-                  <span className="text-black  col-span-1">{item?.unit}</span>
+                  <span className="text-black  col-span-1">
+                    {t(item?.unit)}
+                  </span>
                   <span className="text-black  col-span-2">
                     {new Intl.NumberFormat().format(
                       item.productPrice * item.productAmount
@@ -1180,23 +1184,23 @@ export default function DetailSlide() {
               ))}
               <div className="w-full h-[0.2rem] bg-gray-200" />
               <label className="font-medium text-lg flex justify-between items-center">
-                Total Fees
+                {t("TotalFees")}
               </label>
               {[
                 {
-                  label: "Additional Fee:",
+                  label: t("AdditionalFee")+":",
                   value: dataDetail?.orderFees?.[0]?.additionalFee || 0,
                 },
                 {
-                  label: "Delivery Fee:",
+                  label: t("DeliveryFee")+":",
                   value: dataDetail?.orderFees?.[0]?.deliveryFee || 0,
                 },
                 {
-                  label: "Storage Fee:",
+                  label: t("StorageFee")+":",
                   value: dataDetail?.orderFees?.[0]?.storageFee || 0,
                 },
                 {
-                  label: "Total Price:",
+                  label: t("Total")+":",
                   value: dataDetail?.totalPriceAfterFee,
                 },
               ]?.map((item, index) => (
@@ -1216,7 +1220,7 @@ export default function DetailSlide() {
                   className="bg-red-500 text-white px-4 py-2 rounded-md w-full"
                   onClick={(e) => handleDeleteClick(e, dataDetail)}
                 >
-                  Delete
+                  {t("Delete")}
                 </button>
                 <button
                   className="bg-gray-500 text-white px-4 py-2 rounded-md w-full"
@@ -1227,13 +1231,13 @@ export default function DetailSlide() {
                     });
                   }}
                 >
-                  Edit
+                  {t("Edit")}
                 </button>
                 <button
                   className="bg-green-500 text-white px-4 py-2 rounded-md w-full"
                   onClick={handleSendRequest}
                 >
-                  Send
+                  {t("Send")}
                 </button>
               </>
             ) : dataDetail?.status === "Pending" ? (
@@ -1242,13 +1246,13 @@ export default function DetailSlide() {
                   className="bg-red-500 text-white px-4 py-2 rounded-md"
                   onClick={(e) => handleDeleteClick(e, dataDetail)}
                 >
-                  Delete
+                  {t("Delete")}
                 </button>
                 <button
                   className="bg-gray-500 text-white px-4 py-2 rounded-md"
                   // onClick={(e) =>handleUpdateStatusClick(e, dataDetail, "Canceled")}
                 >
-                  Cancel
+                  {t("Cancel")}
                 </button>
               </>
             ) : (
@@ -1273,13 +1277,13 @@ export default function DetailSlide() {
                   onClick={() => confirmDelete(showDeleteConfirmation)}
                   className="bg-red-500 text-white px-4 py-2 rounded-md"
                 >
-                  Delete
+                  {t("Delete")}
                 </button>
                 <button
                   onClick={cancelDelete}
                   className="bg-gray-300 text-black px-4 py-2 rounded-md"
                 >
-                  Cancel
+                  {t("Cancel")}
                 </button>
               </div>
             </div>
@@ -1581,7 +1585,7 @@ export default function DetailSlide() {
             )}
           </div>
 
-          <div>
+          <div className="flex gap-8">
             <button
               className="bg-green-500 px-4 py-2 rounded-lg text-white w-full"
               onClick={() => setShowExtendConfirmation((prev) => !prev)}
@@ -1595,7 +1599,7 @@ export default function DetailSlide() {
                 handleCloseDetail();
               }}
             >
-              {t("Show lots")}
+              {t("ShowLots")}
             </button>
           </div>
         </div>

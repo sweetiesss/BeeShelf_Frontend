@@ -31,7 +31,7 @@ const VehiclePage = () => {
     status: "",
     type: "",
     sortBy: "",
-    descending: false,
+    descending: true,
     pageIndex: 0,
     pageSize: 10,
   });
@@ -305,7 +305,8 @@ const VehiclePage = () => {
       );
       return { ...prev, warehouse: warehouse };
     });
-    setShowVehicles(newVehicleList);
+
+    setShowVehicles({ ...vehicles, items: newVehicleList });
   }, [vehicles, warehouses]);
   useEffect(() => {
     fetchVehicles();
@@ -347,7 +348,11 @@ const VehiclePage = () => {
               });
 
               console.log("Form Values After Setting:", form.getFieldsValue());
-              setFilter((prev) => ({ ...prev, warehouseId: selectOption }));
+              setFilter((prev) => ({
+                ...prev,
+                warehouseId: selectOption,
+                pageIndex: 0,
+              }));
             }}
           />
         </div>
@@ -378,7 +383,11 @@ const VehiclePage = () => {
               },
             ]}
             onChange={(selectOption) =>
-              setFilter((prev) => ({ ...prev, status: selectOption }))
+              setFilter((prev) => ({
+                ...prev,
+                status: selectOption,
+                pageIndex: 0,
+              }))
             }
           />
         </div>
@@ -420,7 +429,11 @@ const VehiclePage = () => {
               },
             ]}
             onChange={(selectOption) =>
-              setFilter((prev) => ({ ...prev, type: selectOption }))
+              setFilter((prev) => ({
+                ...prev,
+                type: selectOption,
+                pageIndex: 0,
+              }))
             }
           />
         </div>
@@ -475,7 +488,7 @@ const VehiclePage = () => {
             <Select placeholder="Select Vehicle Type">
               <Option value="Truck">Truck</Option>
               <Option value="Van">Van</Option>
-              <Option value="Motorbike">Motorbike</Option>
+              <Option value="Motorcycle">Motorcycle</Option>
             </Select>
           </Form.Item>
 
@@ -572,7 +585,7 @@ const VehiclePage = () => {
             <Select placeholder="Select Vehicle Type">
               <Option value="Truck">Truck</Option>
               <Option value="Van">Van</Option>
-              <Option value="Motorbike">Motorbike</Option>
+              <Option value="Motorcycle">Motorcycle</Option>
             </Select>
           </Form.Item>
 
@@ -686,7 +699,7 @@ const VehiclePage = () => {
 
       {/* Bảng hiển thị vehicles */}
       <Table
-        dataSource={showVehicles}
+        dataSource={showVehicles?.items}
         size="large"
         columns={[
           {
@@ -694,12 +707,20 @@ const VehiclePage = () => {
             key: "index",
             width: 70,
             align: "start",
-            render: (text, record, index) => index + 1,
+            render: (text, record, index) =>
+              filter?.pageIndex * showVehicles?.pageSize + index + 1,
           },
           {
             title: "Vehicle Name",
             dataIndex: "name",
             key: "name",
+            width: 150,
+            align: "start",
+          },
+          {
+            title: "Capacity (kg)",
+            dataIndex: "capacity",
+            key: "capacity",
             width: 150,
             align: "start",
           },
@@ -774,7 +795,6 @@ const VehiclePage = () => {
                 >
                   {showDropdownId === record?.id ? (
                     <>
-                      {" "}
                       <Button
                         type="default"
                         size="small"
@@ -841,7 +861,6 @@ const VehiclePage = () => {
                         value={selectedStatus[record.id] || null}
                       >
                         <Option value="Available">Available</Option>
-                        <Option value="InService">InService</Option>
                         <Option value="Repair">Repair</Option>
                       </Select>
                       <Button
