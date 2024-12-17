@@ -64,12 +64,12 @@ const DeliveryZone = () => {
     try {
       setLoadingShippers(true);
       const warehouseId = userInfor?.workAtWarehouseId;
-  
+
       if (!warehouseId) {
         message.error("Warehouse ID is not available. Please log in again.");
         return;
       }
-  
+
       const response = await fetchDataBearer({
         url: "/warehouse/get-warehouse-shippers",
         method: "GET",
@@ -80,7 +80,7 @@ const DeliveryZone = () => {
           pageSize: 10,
         },
       });
-  
+
       // Check if response.data.items is an array
       if (response && response.data && Array.isArray(response.data.items)) {
         setShippers(response.data.items);
@@ -98,7 +98,6 @@ const DeliveryZone = () => {
       setLoadingShippers(false);
     }
   };
-  
 
   // Show Modal
   const showModal = () => {
@@ -167,44 +166,61 @@ const DeliveryZone = () => {
         />
       )}
 
-      <Modal
-        title="Assign Shipper To DeliveryZone"
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        onOk={() => form.submit()}
+<Modal
+  title="Assign Shipper To Delivery Zone"
+  visible={isModalVisible}
+  onCancel={handleCancel}
+  onOk={() => form.submit()}
+>
+  <Form form={form} layout="vertical" onFinish={handleAssign}>
+    
+    {/* Shipper Selection */}
+    <Form.Item
+      name="shipperId"
+      label="Shipper"
+      rules={[{ required: true, message: "Please select a Shipper!" }]}
+    >
+      <Select
+        placeholder="Select a Shipper"
+        loading={loadingShippers}
+        optionLabelProp="label"
       >
-        <Form form={form} layout="vertical" onFinish={handleAssign}>
-          <Form.Item
-            name="shipperId"
-            label="Shipper"
-            rules={[{ required: true, message: "Please select a Shipper!" }]}
+        {shippers.map((shipper) => (
+          <Option 
+            key={shipper.employeeId} 
+            value={shipper.employeeId}
+            label={`${shipper.shipperName} (ID: ${shipper.employeeId})`}
           >
-            <Select placeholder="Select a Shipper">
-              {shippers.map((shipper) => (
-                <Option key={shipper.employeeId} value={shipper.employeeId}>
-                  {shipper.employeeId || `Shipper ID: ${shipper.employeeId}`}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontWeight: "bold" }}>{shipper.shipperName}</span>
+              <span style={{ color: "gray" }}>ID: {shipper.employeeId}</span>
+            </div>
+          </Option>
+        ))}
+      </Select>
+    </Form.Item>
 
-          <Form.Item
-            name="deliveryZoneId"
-            label="Delivery Zone"
-            rules={[
-              { required: true, message: "Please select a Delivery Zone!" },
-            ]}
-          >
-            <Select placeholder="Select a Delivery Zone">
-              {deliveryZones.map((zone) => (
-                <Option key={zone.id} value={zone.id}>
-                  {zone.name || `Delivery Zone ID: ${zone.id}`}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+    {/* Delivery Zone Selection */}
+    <Form.Item
+      name="deliveryZoneId"
+      label="Delivery Zone"
+      rules={[{ required: true, message: "Please select a Delivery Zone!" }]}
+    >
+      <Select placeholder="Select a Delivery Zone">
+        {deliveryZones.map((zone) => (
+          <Option key={zone.id} value={zone.id}>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontWeight: "bold" }}>{zone.name}</span>
+              <span style={{ color: "gray" }}>ID: {zone.id}</span>
+            </div>
+          </Option>
+        ))}
+      </Select>
+    </Form.Item>
+
+  </Form>
+</Modal>
+
     </div>
   );
 };
