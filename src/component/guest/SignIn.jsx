@@ -6,6 +6,7 @@ import AxiosUser from "../../services/User";
 import { EnvelopeSimple, LockKeyOpen } from "@phosphor-icons/react";
 import { useGoogleLogin } from "@react-oauth/google";
 import ggIcon from "../../assets/img/googleIcon.png";
+import axios from "axios";
 export default function SignIn({ action, setAction }) {
   const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({});
@@ -13,7 +14,7 @@ export default function SignIn({ action, setAction }) {
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
 
-  const { handleLogin } = useContext(AuthContext);
+  const { handleLogin,setIsAuthenticated } = useContext(AuthContext);
   const { loginByEmailPassword } = AxiosUser();
 
   const handleInput = (e) => {
@@ -79,7 +80,104 @@ export default function SignIn({ action, setAction }) {
   };
 
   const loginByGoogle = useGoogleLogin({
-    onSuccess: (tokenResponse) => console.log(tokenResponse),
+    onSuccess: async (tokenResponse) => {
+      try {
+        const accessToken = tokenResponse.access_token;
+
+        // Fetch user info from Google's OAuth2 API
+        const userInfoResponse = await axios.get(
+          "https://www.googleapis.com/oauth2/v2/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        if (userInfoResponse?.status === 200) {
+          const userInfo = userInfoResponse.data;
+          console.log("User response:", userInfoResponse);
+          console.log("User Info:", userInfo);
+          console.log("User Email:", userInfo.email);
+          try {
+            const checkLogin = await axios.post(
+              "https://beeshelfgateway.azurewebsites.net/gateway/auth/login",
+              {
+                email: userInfo.email,
+                password: "p7$G3@L9k#2N1%yZxT!m8&jQ4bV6*rW$H2eD^fK9@xYzP3$cR&1b*",
+              }
+            );
+            if (checkLogin && checkLogin?.status === 200) {
+              if (checkLogin?.data && checkLogin?.data.length > 0) {
+                const successDataToken = checkLogin?.data;
+                const objectCheck = jwtDecode(successDataToken);
+                console.log("check", objectCheck);
+
+                setIsAuthenticated(successDataToken);
+                if (
+                  objectCheck &&
+                  objectCheck?.[
+                    "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                  ] === "Partner"
+                ) {
+                  const getAccount = await axios.post(
+                    "https://beeshelfgateway.azurewebsites.net/gateway/user/get-partner/" +
+                      userInfo.email,
+                    {},
+                    {
+                      headers: { Authorization: `Bearer ${successDataToken}` },
+                    }
+                  );
+                  console.log(getAccount);
+                  if (
+                    getAccount &&
+                    getAccount?.status === 200 &&
+                    getAccount?.data
+                  ) {
+                    handleLogin(getAccount?.data);
+                    nav("/" + getAccount?.data?.roleName);
+                  }
+                }
+              }
+            }
+          } catch (loginError) {
+            if (
+              loginError?.status === 404 &&
+              loginError?.response?.data?.message === "User email not found."
+            ) {
+              const submitForm = {
+                email: userInfo?.email,
+                firstName: userInfo?.given_name,
+                lastName: userInfo?.family_name,
+                phone: "0000000000",
+                citizenIdentificationNumber: "000000000000",
+                taxIdentificationNumber: "000000000000",
+                businessName: "000000000000",
+                bankName: "000000000000",
+                bankAccountNumber: "000000000000",
+                categoryId: 1,
+                ocopCategoryId: 1,
+                provinceId: 1,
+                pictureLink: userInfo?.picture,
+              };
+              const createAccount = await axios.post(
+                "https://beeshelfgateway.azurewebsites.net/gateway/auth/sign-up",
+
+                submitForm
+              );
+              console.log("createAccount", createAccount);
+            }
+            console.log("checkLogin", checkLogin);
+          }
+        }
+
+        // Perform additional actions here, like saving to state or backend
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    },
+    onError: () => {
+      console.log("Google Login Failed");
+    },
   });
   return (
     <div className="w-full p-4  overflow-hidden relative bg-white h-full">

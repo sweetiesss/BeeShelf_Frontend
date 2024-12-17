@@ -50,7 +50,14 @@ export function Sidebar() {
       <nav className="flex flex-col flex-grow items-center text-[var(--en-vu-200)] sidebar-navigate space-y-4">
         {userInfor?.roleName === "Partner" && (
           <>
-            <NavLink to="dashboard" className="flex navigate-menu">
+            <NavLink
+              to={
+                location.pathname.toLocaleLowerCase() === "/partner"
+                  ? ""
+                  : "dashboard"
+              }
+              className="flex navigate-menu"
+            >
               <div className="sidebar-menu-container">
                 <House className="icon" weight="bold" />
                 <p className="label">{t("Dashboard")}</p>

@@ -581,8 +581,12 @@ export default function DetailSlide() {
 
   const RequestDetail = () => {
     const { getLotById } = AxiosLot();
-    const { sendRequestById, updateRequestStatus, deleteRequestById } =
-      AxiosRequest();
+    const {
+      sendRequestById,
+      updateRequestStatus,
+      deleteRequestById,
+      cancelRequest,
+    } = AxiosRequest();
     const [lotData, setLotData] = useState();
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
     const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
@@ -650,11 +654,16 @@ export default function DetailSlide() {
 
     const confirmUpdateStatus = async () => {
       try {
-        const res = await updateRequestStatus(
-          showUpdateConfirmation[0]?.id,
-          showUpdateConfirmation[1]
-        );
-        console.log(res);
+        if (showUpdateConfirmation[1] === "Canceled") {
+          const res = await cancelRequest(showUpdateConfirmation[0]?.id);
+          console.log(res);
+        } else {
+          const res = await updateRequestStatus(
+            showUpdateConfirmation[0]?.id,
+            showUpdateConfirmation[1]
+          );
+          console.log(res);
+        }
       } catch (e) {
       } finally {
         setRefresh(showUpdateConfirmation[0]?.id);
@@ -833,7 +842,7 @@ export default function DetailSlide() {
               ))}
             </div>
           </div>
-          <div className="flex justify-between items-center w-full px-20">
+          <div className="flex justify-between items-center w-full ">
             {dataDetail?.status === "Draft" ? (
               <>
                 <button
@@ -861,13 +870,7 @@ export default function DetailSlide() {
             ) : dataDetail?.status === "Pending" ? (
               <>
                 <button
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                  onClick={(e) => handleDeleteClick(e, dataDetail)}
-                >
-                  Delete
-                </button>
-                <button
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                  className="bg-gray-500 text-white py-3 rounded-md w-full"
                   onClick={(e) =>
                     handleUpdateStatusClick(e, dataDetail, "Canceled")
                   }
@@ -1101,7 +1104,10 @@ export default function DetailSlide() {
                       )
                     : t("NotYet"),
                 },
-                { label: t("Distance")+":", value: dataDetail?.distance + " km" },
+                {
+                  label: t("Distance") + ":",
+                  value: dataDetail?.distance + " km",
+                },
               ]?.map((item, index) => (
                 <div key={index} className="flex justify-between ">
                   <span className="text-gray-600">{item.label}</span>
@@ -1188,19 +1194,19 @@ export default function DetailSlide() {
               </label>
               {[
                 {
-                  label: t("AdditionalFee")+":",
+                  label: t("AdditionalFee") + ":",
                   value: dataDetail?.orderFees?.[0]?.additionalFee || 0,
                 },
                 {
-                  label: t("DeliveryFee")+":",
+                  label: t("DeliveryFee") + ":",
                   value: dataDetail?.orderFees?.[0]?.deliveryFee || 0,
                 },
                 {
-                  label: t("StorageFee")+":",
+                  label: t("StorageFee") + ":",
                   value: dataDetail?.orderFees?.[0]?.storageFee || 0,
                 },
                 {
-                  label: t("Total")+":",
+                  label: t("Total") + ":",
                   value: dataDetail?.totalPriceAfterFee,
                 },
               ]?.map((item, index) => (

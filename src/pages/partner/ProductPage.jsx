@@ -231,7 +231,6 @@ export default function ProductPage() {
         ? selectedProducts.map(
             ({
               id,
-              ocopPartnerId,
               productCategoryId,
               price,
               weight,
@@ -250,7 +249,6 @@ export default function ProductPage() {
         : products?.items?.map(
             ({
               id,
-              ocopPartnerId,
               productCategoryId,
               price,
               weight,
