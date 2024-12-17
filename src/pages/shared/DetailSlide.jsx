@@ -809,11 +809,15 @@ export default function DetailSlide() {
                 },
                 {
                   label: "ApporveDate:",
-                  value: dataDetail?.apporveDate ? dataDetail?.apporveDate : "notYet",
+                  value: dataDetail?.apporveDate
+                    ? dataDetail?.apporveDate
+                    : "notYet",
                 },
                 {
                   label: "DeliverDate:",
-                  value: dataDetail?.deliverDate ? dataDetail?.deliverDate : "notYet",
+                  value: dataDetail?.deliverDate
+                    ? dataDetail?.deliverDate
+                    : "notYet",
                 },
 
                 { label: "To Warehouse:", value: dataDetail?.warehouseName },
@@ -1583,6 +1587,15 @@ export default function DetailSlide() {
               onClick={() => setShowExtendConfirmation((prev) => !prev)}
             >
               {t("Extend")}
+            </button>
+            <button
+              className="bg-green-500 px-4 py-2 rounded-lg text-white w-full"
+              onClick={() => {
+                nav("inventory/lots", { state: { ...dataDetail } });
+                handleCloseDetail();
+              }}
+            >
+              {t("Show lots")}
             </button>
           </div>
         </div>

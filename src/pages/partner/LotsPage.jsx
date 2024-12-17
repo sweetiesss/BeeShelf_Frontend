@@ -5,7 +5,7 @@ import AxiosOrder from "../../services/Order";
 import { AuthContext } from "../../context/AuthContext";
 import { OrderDetailCard } from "../../component/partner/order/OrderCard";
 import { useDetail } from "../../context/DetailContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AxiosInventory from "../../services/Inventory";
 import { t } from "i18next";
 import SpinnerLoading from "../../component/shared/Loading";
@@ -22,6 +22,8 @@ export default function LotsPage() {
   const [loading, setLoading] = useState(false);
   const [isShowDetailLot, setShowDetailLot] = useState(null);
   const nav = useNavigate();
+  const location = useLocation();
+  const [inventory, setInventory] = useState(location?.state);
   const {
     dataDetail,
     updateDataDetail,
@@ -36,7 +38,7 @@ export default function LotsPage() {
     userId: userInfor?.id,
     search: "",
     productId: null,
-    inventoryId: null,
+    inventoryId: inventory ? inventory?.id : null,
     sortBy: "CreateDate",
     descending: true,
     pageIndex: 0,
@@ -68,6 +70,7 @@ export default function LotsPage() {
       }, delay);
     };
   };
+  console.log("inventory", inventory);
 
   const debouncedFetchOrders = useCallback(
     debounce(async () => {
@@ -137,8 +140,19 @@ export default function LotsPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6">{t("OrderManagement")}</h1>
-
+      <div className=" flex gap-4">
+        {inventory?.id && (
+          <h1
+            className="text-3xl font-bold mb-6 text-gray-400"
+            onClick={() => {
+              nav("inventory", { state: { ...dataDetail } });
+            }}
+          >
+            {inventory?.name} {">"}
+          </h1>
+        )}
+        <h1 className="text-3xl font-bold mb-6">{t("LotsManagement")}</h1>
+      </div>
       {/* <select
         name="filterByStatus"
         value={filterField.filterByStatus}

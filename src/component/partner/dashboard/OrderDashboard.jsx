@@ -1,38 +1,79 @@
-import React from 'react';
-import { Doughnut, Bar, Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
+import React, { useEffect, useState } from "react";
+import { Doughnut, Bar, Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { useAuth } from "../../../context/AuthContext";
+import AxiosPartner from "../../../services/Partner";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const OrderDashboard = () => {
   // Dummy data for sales overview
+  const [orders, setOrders] = useState();
+  const { userInfor } = useAuth();
+  const { getOrderRevunue } = AxiosPartner();
   const salesOverviewData = {
-    labels: ['Profit', 'Expense'],
+    labels: ["Profit", "Expense"],
     datasets: [
       {
-        label: 'Sales Overview',
+        label: "Sales Overview",
         data: [23450, 23450],
-        backgroundColor: ['#4bc0c0', '#e5e5e5'],
+        backgroundColor: ["#4bc0c0", "#e5e5e5"],
         hoverOffset: 4,
       },
     ],
   };
+  useEffect(() => {
+    const fetchBeginData = async () => {
+      const result = await getOrderRevunue(userInfor?.id);
+      if (result?.status === 200) {
+        setOrders(result?.data);
+      }
+    };
+    fetchBeginData();
+  }, []);
+
+  console.log(orders);
 
   const salesOverviewOptions = {
     plugins: {
       legend: { display: false },
-      tooltip: { callbacks: { label: (tooltipItem) => `$${tooltipItem.raw.toLocaleString()}` } },
+      tooltip: {
+        callbacks: {
+          label: (tooltipItem) => `$${tooltipItem.raw.toLocaleString()}`,
+        },
+      },
     },
   };
 
   // Dummy data for revenue updates
   const revenueUpdateData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
     datasets: [
       {
-        label: 'Revenue',
+        label: "Revenue",
         data: [45, 60, 55, 40, 70, 80, 50],
-        backgroundColor: '#4c5df1',
+        backgroundColor: "#4c5df1",
       },
     ],
   };
@@ -48,21 +89,21 @@ const OrderDashboard = () => {
 
   // Dummy data for yearly sales
   const yearlySalesData = {
-    labels: ['2022', '2023'],
+    labels: ["2022", "2023"],
     datasets: [
       {
-        label: '2022 Sales',
+        label: "2022 Sales",
         data: [4476],
-        borderColor: '#b0b3ff',
-        backgroundColor: 'rgba(176, 179, 255, 0.5)',
+        borderColor: "#b0b3ff",
+        backgroundColor: "rgba(176, 179, 255, 0.5)",
         fill: true,
         tension: 0.4,
       },
       {
-        label: '2023 Sales',
+        label: "2023 Sales",
         data: [5476],
-        borderColor: '#5142fc',
-        backgroundColor: 'rgba(81, 66, 252, 0.3)',
+        borderColor: "#5142fc",
+        backgroundColor: "rgba(81, 66, 252, 0.3)",
         fill: true,
         tension: 0.4,
       },
@@ -71,7 +112,7 @@ const OrderDashboard = () => {
 
   const yearlySalesOptions = {
     plugins: {
-      legend: { position: 'bottom' },
+      legend: { position: "bottom" },
     },
     scales: {
       y: { beginAtZero: true },
@@ -89,19 +130,27 @@ const OrderDashboard = () => {
           <p className="text-gray-500">Total Sales</p>
         </div>
         <div className="p-4 bg-white rounded-lg shadow-lg">
-          <p className="text-xl font-bold">$4.5k <span className="text-sm text-gray-500">(40%)</span></p>
+          <p className="text-xl font-bold">
+            $4.5k <span className="text-sm text-gray-500">(40%)</span>
+          </p>
           <p className="text-gray-500">By Website</p>
         </div>
         <div className="p-4 bg-white rounded-lg shadow-lg">
-          <p className="text-xl font-bold">$2.8k <span className="text-sm text-gray-500">(25%)</span></p>
+          <p className="text-xl font-bold">
+            $2.8k <span className="text-sm text-gray-500">(25%)</span>
+          </p>
           <p className="text-gray-500">By Mobile</p>
         </div>
         <div className="p-4 bg-white rounded-lg shadow-lg">
-          <p className="text-xl font-bold">$2.2k <span className="text-sm text-gray-500">(20%)</span></p>
+          <p className="text-xl font-bold">
+            $2.2k <span className="text-sm text-gray-500">(20%)</span>
+          </p>
           <p className="text-gray-500">By Market</p>
         </div>
         <div className="p-4 bg-white rounded-lg shadow-lg">
-          <p className="text-xl font-bold">$1.7k <span className="text-sm text-gray-500">(15%)</span></p>
+          <p className="text-xl font-bold">
+            $1.7k <span className="text-sm text-gray-500">(15%)</span>
+          </p>
           <p className="text-gray-500">By Agent</p>
         </div>
       </div>
