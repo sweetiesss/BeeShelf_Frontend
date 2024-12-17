@@ -7,18 +7,23 @@ import { OrderDetailCard } from "../../component/partner/order/OrderCard";
 import { useDetail } from "../../context/DetailContext";
 import { useNavigate } from "react-router-dom";
 import AxiosInventory from "../../services/Inventory";
-import { t } from "i18next";
+
 import SpinnerLoading from "../../component/shared/Loading";
+import { useTranslation } from "react-i18next";
 
 export default function OrderPage() {
+  const { t } = useTranslation();
   const { userInfor } = useContext(AuthContext);
-  const { getOrderByUserId } = AxiosOrder();
+  const { getOrderByUserId, deleteOrderById } = AxiosOrder();
   const { getInventory1000ByUserId } = AxiosInventory();
   const [orders, setOrders] = useState();
 
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isShowDetailOrder, setShowDetailOrder] = useState(null);
+
+  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+  const [orderHolder, setOrderHolder] = useState(false);
   const nav = useNavigate();
   const {
     dataDetail,
@@ -100,9 +105,19 @@ export default function OrderPage() {
     // setSelectedOrder(null);
   };
 
-  const handleDeleteOrder = async (orderId) => {
-    // await deleteOrder(orderId);
-    // setOrders(orders.filter((o) => o.id !== orderId));
+  const handleDeleteOrder = (order) => {
+    setDeleteConfirmation(true);
+    setOrderHolder(order);
+  };
+
+  const confirmDelete = async () => {
+    await deleteOrderById(parseInt(orderHolder?.id));
+    setDeleteConfirmation(false);
+    setRefresh((prev) => !prev);
+  };
+  const cancelDelete = () => {
+    setDeleteConfirmation(false);
+    setOrderHolder();
   };
 
   const handleSelectOrder = (order) => {
@@ -131,7 +146,7 @@ export default function OrderPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6">{t("OrderManagement")}</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("OrdersManagement")}</h1>
 
       {/* <select
         name="filterByStatus"
@@ -162,16 +177,16 @@ export default function OrderPage() {
             value={filterField.filterByStatus}
             onChange={handleFiltered}
           >
-            <option value={""}>Select Request Status</option>
-            <option value={"Draft"}>Draft</option>
-            <option value={"Pending"}>Pending</option>
-            <option value={"Canceled"}>Canceled</option>
-            <option value={"Processing"}>Processing</option>
-            <option value={"Shipped"}>Shipped</option>
-            <option value={"Delivered"}>Delivered</option>
-            <option value={"Returned"}>Returned</option>
-            <option value={"Refunded"}>Refunded</option>
-            <option value={"Completed"}>Completed</option>
+            <option value={""}>{t("All")}</option>
+            <option value={"Draft"}>{t("Draft")}</option>
+            <option value={"Pending"}>{t("Pending")}</option>
+            <option value={"Canceled"}>{t("Canceled")}</option>
+            <option value={"Processing"}>{t("Processing")}</option>
+            <option value={"Shipped"}>{t("Shipped")}</option>
+            <option value={"Delivered"}>{t("Delivered")}</option>
+            <option value={"Returned"}>{t("Returned")}</option>
+            <option value={"Refunded"}>{t("Refunded")}</option>
+            <option value={"Completed"}>{t("Completed")}</option>
           </select>
         </div>
 
@@ -179,7 +194,7 @@ export default function OrderPage() {
           className="outline-2 outline flex items-center gap-2 outline-[var(--line-main-color)] text-[var(--en-vu-500-disable)] hover:outline-[var(--Xanh-Base)] hover:text-black  pr-4 pl-3 py-1 rounded-xl font-semibold"
           onClick={() => nav("create-order")}
         >
-         + Create Order
+          + {t("CreateOrder")}
         </button>
       </div>
       <div className="flex justify-left gap-4 mt-6 ">
@@ -195,10 +210,40 @@ export default function OrderPage() {
               filterField={filterField}
               setFilterField={setFilterField}
               handleShowDetailOrder={handleShowDetailOrder}
+              handleDeleteClick={handleDeleteOrder}
             />
           )}
         </div>
       </div>
+      {deleteConfirmation && (
+        <>
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
+          <div
+            className="absolute bg-white border z-10 border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
+            style={{
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <p>{`${t("AreYouSureWantToDelete")} ${orderHolder?.orderCode}?`}</p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={cancelDelete}
+                className="bg-gray-300 text-black px-4 py-2 rounded-md"
+              >
+                {t("Cancel")}
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+              >
+                {t("Confirm")}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -9,20 +9,7 @@ import AxiosWarehouse from "../../services/Warehouse";
 import { toast } from "react-toastify";
 import AxiosOthers from "../../services/Others";
 import Select from "react-select";
-const cloneWarehouseData = {
-  id: 1,
-  name: "Ha Noi Main Warehouse",
-  capacity: 500000,
-  provinceId: 23,
-  provinceName: "Hà Nội",
-  location: "178A Đ. Bưởi, Hà Nội",
-  coordinates: { lat: 21.028511, lon: 105.804817 }, // Example coordinates
-  deliveryZones: [
-    { id: 1, name: "Ba Đình", coordinates: { lat: 21.03333, lon: 105.8145 } },
-    { id: 2, name: "Cầu Giấy", coordinates: { lat: 21.02858, lon: 105.7886 } },
-    // Add more delivery zones as needed
-  ],
-};
+import { useLocation } from "react-router-dom";
 
 export default function CreateOrderPage() {
   const { t } = useTranslation();
@@ -30,7 +17,6 @@ export default function CreateOrderPage() {
   const { getAllProduct } = AxiosPartner();
   const { createOrder } = AxiosOrder();
   const { getWarehouseById } = AxiosWarehouse();
-  const { getAddressProvincesStressWard } = AxiosOthers();
 
   const [inventories, setInventories] = useState();
   const [inventoriesShowList, setInventoriesShowList] = useState();
@@ -40,24 +26,15 @@ export default function CreateOrderPage() {
   const [distance, setDistance] = useState(null); // State for storing calculated distance
   const [item, setItem] = useState({ productId: null, productAmount: null });
 
-  const [provinceList, setProvinencesList] = useState();
-  const [province, setProvinences] = useState(0);
-  const [strictList, setStrictList] = useState();
-  const [strict, setStrict] = useState(0);
-  const [wardList, setWardList] = useState();
-  const [ward, setWard] = useState(0);
-  const [location, setLocation] = useState();
-
   const [deliveryZone, setDeliveryZone] = useState();
 
   const [warehouses, setWarehouses] = useState();
   const [warehouse, setWarehouse] = useState();
   const [detailWarehouse, setDetailWarehouse] = useState();
   const debounceTimeoutRef = useRef(null);
-  const [validLocation, setValidLocation] = useState("");
-  const [defaultLocation, setDefaultLocation] = useState("");
+  const location = useLocation();
 
-  const [startLocation, setStartLocation] = useState();
+  const [defaultLocation, setDefaultLocation] = useState("");
 
   const baseForm = {
     ocopPartnerId: userInfor?.id,
@@ -154,8 +131,6 @@ export default function CreateOrderPage() {
     filterWarehouse();
     getDetailWarehouse();
   }, [warehouse]);
-
-  console.log("t", process.env.REACT_APP_MAP_API_KEY);
 
   useEffect(() => {
     console.log("inventories", inventories);
@@ -322,13 +297,32 @@ export default function CreateOrderPage() {
       setLoading(false);
     }
   };
+  const handeSaveAsDraft = async (e) => {
+    try {
+      setLoading(true);
+      e.preventDefault();
+      console.log("Order Created:", form);
+      const submitForm = {
+        ...form,
+        deliveryZoneId: parseInt(defaultLocation?.id),
+        distance: parseFloat(distance),
+      };
+      const result = await createOrder(submitForm, warehouse?.warehouseId);
+      console.log(result);
+      setForm(baseForm);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  console.log("deliveryZone", deliveryZone);
+  console.log("location", location);
 
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
       <div className="flex gap-40 h-full text-lg">
-        <form onSubmit={handleSubmit} className="space-y-6 w-[40%]">
+        <form className="space-y-6 w-[40%]">
           <p className="text-2xl font-semibold mb-4">{t("Create Order")}</p>
           <div className="space-y-6 w-full">
             <h2 className="text-lg font-semibold">{t("OrderInformation")}</h2>
@@ -618,7 +612,7 @@ export default function CreateOrderPage() {
                 {t("Distance")}: {distance.toFixed(3)} {"km"}
               </p>
             )}
-            <div className="flex  gap-8">
+            <div className="flex justify-between w-full gap-8">
               <button
                 type="button"
                 onClick={() => {
@@ -630,12 +624,22 @@ export default function CreateOrderPage() {
               >
                 {t("Reset")}
               </button>
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
-              >
-                {t("CreateOrder")}
-              </button>
+              <div className="flex gap-8">
+                <button
+                  type="submit"
+                  className="bg-gray-500 text-white px-4 py-2 rounded-md shadow hover:bg-gray-600 transition"
+                  onClick={handeSaveAsDraft}
+                >
+                  {t("SaveAsDraft")}
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
+                  onClick={handleSubmit}
+                >
+                  {t("CreateOrder")}
+                </button>
+              </div>
             </div>
           </div>
         </form>

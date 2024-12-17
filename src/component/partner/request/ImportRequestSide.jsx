@@ -17,13 +17,13 @@ export default function ImportRequestSide({ inventories, products }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [selectedProductImported, setSelectedProductImported] = useState();
-
   const [inventory, setInventory] = useState();
 
   const baseForm = {
     ocopPartnerId: userInfor?.id,
     name: "",
     description: "",
+    exportFromLotId: 0,
     sendToInventoryId: 0,
     lot: {
       lotNumber: "",
@@ -37,6 +37,7 @@ export default function ImportRequestSide({ inventories, products }) {
     ocopPartnerId: userInfor?.id,
     name: "",
     description: "",
+    exportFromLotId: 0,
     sendToInventoryId: 0,
     lot: {
       lotAmount: null,
@@ -69,7 +70,6 @@ export default function ImportRequestSide({ inventories, products }) {
   // Handle confirm
   const handleConfirm = async (send) => {
     const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Generate unique timestamp
-
     const updatedForm = {
       ...form,
       sendToInventoryId: parseInt(inventory?.id),
@@ -80,7 +80,6 @@ export default function ImportRequestSide({ inventories, products }) {
         name: `${product?.name || "Unnamed"}-${userInfor?.name || "User"}`, // Lot name format
       },
     };
-
     try {
       const result = await createRequest(updatedForm, "Import", send);
     } catch (error) {
@@ -116,7 +115,6 @@ export default function ImportRequestSide({ inventories, products }) {
   };
 
   console.log("products", selectedProductImported);
-
   return (
     <div className="flex gap-10 justify-start items-start">
       <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[48rem]">

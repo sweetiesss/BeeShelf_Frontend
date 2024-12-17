@@ -53,6 +53,23 @@ export default function AxiosPartner() {
       return error;
     }
   };
+  const getOrderRevunue = async (userId) => {
+    try {
+      const url = `partner/get-partner-revenue/${userId}`;
 
-  return { updateProfile, getAllProduct };
+      const fetching = await fetchDataBearer({
+        url,
+        method: "GET",
+      });
+
+      console.log(fetching);
+
+      return fetching;
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return error;
+    }
+  };
+
+  return { updateProfile, getAllProduct,getOrderRevunue };
 }

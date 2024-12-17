@@ -18,7 +18,7 @@ export default function AxiosOthers() {
         url: "partner/get-provinces",
         method: "GET",
       });
-      return fetching;
+      return fetching; 
     } catch (e) {
       console.log(e);
       return e;

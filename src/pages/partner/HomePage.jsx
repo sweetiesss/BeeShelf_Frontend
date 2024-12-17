@@ -11,12 +11,16 @@ import {
 } from "../../component/partner/dashboard/DashboardChart";
 import SliderTabs from "../../component/shared/SliderTabs"; // Custom tab/slider component for charts
 import OrderDashboard from "../../component/partner/dashboard/OrderDashboard";
+import AxiosPartner from "../../services/Partner";
+import { useAuth } from "../../context/AuthContext";
 
 export function HomePage() {
   const [inventories, setInventories] = useState([]);
   const [requests, setRequests] = useState([]);
   const [orders, setOrders] = useState([]);
   const [activeChart, setActiveChart] = useState("InventoryChart"); // For chart selection
+  const { userInfor } = useAuth();
+  const { getOrderRevunue } = AxiosPartner();
 
   const [chartData, setChartData] = useState({
     labels: [],
@@ -41,15 +45,15 @@ export function HomePage() {
   const loadDashboardData = async () => {
     const fetchedInventories = await fetchInventories();
     const fetchedRequests = await fetchAccountRequests();
-    const fetchedOrders = await fetchOrders();
+    const fetchedOrders = await getOrderRevunue(userInfor?.id);
 
     setInventories(fetchedInventories);
     setRequests(fetchedRequests);
-    setOrders(fetchedOrders);
+    setOrders(fetchedOrders?.data?.items);
 
     // Update chart data based on mock inventory or order data
     updateChartData(fetchedInventories);
-    updateOrderData(fetchedOrders);
+    updateOrderData(fetchedOrders?.data?.items);
     updateProductData(fetchedInventories);
   };
 
@@ -104,8 +108,8 @@ export function HomePage() {
   };
 
   const updateOrderData = (orders) => {
-    const labels = orders.map((order) => order.customerName);
-    const data = orders.map((order) => (order.status === "Shipped" ? 1 : 0)); // Example data logic
+    const labels = orders.map((order) => order.orderStatus);
+    const data = orders.map((order) => order.orderAmount); // Example data logic
 
     setOrderData({
       labels,
@@ -126,6 +130,7 @@ export function HomePage() {
       data,
     });
   };
+  console.log("orderData", orderData);
 
   // Function to render the selected chart
   const renderChart = () => {
@@ -174,6 +179,8 @@ export function Dashboard() {
   const [requests, setRequests] = useState([]);
   const [orders, setOrders] = useState([]);
   const [activeChart, setActiveChart] = useState("InventoryChart"); // For chart selection
+  const { userInfor } = useAuth();
+  const { getOrderRevunue } = AxiosPartner();
 
   const [chartData, setChartData] = useState({
     labels: [],
@@ -198,15 +205,15 @@ export function Dashboard() {
   const loadDashboardData = async () => {
     const fetchedInventories = await fetchInventories();
     const fetchedRequests = await fetchAccountRequests();
-    const fetchedOrders = await fetchOrders();
+    const fetchedOrders = await getOrderRevunue(userInfor?.id);
 
     setInventories(fetchedInventories);
     setRequests(fetchedRequests);
-    setOrders(fetchedOrders);
+    setOrders(fetchedOrders?.data?.items);
 
     // Update chart data based on mock inventory or order data
     updateChartData(fetchedInventories);
-    updateOrderData(fetchedOrders);
+    updateOrderData(fetchedOrders?.data?.items);
     updateProductData(fetchedInventories);
   };
 
@@ -261,8 +268,8 @@ export function Dashboard() {
   };
 
   const updateOrderData = (orders) => {
-    const labels = orders.map((order) => order.customerName);
-    const data = orders.map((order) => (order.status === "Shipped" ? 1 : 0)); // Example data logic
+    const labels = orders.map((order) => order.orderStatus);
+    const data = orders.map((order) => order.orderAmount); // Example data logic
 
     setOrderData({
       labels,
@@ -283,9 +290,23 @@ export function Dashboard() {
       data,
     });
   };
+  console.log("orderData", orderData);
 
+  // Function to render the selected chart
+  const renderChart = () => {
+    switch (activeChart) {
+      case "InventoryChart":
+        return <InventoryChart chartData={chartData} />;
+      case "ProductChart":
+        return <ProductChart productData={productData} />;
+      case "OrderChart":
+        return <OrderDashboard orderData={orderData} />;
+      default:
+        return <InventoryChart chartData={chartData} />;
+    }
+  };
   return (
-    <div className="h-full w-full"> 
+    <div className="h-full w-full">
       <div className="flex justify-between gap-10">
         <div className=" h-full w-1/3 space-y-6">
           <Insights

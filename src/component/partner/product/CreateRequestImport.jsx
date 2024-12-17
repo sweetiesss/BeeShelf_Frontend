@@ -24,6 +24,7 @@ export default function CreateRequestImport({
     ocopPartnerId: userInfor?.id,
     name: "",
     description: "",
+    exportFromLotId: 0,
     sendToInventoryId: 0,
     lot: {
       lotNumber: "",
@@ -90,12 +91,16 @@ export default function CreateRequestImport({
       },
     };
     const fetching = await createRequest(submitForm, "Import", true);
-    handleClose();
+    if (fetching?.status === 200) {
+      handleClose();
+    }
   };
   const handleSaveDraft = async () => {
     console.log(form);
     const fetching = await createRequest(form, "Import", false);
-    handleClose();
+    if (fetching?.status === 200) {
+      handleClose();
+    }
   };
 
   const handleReset = () => {};

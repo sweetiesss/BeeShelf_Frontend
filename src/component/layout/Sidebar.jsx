@@ -84,6 +84,12 @@ export function Sidebar() {
                 <p className="label">{t("Request")}</p>
               </div>
             </NavLink>
+            <NavLink to="lots" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" weight="bold" />
+                <p className="label">{t("Lots")}</p>
+              </div>
+            </NavLink>
           </>
         )}
         {userInfor?.roleName === "Manager" && (
@@ -115,6 +121,19 @@ export function Sidebar() {
                 <p className="label">{t("Employee")}</p>
               </div>
             </NavLink>
+
+            <NavLink to="vehicle" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Vehicle")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="category" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Category")}</p>
+              </div>
+            </NavLink>
           </>
         )}
 
@@ -126,7 +145,7 @@ export function Sidebar() {
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink> */}
-        
+
             <NavLink to="payment" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <CreditCard className="icon" weight="fill" />

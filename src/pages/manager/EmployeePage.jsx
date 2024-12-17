@@ -18,14 +18,14 @@ export default function EmployeePage() {
   const [editingKey, setEditingKey] = useState(""); // Track the editing key
   const { getEmployees, updateEmployee, createEmployee } = AxiosEmployee(); // Fetch employees and update API calls
   const [search, setSearch] = useState();
-  const [sortBy, setSortBy] = useState();
+  const [sortBy, setSortBy] = useState("CreateDate");
   const [filterByRole, setFilterByRole] = useState();
-  const [descending, setDescending] = useState(false);
+  const [descending, setDescending] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [newEmployee, setNewEmployee] = useState({
     email: "",
-    password: "",
+
     firstName: "",
     lastName: "",
     phone: "",
@@ -33,7 +33,7 @@ export default function EmployeePage() {
   });
   const defaultNewEmployee = {
     email: "",
-    password: "",
+
     firstName: "",
     lastName: "",
     phone: "",
@@ -315,14 +315,6 @@ export default function EmployeePage() {
               value={newEmployee.email}
               onChange={handleInputChange}
               placeholder="Enter email"
-            />
-          </Form.Item>
-          <Form.Item label="Password" required>
-            <Input.Password
-              name="password"
-              value={newEmployee.password}
-              onChange={handleInputChange}
-              placeholder="Enter password"
             />
           </Form.Item>
           <Form.Item label="First Name" required>

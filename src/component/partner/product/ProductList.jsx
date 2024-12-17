@@ -154,7 +154,7 @@ export default function ProductList({
             </th>
 
             <th className="border-b-2 text-left py-4 ">{t("Category")}</th>
-            <th className="border-b-2 text-left py-4">{t("isCold")}</th>
+            <th className="border-b-2 text-left py-4">{t("Frozen")}</th>
 
             <th
               className={`border-b-2 text-left py-4 cursor-pointer hover:text-[var(--en-vu-600)] ${
@@ -183,7 +183,7 @@ export default function ProductList({
               }}
             >
               <span className="flex items-center gap-1">
-                {t("Price")} (vnd)
+                {t("Price")} <span className="text-gray-400">(vnd)</span>
                 {!descending ? (
                   <ArrowUp weight="bold" />
                 ) : (
@@ -233,9 +233,7 @@ export default function ProductList({
               </span>
             </th>
             {!notInDataBase && (
-              <th className="border-b-2  py-4  text-center">
-                {t("InInventory")}
-              </th>
+              <th className="border-b-2  py-4  text-center">{t("Imported")}</th>
             )}
             <th className="border-b-2 text-left py-4 "></th>
           </tr>
@@ -245,7 +243,6 @@ export default function ProductList({
             products?.map((product) => {
               let chooice = selectedProducts?.some((p) => p.id === product.id);
               let checkError = errorList?.find((p) => p.item.id === product.id);
-              console.log(checkError);
               let editAble = editProduct === product;
               // let category=cate
               return (
@@ -418,7 +415,7 @@ export default function ProductList({
                           htmlFor="isCold"
                           className="cursor-pointer underline font-semibold"
                         >
-                          {editForm.isCold === 1 ? "Yes" : "No"}
+                          {editForm.isCold === 1 ? t("Yes") : t("No")}
                         </label>
                         <input
                           type="checkbox"
@@ -436,7 +433,7 @@ export default function ProductList({
                           "text-red-500"
                         }`}
                       >
-                        {product.isCold === 1 ? "Yes" : "No"}
+                        {product.isCold === 1 ? t("Yes") : t("No")}
                         {checkError?.error?.includes("isCold") && (
                           <span className="bg-red-500 text-white text-lg rounded-md">
                             <ExclamationMark weight="bold" />
@@ -625,11 +622,11 @@ export default function ProductList({
                       </button> */}
                       {product?.isInInv ? (
                         <span className="bg-green-200 px-2 py-1 rounded-lg text-sm ">
-                          {t("Imported")}
+                          {t("Yes")}
                         </span>
                       ) : (
                         <span className="bg-gray-200 px-2 py-1 rounded-lg text-sm ">
-                          {t("NotImported")}
+                          {t("No")}
                         </span>
                       )}
                     </td>
@@ -674,14 +671,14 @@ export default function ProductList({
                                   handleShowDetailProduct(e, product)
                                 }
                               >
-                                Show detail
+                                {t("ShowDetail")}
                               </div>
                               {!product?.isInInv && (
                                 <div
                                   className="cursor-pointer"
                                   onClick={(e) => handleDeleteClick(e, product)}
                                 >
-                                  Delete
+                                  {t("Delete")}
                                 </div>
                               )}
                             </div>
