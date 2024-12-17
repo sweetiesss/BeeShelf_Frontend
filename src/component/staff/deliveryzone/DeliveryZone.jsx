@@ -188,22 +188,23 @@ const DeliveryZone = () => {
 
   return (
     <div className="p-[20px] overflow-auto">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">DeliveryZone Management</h1>
+      <h1 className="text-4xl font-bold text-gray-800 mb-8 ">
+        Delivery Zone Management
+      </h1>
+  
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-lg font-bold">Vehicle List</h1>
-        <div className="flex gap-4">
-          <Button
-            type="primary"
-            onClick={showModal}
-            style={{ marginBottom: 20 }}
-          >
-            Assign Shipper To DeliveryZone
-          </Button>
-        </div>
+        <h2 className="text-2xl font-semibold text-gray-700">Shipper List</h2>
+        <Button type="primary" onClick={showModal}>
+          Assign Shipper To Delivery Zone
+        </Button>
       </div>
-
+  
       {loadingShippers ? (
-        <Spin size="large" style={{ display: "block", margin: "auto" }} />
+        <Spin
+          size="large"
+          style={{ display: "block", margin: "auto" }}
+          className="text-green-500"
+        />
       ) : (
         <Table
           dataSource={shippers}
@@ -214,12 +215,15 @@ const DeliveryZone = () => {
           className="custom-table"
         />
       )}
-
+  
       <Modal
         title="Assign Shipper To Delivery Zone"
         visible={isModalVisible}
         onCancel={handleCancel}
         onOk={() => form.submit()}
+        okText="Assign"
+        cancelText="Cancel"
+        className="rounded-lg"
       >
         <Form form={form} layout="vertical" onFinish={handleAssign}>
           <Form.Item
@@ -235,13 +239,11 @@ const DeliveryZone = () => {
               ))}
             </Select>
           </Form.Item>
-
+  
           <Form.Item
             name="deliveryZoneId"
             label="Delivery Zone"
-            rules={[
-              { required: true, message: "Please select a Delivery Zone!" },
-            ]}
+            rules={[{ required: true, message: "Please select a Delivery Zone!" }]}
           >
             <Select placeholder="Select a Delivery Zone" loading={loading}>
               {deliveryZones.map((zone) => (
@@ -255,6 +257,7 @@ const DeliveryZone = () => {
       </Modal>
     </div>
   );
+  
 };
 
 export default DeliveryZone;
