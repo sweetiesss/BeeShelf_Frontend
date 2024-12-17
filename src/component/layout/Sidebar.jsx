@@ -136,6 +136,50 @@ export function Sidebar() {
             </NavLink>
           </>
         )}
+        {userInfor?.roleName === "Admin" && (
+          <>
+            <NavLink
+              to={
+                location.pathname.toLocaleLowerCase() === "/manager"
+                  ? ""
+                  : "dashboard"
+              }
+              className="flex navigate-menu"
+            >
+              <div className="sidebar-menu-container">
+                <House className="icon" />
+                <p className="label">{t("Dashboard")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="warehouse" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Bag className="icon" />
+                <p className="label">{t("Warehouse")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="employee" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Employee")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="vehicle" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Vehicle")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="category" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Category")}</p>
+              </div>
+            </NavLink>
+          </>
+        )}
 
         {userInfor?.roleName === "Staff" && (
           <>
