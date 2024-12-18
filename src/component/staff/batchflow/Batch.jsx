@@ -601,28 +601,31 @@ const BatchManage = () => {
             <span className="font-bold">Shipper Name:</span>{" "}
             <span className="font-normal">{selectedBatch?.shipperName}</span>
           </Typography.Title>
-
           <Typography.Title level={5} className="mb-4">
             <span className="font-bold">Shipper Email:</span>{" "}
             <span className="font-normal">{selectedBatch?.shipperEmail}</span>
           </Typography.Title>
-
           <Typography.Title level={5} className="mb-4">
             <span className="font-bold">Delivery Zone:</span>{" "}
             <span className="font-normal">
               {selectedBatch?.deliveryZoneName}
             </span>
           </Typography.Title>
-
+ 
           <div className="flex items-center">
             <strong className="mr-2">Status: </strong>
             <Tag
-              color={selectedBatch?.status === "completed" ? "green" : "red"}
+              color={
+                selectedBatch?.status === "Pending"
+                  ? "red"
+                  : selectedBatch?.status === "Completed"
+                  ? "green"
+                  : "default"
+              }
             >
               {selectedBatch?.status}
             </Tag>
           </div>
-
           {/* Orders List */}
           <div className="mt-4 space-y-6">
             <strong className="text-2xl text-gray-800">Order List:</strong>
@@ -768,7 +771,6 @@ const BatchManage = () => {
               )}
             />
           </div>
-
           <Modal
             title={<span className="text-2xl font-bold">Detail Order</span>}
             visible={detailModalVisible}
@@ -915,7 +917,6 @@ const BatchManage = () => {
               </div>
             )}
           </Modal>
-
           {/* Action Buttons */}
           <div className="flex gap-4 justify-end pt-4">
             <button

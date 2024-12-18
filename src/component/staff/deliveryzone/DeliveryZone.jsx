@@ -10,8 +10,9 @@ const DeliveryZone = () => {
   const { fetchDataBearer } = useAxios();
   const [deliveryZones, setDeliveryZones] = useState([]);
   const [shippers, setShippers] = useState([]);
-  const [loadingShippers, setLoadingShippers] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [shippersOption, setShippersOption] = useState([]);
+  const [loadingShippers, setLoadingShippers] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [hasFetched, setHasFetched] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -24,7 +25,6 @@ const DeliveryZone = () => {
 
       if (!warehouseId) {
         message.error("Warehouse ID is not available. Please log in again.");
-        setLoading(false);
         return;
       }
 
@@ -33,7 +33,7 @@ const DeliveryZone = () => {
         method: "GET",
       });
 
-      if (response && response.data && response.data.deliveryZones) {
+      if (response?.data?.deliveryZones) {
         setDeliveryZones(response.data.deliveryZones);
         message.success("Delivery Zones loaded successfully!");
       } else {
@@ -47,7 +47,7 @@ const DeliveryZone = () => {
     }
   };
 
-  // Fetch Shippers
+  // Fetch Shippers for the Table
   const fetchShippers = async () => {
     try {
       setLoadingShippers(true);
@@ -69,7 +69,7 @@ const DeliveryZone = () => {
         },
       });
 
-      if (response && response.data && Array.isArray(response.data.items)) {
+      if (response?.data?.items) {
         setShippers(response.data.items);
         message.success("Shippers loaded successfully!");
       } else {
@@ -85,7 +85,45 @@ const DeliveryZone = () => {
     }
   };
 
-  // Initial Fetch for Delivery Zones and Shippers
+  // Fetch Shippers for the Form Dropdown
+  const fetchShippersOption = async () => {
+    try {
+      setLoadingShippers(true);
+      const warehouseId = userInfor?.workAtWarehouseId;
+
+      if (!warehouseId) {
+        message.error("Warehouse ID is not available. Please log in again.");
+        return;
+      }
+
+      const response = await fetchDataBearer({
+        url: "/warehouse/get-warehouse-shippers",
+        method: "GET",
+        params: {
+          hasDeliveryZone: false,
+          filterBy: "WarehouseId",
+          filterQuery: warehouseId,
+          pageIndex: 0,
+          pageSize: 10,
+        },
+      });
+
+      if (response?.data?.items) {
+        setShippersOption(response.data.items);
+        message.success("Shippers loaded successfully for selection!");
+      } else {
+        setShippersOption([]);
+        message.error("No shippers available for selection.");
+      }
+    } catch (error) {
+      console.error("Error fetching Shippers for options:", error);
+      message.error("Error fetching the shipper list for selection.");
+      setShippersOption([]);
+    } finally {
+      setLoadingShippers(false);
+    }
+  };
+
   useEffect(() => {
     if (userInfor?.workAtWarehouseId && !hasFetched) {
       fetchDeliveryZones();
@@ -96,6 +134,7 @@ const DeliveryZone = () => {
 
   // Show Modal
   const showModal = () => {
+    fetchShippersOption();
     setIsModalVisible(true);
   };
 
@@ -119,103 +158,86 @@ const DeliveryZone = () => {
         message.success("Shipper assigned to Delivery Zone successfully!");
         setIsModalVisible(false);
         form.resetFields();
-        fetchShippers(); // Refresh the shipper list after assignment
+        fetchShippers();
       } else {
         message.error("Failed to assign Shipper to Delivery Zone.");
       }
     } catch (error) {
       console.error("Error assigning Shipper to Delivery Zone:", error);
       message.error(
-        `Error: ${
-          error.response?.statusText || "An unexpected error occurred."
-        }`
+        `Error: ${error.response?.statusText || "An unexpected error occurred."}`
       );
     }
   };
 
-  // Shippers Table Columns
-  const columns = [
-    {
-      title: "Employee ID",
-      dataIndex: "employeeId",
-      key: "employeeId",
-      align: "center",
-    },
-    {
-      title: "Shipper Name",
-      dataIndex: "shipperName",
-      key: "shipperName",
-      align: "center",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-      align: "center",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      align: "center",
-      render: (text) => text || "N/A",
-    },
-    {
-      title: "Delivery Zone ID",
-      dataIndex: "deliveryZoneId",
-      key: "deliveryZoneId",
-      align: "center",
-    },
-    {
-      title: "Delivery Zone Name",
-      dataIndex: "deliveryZoneName",
-      key: "deliveryZoneName",
-      align: "center",
-    },
-    {
-      title: "Warehouse ID",
-      dataIndex: "warehouseId",
-      key: "warehouseId",
-      align: "center",
-    },
-    {
-      title: "Warehouse Name",
-      dataIndex: "warehouseName",
-      key: "warehouseName",
-      align: "center",
-    },
-  ];
-
   return (
     <div className="p-[20px] overflow-auto">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8 ">
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">
         Delivery Zone Management
       </h1>
-  
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-gray-700">Shipper List</h2>
         <Button type="primary" onClick={showModal}>
           Assign Shipper To Delivery Zone
         </Button>
       </div>
-  
-      {loadingShippers ? (
-        <Spin
-          size="large"
-          style={{ display: "block", margin: "auto" }}
-          className="text-green-500"
-        />
-      ) : (
-        <Table
-          dataSource={shippers}
-          columns={columns}
-          rowKey="employeeId"
-          pagination={{ pageSize: 10 }}
-          bordered={false}
-          className="custom-table"
-        />
-      )}
-  
+
+      <Table
+        dataSource={shippers}
+        rowKey="employeeId"
+        pagination={{ pageSize: 10 }}
+        bordered={false} // Đã chỉnh bordered thành false
+        loading={loadingShippers}
+        columns={[
+          {
+            title: "Employee ID",
+            dataIndex: "employeeId",
+            key: "employeeId",
+            align: "center",
+          },
+          {
+            title: "Shipper Name",
+            dataIndex: "shipperName",
+            key: "shipperName",
+            align: "center",
+          },
+          {
+            title: "Email",
+            dataIndex: "email",
+            key: "email",
+            align: "center",
+          },
+          {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            align: "center",
+            render: (status) => status || "N/A",
+          },
+          {
+            title: "Delivery Zone",
+            dataIndex: "deliveryZoneName",
+            key: "deliveryZoneName",
+            align: "center",
+            filters: deliveryZones.map((zone) => ({
+              text: zone.name,
+              value: zone.name,
+            })),
+            onFilter: (value, record) => record.deliveryZoneName === value,
+            render: (text) => text || "N/A",
+          },
+          {
+            title: "Warehouse",
+            dataIndex: "warehouseName",
+            key: "warehouseName",
+            align: "center",
+            render: (text) => text || "N/A",
+          },
+        ]}
+        locale={{ emptyText: "No Data" }}
+      />
+
       <Modal
         title="Assign Shipper To Delivery Zone"
         visible={isModalVisible}
@@ -223,7 +245,6 @@ const DeliveryZone = () => {
         onOk={() => form.submit()}
         okText="Assign"
         cancelText="Cancel"
-        className="rounded-lg"
       >
         <Form form={form} layout="vertical" onFinish={handleAssign}>
           <Form.Item
@@ -232,14 +253,14 @@ const DeliveryZone = () => {
             rules={[{ required: true, message: "Please select a Shipper!" }]}
           >
             <Select placeholder="Select a Shipper" loading={loadingShippers}>
-              {shippers.map((shipper) => (
+              {shippersOption.map((shipper) => (
                 <Option key={shipper.employeeId} value={shipper.employeeId}>
                   {`${shipper.shipperName} (ID: ${shipper.employeeId})`}
                 </Option>
               ))}
             </Select>
           </Form.Item>
-  
+
           <Form.Item
             name="deliveryZoneId"
             label="Delivery Zone"
@@ -257,7 +278,6 @@ const DeliveryZone = () => {
       </Modal>
     </div>
   );
-  
 };
 
 export default DeliveryZone;

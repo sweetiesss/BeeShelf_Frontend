@@ -163,10 +163,16 @@ const Payment = () => {
       key: "id",
       align: "center",
     },
+    // {
+    //   title: t("ocopPartnerId"),
+    //   dataIndex: "ocopPartnerId",
+    //   key: "ocopPartnerId",
+    //   align: "center",
+    // },
     {
-      title: t("ocopPartnerId"),
-      dataIndex: "ocopPartnerId",
-      key: "ocopPartnerId",
+      title: t("OcopPartnerEmail"),
+      dataIndex: "partner_email",
+      key: "partner_email",
       align: "center",
     },
     {
@@ -176,11 +182,23 @@ const Payment = () => {
       align: "center",
     },
     {
-      title: t("TransferBy"),
-      dataIndex: "transferBy",
-      key: "transferBy",
+      title: t("BankName"),
+      dataIndex: "partner_bank_name",
+      key: "partner_bank_name",
       align: "center",
     },
+    {
+      title: t("BankAccount"),
+      dataIndex: "partner_bank_account",
+      key: "partner_bank_account",
+      align: "center",
+    },
+    // {
+    //   title: t("TransferBy"),
+    //   dataIndex: "transferBy",
+    //   key: "transferBy",
+    //   align: "center",
+    // },
     {
       title: t("TransferByStaffEmail"),
       dataIndex: "transferByStaffEmail",

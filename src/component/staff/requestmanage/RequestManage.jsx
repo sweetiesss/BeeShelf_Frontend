@@ -230,7 +230,7 @@ const formatDateTime = (dateString) => {
       case "Processing":
         return ["Delivered", "Failed"]; // OCOP Partner Delivered or Deliver window expire
       case "Delivered":
-        return ["Returned", "Completed"]; // Item stored
+        return ["Completed"]; // Item stored
       case "Failed":
       case "Completed":
       case "Cancelled":

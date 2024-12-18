@@ -236,9 +236,10 @@ const Inventory = () => {
                 }}
                 title={
                   <Title level={4} style={{ margin: 0, color: "#1890ff" }}>
-                    Inventory {index + 1 + (currentPage - 1) * pageSize}
+                    Inventory ID: {item.id}
                   </Title>
                 }
+                
                 hoverable // Tạo hiệu ứng hover mặc định của Ant Design
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-5px)"; // Di chuyển nhẹ lên trên khi hover
@@ -256,6 +257,9 @@ const Inventory = () => {
                     <Title level={5} style={{ color: "#555" }}>
                       Overview Inventory
                     </Title>
+                    {/* <Paragraph>
+                      <strong>Inventory ID:</strong> {item.id}
+                    </Paragraph> */}
                     <Paragraph>
                       <strong>Name:</strong> {item.name}
                     </Paragraph>

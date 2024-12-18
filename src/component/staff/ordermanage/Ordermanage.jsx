@@ -75,31 +75,33 @@ const Ordermanage = () => {
   };
 
 
-    // Format Date with UTC+7 Conversion
-    const formatDateTime = (dateString) => {
-      if (!dateString) return "Null"; // Return "Null" if the input is falsy
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "Null"; // Return "Null" if the input is falsy
   
-      const date = new Date(dateString);
+    const date = new Date(dateString);
   
-      // Convert to UTC+7 by adding 7 hours
-      const utc7Date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+    // Tạo một đối tượng Date ở UTC+7
+    const utc7Date = new Date(date.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
   
-      // Format the date part
-      const formattedDate = utc7Date.toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
+    // Format the date part
+    const formattedDate = utc7Date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   
-      // Format the time part
-      const formattedTime = utc7Date.toLocaleTimeString("vi-VN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
+    // Format the time part
+    const formattedTime = utc7Date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
   
-      return `${formattedDate} ${formattedTime}`;
-    };
+    return `${formattedDate} ${formattedTime}`;
+  };
+  
+
   // Cập nhật trạng thái đơn hàng
   const updateRequestStatus = async (id) => {
     setLoading(true);
