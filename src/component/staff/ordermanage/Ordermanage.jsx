@@ -78,23 +78,26 @@ const Ordermanage = () => {
   const formatDateTime = (dateString) => {
     if (!dateString) return "Null"; // Return "Null" if the input is falsy
   
-    const date = new Date(dateString);
+    // Tạo một đối tượng Date với múi giờ Asia/Bangkok (UTC+7)
+    const dateInBangkok = new Date(
+      new Date(dateString).toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
+    );
   
-    // Tạo một đối tượng Date ở UTC+7
-    const utc7Date = new Date(date.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
+    // Cộng thêm 7 tiếng (7 giờ * 60 phút * 60 giây * 1000 ms)
+    const dateWithExtra7Hours = new Date(dateInBangkok.getTime() + 7 * 60 * 60 * 1000);
   
     // Format the date part
-    const formattedDate = utc7Date.toLocaleDateString("vi-VN", {
+    const formattedDate = dateWithExtra7Hours.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
   
     // Format the time part
-    const formattedTime = utc7Date.toLocaleTimeString("vi-VN", {
+    const formattedTime = dateWithExtra7Hours.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit",
+      // second: "2-digit",
       hour12: false,
     });
   

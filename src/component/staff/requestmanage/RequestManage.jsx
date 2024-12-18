@@ -82,23 +82,36 @@ const RequestManagement = () => {
       setLoading(false);
     }
   };
-// format date with UTC+7 conversion
-const formatDateTime = (dateString) => {
-  if (!dateString) return "Null"; // Return "Null" if the input is falsy
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "Null"; // Return "Null" if the input is falsy
 
-  const date = new Date(dateString);
+    // Tạo một đối tượng Date với múi giờ Asia/Bangkok (UTC+7)
+    const dateInBangkok = new Date(
+      new Date(dateString).toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
+    );
 
-  // Convert to UTC+7 by adding 7 hours
-  const utc7Date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+    // Cộng thêm 7 tiếng (7 giờ * 60 phút * 60 giây * 1000 ms)
+    const dateWithExtra7Hours = new Date(
+      dateInBangkok.getTime() + 7 * 60 * 60 * 1000
+    );
 
-  const day = String(utc7Date.getUTCDate()).padStart(2, "0");
-  const month = String(utc7Date.getUTCMonth() + 1).padStart(2, "0"); // Months are zero-based
-  const year = utc7Date.getUTCFullYear();
-  const hours = String(utc7Date.getUTCHours()).padStart(2, "0");
-  const minutes = String(utc7Date.getUTCMinutes()).padStart(2, "0");
+    // Format the date part
+    const formattedDate = dateWithExtra7Hours.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
 
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
-};
+    // Format the time part
+    const formattedTime = dateWithExtra7Hours.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      // second: "2-digit",
+      hour12: false,
+    });
+
+    return `${formattedDate} ${formattedTime}`;
+  };
 
   const fetchRequestExports = async (pageIndex = 0) => {
     setLoadingExport(true);
@@ -366,7 +379,16 @@ const formatDateTime = (dateString) => {
                   title: "Product Name",
                   dataIndex: "productName",
                   key: "productName",
+                  filters: Array.from(
+                    new Set(
+                      (requests || [])
+                        .map((item) => item.productName)
+                        .filter((name) => name) // Lọc ra những giá trị hợp lệ (không null/undefined)
+                    )
+                  ).map((name) => ({ text: name, value: name })), // Tạo mảng filters từ productName duy nhất
+                  onFilter: (value, record) => record.productName === value, // Lọc theo productName
                 },
+
                 {
                   title: "Request Type",
                   dataIndex: "requestType",
@@ -414,20 +436,7 @@ const formatDateTime = (dateString) => {
                   render: (text) => {
                     if (!text) return ""; // Kiểm tra trường hợp giá trị null hoặc undefined
 
-                    const date = new Date(text);
-                    const day = String(date.getDate()).padStart(2, "0");
-                    const month = String(date.getMonth() + 1).padStart(2, "0");
-                    const year = date.getFullYear();
-                    const hours = String(date.getHours()).padStart(2, "0");
-                    const minutes = String(date.getMinutes()).padStart(2, "0");
-
-                    return (
-                      <>
-                        {`${day}/${month}/${year}`}
-                        <br />
-                        {`${hours}:${minutes}`}
-                      </>
-                    );
+                    return <>{formatDateTime(text)}</>;
                   },
                 },
                 {
@@ -475,6 +484,14 @@ const formatDateTime = (dateString) => {
                   title: "Product Name",
                   dataIndex: "productName",
                   key: "productName",
+                  filters: Array.from(
+                    new Set(
+                      (requests || [])
+                        .map((item) => item.productName)
+                        .filter((name) => name) // Lọc ra những giá trị hợp lệ (không null/undefined)
+                    )
+                  ).map((name) => ({ text: name, value: name })), // Tạo mảng filters từ productName duy nhất
+                  onFilter: (value, record) => record.productName === value, // Lọc theo productName
                 },
                 {
                   title: "Request Type",
