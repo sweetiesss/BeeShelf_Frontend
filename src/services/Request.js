@@ -147,12 +147,13 @@ export default function AxiosRequest() {
       return e;
     }
   };
-  const cancelRequest = async (id) => {
+  const cancelRequest = async (id, reason) => {
     try {
       const fetching = fetchDataBearer({
-        url: `request/cancel-request?id=` + id,
+        url:
+          `request/cancel-request?id=` + id + "&cancellationReason=" + reason,
         method: "POST",
-        data: {status:"canceled"},
+        body: JSON.stringify({ data: "Cancelled" }),
       });
       await toast.promise(fetching, {
         pending: "Request in progressing...",

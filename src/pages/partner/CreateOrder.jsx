@@ -615,11 +615,6 @@ export default function CreateOrderPage() {
           </div>
 
           <div className="flex justify-between space-x-4 mt-6 items-center">
-            {distance && (
-              <p className="mt-4 text-lg">
-                {t("Distance")}: {distance.toFixed(3)} {"km"}
-              </p>
-            )}
             <div className="flex justify-between w-full gap-8">
               <button
                 type="button"

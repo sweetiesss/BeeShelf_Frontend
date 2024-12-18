@@ -51,11 +51,14 @@ const WarehouseDashboard = () => {
   const { getWarehouseDashboardData } = AxiosEmployee();
   const [revenueUpdate, setRevenueUpdate] = useState();
   const [revenueUpdate2, setRevenueUpdate2] = useState();
+  const [revenueInventoryUpdate, setRevenueInventoryUpdate] = useState();
+  const [revenueInventoryUpdate2, setRevenueInventoryUpdate2] = useState();
   const [totalStatusCount, setTotalStatusCount] = useState();
   const [totalStatusCount2, setTotalStatusCount2] = useState();
   const [loading, setLoading] = useState(false);
   const [thisYear, setThisYear] = useState(new Date().getFullYear());
   const { t } = useTranslation();
+
   const salesOverviewData = {
     labels: [t("Bought"), t("Notbought")],
     datasets: [
@@ -70,6 +73,42 @@ const WarehouseDashboard = () => {
       },
     ],
   };
+  const generateColorsForChart = (length, offset = 0) => {
+    const colors = [];
+    const step = 360 / length; // Divide the hue spectrum evenly
+    for (let i = 0; i < length; i++) {
+      const hue = (i * step + offset) % 360; // Add offset to differentiate charts
+      const color = `hsl(${hue}, 70%, 70%)`;
+      colors.push(color);
+    }
+    return colors;
+  };
+
+  const salesOrdersData = {
+    labels: revenueUpdate.map((item) => item?.warehouseName),
+    datasets: [
+      {
+        label: "OrdersSalesOverview",
+        data: revenueUpdate.map((item) => item?.totalRevenue || 100000),
+        backgroundColor: generateColorsForChart(revenueUpdate.length,0),
+        hoverOffset: 10,
+      },
+    ],
+  };
+  const salesInventoryData = {
+    labels: revenueInventoryUpdate.map((item) => item?.warehouseName),
+    datasets: [
+      {
+        label: "InventoriesSalesOverview",
+        data: revenueInventoryUpdate.map(
+          (item) => item?.totalInventoryRevenue || 100000
+        ),
+        backgroundColor: generateColorsForChart(revenueInventoryUpdate.length,100),
+        hoverOffset: 10,
+      },
+    ],
+  };
+
   useEffect(() => {
     const fetchBeginData = async () => {
       try {
@@ -87,11 +126,21 @@ const WarehouseDashboard = () => {
             totalRevenue: warehouse.totalRevenue || 0,
           }));
           setRevenueUpdate(YearlyRevenue);
+          const YearlyInventoryRevenue = getData?.data?.map((warehouse) => ({
+            warehouseName: warehouse.name,
+            totalInventoryRevenue: warehouse.totalInventoryRevenue || 0,
+          }));
+          setRevenueInventoryUpdate(YearlyInventoryRevenue);
           const YearlyRevenue2 = getData2?.data?.map((warehouse) => ({
             warehouseName: warehouse.name,
             totalRevenue: warehouse.totalRevenue || 0,
           }));
           setRevenueUpdate2(YearlyRevenue2);
+          const YearlyInventoryRevenue2 = getData2?.data?.map((warehouse) => ({
+            warehouseName: warehouse.name,
+            totalInventoryRevenue: warehouse.totalInventoryRevenue || 0,
+          }));
+          setRevenueInventoryUpdate2(YearlyInventoryRevenue2);
           setTotalStatusCount(calculateOrderStatuses(getData));
           setTotalStatusCount2(calculateOrderStatuses(getData2));
         }
@@ -106,7 +155,13 @@ const WarehouseDashboard = () => {
   console.log(orders);
   console.log(ordersPrevious);
   console.log("revenueUpdate", revenueUpdate);
+  console.log("revenueInventoryUpdate", revenueInventoryUpdate);
   console.log("revenueUpdate2", revenueUpdate2);
+  console.log("revenueInventoryUpdate2", revenueInventoryUpdate2);
+  console.log(
+    "revenueData",
+    revenueUpdate.map((item) => item?.totalRevenue)
+  );
 
   const salesOverviewOptions = {
     plugins: {
@@ -114,6 +169,16 @@ const WarehouseDashboard = () => {
       tooltip: {
         callbacks: {
           label: (tooltipItem) => `${tooltipItem.raw.toLocaleString()}`,
+        },
+      },
+    },
+  };
+  const salesOrdersOptions = {
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (tooltipItem) => `${tooltipItem.raw.toLocaleString()} vnd`,
         },
       },
     },
@@ -178,24 +243,45 @@ const WarehouseDashboard = () => {
       : [],
     datasets: [
       {
-        label: thisYear + " " + t("Sales"),
+        label: thisYear + " " + t("OrdersSales"),
 
         data: revenueUpdate
           ? revenueUpdate.map((item) => item?.totalRevenue)
           : [],
-        borderColor: "#0a9a63",
-        backgroundColor: "#0db977",
+        borderColor: "#2E8B57",
+        backgroundColor: "#3CB371",
         fill: true,
         tension: 0.4,
       },
       {
-        label: thisYear - 1 + " " + t("Sales"),
+        label: thisYear + " " + t("InventorySales"),
+        data: revenueInventoryUpdate
+          ? revenueInventoryUpdate.map((item) => item?.totalInventoryRevenue)
+          : [],
+        borderColor: "#66CDAA",
+        backgroundColor: "#8FBC8F",
+        fill: true,
+        tension: 0.4,
+      },
+      {
+        label: thisYear - 1 + " " + t("OrdersSales"),
         data: revenueUpdate2
           ? revenueUpdate2.map((item) => item?.totalRevenue)
           : [],
 
-        borderColor: "#F5659C",
-        backgroundColor: "#F24688",
+        borderColor: "#FF6347",
+        backgroundColor: "#FF7F50",
+        fill: true,
+        tension: 0.4,
+      },
+      {
+        label: thisYear - 1 + " " + t("InventorySales"),
+        data: revenueInventoryUpdate2
+          ? revenueInventoryUpdate2.map((item) => item?.totalInventoryRevenue)
+          : [],
+
+        borderColor: "#FF8C00",
+        backgroundColor: "#FFA07A",
         fill: true,
         tension: 0.4,
       },
@@ -339,6 +425,21 @@ const WarehouseDashboard = () => {
                 options={salesOverviewOptions}
               />
             </div>
+            <div className="p-4 bg-white rounded-lg shadow-xl border-[1px] col-span-1 ">
+              <h2 className="text-lg font-bold mb-4">
+                {t("OrdersSalesOverview")}
+              </h2>
+              <Doughnut data={salesOrdersData} options={salesOrdersOptions} />
+            </div>
+            <div className="p-4 bg-white rounded-lg shadow-xl border-[1px] col-span-1 ">
+              <h2 className="text-lg font-bold mb-4">
+                {t("InventoriesSalesOverview")}
+              </h2>
+              <Doughnut
+                data={salesInventoryData}
+                options={salesOrdersOptions}
+              />
+            </div>
 
             {/* Revenue Updates */}
             {/* <div className="p-4 bg-white rounded-lg shadow-xl border-[1px]">
@@ -350,24 +451,25 @@ const WarehouseDashboard = () => {
             </div> */}
 
             {/* Yearly Sales */}
-            <div className="p-4 bg-white rounded-lg shadow-xl border-[1px] col-span-2 ">
+            {/* <div className="p-4 bg-white rounded-lg shadow-xl border-[1px] col-span-2 ">
               <h2 className="text-lg font-bold mb-4">
                 {t("YearlySales")}
                 {" (vnd)"}
               </h2>
               <Line data={yearlySalesData} options={yearlySalesOptions} />
-            </div>
+            </div> */}
+
             <div className="p-4 bg-white rounded-lg shadow-xl border-[1px] col-span-1  overflow-auto max-h-[50vh]">
               <h2 className="text-lg font-bold mb-4">
                 {t("WarehousesOverview")}
               </h2>
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 ">
                 {orders?.data?.map((item) => (
                   <div className="border-[1px] shadow-lg px-4 py-4 rounded-xl">
                     <p>{item?.name}</p>
-                    <div className="text-sm">
+                    <div className="text-sm text-gray-500">
                       <div className="flex gap-4">
-                        <p>{t("Revenue")}:</p>
+                        <p>{t("OrdersRevenue")}:</p>
                         <p>
                           {(() => {
                             console.log("check item", item?.totalRevenue);
@@ -384,10 +486,34 @@ const WarehouseDashboard = () => {
                         </p>
                       </div>
                       <div className="flex gap-4">
+                        <p>{t("InventoriesRevenue")}:</p>
+                        <p>
+                          {(() => {
+                            console.log(
+                              "check item",
+                              item?.totalInventoryRevenue
+                            );
+
+                            const totalSales = item?.totalInventoryRevenue || 0;
+                            const formattedSales =
+                              totalSales > 1000000
+                                ? `${(totalSales / 1000000).toFixed(0)}m`
+                                : new Intl.NumberFormat().format(totalSales);
+
+                            return formattedSales;
+                          })()}{" "}
+                          vnd
+                        </p>
+                      </div>
+
+                      <div className="flex gap-4">
                         <p>{t("Inventories")}:</p>
                         <p>
-                          {item?.totalBoughtInventory+" "+t("bought")+" / "} 
-                          {item?.totalUnboughtInventory+" "+t("notbought")}
+                          {item?.totalBoughtInventory +
+                            " " +
+                            t("bought") +
+                            " / "}
+                          {item?.totalUnboughtInventory + " " + t("notbought")}
                         </p>
                       </div>
                     </div>

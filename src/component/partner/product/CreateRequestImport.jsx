@@ -97,7 +97,17 @@ export default function CreateRequestImport({
   };
   const handleSaveDraft = async () => {
     console.log(form);
-    const fetching = await createRequest(form, "Import", false);
+    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Format date-time
+    let submitForm = {
+      ...form,
+      sendToInventoryId: parseInt(inventory.id),
+      lot: {
+        ...form.lot,
+        lotNumber: `${form.lot.productId}-${currentDateTime}`, // Product ID + Date-Time
+        name: `${product.name}-${userInfor?.name || "User"}`, // Product Name + User's Name
+      },
+    };
+    const fetching = await createRequest(submitForm, "Import", false);
     if (fetching?.status === 200) {
       handleClose();
     }

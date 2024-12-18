@@ -17,7 +17,8 @@ import AxiosCategory from "../../services/Category";
 import { useTranslation } from "react-i18next";
 
 export default function DetailSlide() {
-  const { userInfor, setRefrestAuthWallet } = useContext(AuthContext);
+  const { userInfor, setRefrestAuthWallet, authWallet } =
+    useContext(AuthContext);
   const { t } = useTranslation();
   const {
     dataDetail,
@@ -590,6 +591,7 @@ export default function DetailSlide() {
     const [lotData, setLotData] = useState();
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
     const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
+    const [cancelReason, setCancelReason] = useState("");
     const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
 
     const [inputField, setInputField] = useState();
@@ -655,17 +657,19 @@ export default function DetailSlide() {
     const confirmUpdateStatus = async () => {
       try {
         if (showUpdateConfirmation[1] === "Canceled") {
-          const res = await cancelRequest(showUpdateConfirmation[0]?.id);
-          console.log(res);
+          const res = await cancelRequest(
+            showUpdateConfirmation[0]?.id,
+            cancelReason
+          );
         } else {
           const res = await updateRequestStatus(
             showUpdateConfirmation[0]?.id,
             showUpdateConfirmation[1]
           );
-          console.log(res);
         }
       } catch (e) {
       } finally {
+        setCancelReason("");
         setRefresh(showUpdateConfirmation[0]?.id);
         cancelDelete();
       }
@@ -678,6 +682,7 @@ export default function DetailSlide() {
       ocopPartnerId: userInfor?.id,
       name: dataDetail?.name,
       description: dataDetail?.description,
+      exportFromLotId: 0,
       sendToInventoryId: dataDetail?.sendToInventoryId,
       lot: {
         lotNumber: "string",
@@ -926,6 +931,17 @@ export default function DetailSlide() {
               <p>{`Are you sure you want to ${
                 showUpdateConfirmation[1] === "Canceled" ? "cancel:" : ""
               } ${dataDetail?.name}?`}</p>
+              <div>
+                {showUpdateConfirmation[1] === "Canceled" && (
+                  <div className="flex gap-4">
+                    <label>Reason</label>
+                    <input
+                      type="text"
+                      onChange={(e) => setCancelReason(e.target.value)}
+                    />
+                  </div>
+                )}
+              </div>
               <div className="flex justify-end gap-4">
                 <button
                   onClick={confirmUpdateStatus}
@@ -1339,6 +1355,8 @@ export default function DetailSlide() {
     const [showExtendConfirmation, setShowExtendConfirmation] = useState(null);
     const [lotsCleanData, setLotsCleanData] = useState();
     const [monthBuyInvrentory, setMonthToBuyInventory] = useState(1);
+    const [errors, setErrors] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const { extendInventory } = AxiosInventory();
 
@@ -1346,9 +1364,27 @@ export default function DetailSlide() {
       setShowExtendConfirmation(false);
       setMonthToBuyInventory(0);
     };
+    const handleSetMonthToBuy = (price, data) => {
+      const dataPrice = Math.round(parseFloat(price) * parseFloat(data));
+      setErrors("");
+      if (data < 0 || data === null || data === undefined || data === "") {
+        console.log("here");
+
+        setErrors("YouNeedAtLeast1MonthToBuyInventory.");
+        setMonthToBuyInventory("");
+        return;
+      }
+      setMonthToBuyInventory(Math.floor(data));
+      console.log(dataPrice > authWallet?.totalAmount);
+
+      if (dataPrice > authWallet?.totalAmount) {
+        setErrors("NotEnoughtMoneyToDoThis.");
+        return;
+      }
+    };
     const handleConfirmExtendInventory = async () => {
       try {
-        // setLoading(true);
+        setLoading(true);
         const result = await extendInventory(
           dataDetail?.id,
           userInfor.id,
@@ -1362,7 +1398,7 @@ export default function DetailSlide() {
       } catch (e) {
         console.log(e);
       } finally {
-        // setLoading(false);
+        setLoading(false);
       }
     };
 
@@ -1671,26 +1707,29 @@ export default function DetailSlide() {
                     type="number"
                     className="outline-none w-[5rem]"
                     value={monthBuyInvrentory}
-                    onChange={(e) => setMonthToBuyInventory(e.target.value)}
+                    step={1}
+                    onChange={(e) =>
+                      handleSetMonthToBuy(dataDetail?.price, e.target.value)
+                    }
                   ></input>
 
                   <p>{t("Months")}</p>
                 </div>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
-                  onClick={() => setMonthToBuyInventory(6)}
+                  onClick={() => handleSetMonthToBuy(dataDetail?.price, 6)}
                 >
                   6 {t("Months")}
                 </button>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
-                  onClick={() => setMonthToBuyInventory(12)}
+                  onClick={() => handleSetMonthToBuy(dataDetail?.price, 12)}
                 >
                   1 {t("Year")}
                 </button>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
-                  onClick={() => setMonthToBuyInventory(24)}
+                  onClick={() => handleSetMonthToBuy(dataDetail?.price, 24)}
                 >
                   2 {t("Years")}
                 </button>
@@ -1721,6 +1760,9 @@ export default function DetailSlide() {
                     )
                   )} vnd`}
                 </div>
+                <div className="col-span-8 text-red-500">
+                  <div className="">{t(errors)}</div>
+                </div>
                 <div className="col-span-8 flex gap-x-4">
                   <div className="">{t("ExpectExpirationDate")}:</div>
                   <p>
@@ -1743,6 +1785,7 @@ export default function DetailSlide() {
                 </button>
                 <button
                   onClick={handleConfirmExtendInventory}
+                  disabled={errors?.length > 0 || loading}
                   className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                 >
                   {t("Confirm")}
