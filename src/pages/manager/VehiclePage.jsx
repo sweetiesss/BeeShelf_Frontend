@@ -36,6 +36,14 @@ const VehiclePage = () => {
     pageSize: 10,
   });
 
+
+  const [isColdSelected, setIsColdSelected] = useState(null); // State lưu trữ giá trị isCold được chọn
+
+  // Hàm lọc warehouseOptions dựa trên isColdSelected
+  const filteredWarehouses = warehouseOptions.filter(
+    (warehouse) =>
+      isColdSelected === null || warehouse.isCold === isColdSelected
+  );
   // Form instance
   const [form] = Form.useForm();
 
@@ -440,16 +448,17 @@ const VehiclePage = () => {
         <Button
           type="primary"
           onClick={() => {
+            // Set các giá trị cho form một cách bình thường từ filter
             form.setFieldsValue({
-              type: filter.type !== "" ? filter.type : null,
-              warehouseId: filter.warehouseId > 0 ? filter.warehouseId : null, // Set filtered warehouseId or reset to null
-              isCold: warehouseOptions.find(
-                (warehouse) => warehouse.id === filter.warehouseId
-              )?.isCold
-                ? 1
-                : 0, // Set `isCold` based on the selected warehouse, default to 0 if not found
+              type: filter.type || null,
+              warehouseId: filter.warehouseId || null,
+              isCold:
+                warehouseOptions.find(
+                  (warehouse) => warehouse.id === filter.warehouseId
+                )?.isCold || 0,
             });
-            setVisible(true); // Show modal
+
+            setVisible(true); // Hiển thị modal
           }}
         >
           Create Vehicle
@@ -458,195 +467,186 @@ const VehiclePage = () => {
 
       {/* Modal tạo vehicle */}
       <Modal
-        title="Create Vehicle"
-        open={visible}
-        onCancel={() => {
-          setVisible(false);
-          form.resetFields(); // Reset form khi đóng modal
-        }}
-        footer={[
-          <Button key="back" onClick={() => setVisible(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            loading={loading}
-            onClick={createVehicle}
-          >
-            Create Vehicle
-          </Button>,
-        ]}
-      >
-        <Form form={form} layout="vertical">
-          {/* Vehicle Type */}
-          <Form.Item
-            label="Vehicle Type"
-            name="type"
-            rules={[{ required: true, message: "Please select vehicle type!" }]}
-          >
-            <Select placeholder="Select Vehicle Type">
-              <Option value="Truck">Truck</Option>
-              <Option value="Van">Van</Option>
-              <Option value="Motorcycle">Motorcycle</Option>
-            </Select>
-          </Form.Item>
+      title="Create Vehicle"
+      open={visible}
+      onCancel={() => {
+        setVisible(false);
+        form.resetFields(); // Reset form khi đóng modal
+        setIsColdSelected(null); // Reset giá trị isCold khi đóng modal
+      }}
+      footer={[
+        <Button key="back" onClick={() => setVisible(false)}>
+          Cancel
+        </Button>,
+        <Button
+          key="submit"
+          type="primary"
+          loading={loading}
+          onClick={() => form.submit()}
+        >
+          Create Vehicle
+        </Button>,
+      ]}
+    >
+      <Form form={form} layout="vertical" onFinish={createVehicle}>
+        {/* Vehicle Type */}
+        <Form.Item
+          label="Vehicle Type"
+          name="type"
+          rules={[{ required: true, message: "Please select vehicle type!" }]}
+        >
+          <Select placeholder="Select Vehicle Type">
+            <Option value="Truck">Truck</Option>
+            <Option value="Van">Van</Option>
+            <Option value="Motorcycle">Motorcycle</Option>
+          </Select>
+        </Form.Item>
 
-          {/* Vehicle Name */}
-          <Form.Item
-            label="Vehicle Name"
-            name="name"
-            rules={[{ required: true, message: "Please enter vehicle name!" }]}
-          >
-            <Input placeholder="Enter Vehicle Name" />
-          </Form.Item>
+        {/* Vehicle Name */}
+        <Form.Item
+          label="Vehicle Name"
+          name="name"
+          rules={[{ required: true, message: "Please enter vehicle name!" }]}
+        >
+          <Input placeholder="Enter Vehicle Name" />
+        </Form.Item>
 
-          {/* License Plate */}
-          <Form.Item
-            label="License Plate"
-            name="licensePlate"
-            rules={[{ required: true, message: "Please enter license plate!" }]}
-          >
-            <Input placeholder="Enter License Plate" />
-          </Form.Item>
+        {/* License Plate */}
+        <Form.Item
+          label="License Plate"
+          name="licensePlate"
+          rules={[{ required: true, message: "Please enter license plate!" }]}
+        >
+          <Input placeholder="Enter License Plate" />
+        </Form.Item>
 
-          {/* Warehouse ID */}
-          <Form.Item
-            label="Warehouse ID"
-            name="warehouseId"
-            rules={[{ required: true, message: "Please select warehouse!" }]}
+        {/* Is Cold Storage? */}
+        <Form.Item
+          label="Is Cold Storage?"
+          name="isCold"
+          rules={[{ required: true, message: "Please select cold storage option!" }]}
+        >
+          <Select
+            placeholder="Select Option"
+            onChange={(value) => setIsColdSelected(value)} // Cập nhật isColdSelected khi thay đổi
           >
-            <Select
-              placeholder="Select Warehouse"
-              onChange={(value) => {
-                const selectedWarehouse = warehouseOptions.find(
-                  (warehouse) => warehouse.id === value
-                );
+            <Option value={1}>Yes</Option>
+            <Option value={0}>No</Option>
+          </Select>
+        </Form.Item>
 
-                // Set isCold based on selected warehouse
-                form.setFieldsValue({
-                  isCold: selectedWarehouse.isCold ? 1 : 0,
-                });
-              }}
-            >
-              <Option key={0} value={"Select warehouse"}></Option>
-              {warehouseOptions.map((warehouse) => (
+        {/* Warehouse ID */}
+        <Form.Item
+          label="Warehouse ID"
+          name="warehouseId"
+          rules={[{ required: true, message: "Please select warehouse!" }]}
+        >
+          <Select placeholder="Select Warehouse" disabled={isColdSelected === null}>
+            {filteredWarehouses.length > 0 ? (
+              filteredWarehouses.map((warehouse) => (
                 <Option key={warehouse.id} value={warehouse.id}>
                   ID: {warehouse.id} - Name: {warehouse.name} -{" "}
                   {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
                 </Option>
-              ))}
-            </Select>
-          </Form.Item>
+              ))
+            ) : (
+              <Option disabled>No warehouses available</Option>
+            )}
+          </Select>
+        </Form.Item>
+      </Form>
+    </Modal>
 
-          {/* Is Cold Storage? */}
-          <Form.Item
-            label="Is Cold Storage?"
-            name="isCold"
-            rules={[
-              { required: true, message: "Please select cold storage option!" },
-            ]}
-          >
-            <Select placeholder="Select Option" disabled>
-              <Option value={1}>Yes</Option>
-              <Option value={0}>No</Option>
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+    <Modal
+      title="Update Vehicle"
+      open={updateVisible}
+      onCancel={() => {
+        setUpdateVisible(false);
+        form.resetFields();
+        setIsColdSelected(null); // Reset giá trị isCold khi đóng modal
+      }}
+      footer={[
+        <Button key="back" onClick={() => setUpdateVisible(false)}>
+          Cancel
+        </Button>,
+        <Button
+          key="submit"
+          type="primary"
+          loading={loading}
+          onClick={() => form.submit()}
+        >
+          Update Vehicle
+        </Button>,
+      ]}
+    >
+      <Form form={form} layout="vertical" onFinish={handleUpdateVehicle}>
+        {/* Vehicle Type */}
+        <Form.Item
+          label="Vehicle Type"
+          name="type"
+          rules={[{ required: true, message: "Please select vehicle type!" }]}
+        >
+          <Select placeholder="Select Vehicle Type">
+            <Option value="Truck">Truck</Option>
+            <Option value="Van">Van</Option>
+            <Option value="Motorcycle">Motorcycle</Option>
+          </Select>
+        </Form.Item>
 
-      <Modal
-        title="Update Vehicle"
-        open={updateVisible}
-        onCancel={() => {
-          setUpdateVisible(false);
-          form.resetFields();
-        }}
-        footer={[
-          <Button key="back" onClick={() => setUpdateVisible(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            loading={loading}
-            onClick={handleUpdateVehicle}
-          >
-            Update Vehicle
-          </Button>,
-        ]}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Vehicle Type"
-            name="type"
-            rules={[{ required: true, message: "Please select vehicle type!" }]}
-          >
-            <Select placeholder="Select Vehicle Type">
-              <Option value="Truck">Truck</Option>
-              <Option value="Van">Van</Option>
-              <Option value="Motorcycle">Motorcycle</Option>
-            </Select>
-          </Form.Item>
+        {/* Vehicle Name */}
+        <Form.Item
+          label="Vehicle Name"
+          name="name"
+          rules={[{ required: true, message: "Please enter vehicle name!" }]}
+        >
+          <Input placeholder="Enter Vehicle Name" />
+        </Form.Item>
 
-          <Form.Item
-            label="Vehicle Name"
-            name="name"
-            rules={[{ required: true, message: "Please enter vehicle name!" }]}
-          >
-            <Input placeholder="Enter Vehicle Name" />
-          </Form.Item>
+        {/* License Plate */}
+        <Form.Item
+          label="License Plate"
+          name="licensePlate"
+          rules={[{ required: true, message: "Please enter license plate!" }]}
+        >
+          <Input placeholder="Enter License Plate" />
+        </Form.Item>
 
-          <Form.Item
-            label="License Plate"
-            name="licensePlate"
-            rules={[{ required: true, message: "Please enter license plate!" }]}
+        {/* Is Cold Storage */}
+        <Form.Item
+          label="Is Cold Storage?"
+          name="isCold"
+          rules={[{ required: true, message: "Please select cold storage option!" }]}
+        >
+          <Select
+            placeholder="Select Option"
+            onChange={(value) => setIsColdSelected(value)} // Cập nhật isColdSelected khi thay đổi
           >
-            <Input placeholder="Enter License Plate" />
-          </Form.Item>
+            <Option value={1}>Yes</Option>
+            <Option value={0}>No</Option>
+          </Select>
+        </Form.Item>
 
-          <Form.Item
-            label="Warehouse ID"
-            name="warehouseId"
-            rules={[{ required: true, message: "Please select warehouse!" }]}
-          >
-            <Select
-              placeholder="Select Warehouse"
-              onChange={(value) => {
-                const selectedWarehouse = warehouseOptions.find(
-                  (warehouse) => warehouse.id === value
-                );
-                form.setFieldsValue({
-                  isCold: selectedWarehouse.isCold ? 1 : 0,
-                });
-              }}
-            >
-              {warehouseOptions.map((warehouse) => (
+        {/* Warehouse ID */}
+        <Form.Item
+          label="Warehouse ID"
+          name="warehouseId"
+          rules={[{ required: true, message: "Please select warehouse!" }]}
+        >
+          <Select placeholder="Select Warehouse" disabled={isColdSelected === null}>
+            {filteredWarehouses.length > 0 ? (
+              filteredWarehouses.map((warehouse) => (
                 <Option key={warehouse.id} value={warehouse.id}>
-                  {warehouse.name}{" "}
+                  ID: {warehouse.id} - Name: {warehouse.name} -{" "}
                   {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
                 </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Is Cold Storage?"
-            name="isCold"
-            rules={[
-              { required: true, message: "Please select cold storage option!" },
-            ]}
-          >
-            <Select
-              placeholder="Select Option"
-              disabled={true} // Luôn disable để không cho phép người dùng thay đổi
-            >
-              <Option value={1}>Yes</Option>
-              <Option value={0}>No</Option>
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+              ))
+            ) : (
+              <Option disabled>No warehouses available</Option>
+            )}
+          </Select>
+        </Form.Item>
+      </Form>
+    </Modal>
 
       <Modal
         title="Vehicle Details"
