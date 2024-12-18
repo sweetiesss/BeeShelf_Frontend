@@ -120,14 +120,17 @@ export default function AddProductPage() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!product.name) newErrors.name = t("Product name is required.");
-    if (!product.barcode) newErrors.barcode = t("Product barcode is required.");
+    if (!product.name || product?.name?.trim()?.length == 0)
+      newErrors.name = t("Product name is required.");
+    if (!product.barcode || product?.barcode?.trim()?.length == 0)
+      newErrors.barcode = t("Product barcode is required.");
     if (!product.price || product.price <= 0)
       newErrors.price = t("Price must be greater than 0.");
     if (!product.weight || product.weight <= 0)
       newErrors.weight = t("Weight must be greater than 0.");
     if (!product.unit) newErrors.unit = t("Unit is required.");
-    if (!product.origin) newErrors.origin = t("Origin is required.");
+    if (!product?.origin || product?.barcode?.trim()?.length == 0)
+      newErrors.origin = t("Origin is required.");
     if (!product.productCategoryId)
       newErrors.productCategoryId = t("Category is required.");
     if (!imageLink) newErrors.pictureLink = t("Product image is required.");
@@ -140,6 +143,12 @@ export default function AddProductPage() {
     e.preventDefault();
     try {
       setLoading(true);
+      setProduct((prev) => ({
+        ...prev,
+        name: prev.name.trim(),
+        origin: prev.origin.trim(),
+        barcode: prev.barcode.trim(),
+      }));
       if (!validateForm()) return;
       const uploadImg = await uploadImage(imageLink);
       const submitForm = { ...product, pictureLink: uploadImg };

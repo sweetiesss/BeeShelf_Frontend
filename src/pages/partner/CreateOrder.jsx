@@ -112,6 +112,9 @@ export default function CreateOrderPage() {
     if (form.products.length === 0) {
       newErrors.products = t("At least one product must be added");
     }
+    if (!distance) {
+      newErrors.distance = t("Delivery Zone is required");
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -138,14 +141,9 @@ export default function CreateOrderPage() {
 
   const filterWarehouse = () => {
     if (inventories) {
-      console.log("here0", inventories);
-      console.log("here1/2", warehouse);
-      console.log("here2", warehouses);
-
       const result = inventories.filter(
         (a) => parseInt(a.warehouseId) === parseInt(warehouse?.warehouseId)
       );
-      console.log("here", result);
 
       setInventoriesShowList(result);
     }
@@ -246,6 +244,7 @@ export default function CreateOrderPage() {
       );
       console.log(submitForm);
       setForm(baseForm);
+
     } catch (e) {
       console.log(e);
     } finally {
@@ -429,7 +428,7 @@ export default function CreateOrderPage() {
                   type="number"
                   name="productAmount"
                   placeholder={t("productAmount")}
-                  value={item.productAmount}
+                  value={item.productAmount||0}
                   onChange={handleItemChange}
                   className="col-span-2 mt-1 block w-full border-[1px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
                   required

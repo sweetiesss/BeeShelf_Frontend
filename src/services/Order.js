@@ -172,6 +172,31 @@ export default function AxiosOrder() {
       return e;
     }
   };
+  const cancelOrderById = async (id) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `order/cancel-order/` + id,
+        method: "PUT",
+      });
+      await toast.promise(fetching, {
+        pending: "Order in progress...",
+        success: {
+          render() {
+            return `Cancel order successfully`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return await fetching;
+    } catch (e) {
+      return e;
+    }
+  };
 
-  return { getOrderByUserId, createOrder, sendOrderById, deleteOrderById ,updateOrder};
+  return { getOrderByUserId, createOrder, sendOrderById, deleteOrderById ,updateOrder,cancelOrderById};
 }
