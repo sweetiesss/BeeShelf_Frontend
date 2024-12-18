@@ -75,9 +75,13 @@ export default function RequestList({
 
                     <td className=" px-3 py-2  flex justify-left items-center ">
                       <img
-                        src={request?.image ? request?.image : defaultImg}
+                        src={
+                          request?.productImage
+                            ? request?.productImage
+                            : defaultImg
+                        }
                         alt={request?.name}
-                        className="h-20 w-20 rounded-xl"
+                        className="h-20 w-20 rounded-xl object-cover object-center"
                       />
                     </td>
                     <td className=" px-1 py-2 ">{request?.name}</td>
@@ -93,7 +97,11 @@ export default function RequestList({
                             : request.status === "Shipped"
                             ? "bg-yellow-200 text-yellow-800"
                             : request.status === "Pending"
+                            ? "bg-teal-200 text-teal-800"
+                            : request.status === "Processing"
                             ? "bg-blue-200 text-blue-800"
+                            : request.status === "Delivered"
+                            ? "bg-lime-200 text-lime-800"
                             : request.status === "Draft"
                             ? "bg-gray-200 text-gray-800"
                             : "bg-red-200 text-red-800"

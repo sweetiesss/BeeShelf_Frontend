@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import "../../style/Partner.scss";
 import { useTranslation } from "react-i18next";
 import * as XLSX from "xlsx";
@@ -28,6 +28,7 @@ export default function ProductPage() {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
   const [productCategories, setProductCategories] = useState(null);
   const [productCate, setProductCate] = useState(0);
+  const deleteBox = useRef();
   const [overall, setOverall] = useState({
     checked: false,
     indeterminate: false,
@@ -60,6 +61,18 @@ export default function ProductPage() {
       }, delay);
     };
   };
+  useEffect(() => {
+    const handleClickOutSide = (event) => {
+      if (deleteBox.current && !deleteBox.current.contains(event.target)) {
+        cancelDelete();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutSide);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutSide);
+    };
+  }, []);
+
   const debouncedFetchProducts = useCallback(
     debounce(async (page, index, sortBy, search, descending, productCate) => {
       let thisPage = page;
@@ -218,7 +231,6 @@ export default function ProductPage() {
         ? selectedProducts.map(
             ({
               id,
-              ocopPartnerId,
               productCategoryId,
               price,
               weight,
@@ -237,7 +249,6 @@ export default function ProductPage() {
         : products?.items?.map(
             ({
               id,
-              ocopPartnerId,
               productCategoryId,
               price,
               weight,
@@ -314,16 +325,12 @@ export default function ProductPage() {
   };
 
   const handleSortChange = (value) => {
-  
-
     if (sortBy === value) {
       setDescending((prev) => !prev);
     } else {
       setSortBy(value);
     }
   };
- 
-  
 
   return (
     <div className="w-full h-full gap-10 pb-10">
@@ -376,6 +383,7 @@ export default function ProductPage() {
               left: "50%",
               transform: "translate(-50%, -50%)",
             }}
+            ref={deleteBox}
           >
             <p>{`${t("AreYouSureWantToDelete")} ${
               showDeleteConfirmation.name

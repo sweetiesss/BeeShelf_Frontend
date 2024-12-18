@@ -64,12 +64,29 @@ export default function AxiosEmployee() {
           },
         },
       });
-      return  fetching;
+      return fetching;
     } catch (e) {
       console.log(e);
       return e;
     }
   };
+  const getWarehouseDashboardData = async (showYear) => {
+    try {
+      const url = `user/get-manager-dashboard?year=` + parseInt(showYear);
 
-  return { getEmployees, updateEmployee, createEmployee };
+      const fetching = await fetchDataBearer({
+        url,
+        method: "GET",
+      });
+
+      console.log(fetching);
+
+      return fetching;
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return error;
+    }
+  };
+
+  return { getEmployees, updateEmployee, createEmployee ,getWarehouseDashboardData};
 }

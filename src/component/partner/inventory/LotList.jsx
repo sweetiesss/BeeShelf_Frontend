@@ -59,9 +59,10 @@ export default function LotList({
             <td className="text-left pb-2 ">{t("LotCode")}</td>
             <td className="text-left pb-2 ">{t("Warehouse")}</td>
             <td className="text-left pb-2 ">{t("ProductName")}</td>
-            <td className="text-left pb-2 ">{t("lotAmount")}</td>
-            <td className="text-left pb-2 ">{t("importDate")}</td>
-            <td className="text-left pb-2 ">{t("expirationDate")}</td>
+            <td className="text-left pb-2 ">{t("LotAmount")}</td>
+            <td className="text-left pb-2 ">{t("TotalProduct")}</td>
+            <td className="text-left pb-2 ">{t("ImportDate")}</td>
+            <td className="text-left pb-2 ">{t("ExpirationDate")}</td>
             <td className="text-left pb-2 ">{t("")}</td>
           </tr>
         </thead>
@@ -91,6 +92,7 @@ export default function LotList({
                   <td className=" px-1 py-2 ">{order?.productName}</td>
 
                   <td className=" px-1 py-2 ">{order?.lotAmount}</td>
+                  <td className=" px-1 py-2 ">{order?.totalProductAmount}</td>
                   <td className=" px-1 py-2 ">
                     {format(order?.importDate, "dd/MM/yyyy")}
                   </td>

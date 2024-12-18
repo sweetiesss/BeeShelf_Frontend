@@ -15,8 +15,12 @@ export default function UpdateOrderPage() {
   const { t } = useTranslation();
   const { userInfor } = useAuth();
   const { getAllProduct } = AxiosPartner();
-  const { createOrder } = AxiosOrder();
+  const { updateOrder } = AxiosOrder();
   const { getWarehouseById } = AxiosWarehouse();
+  const location = useLocation();
+
+  const baseDate = location?.state || {};
+  console.log("baseDate", baseDate);
 
   const [inventories, setInventories] = useState();
   const [inventoriesShowList, setInventoriesShowList] = useState();
@@ -26,15 +30,13 @@ export default function UpdateOrderPage() {
   const [distance, setDistance] = useState(null); // State for storing calculated distance
   const [item, setItem] = useState({ productId: null, productAmount: null });
 
-  const [deliveryZone, setDeliveryZone] = useState();
+  const [deliveryZone, setDeliveryZone] = useState(baseDate?.deliveryZoneId);
+  const [recevierDeliveryAddress, setRecevierDeliveryAddress] = useState();
 
   const [warehouses, setWarehouses] = useState();
   const [warehouse, setWarehouse] = useState();
   const [detailWarehouse, setDetailWarehouse] = useState();
   const debounceTimeoutRef = useRef(null);
-  const location = useLocation();
-  const baseDate = location?.state || {};
-  console.log("baseDate", baseDate);
 
   const [defaultLocation, setDefaultLocation] = useState("");
 
@@ -49,7 +51,7 @@ export default function UpdateOrderPage() {
     distance: baseDate?.distance,
     products:
       baseDate?.orderDetails?.map((item) => ({
-        productId: item?.id ?? "", // Fallback to an empty string if undefined
+        productId: item?.productId ?? "", // Fallback to an empty string if undefined
         productAmount: item?.productAmount ?? 0, // Fallback to 0 if undefined
       })) || [], // Fallback to an empty array if orderDetails is null/undefined,
   };
@@ -133,6 +135,7 @@ export default function UpdateOrderPage() {
   //     console.log("ward", result);
   //   }
   // };
+  console.log("inventoriesShowList", inventoriesShowList);
 
   useEffect(() => {
     filterWarehouse();
@@ -208,6 +211,9 @@ export default function UpdateOrderPage() {
         const result = await getWarehouseById(warehouse?.warehouseId);
         if (result?.status === 200) {
           console.log("detail", result);
+          setRecevierDeliveryAddress(
+            baseDate?.deliveryZoneName + " " + result?.data?.provinceName
+          );
           console.log("from the warehouse", warehouse);
           setDetailWarehouse(result?.data);
           return;
@@ -297,12 +303,19 @@ export default function UpdateOrderPage() {
       console.log("Order Created:", form);
       const submitForm = {
         ...form,
-        deliveryZoneId: parseInt(defaultLocation?.id),
+        deliveryZoneId: parseInt(deliveryZone),
         distance: parseFloat(distance),
       };
-      const result = await createOrder(submitForm, warehouse?.warehouseId);
+      const result = await updateOrder(
+        submitForm,
+        baseDate?.id,
+        warehouse?.warehouseId,
+        true
+      );
       console.log(result);
-      setForm(baseForm);
+      if (result?.status === 200) {
+        setForm();
+      }
     } catch (e) {
       console.log(e);
     } finally {
@@ -316,12 +329,19 @@ export default function UpdateOrderPage() {
       console.log("Order Created:", form);
       const submitForm = {
         ...form,
-        deliveryZoneId: parseInt(defaultLocation?.id),
+        deliveryZoneId: parseInt(deliveryZone),
         distance: parseFloat(distance),
       };
-      const result = await createOrder(submitForm, warehouse?.warehouseId);
+      const result = await updateOrder(
+        submitForm,
+        baseDate?.id,
+        warehouse?.warehouseId,
+        false
+      );
       console.log(result);
-      setForm(baseForm);
+      if (result?.status === 200) {
+        setForm();
+      }
     } catch (e) {
       console.log(e);
     } finally {
@@ -431,10 +451,11 @@ export default function UpdateOrderPage() {
               {form?.products &&
                 form?.products?.map((item) => {
                   console.log(item);
-                  const product = inventoriesShowList?.find((pro) => {
-                    console.log("pro", pro);
-                    return parseInt(pro.id) === parseInt(item.productId);
-                  });
+                  const product = inventoriesShowList?.find(
+                    (pro) => parseInt(pro.id) === parseInt(item.productId)
+                  );
+                  console.log("Product", product);
+
                   return (
                     <>
                       <li
@@ -468,7 +489,7 @@ export default function UpdateOrderPage() {
             <input
               type="text"
               name="receiverPhone"
-              value={form.receiverPhone}
+              value={form?.receiverPhone}
               onChange={handleInputChange}
               className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
               required
@@ -555,7 +576,7 @@ export default function UpdateOrderPage() {
                 type="text"
                 name="receiverAddress"
                 placeholder={t("receiverAddress")}
-                value={form.receiverAddress}
+                value={form?.receiverAddress}
                 onChange={handleInputChange}
                 className="mt-1 outline-none border-2 p-[0.35rem] flex-grow"
                 required
@@ -598,8 +619,15 @@ export default function UpdateOrderPage() {
                       textAlign: "left", // Center-align text
                     }),
                   }}
-                  value={deliveryZone} // Map string to object
-                  onChange={(selectedOption) => setDeliveryZone(selectedOption)}
+                  value={detailWarehouse?.deliveryZones.find(
+                    (item) => item.id === deliveryZone
+                  )} // Map string to object
+                  onChange={(selectedOption) => {
+                    setDeliveryZone(selectedOption.id);
+                    setRecevierDeliveryAddress(
+                      selectedOption?.name + " " + selectedOption?.provinceName
+                    );
+                  }}
                   options={detailWarehouse?.deliveryZones}
                   formatOptionLabel={(selectedOption) => (
                     <div className="flex items-center gap-4">
@@ -656,7 +684,7 @@ export default function UpdateOrderPage() {
         <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
           <Mapping
             showLocation={detailWarehouse}
-            toLocation={deliveryZone?.name + " " + deliveryZone?.provinceName}
+            toLocation={recevierDeliveryAddress}
             defaultLocation={defaultLocation}
             setDistance={setDistance}
 

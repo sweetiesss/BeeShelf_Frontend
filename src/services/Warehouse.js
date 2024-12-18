@@ -7,16 +7,43 @@ export default function AxiosWarehouse() {
 
   const createWarehouse = async (data) => {
     try {
+      const { id, ...submitData } = data;
       const fetching = fetchDataBearer({
         url: `warehouse/create-warehouse`,
         method: "POST",
-        data: data,
+        data: submitData,
       });
       await toast.promise(fetching, {
         pending: "Warehouse creating...",
         success: {
           render() {
             return `Warehouse created`;
+          },
+        },
+        error: {
+          render({ data }) {
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
+  const updateWarehouse = async (id, data) => {
+    try {
+      const fetching = fetchDataBearer({
+        url: `warehouse/update-warehouse/` + id,
+        method: "PUT",
+        data: data,
+      });
+      await toast.promise(fetching, {
+        pending: "Warehouse updating...",
+        success: {
+          render() {
+            return `Warehouse updated`;
           },
         },
         error: {
@@ -70,10 +97,22 @@ export default function AxiosWarehouse() {
       return e;
     }
   };
+  const deleteWarehouseById = async (warehouseId) => {
+    try {
+      const fetching = await fetchDataBearer({
+        url: `warehouse/delete-warehouse/${warehouseId}`,
+        method: "DELETE",
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
   const getWarehouseById = async (warehouseId) => {
     try {
       const fetching = await fetchDataBearer({
-        url: `warehouse/get-warehouse//${warehouseId}`,
+        url: `warehouse/get-warehouse/${warehouseId}`,
         method: "GET",
       });
       return fetching;
@@ -82,31 +121,22 @@ export default function AxiosWarehouse() {
       return e;
     }
   };
-  const assignStaff = async (warehouseId, staffId) => {
+  const assignStaff = async (data) => {
     try {
-      const submitForm = [
-        {
-          employeeId: staffId,
-          warehouseId: warehouseId,
-        },
-      ];
-
-      
       const fetching = fetchDataBearer({
         url: `warehouse/add-staffs-to-warehouse`,
         method: "POST",
-        data: submitForm, // Array of staff IDs to assign
+        data: data, // Array of staff IDs to assign
       });
       await toast.promise(fetching, {
         pending: "Request in progress...",
         success: {
           render() {
-            return `Delete data successfully `;
+            return `Assign data successfully `;
           },
         },
         error: {
           render({ data }) {
-
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
@@ -128,7 +158,7 @@ export default function AxiosWarehouse() {
         pending: "Request in progress...",
         success: {
           render() {
-            return `Delete data successfully `;
+            return `Assign data successfully `;
           },
         },
         error: {
@@ -202,5 +232,7 @@ export default function AxiosWarehouse() {
     getWarehouseById,
     assignStaff,
     assignShipper,
+    updateWarehouse,
+    deleteWarehouseById,
   };
 }

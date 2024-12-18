@@ -51,17 +51,24 @@ export function Sidebar() {
       <nav className="flex flex-col flex-grow items-center text-[var(--en-vu-200)] sidebar-navigate space-y-4">
         {userInfor?.roleName === "Partner" && (
           <>
-            <NavLink to="dashboard" className="flex navigate-menu">
+            <NavLink
+              to={
+                location.pathname.toLocaleLowerCase() === "/partner"
+                  ? ""
+                  : "dashboard"
+              }
+              className="flex navigate-menu"
+            >
               <div className="sidebar-menu-container">
-                <House className="icon" weight="bold" />
+                <ChartPie  className="icon" weight="bold" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
 
             <NavLink to="inventory" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Package className="icon" weight="bold" />
-                <p className="label">{t("Inventory")}</p>
+                <Warehouse className="icon" weight="bold" />
+                <p className="label">{t("Warehouse")}</p>
               </div>
             </NavLink>
 
@@ -81,13 +88,13 @@ export function Sidebar() {
 
             <NavLink to="request" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="bold" />
+                <Note  className="icon" weight="bold" />
                 <p className="label">{t("Request")}</p>
               </div>
             </NavLink>
             <NavLink to="lots" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="bold" />
+                <Package className="icon" weight="bold" />
                 <p className="label">{t("Lots")}</p>
               </div>
             </NavLink>
@@ -123,13 +130,62 @@ export function Sidebar() {
               </div>
             </NavLink>
 
-            <NavLink to="vehiclemanage" className="flex navigate-menu">
+            <NavLink to="vehicle" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <AddressBook className="icon" />
                 <p className="label">{t("Vehicle")}</p>
               </div>
-            </NavLink>  
+            </NavLink>
+            <NavLink to="category" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Category")}</p>
+              </div>
+            </NavLink>
+          </>
+        )}
+        {userInfor?.roleName === "Admin" && (
+          <>
+            <NavLink
+              to={
+                location.pathname.toLocaleLowerCase() === "/manager"
+                  ? ""
+                  : "dashboard"
+              }
+              className="flex navigate-menu"
+            >
+              <div className="sidebar-menu-container">
+                <House className="icon" />
+                <p className="label">{t("Dashboard")}</p>
+              </div>
+            </NavLink>
 
+            <NavLink to="warehouse" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <Bag className="icon" />
+                <p className="label">{t("Warehouse")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="employee" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Employee")}</p>
+              </div>
+            </NavLink>
+
+            <NavLink to="vehicle" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Vehicle")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="category" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Category")}</p>
+              </div>
+            </NavLink>
           </>
         )}
 

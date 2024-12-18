@@ -32,6 +32,7 @@ export default function PartnerRoutes() {
           <Route path={"dashboard"} element={<OrderDashboard />} />
           <Route path={"inventory"} element={<InventoryPage />} />
           <Route path={"lots"} element={<LotsPage />} />
+          <Route path={"inventory/lots"} element={<LotsPage />} />
           <Route path={"product"} element={<ProductPage />} />
           <Route path={"order"} element={<OrderPage />} />
           <Route path={"order/create-order"} element={<CreateOrderPage />} />

@@ -39,8 +39,6 @@ export default function Mapping({
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null); // Ref for the map container div
   const routingControlRef = useRef(null);
-  console.log("Location", showLocation);
-
   const fetchCoordinates = async (address, defaultAddress) => {
     try {
       const response = await axios.get(
@@ -93,9 +91,6 @@ export default function Mapping({
       const toCoordinates = toLocation
         ? await fetchCoordinates(toLocation, defaultLocation)
         : null;
-      console.log("fromCoordinates", fromCoordinates);
-      console.log("toCoordinates", toCoordinates);
-
       // Ensure the map container is available
       if (!mapContainerRef.current) {
         console.error("Map container is not ready yet.");

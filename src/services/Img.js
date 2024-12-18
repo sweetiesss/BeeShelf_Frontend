@@ -1,4 +1,3 @@
-import { toast } from "react-toastify";
 
 import useAxiosBearer from "./CustomizeAxios";
 
@@ -9,7 +8,6 @@ export default function AxiosImg() {
 
     // Validate the file
     if (!file || !(file instanceof File)) {
-      toast.error("Invalid file. Please select a valid image.");
       throw new Error("Invalid file. Please select a valid image.");
     }
 
@@ -42,13 +40,8 @@ export default function AxiosImg() {
           "Content-Type": "multipart/form-data", // Required for file upload
         },
       });
-      toast.success("Image uploaded successfully!");
       return response.data; // Return the response for further use
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.errors?.image?.[0] ||
-        "Failed to upload image. Please try again.";
-      toast.error(errorMessage);
       console.error("Error uploading image:", error.response || error);
       throw error;
     }

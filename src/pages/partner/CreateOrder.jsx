@@ -22,7 +22,7 @@ export default function CreateOrderPage() {
   const [inventoriesShowList, setInventoriesShowList] = useState();
   const [loading, setLoading] = useState();
   const [warehouseFilter, setWareHouseFilter] = useState();
-  const [step, setStep] = useState(1);
+
   const [distance, setDistance] = useState(null); // State for storing calculated distance
   const [item, setItem] = useState({ productId: null, productAmount: null });
 
@@ -33,6 +33,7 @@ export default function CreateOrderPage() {
   const [detailWarehouse, setDetailWarehouse] = useState();
   const debounceTimeoutRef = useRef(null);
   const location = useLocation();
+  const [errors, setErrors] = useState({});
 
   const [defaultLocation, setDefaultLocation] = useState("");
 
@@ -41,9 +42,6 @@ export default function CreateOrderPage() {
     receiverPhone: "",
     receiverAddress: "",
     deliveryZoneId: "",
-    // receiverWard: "",
-    // receiverStrict: "",
-    // receiverProvince: "",
     distance: 0,
     products: [],
   };
@@ -57,75 +55,9 @@ export default function CreateOrderPage() {
   };
   const [form, setForm] = useState(baseForm);
 
-  // useEffect(() => {
-  //   const validateAndFormatLocation = async () => {
-  //     const {
-  //       receiverAddress,
-  //       receiverWard,
-  //       receiverStrict,
-  //       receiverProvince,
-  //     } = form;
-  //     if (
-  //       receiverProvince.length > 0 &&
-  //       receiverStrict.length > 0 &&
-  //       receiverWard.length > 0
-  //     ) {
-  //       setValidLocation(
-  //         `${
-  //           receiverAddress && receiverAddress + ", "
-  //         } ${receiverWard}, ${receiverStrict}, ${receiverProvince}`
-  //       );
-
-  //       setDefaultLocation(
-  //         `${receiverWard}, ${receiverStrict}, ${receiverProvince}`
-  //       );
-  //     } else setValidLocation();
-  //   };
-
-  //   validateAndFormatLocation();
-  // }, [
-  //   form.receiverAddress,
-  //   form.receiverWard,
-  //   form.receiverStrict,
-  //   form.receiverProvince,
-  // ]);
-
   useEffect(() => {
     getProductsInWareHouse();
-    // getProvinces();
   }, []);
-
-  // useEffect(() => {
-  //   getDistricts();
-  // }, [province]);
-  // useEffect(() => {
-  //   getWard();
-  // }, [strict]);
-
-  // const getProvinces = async () => {
-  //   const result = await getAddressProvincesStressWard(1, 0);
-  //   setProvinencesList(result?.data?.data);
-  //   console.log(result);
-  // };
-  // const getDistricts = async () => {
-  //   setForm((prev) => ({ ...prev, receiverStrict: "" }));
-  //   setForm((prev) => ({ ...prev, receiverWard: "" }));
-
-  //   if (province !== 0 && province) {
-  //     const result = await getAddressProvincesStressWard(2, province);
-  //     setStrictList(result?.data?.data);
-  //     console.log("district", result);
-  //   }
-  // };
-  // const getWard = async () => {
-  //   setForm((prev) => ({ ...prev, receiverWard: "" }));
-
-  //   if (strict !== 0 && strict) {
-  //     const result = await getAddressProvincesStressWard(3, strict);
-  //     setWardList(result?.data?.data);
-  //     console.log("ward", result);
-  //   }
-  // };
 
   useEffect(() => {
     filterWarehouse();
@@ -143,7 +75,7 @@ export default function CreateOrderPage() {
           warehouseMap.set(item.warehouseId, {
             warehouseId: item.warehouseId,
             warehouseName: item.warehouseName,
-            productStock: item.stock || 0, // Use initial stock value or 0 if undefined
+            productStock: item.stock || 0,
           });
         } else {
           const currentWarehouse = warehouseMap.get(item.warehouseId);
@@ -158,6 +90,51 @@ export default function CreateOrderPage() {
       setWarehouses(uniqueWarehouses);
     }
   }, [inventories]);
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!warehouse) {
+      newErrors.warehouse = t("Warehouse is required");
+    }
+
+    if (!deliveryZone) {
+      newErrors.deliveryZone = t("Delivery Zone is required");
+    }
+
+    if (!form.receiverPhone || !/^\d{10,15}$/.test(form.receiverPhone)) {
+      newErrors.receiverPhone = t("Invalid phone number");
+    }
+
+    if (!form.receiverAddress) {
+      newErrors.receiverAddress = t("Receiver Address is required");
+    }
+
+    if (form.products.length === 0) {
+      newErrors.products = t("At least one product must be added");
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  const validateProduct = () => {
+    const newErrors = {};
+
+    if (!item.productId) {
+      newErrors.productId = t("Select a product");
+    }
+
+    if (!item.productAmount || item.productAmount <= 0) {
+      newErrors.productAmount = t("Invalid product amount");
+    } else {
+      const product = inventoriesShowList.find((p) => p.id === item.productId);
+      if (product && product.stock < item.productAmount) {
+        newErrors.productAmount = t(`Only ${product.stock} available in stock`);
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+    return Object.keys(newErrors).length === 0;
+  };
 
   const filterWarehouse = () => {
     if (inventories) {
@@ -230,42 +207,13 @@ export default function CreateOrderPage() {
     setItem((prev) => ({ ...prev, [name]: parseInt(value) }));
   };
 
-  const addItem = () => {
-    console.log("item", item);
-    console.log("invnt", inventories);
-    const checkFoundDataStock = inventories.find(
-      (a) => parseInt(a.id) === parseInt(item.productId)
-    );
-    console.log("checkFoundDataStock", checkFoundDataStock);
-
-    if (item.productId && item.productAmount > 0) {
-      if (checkFoundDataStock?.stock >= item.productAmount) {
-        const productFounded = form?.products?.find(
-          (pro) => parseInt(pro.productId) === parseInt(item.productId)
-        );
-        console.log("founded", productFounded);
-        if (productFounded) {
-          const newProducts = form?.products?.filter(
-            (pro) => parseInt(pro.productId) !== parseInt(item.productId)
-          );
-          const newPro = {
-            productId: productFounded.productId,
-            productAmount: productFounded.productAmount + item.productAmount,
-          };
-          setForm((prev) => ({
-            ...prev,
-            products: [...newProducts, newPro],
-          }));
-        } else {
-          setForm((prev) => ({
-            ...prev,
-            products: [...prev.products, item],
-          }));
-        }
-        setItem({ productId: 0, productAmount: 0 });
-      } else {
-        toast.warning("Stock in warehouse is not enough");
-      }
+  const handleItemAdd = () => {
+    if (validateProduct()) {
+      setForm((prev) => ({
+        ...prev,
+        products: [...prev.products, item],
+      }));
+      setItem({ productId: null, productAmount: null });
     }
   };
 
@@ -282,14 +230,21 @@ export default function CreateOrderPage() {
     try {
       setLoading(true);
       e.preventDefault();
+      if (!validateForm()) {
+        return;
+      }
       console.log("Order Created:", form);
       const submitForm = {
         ...form,
-        deliveryZoneId: parseInt(defaultLocation?.id),
+        deliveryZoneId: parseInt(deliveryZone?.id),
         distance: parseFloat(distance),
       };
-      const result = await createOrder(submitForm, warehouse?.warehouseId);
-      console.log(result);
+      const result = await createOrder(
+        submitForm,
+        warehouse?.warehouseId,
+        true
+      );
+      console.log(submitForm);
       setForm(baseForm);
     } catch (e) {
       console.log(e);
@@ -301,13 +256,20 @@ export default function CreateOrderPage() {
     try {
       setLoading(true);
       e.preventDefault();
+      if (!validateForm()) {
+        return;
+      }
       console.log("Order Created:", form);
       const submitForm = {
         ...form,
-        deliveryZoneId: parseInt(defaultLocation?.id),
+        deliveryZoneId: parseInt(deliveryZone?.id),
         distance: parseFloat(distance),
       };
-      const result = await createOrder(submitForm, warehouse?.warehouseId);
+      const result = await createOrder(
+        submitForm,
+        warehouse?.warehouseId,
+        false
+      );
       console.log(result);
       setForm(baseForm);
     } catch (e) {
@@ -336,7 +298,6 @@ export default function CreateOrderPage() {
                   menu: (provided) => ({
                     ...provided,
 
-                    // Restrict the dropdown height
                     overflowY: "hidden", // Enable scrolling for content
                   }),
                   menuList: (provided) => ({
@@ -367,7 +328,7 @@ export default function CreateOrderPage() {
                     textAlign: "left", // Center-align text
                   }),
                 }}
-                value={warehouse} // Map string to object
+                value={warehouse ? warehouse : null} // Map string to object
                 onChange={(selectedOption) => setWarehouse(selectedOption)}
                 options={warehouses}
                 formatOptionLabel={(selectedOption) => (
@@ -378,44 +339,114 @@ export default function CreateOrderPage() {
                 getOptionValue={(option) => option.warehouseId}
                 getOptionLabel={(option) => option.warehouseName}
               />
+              {errors.warehouse && (
+                <p className="text-red-500 text-base font-medium mt-2">
+                  {errors.warehouse}
+                </p>
+              )}
             </div>
             <div>
               <label className="block  font-medium text-gray-700">
                 {t("Products")}
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <select
-                  className="text-black border border-gray-300 p-2 rounded-md"
-                  onChange={handleItemChange}
-                  name="productId"
-                  value={item.productId}
-                >
-                  <option key={0} value={0}>
-                    Select products
-                  </option>
-                  {inventoriesShowList?.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.productName}/{item.stock}
-                    </option>
-                  ))}
-                </select>
+              <div className="grid grid-cols-8 gap-4 items-center">
+                <Select
+                  className="col-span-5"
+                  styles={{
+                    menu: (provided) => ({
+                      ...provided,
+                      overflowY: "hidden", // Enable scrolling for content
+                    }),
+                    menuList: (provided) => ({
+                      ...provided,
+                      padding: 0, // Ensure no extra padding
+                      maxHeight: "11.5rem",
+                      overflow: "auto",
+                    }),
+                    control: (baseStyles) => ({
+                      ...baseStyles,
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      boxShadow: "none",
+                      "&:hover": {
+                        border: "1px solid #888",
+                      },
+                    }),
+                    option: (baseStyles, { isFocused, isSelected }) => ({
+                      ...baseStyles,
+                      backgroundColor: isSelected
+                        ? "var(--Xanh-Base)"
+                        : isFocused
+                        ? "var(--Xanh-100)"
+                        : "white",
+                      color: isSelected ? "white" : "black",
+                      cursor: "pointer",
+                      padding: "0.5rem 1rem", // Option padding
+                      textAlign: "left", // Center-align text
+                    }),
+                  }}
+                  value={
+                    item.productId
+                      ? inventoriesShowList?.find(
+                          (product) =>
+                            parseInt(product.id) === parseInt(item.productId)
+                        )
+                      : null
+                  } // Map string to object
+                  onChange={(selectedOption) => {
+                    setItem((prev) => ({
+                      ...prev,
+                      productId: selectedOption.id,
+                    }));
+                  }}
+                  options={inventoriesShowList?.map((product) => ({
+                    ...product,
+                    value: product.id,
+                  }))} // Map options with stock info
+                  formatOptionLabel={(option, { context }) =>
+                    context === "menu" ? (
+                      <div className="gap-4">
+                        <p>{option.productName}</p>
+                        <p className="text-gray-500">
+                          {option.stock + " stocks in " + option?.warehouseName}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="gap-4">
+                        <p>
+                          {option.productName}
+                          <span className="text-gray-500 text-sm">
+                            {" (" + option.stock + " stocks available)"}
+                          </span>
+                        </p>
+                      </div>
+                    )
+                  }
+                  placeholder={t("Select Product")}
+                />
+
                 <input
                   type="number"
                   name="productAmount"
                   placeholder={t("productAmount")}
                   value={item.productAmount}
                   onChange={handleItemChange}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
+                  className="col-span-2 mt-1 block w-full border-[1px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
                   required
                 />
                 <button
                   type="button"
-                  onClick={addItem}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
+                  onClick={handleItemAdd}
+                  className="bg-[var(--Xanh-Base)] text-white px-4 py-2 rounded-md shadow hover:bg-green-700 transition"
                 >
-                  {t("Add Item")}
+                  {t("+")}
                 </button>
               </div>
+              {errors.products && (
+                <p className="text-red-500 text-base font-medium mt-2">
+                  {errors.products}
+                </p>
+              )}
             </div>
             <ul className="mt-10 space-y-2 overflow-auto h-fit max-h-[10rem]">
               {form?.products &&
@@ -463,83 +494,16 @@ export default function CreateOrderPage() {
               className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
               required
             />
+            {errors.receiverPhone && (
+              <p className="text-red-500 text-base font-medium mt-2">
+                {errors.receiverPhone}
+              </p>
+            )}
           </div>
           <div>
             <label className="block  font-medium text-gray-700">
               {t("Receiver Address")}
             </label>
-
-            {/* <div className="flex justify-between mt-4 items-center">
-              <div>
-                <select
-                  className="border-b-2 border-[var(--en-vu-500-disable)]"
-                  value={province}
-                  onChange={(e) => {
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverProvince: "",
-                      receiverStrict: "",
-                      receiverWard: "",
-                    }));
-                    setProvinences(e.target.value);
-                    const provinceName = provinceList.find(
-                      (item) => item?.id == e.target.value
-                    );
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverProvince: provinceName?.full_name,
-                    }));
-                  }}
-                >
-                  <option value={0}>Select Province</option>
-                  {provinceList?.map((pro) => (
-                    <option value={pro?.id}>{pro?.full_name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <select
-                  className="border-b-2 border-[var(--en-vu-500-disable)]"
-                  value={strict}
-                  onChange={(e) => {
-                    setStrict(e.target.value);
-                    const stirctName = strictList.find(
-                      (item) => item?.id == e.target.value
-                    );
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverStrict: stirctName?.full_name,
-                    }));
-                  }}
-                >
-                  <option value={0}>Select Districts</option>
-                  {strictList?.map((pro) => (
-                    <option value={pro?.id}>{pro?.full_name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <select
-                  className="border-b-2 border-[var(--en-vu-500-disable)]"
-                  value={ward}
-                  onChange={(e) => {
-                    setWard(e.target.value);
-                    const wardName = wardList.find(
-                      (item) => item?.id == e.target.value
-                    );
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverWard: wardName?.full_name,
-                    }));
-                  }}
-                >
-                  <option value={0}>Select Ward</option>
-                  {wardList?.map((pro) => (
-                    <option value={pro?.id}>{pro?.full_name}</option>
-                  ))}
-                </select>
-              </div>
-            </div> */}
             <div className="flex items-center gap-4">
               <input
                 type="text"
@@ -604,14 +568,14 @@ export default function CreateOrderPage() {
                 {detailWarehouse?.deliveryZones[0]?.provinceName}
               </div>
             </div>
+            {(errors.receiverAddress || errors?.deliveryZone) && (
+              <p className="text-red-500 text-base font-medium mt-2">
+                {errors.receiverAddress}
+              </p>
+            )}
           </div>
 
           <div className="flex justify-between space-x-4 mt-6 items-center">
-            {distance && (
-              <p className="mt-4 text-lg">
-                {t("Distance")}: {distance.toFixed(3)} {"km"}
-              </p>
-            )}
             <div className="flex justify-between w-full gap-8">
               <button
                 type="button"
@@ -627,6 +591,7 @@ export default function CreateOrderPage() {
               <div className="flex gap-8">
                 <button
                   type="submit"
+                  disabled={loading}
                   className="bg-gray-500 text-white px-4 py-2 rounded-md shadow hover:bg-gray-600 transition"
                   onClick={handeSaveAsDraft}
                 >
@@ -634,7 +599,8 @@ export default function CreateOrderPage() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
+                  disabled={loading}
+                  className="bg-[var(--Xanh-Base)] text-white px-4 py-2 rounded-md shadow hover:bg-green-700 transition"
                   onClick={handleSubmit}
                 >
                   {t("CreateOrder")}

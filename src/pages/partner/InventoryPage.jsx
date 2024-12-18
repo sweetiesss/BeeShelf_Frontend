@@ -28,8 +28,10 @@ import AxiosOthers from "../../services/Others";
 import { WarehouseListSkeleton } from "../shared/SkeletonLoader";
 import { addMonths, format } from "date-fns";
 import SpinnerLoading from "../../component/shared/Loading";
+import { useLocation } from "react-router-dom";
 
 export default function InventoryPage() {
+  const location = useLocation();
   const [warehouses, setWareHouses] = useState();
   const [warehousesOwned, setWareHousesOwned] = useState();
   const [warehousesShowList, setWareHouseShowList] = useState();
@@ -50,7 +52,8 @@ export default function InventoryPage() {
 
   const [sortCriteria, setSortCriteria] = useState(null);
 
-  const { userInfor, setRefrestAuthWallet } = useAuth();
+
+  const { userInfor, setRefrestAuthWallet, authWallet } = useAuth();
   const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
   const { updateDataDetail, updateTypeDetail, refresh, setRefresh } =
     useDetail();
@@ -62,6 +65,7 @@ export default function InventoryPage() {
   const [monthBuyInvrentory, setMonthToBuyInventory] = useState(1);
 
   const [warehouseOnId, setWareHouseOnId] = useState(0);
+  const [errors, setErrors] = useState();
 
   const [filters, setFilters] = useState({
     name: "",
@@ -99,6 +103,20 @@ export default function InventoryPage() {
     priceFrom: 0,
     priceTo: 9999999999,
   };
+  useEffect(() => {
+    const getBackFromLot = () => {
+      const thisLocation = location?.state;
+      if (thisLocation?.warehouseId && warehousesShowList) {
+        const result = warehousesShowList?.find(
+          (item) => item?.id === thisLocation?.warehouseId
+        );
+        if (result) {
+          setWareHouse(result);
+        }
+      }
+    };
+    getBackFromLot();
+  }, [location, warehousesShowList]);
 
   const {
     getInventory1000ByWarehouseId,
@@ -175,17 +193,35 @@ export default function InventoryPage() {
   const getProvincesAPI = async () => {
     try {
       const result = await getProvinces();
-      console.log("provinces", result);
+
       setProvinencesList(result?.data);
     } catch (e) {
       console.log(e);
     }
   };
 
-  const applyFilters = () => {
-    console.log("???", warehousesBased);
-    console.log("?????", filters);
+  const handleSetMonthToBuy = (price, data) => {
+    console.log("data", data);
 
+    const dataPrice = Math.round(parseFloat(price) * parseFloat(data));
+    setErrors("");
+    if (data < 0 || data === null || data === undefined || data === "") {
+      console.log("here");
+
+      setErrors("YouNeedAtLeast1MonthToBuyInventory");
+      setMonthToBuyInventory("");
+      return;
+    }
+    setMonthToBuyInventory(Math.floor(data));
+    console.log(dataPrice > authWallet?.totalAmount);
+
+    if (dataPrice > authWallet?.totalAmount) {
+      setErrors("NotEnoughtMoneyToDoThis");
+      return;
+    }
+  };
+
+  const applyFilters = () => {
     if (warehousesBased) {
       let filtered = [...warehousesBased];
 
@@ -198,16 +234,12 @@ export default function InventoryPage() {
       }
 
       if (filters.provinceId > 0) {
-        console.log("here");
-
         filtered = filtered.filter(
           (warehouse) => warehouse.provinceId === parseInt(filters.provinceId)
         );
       }
 
       if (filters.isCold > -1) {
-        console.log("here");
-
         filtered = filtered.filter(
           (warehouse) =>
             (filters.isCold == 1 && warehouse.isCold == 1) ||
@@ -215,8 +247,6 @@ export default function InventoryPage() {
         );
       }
       if (filters.status > -1) {
-        console.log("here");
-
         filtered = filtered.filter(
           (warehouse) =>
             (filters.status == 1 && warehouse.owned) ||
@@ -231,21 +261,14 @@ export default function InventoryPage() {
             warehouse.capacity <= filters.capacityTo
         );
       }
-      console.log("filterResult", filtered);
-
       setWareHouseShowList(filtered);
     }
   };
   const applyInventoryFilters = () => {
-    console.log("???", inventoriesBased);
-    console.log("?????", inventoryFilters);
-
     if (inventoriesBased) {
       let filtered = [...inventoriesBased];
 
       if (parseInt(inventoryFilters.status) > -1) {
-        console.log("here");
-
         filtered = filtered.filter(
           (warehouse) =>
             (parseInt(inventoryFilters.status) == 1 &&
@@ -279,8 +302,6 @@ export default function InventoryPage() {
             warehouse.price <= inventoryFilters.priceTo
         );
       }
-      console.log("filterResult", filtered);
-
       setInventoriesShowList(filtered);
     }
   };
@@ -373,8 +394,6 @@ export default function InventoryPage() {
   };
 
   const getWareHouseList = () => {
-    console.log("owned", warehousesOwned);
-
     const warehousesOwnedList = warehousesOwned?.data || [];
     const result =
       warehouses?.data?.items?.filter(
@@ -397,9 +416,6 @@ export default function InventoryPage() {
     }));
 
     const combinedProvincesList = [...filterProvinces];
-
-    console.log(combinedProvincesList); // Debug log to verify the output
-
     const combinedList = [...filteredWarehousesOwned, ...result];
 
     setProvinencesAvailableList(combinedProvincesList);
@@ -448,7 +464,6 @@ export default function InventoryPage() {
       ) || [];
 
     const combinedList = [...inventoriesOwnedList, ...result];
-    console.log("inventory list", combinedList);
     setInventoriesBased(combinedList);
     setInventoriesShowList(combinedList);
   };
@@ -459,6 +474,11 @@ export default function InventoryPage() {
   };
   const handleConfirmBuyInventory = async () => {
     try {
+      setLoading(true);
+
+      if (errors?.length > 0) {
+        return;
+      }
       const result = await buyInventory(
         inventory.id,
         userInfor.id,
@@ -467,7 +487,6 @@ export default function InventoryPage() {
       if (result?.status == 200) {
         handleCancelBuyInventory();
         setRefetchingInventory((prev) => !prev);
-        setLoading(true);
         getBackWareHouseIsInding();
         setWareHouseOnId(warehouse?.id);
         setRefrestAuthWallet((prev) => !prev);
@@ -506,15 +525,10 @@ export default function InventoryPage() {
     }
   };
   const getDetailInventory = () => {
-    console.log("ownedInventory", inventoriesOwned);
-    console.log("refresh", refresh);
-
     if (refresh > -1) {
       const result = inventoriesOwned?.data?.items.find(
         (item) => item.id === parseInt(refresh)
       );
-      console.log("result refreshing", result);
-
       if (result) {
         updateDataDetail(result);
         updateTypeDetail("inventory");
@@ -602,7 +616,7 @@ export default function InventoryPage() {
                     onChange={handleFilterChange}
                     disabled={loading}
                   >
-                    <option value={0}>All</option>
+                    <option value={0}>{t("All")}</option>
                     {provinceAvailableList.map(
                       (item) =>
                         item?.haveWarehouse && (
@@ -615,7 +629,7 @@ export default function InventoryPage() {
                 </div>
               </div>
               <div className="flex items-center w-fit">
-                <p className="text-lg font-medium mr-4">{t("Is Cold")}</p>
+                <p className="text-lg font-medium mr-4">{t("Frozen")}</p>
                 <div
                   className={`flex items-center border border-gray-300 rounded-2xl px-4 py-1 overflow-hidden w-fit  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
                     filters.isCold > -1
@@ -631,9 +645,9 @@ export default function InventoryPage() {
                     onChange={handleFilterChange}
                     disabled={loading}
                   >
-                    <option value={-1}>All</option>
-                    <option value={0}>Normal Warehouse</option>
-                    <option value={1}>Cold Warehouse</option>
+                    <option value={-1}>{t("All")}</option>
+                    <option value={0}>{t("NormalWarehouse")}</option>
+                    <option value={1}>{t("ColdWarehouse")}</option>
                   </select>
                 </div>
               </div>
@@ -656,9 +670,9 @@ export default function InventoryPage() {
                     value={filters?.status}
                     disabled={loading}
                   >
-                    <option value={-1}>All</option>
-                    <option value={0}>Not Bought</option>
-                    <option value={1}>Bought</option>
+                    <option value={-1}>{t("All")}</option>
+                    <option value={0}>{t("NotHired")}</option>
+                    <option value={1}>{t("Hired")}</option>
                   </select>
                 </div>
               </div>
@@ -722,9 +736,9 @@ export default function InventoryPage() {
                     onChange={handleInventoryFilterChange}
                     disabled={loading}
                   >
-                    <option value={-1}>All</option>
-                    <option value={0}>Not Hired</option>
-                    <option value={1}>Hired</option>
+                    <option value={-1}>{t("All")}</option>
+                    <option value={0}>{t("NotHired")}</option>
+                    <option value={1}>{t("Hired")}</option>
                   </select>
                 </div>
               </div>
@@ -872,11 +886,11 @@ export default function InventoryPage() {
                     onClick: () => handleOpenGoogleMaps(warehouse?.location),
                   },
                   {
-                    label: "Invetories:",
+                    label: t("Inventories") + ":",
                     value:
                       warehouse?.isCold === 0
-                        ? "Only normal inventories"
-                        : "Only cold inventories",
+                        ? t("OnlyNormalInventories")
+                        : t("OnlyFrozenInventories"),
                   },
                   {
                     label: t("Capacity") + ":",
@@ -906,7 +920,7 @@ export default function InventoryPage() {
                 ))}
               </div>
               <div className=" w-full h-1/2 flex items-center justify-start z-[10] ">
-                <Mapping showLocation={warehouse}/>
+                <Mapping showLocation={warehouse} />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 col-span-3 overflow-auto row-span-11  items-start ">
@@ -938,7 +952,9 @@ export default function InventoryPage() {
               >
                 <XCircle fill="#ef4444" weight="fill" />
               </div>
-              <p className="text-2xl">{`${t("BuyingInventory")}: ${inventory.name}?`}</p>
+              <p className="text-2xl">{`${t("BuyingInventory")}: ${
+                inventory.name
+              }?`}</p>
               <div className="flex items-center justify-between my-7">
                 <div
                   className={`flex items-center overflow-auto py-2 px-4 w-fit border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
@@ -951,26 +967,29 @@ export default function InventoryPage() {
                     type="number"
                     className="outline-none w-[5rem]"
                     value={monthBuyInvrentory}
-                    onChange={(e) => setMonthToBuyInventory(e.target.value)}
+                    step={1}
+                    onChange={(e) =>
+                      handleSetMonthToBuy(inventory?.price, e.target.value)
+                    }
                   ></input>
 
                   <p>{t("Months")}</p>
                 </div>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
-                  onClick={() => setMonthToBuyInventory(6)}
+                  onClick={() => handleSetMonthToBuy(inventory?.price, 6)}
                 >
                   6 {t("Months")}
                 </button>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
-                  onClick={() => setMonthToBuyInventory(12)}
+                  onClick={() => handleSetMonthToBuy(inventory?.price, 12)}
                 >
                   1 {t("Year")}
                 </button>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
-                  onClick={() => setMonthToBuyInventory(24)}
+                  onClick={() => handleSetMonthToBuy(inventory?.price, 24)}
                 >
                   2 {t("Years")}
                 </button>
@@ -984,7 +1003,9 @@ export default function InventoryPage() {
                 </div>
 
                 <div className="col-span-2 text-gray-500">{t("Total")}</div>
-                <div className="col-span-2">{new Intl.NumberFormat().format(inventory?.maxWeight)} kg</div>
+                <div className="col-span-2">
+                  {new Intl.NumberFormat().format(inventory?.maxWeight)} kg
+                </div>
                 <div className="col-span-2">
                   {new Intl.NumberFormat().format(inventory?.price) + " vnd"}
                 </div>
@@ -1010,6 +1031,9 @@ export default function InventoryPage() {
                     )}
                   </p>
                 </div>
+                <div className="col-span-8 text-red-500">
+                  <div className="">{t(errors)}</div>
+                </div>
               </div>
               <div className="flex justify-end gap-4">
                 <button
@@ -1020,6 +1044,7 @@ export default function InventoryPage() {
                 </button>
                 <button
                   onClick={handleConfirmBuyInventory}
+                  disabled={errors?.length > 0 || loading}
                   className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                 >
                   {t("Confirm")}

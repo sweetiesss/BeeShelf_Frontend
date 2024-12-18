@@ -51,7 +51,7 @@ function App() {
               path="/admin/*"
               element={
                 <RoleProvider allowedRoles={["Admin"]}>
-                  <AdminRoutes />
+                  <ManagerRoutes />
                 </RoleProvider>
               }
             />
@@ -63,7 +63,7 @@ function App() {
                 </RoleProvider>
               }
             />
-             <Route
+            <Route
               path="/staff/*"
               element={
                 <RoleProvider allowedRoles={["Staff", "User"]}>
@@ -71,10 +71,10 @@ function App() {
                 </RoleProvider>
               }
             />
-             <Route
+            <Route
               path="/manager/*"
               element={
-                <RoleProvider allowedRoles={["User", "Manager"]}>
+                <RoleProvider allowedRoles={["Manager"]}>
                   <ManagerRoutes />
                 </RoleProvider>
               }

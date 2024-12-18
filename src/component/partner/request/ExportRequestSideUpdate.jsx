@@ -11,10 +11,10 @@ import AxiosRequest from "../../../services/Request";
 import Select from "react-select";
 import { differenceInDays, format } from "date-fns";
 
-export default function ExportRequestSide({
+export default function ExportRequestSideUpdate({
   productsImported,
   inventories,
-  products,
+  updateDataBased,
 }) {
   const { userInfor } = useContext(AuthContext);
   const [typeRequest, setTypeRequest] = useState("Import");
@@ -39,9 +39,40 @@ export default function ExportRequestSide({
   };
   const [form, setForm] = useState(baseForm);
   const [loading, setLoading] = useState(false);
-  const { createRequest } = AxiosRequest();
+  const { updateRequest } = AxiosRequest();
   const { t } = useTranslation();
 
+  console.log("form", form);
+  console.log("updateDataBased", updateDataBased);
+
+  useEffect(() => {
+    if (productsImported && updateDataBased) {
+      console.log("check");
+      console.log(productsImported?.items);
+      console.log(updateDataBased?.lot?.id);
+      
+      
+      console.log(
+        productsImported?.items?.find(
+          (item) => item?.id === updateDataBased?.lot?.id
+        )
+      );
+      setForm({
+        ocopPartnerId: userInfor?.id,
+        name: updateDataBased?.name || "",
+        description: updateDataBased?.description || "",
+        exportFromLotId: updateDataBased?.lot?.id || 0,
+        sendToInventoryId: updateDataBased?.sendToInventoryId || 0,
+        lot: {
+          lotNumber: updateDataBased?.lot?.lotNumber || "",
+          name: updateDataBased?.lot?.name || "",
+          lotAmount: updateDataBased?.lot?.lotAmount || 0,
+          productId: updateDataBased?.lot?.productId || 0,
+          productPerLot: updateDataBased?.lot?.productPerLot || 0,
+        },
+      });
+    }
+  }, [productsImported, updateDataBased]);
   // Handle input changes
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -73,7 +104,7 @@ export default function ExportRequestSide({
     console.log(updatedForm);
 
     try {
-      const result = await createRequest(updatedForm, "Export", send);
+      const result = await updateRequest(updatedForm, "Export", send);
     } catch (error) {
       console.error("Error submitting request:", error);
     }
@@ -142,57 +173,6 @@ export default function ExportRequestSide({
             onChange={handleInput}
           />
         </div>
-        {selectedProduct ? (
-          <div
-            className={`  relative text-base h-fit gap-4 grid grid-cols-6 items-end  border-2 p-4 px-6 shadow-lg `}
-          >
-            <div className="col-span-1 h-[6rem] w-[6rem] overflow-hidden">
-              <img
-                className="w-full h-full object-cover object-center rounded-lg border-2 "
-                src={selectedProduct?.productPictureLink}
-              />
-            </div>
-            <div className="col-span-3 h-full  flex flex-col items-start py-2  justify-between">
-              <p className="text-lg">
-                <span className="font-medium">{t("Lot")}: </span>
-                {selectedProduct?.name}
-              </p>
-              <p className="text-gray-400">
-                <span className="font-medium">{t("Product")}: </span>
-                {selectedProduct?.productName}
-              </p>
-              <p className="text-gray-400">
-                <span className="font-medium">{t("Warehouse") + ": "}</span>
-                {selectedProduct?.warehouseName}
-              </p>
-            </div>
-            <div className=" text-gray-400 col-span-2 text-end">
-              <p>
-                {selectedProduct?.expirationDate
-                  ? `${differenceInDays(
-                      new Date(selectedProduct.expirationDate),
-                      new Date()
-                    )} ${t("days")} ( ${format(
-                      selectedProduct?.expirationDate,
-                      "dd/MM/yyyy"
-                    )} )`
-                  : "N/A"}
-              </p>
-            </div>
-            <div
-              className="absolute top-[0rem] right-[0.1rem] text-2xl  w-[4rem] h-[4rem] flex items-center justify-center text-gray-400 hover:text-black cursor-pointer"
-              onClick={() => setSelectedProduct()}
-            >
-              <X weight="bold" />
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-7  relative h-[6rem] items-center border-2 border-dashed  p-4 cursor-pointer ">
-            <div className="col-start-2 col-span-5 text-center text-gray-400">
-              {t("YourProductSelection")}
-            </div>
-          </div>
-        )}
 
         <div className="flex w-full gap-10">
           <div className="form-group gap-2 w-full">
@@ -310,7 +290,57 @@ export default function ExportRequestSide({
             />
           </div>
         </div>
-
+        {selectedProduct ? (
+          <div
+            className={`  relative text-base h-fit gap-4 grid grid-cols-6 items-end  border-2 p-4 px-6 shadow-lg `}
+          >
+            <div className="col-span-1 h-[6rem] w-[6rem] overflow-hidden">
+              <img
+                className="w-full h-full object-cover object-center rounded-lg border-2 "
+                src={selectedProduct?.productPictureLink}
+              />
+            </div>
+            <div className="col-span-3 h-full  flex flex-col items-start py-2  justify-between">
+              <p className="text-lg">
+                <span className="font-medium">{t("Lot")}: </span>
+                {selectedProduct?.name}
+              </p>
+              <p className="text-gray-400">
+                <span className="font-medium">{t("Product")}: </span>
+                {selectedProduct?.productName}
+              </p>
+              <p className="text-gray-400">
+                <span className="font-medium">{t("Warehouse") + ": "}</span>
+                {selectedProduct?.warehouseName}
+              </p>
+            </div>
+            <div className=" text-gray-400 col-span-2 text-end">
+              <p>
+                {selectedProduct?.expirationDate
+                  ? `${differenceInDays(
+                      new Date(selectedProduct.expirationDate),
+                      new Date()
+                    )} ${t("days")} ( ${format(
+                      selectedProduct?.expirationDate,
+                      "dd/MM/yyyy"
+                    )} )`
+                  : "N/A"}
+              </p>
+            </div>
+            <div
+              className="absolute top-[0rem] right-[0.1rem] text-2xl  w-[4rem] h-[4rem] flex items-center justify-center text-gray-400 hover:text-black cursor-pointer"
+              onClick={() => setSelectedProduct()}
+            >
+              <X weight="bold" />
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-7  relative h-[6rem] items-center border-2 border-dashed  p-4 cursor-pointer ">
+            <div className="col-start-2 col-span-5 text-center text-gray-400">
+              {t("YourProductSelection")}
+            </div>
+          </div>
+        )}
         <div className="flex justify-between py-2 pb-4">
           <div className="space-x-10">
             <button className="bg-red-300 text-black hover:text-white px-4 py-2 rounded-md hover:bg-red-500">

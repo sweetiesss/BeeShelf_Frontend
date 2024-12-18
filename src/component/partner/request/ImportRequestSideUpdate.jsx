@@ -11,42 +11,63 @@ import AxiosRequest from "../../../services/Request";
 import Select from "react-select";
 import { differenceInDays, format } from "date-fns";
 
-export default function ImportRequestSide({ inventories, products }) {
+export default function ImportRequestSideUpdate({
+  inventories,
+  products,
+  updateDataBased,
+}) {
   const { userInfor } = useContext(AuthContext);
-  const [product, setProduct] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [product, setProduct] = useState();
 
-  const [selectedProductImported, setSelectedProductImported] = useState();
-  const [inventory, setInventory] = useState();
+  const [selectedProduct, setSelectedProduct] = useState(
+    products.find((item) => item?.id === updateDataBased?.lot?.productId)
+  );
+  const [inventory, setInventory] = useState({
+    id: updateDataBased?.sendToInventoryId,
+  });
+  useEffect(() => {
+    if (products && updateDataBased) {
+      setProduct(
+        products.find((item) => item?.id === updateDataBased?.lot?.productId)
+      );
+      setSelectedProduct(
+        products.find((item) => item?.id === updateDataBased?.lot?.productId)
+      );
+      setForm({
+        ocopPartnerId: userInfor?.id,
+        name: updateDataBased?.name || "",
+        description: updateDataBased?.description || "",
+        exportFromLotId: 0,
+        sendToInventoryId: updateDataBased?.sendToInventoryId || 0,
+        lot: {
+          lotNumber: updateDataBased?.lot?.lotNumber || "",
+          name: updateDataBased?.lot?.name || "",
+          lotAmount: updateDataBased?.lot?.lotAmount || 0,
+          productId: updateDataBased?.lot?.productId || 0,
+          productPerLot: updateDataBased?.lot?.productPerLot || 0,
+        },
+      });
+    }
+  }, [products, updateDataBased]);
 
   const baseForm = {
     ocopPartnerId: userInfor?.id,
-    name: "",
-    description: "",
+    name: updateDataBased?.name || "",
+    description: updateDataBased?.description || "",
     exportFromLotId: 0,
-    sendToInventoryId: 0,
+    sendToInventoryId: updateDataBased?.sendToInventoryId || 0,
     lot: {
-      lotNumber: "",
-      name: "",
-      lotAmount: null,
-      productId: 0,
-      productPerLot: null,
-    },
-  };
-  const exportBaseForm = {
-    ocopPartnerId: userInfor?.id,
-    name: "",
-    description: "",
-    exportFromLotId: 0,
-    sendToInventoryId: 0,
-    lot: {
-      lotAmount: null,
+      lotNumber: updateDataBased?.lot?.lotNumber || "",
+      name: updateDataBased?.lot?.name || "",
+      lotAmount: updateDataBased?.lot?.lotAmount || 0,
+      productId: updateDataBased?.lot?.productId || 0,
+      productPerLot: updateDataBased?.lot?.productPerLot || 0,
     },
   };
 
   const [form, setForm] = useState(baseForm);
   const [loading, setLoading] = useState(false);
-  const { createRequest } = AxiosRequest();
+  const { createRequest, updateRequest } = AxiosRequest();
   const { t } = useTranslation();
 
   // Handle input changes
@@ -68,20 +89,9 @@ export default function ImportRequestSide({ inventories, products }) {
   };
 
   // Handle confirm
-  const handleConfirm = async (send) => {
-    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Generate unique timestamp
-    const updatedForm = {
-      ...form,
-      sendToInventoryId: parseInt(inventory?.id),
-      lot: {
-        ...form.lot,
-        productId: parseInt(selectedProduct?.id),
-        lotNumber: `${form.lot.productId}-${currentDateTime}`, // Lot number format
-        name: `${product?.name || "Unnamed"}-${userInfor?.name || "User"}`, // Lot name format
-      },
-    };
+  const handleConfirm = async () => {
     try {
-      const result = await createRequest(updatedForm, "Import", send);
+      const result = await updateRequest(form, updateDataBased?.id);
     } catch (error) {
       console.error("Error submitting request:", error);
     }
@@ -101,20 +111,25 @@ export default function ImportRequestSide({ inventories, products }) {
     }
     setInventory();
   };
-  const handleSlectImportedProduct = (pro) => {
-    const selectedImportProduct = products.find((item) => item?.id === pro?.id);
-    setSelectedProduct(selectedImportProduct);
-    setSelectedProductImported(pro);
-  };
 
   const handleReset = () => {
     setForm(baseForm);
-    setSelectedProduct();
-    setInventory();
-    setSelectedProductImported();
+    if (updateDataBased) {
+      setProduct(
+        products.find((item) => item?.id === updateDataBased?.lot?.productId)
+      );
+      setSelectedProduct(
+        products.find((item) => item?.id === updateDataBased?.lot?.productId)
+      );
+      setInventory({ id: updateDataBased?.sendToInventoryId });
+    } else {
+      setSelectedProduct();
+      setInventory();
+    }
   };
 
-  console.log("products", selectedProductImported);
+  console.log("form", form);
+
   return (
     <div className="flex gap-10 justify-start items-start">
       <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[48rem]">
@@ -151,59 +166,6 @@ export default function ImportRequestSide({ inventories, products }) {
             value={form.description}
             onChange={handleInput}
           />
-        </div>
-        {selectedProduct ? (
-          <div className="grid grid-cols-7  relative h-[6rem] items-center border-2   p-4 shadow-lg  ">
-            <div className="col-span-1 h-[4rem] w-[4rem] overflow-hidden">
-              <img
-                className="w-full h-full object-cover object-center border-2 "
-                src={selectedProduct?.pictureLink}
-              />
-            </div>
-            <div className="grid-rows-2 col-span-6">
-              <div>{selectedProduct?.name}</div>
-              <div className="text-gray-400">
-                {selectedProduct?.productCategoryName}
-              </div>
-            </div>
-            <div
-              className="absolute top-[1rem] right-[1.5rem] text-2xl  w-[4rem] h-[4rem] flex items-center justify-center text-gray-400 hover:text-black cursor-pointer"
-              onClick={() => setSelectedProduct()}
-            >
-              <X weight="bold" />
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-7  relative h-[6rem] items-center border-2 border-dashed  p-4 cursor-pointer ">
-            <div className="col-start-2 col-span-5 text-center text-gray-400">
-              {t("YourProductSelection")}
-            </div>
-          </div>
-        )}
-
-        <div className="flex w-full gap-10">
-          <div className="form-group gap-2 w-full">
-            <label>{t("AmountofLot")}</label>
-            <input
-              className="outline-none border-2 py-2 px-4 focus-within:border-black"
-              type="number"
-              name="lot.lotAmount"
-              value={form?.lot?.lotAmount || ""}
-              onChange={handleInput}
-            />
-          </div>
-          <div className="form-group gap-2 w-full">
-            <label className="text-[var(--en-vu-600)] font-normal">
-              {t("AmountofProductPerLot")}
-            </label>
-            <input
-              className="outline-none border-2 py-2 px-4 focus-within:border-black"
-              type="number"
-              name="lot.productPerLot"
-              value={form?.lot?.productPerLot || ""}
-              onChange={handleInput}
-            />
-          </div>
         </div>
         <div className="form-group gap-2">
           <label className="text-[var(--en-vu-600)] font-normal">
@@ -257,10 +219,7 @@ export default function ImportRequestSide({ inventories, products }) {
             )}
             formatOptionLabel={(selectedOption) => (
               <div className="">
-                <div className="flex gap-4 ">
-                  <p>{selectedOption?.name}</p>
-                  <p className="text-sm text-gray-500">{"(" + selectedOption?.warehouseName + ")"}</p>
-                </div>
+                <p>{selectedOption?.name}</p>
                 <div
                   className={`flex items-center justify-between text-sm text-gray-500`}
                 >
@@ -301,6 +260,58 @@ export default function ImportRequestSide({ inventories, products }) {
             placeholder={"ChooseProductFirst..."}
           />
         </div>
+        <div className="flex w-full gap-10">
+          <div className="form-group gap-2 w-full">
+            <label>{t("AmountofLot")}</label>
+            <input
+              className="outline-none border-2 py-2 px-4 focus-within:border-black"
+              type="number"
+              name="lot.lotAmount"
+              value={form?.lot?.lotAmount || ""}
+              onChange={handleInput}
+            />
+          </div>
+          <div className="form-group gap-2 w-full">
+            <label className="text-[var(--en-vu-600)] font-normal">
+              {t("AmountofProductPerLot")}
+            </label>
+            <input
+              className="outline-none border-2 py-2 px-4 focus-within:border-black"
+              type="number"
+              name="lot.productPerLot"
+              value={form?.lot?.productPerLot || ""}
+              onChange={handleInput}
+            />
+          </div>
+        </div>
+        {selectedProduct ? (
+          <div className="grid grid-cols-7  relative h-[6rem] items-center border-2   p-4 shadow-lg  ">
+            <div className="col-span-1 h-[4rem] w-[4rem] overflow-hidden">
+              <img
+                className="w-full h-full object-cover object-center border-2 "
+                src={selectedProduct?.pictureLink}
+              />
+            </div>
+            <div className="grid-rows-2 col-span-6">
+              <div>{selectedProduct?.name}</div>
+              <div className="text-gray-400">
+                {selectedProduct?.productCategoryName}
+              </div>
+            </div>
+            <div
+              className="absolute top-[1rem] right-[1.5rem] text-2xl  w-[4rem] h-[4rem] flex items-center justify-center text-gray-400 hover:text-black cursor-pointer"
+              onClick={() => setSelectedProduct()}
+            >
+              <X weight="bold" />
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-7  relative h-[6rem] items-center border-2 border-dashed  p-4 cursor-pointer ">
+            <div className="col-start-2 col-span-5 text-center text-gray-400">
+              {t("YourProductSelection")}
+            </div>
+          </div>
+        )}
         <div className="flex justify-between py-2 pb-4">
           <div className="space-x-10">
             <button className="bg-red-300 text-black hover:text-white px-4 py-2 rounded-md hover:bg-red-500">

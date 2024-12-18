@@ -1,40 +1,207 @@
-import React from 'react';
-import { Doughnut, Bar, Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
+import React, { useEffect, useState } from "react";
+import { Doughnut, Bar, Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { useAuth } from "../../../context/AuthContext";
+import AxiosPartner from "../../../services/Partner";
+import { Bag, Minus, Package, TrendDown, TrendUp } from "@phosphor-icons/react";
+import { useTranslation } from "react-i18next";
+import SpinnerLoading from "../../shared/Loading";
+import { DatePicker } from "antd";
+import dayjs from "dayjs";
+import AxiosInventory from "../../../services/Inventory";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const OrderDashboard = () => {
   // Dummy data for sales overview
+  const [allProducts, setAllProduct] = useState();
+  const [allIventories, setAllIventory] = useState();
+  const [orders, setOrders] = useState();
+  const [ordersPrevious, setOrdersPrevious] = useState();
+  const { userInfor } = useAuth();
+  const { getOrderRevunue, getAllProduct } = AxiosPartner();
+  const { getInventory1000ByUserId } = AxiosInventory();
+
+  const [revenueUpdate, setRevenueUpdate] = useState();
+  const [revenueUpdate2, setRevenueUpdate2] = useState();
+  const [totalStatusCount, setTotalStatusCount] = useState();
+  const [totalStatusCount2, setTotalStatusCount2] = useState();
+  const [loading, setLoading] = useState(false);
+  const [thisYear, setThisYear] = useState(new Date().getFullYear());
+  const { t } = useTranslation();
   const salesOverviewData = {
-    labels: ['Profit', 'Expense'],
+    labels: ["Canceled", "Completed", "Failed", "Pending", "Shipping"],
     datasets: [
       {
-        label: 'Sales Overview',
-        data: [23450, 23450],
-        backgroundColor: ['#4bc0c0', '#e5e5e5'],
+        label: "Sales Overview",
+        data: [
+          totalStatusCount?.orderStatus?.Canceled,
+          totalStatusCount?.orderStatus?.Completed,
+          totalStatusCount?.orderStatus?.Failed,
+          totalStatusCount?.orderStatus?.Pending,
+          totalStatusCount?.orderStatus?.Shipping,
+        ],
+        backgroundColor: [
+          "#F44336",
+          "#4CAF50",
+          "#FF9800",
+          "#FFEB3B",
+          "#2196F3",
+        ],
         hoverOffset: 4,
       },
     ],
   };
+  useEffect(() => {
+    const fetchBeginData = async () => {
+      try {
+        setLoading(true);
+        const result = await getOrderRevunue(userInfor?.id, thisYear);
+        const result2 = await getOrderRevunue(userInfor?.id, thisYear - 1);
+        const result3 = await getAllProduct(userInfor?.id);
+        const result4 = await getInventory1000ByUserId(userInfor?.id);
+        if (result?.status === 200 && result2?.status === 200) {
+          const getData = result?.data;
+          const getData2 = result2?.data;
+          setOrders(getData);
+          setOrdersPrevious(getData2);
+
+          const completedOrderTotals = getData.map((entry) => {
+            // Filter for Completed orders and sum their orderAmount
+            return entry.data
+              .filter((order) => order.orderStatus === "Completed")
+              .reduce((sum, order) => sum + order.amount, 0);
+          });
+          const completedOrderTotals2 = getData2.map((entry) => {
+            // Filter for Completed orders and sum their orderAmount
+            return entry.data
+              .filter((order) => order.orderStatus === "Completed")
+              .reduce((sum, order) => sum + order.amount, 0);
+          });
+          setRevenueUpdate(completedOrderTotals);
+          setRevenueUpdate2(completedOrderTotals2);
+          setTotalStatusCount(calculateOrderStatuses(getData));
+          setTotalStatusCount2(calculateOrderStatuses(getData2));
+        }
+        if (result3?.status === 200) {
+          setAllProduct(result3?.data);
+        }
+        if (result4?.status === 200) {
+          setAllIventory(result4?.data);
+        }
+      } catch (e) {
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBeginData();
+  }, [thisYear]);
+
+  console.log(allProducts);
+  console.log(allIventories);
+  console.log("totalStatusCount", totalStatusCount);
+  console.log("totalStatusCount2", totalStatusCount2);
+  console.log("revenueUpdate", revenueUpdate);
+  console.log("revenueUpdate2", revenueUpdate2);
 
   const salesOverviewOptions = {
     plugins: {
       legend: { display: false },
-      tooltip: { callbacks: { label: (tooltipItem) => `$${tooltipItem.raw.toLocaleString()}` } },
+      tooltip: {
+        callbacks: {
+          label: (tooltipItem) => `${tooltipItem.raw.toLocaleString()} orders`,
+        },
+      },
     },
   };
 
   // Dummy data for revenue updates
   const revenueUpdateData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    labels: [
+      t("Jan"),
+      t("Feb"),
+      t("Mar"),
+      t("Apr"),
+      t("May"),
+      t("Jun"),
+      t("Jul"),
+      t("Aug"),
+      t("Sep"),
+      t("Oct"),
+      t("Nov"),
+      t("Dec"),
+    ],
     datasets: [
       {
-        label: 'Revenue',
-        data: [45, 60, 55, 40, 70, 80, 50],
-        backgroundColor: '#4c5df1',
+        label: "vnd",
+        data: revenueUpdate,
+        backgroundColor: "#0db977",
       },
     ],
+  };
+  const calculateOrderStatuses = (data) => {
+    const statusCount = {
+      Canceled: 0,
+      Completed: 0,
+      Failed: 0,
+      Shipping: 0,
+      Pending: 0,
+    };
+    const statusSales = {
+      Canceled: 0,
+      Completed: 0,
+      Failed: 0,
+      Shipping: 0,
+      Pending: 0,
+    };
+
+    let totalOrder = 0;
+    let totalSales = 0;
+
+    // Loop through months
+    data.forEach((month) => {
+      month.data.forEach((order) => {
+        // Add up order statuses
+        statusCount[order.orderStatus] += order?.orderAmount || 0;
+        statusSales[order.orderStatus] += order?.amount || 0;
+
+        // Sum total orders and sales for Completed status
+        if (order.orderStatus === "Completed") {
+          totalOrder += order.orderAmount || 0;
+          totalSales += order.amount || 0;
+        }
+      });
+    });
+
+    const result = {
+      orderStatus: { ...statusCount },
+      orderSales: { ...statusSales },
+      totalOrder,
+      totalSales,
+    };
+
+    return result; // Set the state
   };
 
   const revenueUpdateOptions = {
@@ -48,21 +215,34 @@ const OrderDashboard = () => {
 
   // Dummy data for yearly sales
   const yearlySalesData = {
-    labels: ['2022', '2023'],
+    labels: [
+      t("Jan"),
+      t("Feb"),
+      t("Mar"),
+      t("Apr"),
+      t("May"),
+      t("Jun"),
+      t("Jul"),
+      t("Aug"),
+      t("Sep"),
+      t("Oct"),
+      t("Nov"),
+      t("Dec"),
+    ],
     datasets: [
       {
-        label: '2022 Sales',
-        data: [4476],
-        borderColor: '#b0b3ff',
-        backgroundColor: 'rgba(176, 179, 255, 0.5)',
+        label: thisYear - 1 + " " + t("Sales"),
+        data: revenueUpdate2,
+        borderColor: "#F5659C",
+        backgroundColor: "#F24688",
         fill: true,
         tension: 0.4,
       },
       {
-        label: '2023 Sales',
-        data: [5476],
-        borderColor: '#5142fc',
-        backgroundColor: 'rgba(81, 66, 252, 0.3)',
+        label: thisYear + " " + t("Sales"),
+        data: revenueUpdate,
+        borderColor: "#0a9a63",
+        backgroundColor: "#0db977",
         fill: true,
         tension: 0.4,
       },
@@ -71,61 +251,209 @@ const OrderDashboard = () => {
 
   const yearlySalesOptions = {
     plugins: {
-      legend: { position: 'bottom' },
+      legend: { position: "bottom" },
     },
     scales: {
       y: { beginAtZero: true },
     },
   };
+  const onChange = (date, dateString) => {
+    console.log("dateString", dateString);
+    if (dateString) {
+      setThisYear(dateString);
+      return;
+    }
+    setThisYear(new Date().getFullYear());
+  };
 
   return (
     <div className="p-6">
-      <h1 className="text-4xl font-bold mb-6">Order Dashboard</h1>
+      <h1 className="text-4xl font-bold mb-6">{t("Dashboard")}</h1>
+      {!loading ? (
+        <div>
+          <div className="flex gap-4 mb-8 items-center">
+            <p className="font-medium text-xl">{t("SelectYear")}</p>
+            <DatePicker
+              size="large"
+              onChange={onChange}
+              picker="year"
+              value={dayjs(String(thisYear), "YYYY")}
+            />
+          </div>
+          <div className="grid grid-cols-5 gap-6 grid-rows-2">
+            <div className="flex flex-col justify-between">
+              {(() => {
+                const total = totalStatusCount?.totalSales || 1;
+                const total2 = totalStatusCount2?.totalSales || 1;
+                if (total > total2) {
+                  const percentage = ((total2 / total) * 100).toFixed(2);
+                  return (
+                    <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
+                      <div className="h-full w-fit flex items-center text-5xl text-green-500">
+                        <TrendUp />
+                      </div>
+                      <div>
+                        <p className="text-xl font-bold">
+                          {(() => {
+                            const totalSales =
+                              totalStatusCount?.totalSales || 0;
+                            const formattedSales =
+                              totalSales > 1000000
+                                ? `${(totalSales / 1000000).toFixed(0)}m`
+                                : new Intl.NumberFormat().format(totalSales);
 
-      {/* Top Row for Sales Data */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <div className="p-4 bg-white rounded-lg shadow-lg">
-          <p className="text-xl font-bold">$34,343.00</p>
-          <p className="text-gray-500">Total Sales</p>
-        </div>
-        <div className="p-4 bg-white rounded-lg shadow-lg">
-          <p className="text-xl font-bold">$4.5k <span className="text-sm text-gray-500">(40%)</span></p>
-          <p className="text-gray-500">By Website</p>
-        </div>
-        <div className="p-4 bg-white rounded-lg shadow-lg">
-          <p className="text-xl font-bold">$2.8k <span className="text-sm text-gray-500">(25%)</span></p>
-          <p className="text-gray-500">By Mobile</p>
-        </div>
-        <div className="p-4 bg-white rounded-lg shadow-lg">
-          <p className="text-xl font-bold">$2.2k <span className="text-sm text-gray-500">(20%)</span></p>
-          <p className="text-gray-500">By Market</p>
-        </div>
-        <div className="p-4 bg-white rounded-lg shadow-lg">
-          <p className="text-xl font-bold">$1.7k <span className="text-sm text-gray-500">(15%)</span></p>
-          <p className="text-gray-500">By Agent</p>
-        </div>
-      </div>
+                            return formattedSales;
+                          })()}
+                          {" vnd "}
 
-      {/* Bottom Row for Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Sales Overview */}
-        <div className="p-4 bg-white rounded-lg shadow-lg">
-          <h2 className="text-lg font-bold mb-4">Sales Overview</h2>
-          <Doughnut data={salesOverviewData} options={salesOverviewOptions} />
-        </div>
+                          <span className="text-sm text-gray-500">
+                            {" (" + percentage + ")%"}
+                          </span>
+                        </p>
+                        <p className="text-gray-500">{t("TotalSales")}</p>
+                      </div>
+                    </div>
+                  );
+                }
+                if (total < total2) {
+                  const percentage = ((total / total2) * 100).toFixed(2);
 
-        {/* Revenue Updates */}
-        <div className="p-4 bg-white rounded-lg shadow-lg">
-          <h2 className="text-lg font-bold mb-4">Revenue Updates</h2>
-          <Bar data={revenueUpdateData} options={revenueUpdateOptions} />
-        </div>
+                  return (
+                    <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
+                      <div className="h-full w-fit flex items-center text-5xl text-red-500">
+                        <TrendDown />
+                      </div>
+                      <div>
+                        <p className="text-xl font-bold">
+                          {(() => {
+                            const totalSales =
+                              totalStatusCount?.totalSales || 0;
+                            const formattedSales =
+                              totalSales > 100000000
+                                ? `${(totalSales / 1000000).toFixed(0)}m`
+                                : new Intl.NumberFormat().format(totalSales);
 
-        {/* Yearly Sales */}
-        <div className="p-4 bg-white rounded-lg shadow-lg">
-          <h2 className="text-lg font-bold mb-4">Yearly Sales</h2>
-          <Line data={yearlySalesData} options={yearlySalesOptions} />
+                            return formattedSales;
+                          })()}
+                          {" vnd "}
+
+                          <span className="text-sm text-gray-500">
+                            {" (-" + percentage + ")%"}
+                          </span>
+                        </p>
+                        <p className="text-gray-500">{t("TotalSales")}</p>
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
+                    <div className="h-full w-fit flex items-center text-5xl text-gray-300">
+                      <Minus />
+                    </div>
+                    <div>
+                      <p className="text-xl font-bold">
+                        {(() => {
+                          const totalSales = totalStatusCount?.totalSales || 0;
+                          const formattedSales =
+                            totalSales > 100000000
+                              ? `${(totalSales / 1000000).toFixed(0)}m`
+                              : new Intl.NumberFormat().format(totalSales);
+
+                          return formattedSales;
+                        })()}
+                        {" vnd "}
+
+                        <span className="text-sm text-gray-500">
+                          {" "}
+                          {" (0%)"}
+                        </span>
+                      </p>
+                      <p className="text-gray-500">{t("TotalSales")}</p>
+                    </div>
+                  </div>
+                );
+              })()}
+              <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
+                <div className="h-full w-fit flex items-center text-5xl text-gray-300">
+                  <Bag />
+                </div>
+                <div>
+                  <p className="text-xl font-bold">
+                    {allProducts?.totalProductAmount}
+                  </p>
+                  <p className="text-gray-500">
+                    {t("Total Imported Products")}
+                  </p>
+                </div>
+              </div>
+              <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
+                <div className="h-full w-fit flex items-center text-5xl text-gray-300">
+                  <Package />
+                </div>
+                <div>
+                  <p className="text-xl font-bold">
+                    {allIventories?.totalItemsCount}
+                  </p>
+                  <p className="text-gray-500">
+                    {t("Total Bought Inventories")}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-white rounded-lg shadow-lg col-span-2 border-[1px]">
+              <h2 className="text-lg font-bold mb-4">
+                {t("RevenueSales")}
+                {" (vnd)"}
+              </h2>
+              <Bar data={revenueUpdateData} options={revenueUpdateOptions} />
+            </div>
+            <div className="grid col-span-2 row-span-2 ">
+              <div className="p-4 bg-white rounded-lg shadow-xl border-[1px]  overflow-auto max-h-[74.7vh] h-fit">
+                <h2 className="text-lg font-bold mb-4">
+                  {t("Imported Product Overview")}
+                </h2>
+                <div className="flex flex-col gap-4  ">
+                  {allProducts?.products?.map((item) => (
+                    <div className="border-[1px] shadow-lg px-4 py-4 rounded-xl">
+                      <p className="font-medium text-lg">{item?.productName}</p>
+                      <div className="text-sm text-gray-500">
+                        <div className="flex gap-4">
+                          <p>{t("Stock")}:</p>
+                          <p>{item?.stock}</p>
+                        </div>
+                        <div className="flex gap-4">
+                          <p>{t("Stored At")}:</p>
+                          <p>{item?.warehouseName}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-white rounded-lg shadow-lg border-[1px]">
+              <h2 className="text-lg font-bold mb-4">Orders Overview</h2>
+              <Doughnut
+                data={salesOverviewData}
+                options={salesOverviewOptions}
+              />
+            </div>
+
+            <div className="p-4 bg-white rounded-lg shadow-lg col-span-2 border-[1px]">
+              <h2 className="text-lg font-bold mb-4">
+                {t("YearlySales")}
+                {" (vnd)"}
+              </h2>
+              <Line data={yearlySalesData} options={yearlySalesOptions} />
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        <SpinnerLoading />
+      )}
     </div>
   );
 };
