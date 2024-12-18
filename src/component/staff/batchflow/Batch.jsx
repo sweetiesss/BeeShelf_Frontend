@@ -243,25 +243,7 @@ const BatchManage = () => {
     }
   }, [userInfor, selectedDeliveryZone]);
 
-  // const formatDateTimeVN = (dateString) => {
-  //   if (!dateString) return { date: "Null", time: "Null" };
 
-  //   const date = new Date(dateString);
-
-  //   const formattedDate = date.toLocaleDateString("vi-VN", {
-  //     day: "2-digit",
-  //     month: "2-digit",
-  //     year: "numeric",
-  //   });
-
-  //   const formattedTime = date.toLocaleTimeString("vi-VN", {
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //     hour12: false,
-  //   });
-
-  //   return { date: formattedDate, time: formattedTime };
-  // };
 
   // Handle create batch
   const handleCreateBatch = async (values) => {
@@ -298,19 +280,31 @@ const BatchManage = () => {
   };
 
   //Hàm xử lí ngày giờ
-  const formatDate = (dateString) => {
-    if (!dateString) return "Null"; // Trả về chuỗi rỗng nếu không có giá trị
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "Null"; // Return "Null" if the input is falsy
 
-    const date = new Date(dateString);
-    const formattedDate = date.toLocaleDateString("vi-VN", {
+    // Tạo một đối tượng Date với múi giờ Asia/Bangkok (UTC+7)
+    const dateInBangkok = new Date(
+      new Date(dateString).toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
+    );
+
+    // Cộng thêm 7 tiếng (7 giờ * 60 phút * 60 giây * 1000 ms)
+    const dateWithExtra7Hours = new Date(
+      dateInBangkok.getTime() + 7 * 60 * 60 * 1000
+    );
+
+    // Format the date part
+    const formattedDate = dateWithExtra7Hours.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
-    const formattedTime = date.toLocaleTimeString("vi-VN", {
+
+    // Format the time part
+    const formattedTime = dateWithExtra7Hours.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit",
+      // second: "2-digit",
       hour12: false,
     });
 
@@ -427,26 +421,8 @@ const BatchManage = () => {
       key: "deliveryStartDate",
       render: (date) => {
         if (!date) return "N/A";
-        const formattedDate = new Intl.DateTimeFormat("vi-VN", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }).format(new Date(date));
 
-        const formattedTime = new Intl.DateTimeFormat("vi-VN", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        }).format(new Date(date));
-
-        return (
-          <div>
-            {formattedDate}
-            <br />
-            {formattedTime}
-          </div>
-        );
+        return <div>{formatDateTime(date)}</div>;
       },
     },
 
@@ -611,7 +587,7 @@ const BatchManage = () => {
               {selectedBatch?.deliveryZoneName}
             </span>
           </Typography.Title>
- 
+
           <div className="flex items-center">
             <strong className="mr-2">Status: </strong>
             <Tag
@@ -722,37 +698,42 @@ const BatchManage = () => {
                           <strong className="text-gray-900">
                             Order Creation Date:
                           </strong>{" "}
-                          {formatDate(order.createDate)}
+                          {formatDateTime(order.createDate)}
                         </p>
+
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
                             Approval Date:
                           </strong>{" "}
-                          {formatDate(order.approveDate)}
+                          {formatDateTime(order.approveDate)}
                         </p>
+
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
                             Delivery Start Date:
                           </strong>{" "}
-                          {formatDate(order.deliverStartDate)}
+                          {formatDateTime(order.deliverStartDate)}
                         </p>
+
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
                             Complete Date:
                           </strong>{" "}
-                          {formatDate(order.completeDate)}
+                          {formatDateTime(order.completeDate)}
                         </p>
+
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
                             Return Date:
                           </strong>{" "}
-                          {formatDate(order.returnDate)}
+                          {formatDateTime(order.returnDate)}
                         </p>
+
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
                             Cancel Date:
                           </strong>{" "}
-                          {formatDate(order.cancelDate)}
+                          {formatDateTime(order.cancelDate)}
                         </p>
                       </div>
                     </div>

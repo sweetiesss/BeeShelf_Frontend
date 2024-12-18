@@ -273,6 +273,7 @@ const RequestManagement = () => {
         method: "PUT",
         params: {
           status: newStatus,
+          staffId: userInfor?.id,
         },
       });
 
@@ -318,6 +319,7 @@ const RequestManagement = () => {
         url: `/request/update-request-status/${id}`,
         method: "PUT",
         params: {
+          staffId: userInfor?.id,
           status: newStatus,
         },
       });
@@ -634,6 +636,18 @@ const RequestManagement = () => {
                   <p>{selectedRequest.description}</p>
                 </div>
                 <div>
+                  <p className="font-bold">Lot Amount:</p>
+                  <p>{selectedRequest.lotAmount}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Product Per Lot Amount:</p>
+                  <p>{selectedRequest.productPerLotAmount}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Total Product Amount:</p>
+                  <p>{selectedRequest.totalProductAmount}</p>
+                </div>
+                <div>
                   <p className="font-bold">Create Date:</p>
                   <p>{formatDateTime(selectedRequest.createDate)}</p>
                 </div>
@@ -662,13 +676,23 @@ const RequestManagement = () => {
                   <p>{selectedRequest.warehouseName}</p>
                 </div>
                 <div>
+                  <p className="font-bold">Inventory Name:</p>
+                  <p>{selectedRequest.sendToInventoryName}</p>
+                </div>
+                <div>
                   <p className="font-bold">Lot ID:</p>
                   <p>{selectedRequest.lotId}</p>
                 </div>
-                <div>
+               
+                {/* <div>
+                  <p className="font-bold">Export To Lot ID:</p>
+                  <p>{selectedRequest.exportFromLotId}</p>
+                </div> */}
+                {/* <div>
                   <p className="font-bold">Inventory ID:</p>
                   <p>{selectedRequest.sendToInventoryId}</p>
-                </div>
+                </div> */}
+                
               </div>
             </div>
           </div>
@@ -733,9 +757,26 @@ const RequestManagement = () => {
                   <p className="font-bold">Status:</p>
                   <p>{renderStatusTag(selectedExportRequest.status)}</p>
                 </div>
+                
+                <div>
+                  <p className="font-bold">Product Name:</p>
+                  <p>{selectedExportRequest.productName}</p>
+                </div> 
                 <div>
                   <p className="font-bold">Description:</p>
                   <p>{selectedExportRequest.description}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Lot Amount:</p>
+                  <p>{selectedExportRequest.lotAmount}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Product Per Lot Amount:</p>
+                  <p>{selectedExportRequest.productPerLotAmount}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Total Product Amount:</p>
+                  <p>{selectedExportRequest.totalProductAmount}</p>
                 </div>
                 <div>
                   <p className="font-bold">Create Date:</p>
@@ -762,21 +803,40 @@ const RequestManagement = () => {
                 </div>
 
                 <div>
-                  <p className="font-bold">Warehouse Name:</p>
+                  <p className="font-bold">Old Warehouse Name:</p>
                   <p>{selectedExportRequest.warehouseName}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Lot ID:</p>
+                  <p className="font-bold">Old Inventory Name:</p>
+                  <p>{selectedExportRequest.sendToInventoryName}</p>
+                </div>
+                <div>
+                  <p className="font-bold">Old Lot ID:</p>
                   <p>{selectedExportRequest.lotId}</p>
                 </div>
-                <div>
-                  <p className="font-bold">Send To Inventory ID:</p>
+                {/* <div>
+                  <p className="font-bold">Old Inventory ID:</p>
                   <p>{selectedExportRequest.sendToInventoryId}</p>
+                </div> */}
+                <div>
+                  <p className="font-bold">New Warehouse Name:</p>
+                  <p>{selectedExportRequest.exportFromWarehouseName}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Export From Lot ID:</p>
+                  <p className="font-bold">New Inventory Name:</p>
+                  <p>{selectedExportRequest.exportFromInventoryName}</p>
+                </div>
+                <div>
+                  <p className="font-bold">New Lot ID:</p>
                   <p>{selectedExportRequest.exportFromLotId}</p>
                 </div>
+                {/* <div>
+                  <p className="font-bold">New Inventory ID:</p>
+                  <p>{selectedExportRequest.exportFromLotId}</p>
+                </div> */}
+                
+               
+                
               </div>
             </div>
           </div>

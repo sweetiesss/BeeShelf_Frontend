@@ -369,9 +369,9 @@ const Vehicle = () => {
 
   return (
     <div className="p-[20px]">
-       <h1 className="text-4xl font-bold text-gray-800 mb-8">
-      Vehicle Management
-    </h1>
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">
+        Vehicle Management
+      </h1>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-lg font-bold">Vehicle List</h1>
         <div className="flex gap-4">
@@ -464,75 +464,91 @@ const Vehicle = () => {
         }}
       />
 
-<Modal
-  title={<div className="text-2xl font-bold text-gray-800">Vehicle Details</div>}
-  open={isModalVisible}
-  onCancel={handleModalClose}
-  footer={[
-    <Button
-      key="close"
-      onClick={handleModalClose}
-      className="bg-red-500 text-white hover:bg-red-600 transition duration-200"
-    >
-      Close
-    </Button>,
-  ]}
-  className="!w-[700px]"
->
-  {selectedVehicle && (
-    <div className="grid grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg shadow-md">
-      {/* Vehicle Status Section */}
-      <div className="space-y-6">
-        <div>
-          <label htmlFor="statusSelect" className="block text-lg font-bold mb-2 text-gray-700">
-            Status:
-          </label>
-          <Select
-            id="statusSelect"
-            className="w-full"
-            value={selectedVehicle.status}
-            onChange={(newStatus) =>
-              updateVehicleStatus(selectedVehicle.id, newStatus)
-            }
-            placeholder="Select a status"
-            disabled={getValidStatusTransitions(selectedVehicle.status).length === 0}
+      <Modal
+        title={
+          <div className="text-2xl font-bold text-gray-800">
+            Vehicle Details
+          </div>
+        }
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button
+            key="close"
+            onClick={handleModalClose}
+            className="bg-red-500 text-white hover:bg-red-600 transition duration-200"
           >
-            {getValidStatusTransitions(selectedVehicle.status).map((status) => (
-              <Option key={status} value={status}>
-                {status}
-              </Option>
-            ))}
-          </Select>
-        </div>
-      </div>
+            Close
+          </Button>,
+        ]}
+        className="!w-[700px]"
+      >
+        {selectedVehicle && (
+          <div className="grid grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg shadow-md">
+            {/* Vehicle Status Section */}
+            <div className="space-y-6">
+              <div>
+                <label
+                  htmlFor="statusSelect"
+                  className="block text-lg font-bold mb-2 text-gray-700"
+                >
+                  Status:
+                </label>
+                <Select
+                  id="statusSelect"
+                  className="w-full"
+                  value={selectedVehicle.status}
+                  onChange={(newStatus) =>
+                    updateVehicleStatus(selectedVehicle.id, newStatus)
+                  }
+                  placeholder="Select a status"
+                  disabled={
+                    getValidStatusTransitions(selectedVehicle.status).length ===
+                    0
+                  }
+                >
+                  {getValidStatusTransitions(selectedVehicle.status).map(
+                    (status) => (
+                      <Option key={status} value={status}>
+                        {status}
+                      </Option>
+                    )
+                  )}
+                </Select>
+              </div>
+            </div>
 
-      {/* Vehicle Information Display */}
-      <div className="p-4 bg-white rounded-lg shadow space-y-4">
-        <div className="flex justify-between items-center">
-          <span className="font-semibold text-gray-700">Vehicle ID:</span>
-          <span className="text-gray-900">{selectedVehicle.id}</span>
-        </div>
+            {/* Vehicle Information Display */}
+            <div className="p-4 bg-white rounded-lg shadow space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-700">Vehicle ID:</span>
+                <span className="text-gray-900">{selectedVehicle.id}</span>
+              </div>
 
-        <div className="flex justify-between items-center">
-          <span className="font-semibold text-gray-700">Vehicle Name:</span>
-          <span className="text-gray-900">{selectedVehicle.name}</span>
-        </div>
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-700">
+                  Vehicle Name:
+                </span>
+                <span className="text-gray-900">{selectedVehicle.name}</span>
+              </div>
 
-        <div className="flex justify-between items-center">
-          <span className="font-semibold text-gray-700">License Plate:</span>
-          <span className="text-gray-900">{selectedVehicle.licensePlate}</span>
-        </div>
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-700">
+                  License Plate:
+                </span>
+                <span className="text-gray-900">
+                  {selectedVehicle.licensePlate}
+                </span>
+              </div>
 
-        <div className="flex justify-between items-center">
-          <span className="font-semibold text-gray-700">Type:</span>
-          <span className="text-gray-900">{selectedVehicle.type}</span>
-        </div>
-      </div>
-    </div>
-  )}
-</Modal>
-
-
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-700">Type:</span>
+                <span className="text-gray-900">{selectedVehicle.type}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
