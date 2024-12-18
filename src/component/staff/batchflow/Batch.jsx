@@ -496,18 +496,27 @@ const BatchManage = () => {
         >
           {/* Batch Name */}
           <Form.Item
-            name="name"
-            label={t("Batch_Name")}
-            rules={[
-              { required: true, message: t("Please_enter_a_batch_name") },
-              {
-                max: 250,
-                message: t("Batch_name_must_be_250_characters_or_fewer"),
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+  name="name"
+  label={t("Batch_Name")}
+  rules={[
+    { required: true, message: t("Please_enter_a_batch_name") },
+    {
+      max: 250,
+      message: t("Batch_name_must_be_250_characters_or_fewer"),
+    },
+    {
+      validator: (_, value) => {
+        if (!value || value.trim() === "") {
+          return Promise.reject(t("Batch_name_cannot_be_empty_or_whitespace"));
+        }
+        return Promise.resolve();
+      },
+    },
+  ]}
+>
+  <Input />
+</Form.Item>
+
 
           {/* Delivery Zone */}
           <Form.Item
@@ -542,8 +551,11 @@ const BatchManage = () => {
                   shipper.employeeId &&
                   shipper.warehouseId && (
                     <Option key={shipper.employeeId} value={shipper.employeeId}>
-                      {t("EmployeeId")}: {shipper.employeeId} -{" "}
-                      {t("WarehouseId")}: {shipper.warehouseId}
+                      {/* {t("EmployeeId")}: {shipper.employeeId} -{" "} */}
+                      {t("ShipperName")}: {shipper.shipperName} -{" "} 
+                      {/* {t("WarehouseId")}: {shipper.warehouseId} */}
+                      {t("WarehouseName")}: {shipper.warehouseName}
+                      
                     </Option>
                   )
               )}

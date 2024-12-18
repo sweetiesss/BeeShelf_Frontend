@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import useAxios from "../../../services/CustomizeAxios";
 import { useAuth } from "../../../context/AuthContext";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 const Vehicle = () => {
   const { userInfor } = useAuth(); // Lấy thông tin user từ hook useAuth
@@ -25,7 +26,7 @@ const Vehicle = () => {
   });
   const { fetchDataBearer } = useAxios();
   const typeVehicles = ["Truck", "Van", "Motorcycle"];
-
+  const { t } = useTranslation();
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchVehicles = async (pageIndex, pageSize) => {
     setLoading(true);
