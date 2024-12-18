@@ -16,6 +16,7 @@ import {
   Input,
   Select,
 } from "antd";
+import { useTranslation } from "react-i18next";
 import useAxios from "../../../services/CustomizeAxios"; // Custom Axios hook
 import { useAuth } from "../../../context/AuthContext"; // Auth context
 const { Option } = Select;
@@ -40,15 +41,15 @@ const BatchManage = () => {
     pageIndex: 0,
   });
   // Hàm xoá bacth
-
+  const { t } = useTranslation();
   const handleDeleteBatch = (batchId) => {
-    console.log("Batch ID to be deleted:", batchId);
+    console.log(t("BatchIDtobedeleted"), batchId);
 
     Modal.confirm({
-      title: "Are you sure you want to delete this batch?",
-      okText: "Yes, Delete",
+      title: t("Areyousureyouwanttodeletethisbatch?"),
+      okText: t("Yes,Delete"),
       okType: "danger",
-      cancelText: "Cancel",
+      cancelText: t("Cancel"),
       onOk: async () => {
         try {
           const response = await fetchDataBearer({
@@ -64,14 +65,16 @@ const BatchManage = () => {
             response.status === 200 &&
             response.data === "Success."
           ) {
-            message.success("Batch deleted successfully.");
+            message.success(t("Batch_deleted_successfully."));
             // Làm mới danh sách sau khi xóa
             fetchBatches();
           } else {
             // Hiển thị thông báo lỗi từ server nếu có
             message.error(
-              response.data.message ||
-                "Failed to delete batch. Please try again."
+              t(
+                response.data.message ||
+                  "Failed_to_delete_batch._Please_try_again."
+              )
             );
           }
         } catch (error) {
@@ -82,7 +85,7 @@ const BatchManage = () => {
             message.error(error.response.data.message);
           } else {
             message.error(
-              "An error occurred while deleting the batch. Please try again."
+              t("An_error_occurred_while_deleting_the_batch._Please_try_again.")
             );
           }
         }
@@ -106,7 +109,7 @@ const BatchManage = () => {
         },
       });
       if (!response || !response.data || !response.data.items) {
-        console.error("Failed to fetch batches data");
+        console.error(t("Failed_to_fetch_batches_data"));
         return;
       }
       const formattedBatches = response.data.items.map((batch) => ({
@@ -114,7 +117,7 @@ const BatchManage = () => {
         id: batch.id,
         name: batch.name,
         status: batch.status,
-        completeDate: batch.completeDate || "Not Completed",
+        completeDate: batch.completeDate || t("Not_Completed"),
         assignTo: batch.assignTo,
         deliveryZoneId: batch.deliveryZoneId,
         orders: batch.orders,
@@ -126,10 +129,10 @@ const BatchManage = () => {
       }));
       setBatches(formattedBatches);
     } catch (error) {
-      console.error("Error fetching batches:", error);
+      console.error(t("Error_fetching_batches"), error);
     } finally {
       setLoading(false);
-      message.success("Data loaded successfully!");
+      message.success(t("Data_loaded_successfully!"));
     }
   };
   useEffect(() => {
@@ -148,10 +151,10 @@ const BatchManage = () => {
         if (response.status === 200 && response.data) {
           setDeliveryZones(response.data.deliveryZones || []);
         } else {
-          console.error("Failed to fetch delivery zones");
+          console.error(t("Failed_to_fetch_delivery_zones"));
         }
       } catch (error) {
-        console.error("Error fetching delivery zones:", error);
+        console.error(t("Error_fetching_delivery_zones"), error);
       }
     };
 
@@ -177,19 +180,19 @@ const BatchManage = () => {
             hasBatch: false,
           },
         });
-        console.log("Orders data:", response);
+        console.log(t("Orders_data:"), response);
         if (!response || !response.data) {
-          console.error("Failed to fetch orders data");
+          console.error(t("Failed_to_fetch_orders_data"));
           return;
         }
         const formattedOrders = response.data.items.map((order) => ({
           id: order.id,
           partnerEmail: order.partner_email,
         }));
-        console.log("Formatted orders:", formattedOrders);
+        console.log(t("Formatted_orders:"), formattedOrders);
         setOrders(formattedOrders);
       } catch (error) {
-        console.error("Error fetching orders:", error);
+        console.error(t("Error_fetching_orders:"), error);
       }
     };
 
@@ -205,7 +208,7 @@ const BatchManage = () => {
         const warehouseId = userInfor?.workAtWarehouseId;
 
         if (!warehouseId) {
-          console.error("Warehouse ID is not available");
+          console.error(t("Warehouse_ID_is_not_available"));
           return;
         }
 
@@ -218,23 +221,17 @@ const BatchManage = () => {
             pageSize: 100,
             filterBy: "DeliveryZoneId",
             filterQuery: selectedDeliveryZone,
-
-            // vehicleFilter: "notEmpty" // Giả sử API hỗ trợ điều kiện lọc này
           },
         });
-        // Kiểm tra và lọc các shipper có vehicles không rỗng
-        // const filteredShippers = response.data.filter(
-        //   (shipper) => shipper.vehicles && shipper.vehicles.length > 0
-        // );
-        // console.log(filteredShippers);
+
         if (response.status === 200 && response.data) {
-          console.log("Shippers data:", response.data);
+          console.log(t("Shippers_data:"), response.data);
           setShippers(response.data.items || []); // Ensure this is correct
         } else {
-          console.error("Failed to fetch shippers data");
+          console.error(t("Failed_to_fetch_shippers_data"));
         }
       } catch (error) {
-        console.error("Error fetching shippers data:", error);
+        console.error(t("Error_fetching_shippers_data:"), error);
       }
     };
 
@@ -242,8 +239,6 @@ const BatchManage = () => {
       fetchShippers();
     }
   }, [userInfor, selectedDeliveryZone]);
-
-
 
   // Handle create batch
   const handleCreateBatch = async (values) => {
@@ -255,7 +250,8 @@ const BatchManage = () => {
         deliveryZoneId: values.deliveryZoneId,
         orders: values.orders.map((id) => ({ id })),
       };
-      console.log("Payload:", payload);
+      console.log(t("Payload:"), payload);
+
       const response = await fetchDataBearer({
         url: `/batch/create-batch`,
         method: "POST",
@@ -263,17 +259,18 @@ const BatchManage = () => {
       });
 
       if (response.status === 200 || response.status === 201) {
-        message.success("Batch created successfully.");
-        // setBatches((prev) => [...prev, { ...payload, id: response.data.id }]);
+        message.success(t("Batch_created_successfully."));
         form.resetFields();
         setCreateBatchModalVisible(false);
         fetchBatches();
       } else {
-        throw new Error("Failed to create batch.");
+        throw new Error(t("Failed_to_create_batch."));
       }
     } catch (error) {
-      console.error("Error creating batch:", error);
-      message.error(error.response?.data?.message || "Failed to create batch.");
+      console.error(t("Error_creating_batch:"), error);
+      message.error(
+        error.response?.data?.message || t("Failed_to_create_batch.")
+      );
     } finally {
       setLoading(false);
     }
@@ -317,7 +314,7 @@ const BatchManage = () => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
 
   const DetailOrder1 = async (id) => {
-    // console.log("Fetching details for order ID:", id);
+    // console.log(t("Fetching_details_for_order_ID:"), id);
 
     try {
       const response = await fetchDataBearer({
@@ -325,41 +322,41 @@ const BatchManage = () => {
         method: "GET",
       });
 
-      // console.log("Full Response:", response);
+      // console.log(t("Full_Response:"), response);
 
       if (response) {
-        console.log("Response Status:", response.status);
-        console.log("Response Data:", response.data);
+        console.log(t("Response_Status:"), response.status);
+        console.log(t("Response_Data:"), response.data);
       }
 
       if (response && response.data) {
-        console.log("Order Details:", response.data);
+        console.log(t("Order_Details:"), response.data);
         setSelectedOrderData(response.data);
         setDetailModalVisible(true);
       } else {
-        message.error("Failed to fetch order details.");
+        message.error(t("Failed_to_fetch_order_details."));
       }
     } catch (error) {
-      console.error("Error fetching order details:", error);
+      console.error(t("Error_fetching_order_details:"), error);
       message.error(
-        "An error occurred while fetching order details. Please try again."
+        t("An_error_occurred_while_fetching_order_details._Please_try_again.")
       );
     }
   };
 
   const columns = [
     {
-      title: "Batch ID",
+      title: t("Batch_ID"),
       dataIndex: "id",
       key: "id",
     },
     {
-      title: "Batch Name",
+      title: t("Batch_Name"),
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Status",
+      title: t("Status"),
       dataIndex: "status",
       key: "status",
       render: (status) => {
@@ -376,11 +373,11 @@ const BatchManage = () => {
             color = "default"; // Màu mặc định cho các trạng thái khác
         }
 
-        return <Tag color={color}>{status}</Tag>;
+        return <Tag color={color}>{t(status)}</Tag>;
       },
     },
     {
-      title: "Delivery Zone Name",
+      title: t("Delivery_Zone_Name"),
       dataIndex: "deliveryZoneName",
       key: "deliveryZoneName",
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -393,59 +390,62 @@ const BatchManage = () => {
               confirm();
             }}
             allowClear
+            placeholder={t("Select_Delivery_Zone")}
           >
             {deliveryZones.map((zone) => (
               <Option key={zone.id} value={zone.name}>
-                {zone.name}
+                {t(zone.name)}
               </Option>
             ))}
           </Select>
         </div>
       ),
       onFilter: (value, record) => record.deliveryZoneName === value,
-      render: (deliveryZoneName) => deliveryZoneName,
+      render: (deliveryZoneName) => t(deliveryZoneName),
     },
+
     {
-      title: "Shipper",
+      title: t("Shipper"),
       dataIndex: "shipperName",
       key: "shipperName",
     },
     {
-      title: "Shipper Email",
+      title: t("Shipper_Email"),
       dataIndex: "shipperEmail",
       key: "shipperEmail",
     },
     {
-      title: "Create Date",
+      title: t("Create_Date"),
       dataIndex: "deliveryStartDate",
       key: "deliveryStartDate",
       render: (date) => {
-        if (!date) return "N/A";
+        if (!date) return t("N/A");
 
         return <div>{formatDateTime(date)}</div>;
       },
     },
 
     {
-      title: "Actions",
+      title: t("Actions"),
       key: "actions",
       render: (_, record) => (
         <div className="flex space-x-2">
           <Button type="primary" onClick={() => setSelectedBatch(record)}>
-            View Details
+            {t("View_Details")}
           </Button>
           <Button
             className="bg-red-500 text-white border-none hover:bg-red-600 focus:bg-red-600"
             onClick={() => handleDeleteBatch(record.id)}
-            disabled={record.status !== "Pending"} // Disable nếu status không phải là Pending
+            disabled={record.status !== t("Pending")} // Disable nếu status không phải là Pending
             style={{
               backgroundColor:
-                record.status === "Pending" ? "#ff4d4f" : "#f5f5f5",
-              color: record.status === "Pending" ? "#fff" : "#d9d9d9",
-              borderColor: record.status === "Pending" ? "#ff4d4f" : "#d9d9d9",
+                record.status === t("Pending") ? "#ff4d4f" : "#f5f5f5",
+              color: record.status === t("Pending") ? "#fff" : "#d9d9d9",
+              borderColor:
+                record.status === t("Pending") ? "#ff4d4f" : "#d9d9d9",
             }}
           >
-            Delete Batch
+            {t("Delete_Batch")}
           </Button>
         </div>
       ),
@@ -455,12 +455,12 @@ const BatchManage = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h1 className="text-4xl font-bold text-gray-800 mb-8">
-        Batch Management
+        {t("Batch_Management")}
       </h1>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-lg font-bold">Batch List</h1>
+        <h1 className="text-lg font-bold">{t("Batch_List")}</h1>
         <Button type="primary" onClick={() => setCreateBatchModalVisible(true)}>
-          Create Batch
+          {t("Create_Batch")}
         </Button>
       </div>
       <Table
@@ -478,7 +478,7 @@ const BatchManage = () => {
 
       {/* Create Batch Modal */}
       <Modal
-        title="Create Batch"
+        title={t("Create_Batch")}
         open={createBatchModalVisible}
         onCancel={() => setCreateBatchModalVisible(false)}
         onOk={() => form.submit()}
@@ -497,12 +497,12 @@ const BatchManage = () => {
           {/* Batch Name */}
           <Form.Item
             name="name"
-            label="Batch Name"
+            label={t("Batch_Name")}
             rules={[
-              { required: true, message: "Please enter a batch name" },
+              { required: true, message: t("Please_enter_a_batch_name") },
               {
                 max: 250,
-                message: "Batch name must be 250 characters or fewer",
+                message: t("Batch_name_must_be_250_characters_or_fewer"),
               },
             ]}
           >
@@ -512,16 +512,19 @@ const BatchManage = () => {
           {/* Delivery Zone */}
           <Form.Item
             name="deliveryZoneId"
-            label="Delivery Zone"
-            rules={[{ required: true }]}
+            label={t("Delivery_Zone")}
+            rules={[
+              { required: true, message: t("Please_select_a_delivery_zone") },
+            ]}
           >
             <Select
-              placeholder="Select a delivery zone"
+              placeholder={t("Select_a_delivery_zone")}
               onChange={(value) => setSelectedDeliveryZone(value)}
             >
               {deliveryZones.map((zone) => (
                 <Option key={zone.id} value={zone.id}>
-                  DeliveryZoneId: {zone.id} - Name Zone: {zone.name}
+                  {t("DeliveryZoneId")}: {zone.id} - {t("Name_Zone")}:{" "}
+                  {zone.name}
                 </Option>
               ))}
             </Select>
@@ -530,17 +533,17 @@ const BatchManage = () => {
           {/* Shipper */}
           <Form.Item
             name="shipperId"
-            label="Shipper"
-            rules={[{ required: true }]}
+            label={t("Shipper")}
+            rules={[{ required: true, message: t("Please_select_a_shipper") }]}
           >
-            <Select placeholder="Select a shipper">
+            <Select placeholder={t("Select_a_shipper")}>
               {shippers.map(
                 (shipper) =>
                   shipper.employeeId &&
                   shipper.warehouseId && (
                     <Option key={shipper.employeeId} value={shipper.employeeId}>
-                      EmployeeId: {shipper.employeeId} - WarehouseId:{" "}
-                      {shipper.warehouseId}
+                      {t("EmployeeId")}: {shipper.employeeId} -{" "}
+                      {t("WarehouseId")}: {shipper.warehouseId}
                     </Option>
                   )
               )}
@@ -548,11 +551,15 @@ const BatchManage = () => {
           </Form.Item>
 
           {/* Orders */}
-          <Form.Item name="orders" label="Orders" rules={[{ required: true }]}>
-            <Select mode="multiple" placeholder="Select orders" allowClear>
+          <Form.Item
+            name="orders"
+            label={t("Orders")}
+            rules={[{ required: true, message: t("Please_select_orders") }]}
+          >
+            <Select mode="multiple" placeholder={t("Select_orders")} allowClear>
               {orders.map((order) => (
                 <Option key={order.id} value={order.id}>
-                  id: {order.id} - email: {order.partnerEmail}
+                  {t("id")}: {order.id} - {t("email")}: {order.partnerEmail}
                 </Option>
               ))}
             </Select>
@@ -563,7 +570,7 @@ const BatchManage = () => {
       <Drawer
         title={
           <>
-            <span className="text-gray-600">Batch Details Name: </span>
+            <span className="text-gray-600">{t("Batch_Details_Name")}:</span>
             <span className="text-blue-500">{selectedBatch?.name}</span>
           </>
         }
@@ -574,34 +581,37 @@ const BatchManage = () => {
         <div>
           {/* Title */}
           <Typography.Title level={5} className="mb-4">
-            <span className="font-bold">Shipper Name:</span>{" "}
+            <span className="font-bold">{t("Shipper_Name")}:</span>{" "}
             <span className="font-normal">{selectedBatch?.shipperName}</span>
           </Typography.Title>
+
           <Typography.Title level={5} className="mb-4">
-            <span className="font-bold">Shipper Email:</span>{" "}
+            <span className="font-bold">{t("Shipper_Email")}:</span>{" "}
             <span className="font-normal">{selectedBatch?.shipperEmail}</span>
           </Typography.Title>
+
           <Typography.Title level={5} className="mb-4">
-            <span className="font-bold">Delivery Zone:</span>{" "}
+            <span className="font-bold">{t("Delivery_Zone")}:</span>{" "}
             <span className="font-normal">
               {selectedBatch?.deliveryZoneName}
             </span>
           </Typography.Title>
 
           <div className="flex items-center">
-            <strong className="mr-2">Status: </strong>
+            <strong className="mr-2">{t("Status")}:</strong>
             <Tag
               color={
-                selectedBatch?.status === "Pending"
+                selectedBatch?.status === t("Pending")
                   ? "red"
-                  : selectedBatch?.status === "Completed"
+                  : selectedBatch?.status === t("Completed")
                   ? "green"
                   : "default"
               }
             >
-              {selectedBatch?.status}
+              {t(selectedBatch?.status)}
             </Tag>
           </div>
+
           {/* Orders List */}
           <div className="mt-4 space-y-6">
             <strong className="text-2xl text-gray-800">Order List:</strong>
@@ -624,30 +634,32 @@ const BatchManage = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <p className="text-gray-700">
-                          <strong className="text-gray-900">Order Code:</strong>{" "}
+                          <strong className="text-gray-900">
+                            {t("Order_Code")}:
+                          </strong>{" "}
                           {order.orderCode}
                         </p>
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Warehouse Name:
+                            {t("Warehouse_Name")}:
                           </strong>{" "}
                           {order.warehouseName}
                         </p>
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Partner Email:
+                            {t("Partner_Email")}:
                           </strong>{" "}
                           {order.partner_email}
                         </p>
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Order Status:
+                            {t("Order_Status")}:
                           </strong>{" "}
-                          {order.status}
+                          {t(order.status)}
                         </p>
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Total Price:
+                            {t("Total_Price")}:
                           </strong>{" "}
                           {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
@@ -657,7 +669,7 @@ const BatchManage = () => {
 
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Total Price After Fee:
+                            {t("Total_Price_After_Fee")}:
                           </strong>{" "}
                           {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
@@ -666,28 +678,28 @@ const BatchManage = () => {
                         </p>
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Receiver Phone:
+                            {t("Receiver_Phone")}:
                           </strong>{" "}
                           {order.receiverPhone}
                         </p>
 
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Receiver Address:
+                            {t("Receiver_Address")}:
                           </strong>{" "}
                           {order.receiverAddress}
                         </p>
 
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            DeliveryZone Name:
+                            {t("Delivery_Zone_Name")}:
                           </strong>{" "}
                           {order.deliveryZoneName}
                         </p>
 
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Cancellation Reason:
+                            {t("Cancellation_Reason")}:
                           </strong>{" "}
                           {order.cancellationReason}
                         </p>
@@ -696,42 +708,42 @@ const BatchManage = () => {
                       <div className="space-y-2">
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Order Creation Date:
+                            {t("Order_Creation_Date")}:
                           </strong>{" "}
                           {formatDateTime(order.createDate)}
                         </p>
 
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Approval Date:
+                            {t("Approval_Date")}:
                           </strong>{" "}
                           {formatDateTime(order.approveDate)}
                         </p>
 
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Delivery Start Date:
+                            {t("Delivery_Start_Date")}:
                           </strong>{" "}
                           {formatDateTime(order.deliverStartDate)}
                         </p>
 
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Complete Date:
+                            {t("Complete_Date")}:
                           </strong>{" "}
                           {formatDateTime(order.completeDate)}
                         </p>
 
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Return Date:
+                            {t("Return_Date")}:
                           </strong>{" "}
                           {formatDateTime(order.returnDate)}
                         </p>
 
                         <p className="text-gray-700">
                           <strong className="text-gray-900">
-                            Cancel Date:
+                            {t("Cancel_Date")}:
                           </strong>{" "}
                           {formatDateTime(order.cancelDate)}
                         </p>
@@ -744,7 +756,7 @@ const BatchManage = () => {
                         className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
                         onClick={() => DetailOrder1(order.id)}
                       >
-                        View Order Details
+                        {t("View_Order_Details")}
                       </button>
                     </div>
                   </div>
@@ -753,7 +765,9 @@ const BatchManage = () => {
             />
           </div>
           <Modal
-            title={<span className="text-2xl font-bold">Detail Order</span>}
+            title={
+              <span className="text-2xl font-bold">{t("Detail_Order")}</span>
+            }
             visible={detailModalVisible}
             onCancel={() => setDetailModalVisible(false)}
             footer={null}
@@ -763,7 +777,7 @@ const BatchManage = () => {
                 {/* Order Details */}
                 <div>
                   <h3 className="text-xl font-bold mb-4 border-b pb-2">
-                    Order Details
+                    {t("Order_Details")}
                   </h3>
                   {selectedOrderData.orderDetails.map((detail) => (
                     <div
@@ -773,28 +787,32 @@ const BatchManage = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <p>
-                            <strong className="text-gray-700">Order ID:</strong>{" "}
+                            <strong className="text-gray-700">
+                              {t("Order_ID")}:
+                            </strong>{" "}
                             {detail.id}
                           </p>
                           <p>
                             <strong className="text-gray-700">
-                              Product Name:
+                              {t("Product_Name")}:
                             </strong>{" "}
                             {detail.productName}
                           </p>
                           <p>
-                            <strong className="text-gray-700">Lot ID:</strong>{" "}
+                            <strong className="text-gray-700">
+                              {t("Lot_ID")}:
+                            </strong>{" "}
                             {detail.lotId}
                           </p>
                           <p>
                             <strong className="text-gray-700">
-                              Inventory ID:
+                              {t("Inventory_ID")}:
                             </strong>{" "}
                             {detail.inventoryId}
                           </p>
                           <p>
                             <strong className="text-gray-700">
-                              Inventory Name:
+                              {t("Inventory_Name")}:
                             </strong>{" "}
                             {detail.inventoryName}
                           </p>
@@ -802,22 +820,30 @@ const BatchManage = () => {
 
                         <div className="space-y-2">
                           <p>
-                            <strong className="text-gray-700">Price:</strong>{" "}
+                            <strong className="text-gray-700">
+                              {t("Price")}:
+                            </strong>{" "}
                             {new Intl.NumberFormat("vi-VN", {
                               style: "currency",
                               currency: "VND",
                             }).format(detail.productPrice)}
                           </p>
                           <p>
-                            <strong className="text-gray-700">Unit:</strong>{" "}
+                            <strong className="text-gray-700">
+                              {t("Unit")}:
+                            </strong>{" "}
                             {detail.unit}
                           </p>
                           <p>
-                            <strong className="text-gray-700">Weight:</strong>{" "}
+                            <strong className="text-gray-700">
+                              {t("Weight")}:
+                            </strong>{" "}
                             {detail.weight} kg
                           </p>
                           <p>
-                            <strong className="text-gray-700">Amount:</strong>{" "}
+                            <strong className="text-gray-700">
+                              {t("Amount")}:
+                            </strong>{" "}
                             {detail.productAmount}
                           </p>
                         </div>
@@ -837,7 +863,7 @@ const BatchManage = () => {
                 {/* Order Fees */}
                 <div>
                   <h3 className="text-xl font-bold mb-4 border-b pb-2">
-                    Order Fees
+                    {t("Order_Fees")}
                   </h3>
                   {selectedOrderData.orderFees.map((fee, index) => (
                     <div
@@ -847,7 +873,7 @@ const BatchManage = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <p>
                           <strong className="text-gray-700">
-                            Delivery Fee:
+                            {t("Delivery_Fee")}:
                           </strong>{" "}
                           <span className="text-gray-900">
                             {new Intl.NumberFormat("vi-VN", {
@@ -858,7 +884,7 @@ const BatchManage = () => {
                         </p>
                         <p>
                           <strong className="text-gray-700">
-                            Storage Fee:
+                            {t("Storage_Fee")}:
                           </strong>{" "}
                           <span className="text-gray-900">
                             {new Intl.NumberFormat("vi-VN", {
@@ -869,7 +895,7 @@ const BatchManage = () => {
                         </p>
                         <p>
                           <strong className="text-gray-700">
-                            Additional Fee:
+                            {t("Additional_Fee")}:
                           </strong>{" "}
                           <span className="text-gray-900">
                             {new Intl.NumberFormat("vi-VN", {
@@ -878,19 +904,6 @@ const BatchManage = () => {
                             }).format(fee.additionalFee)}
                           </span>
                         </p>
-                        {/* <p>
-                          <strong className="text-gray-700">Total Fee:</strong>{" "}
-                          <span className="text-green-600 font-bold">
-                            {new Intl.NumberFormat("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            }).format(
-                              fee.deliveryFee +
-                                fee.storageFee +
-                                fee.additionalFee
-                            )}
-                          </span>
-                        </p> */}
                       </div>
                     </div>
                   ))}
@@ -904,7 +917,7 @@ const BatchManage = () => {
               className="px-4 py-2 text-white bg-gray-600 rounded-md hover:bg-gray-700"
               onClick={() => setSelectedBatch(null)}
             >
-              Close
+              {t("Close")}
             </button>
           </div>
         </div>
