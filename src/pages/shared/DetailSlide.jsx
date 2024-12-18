@@ -671,7 +671,7 @@ export default function DetailSlide() {
       } finally {
         setCancelReason("");
         setRefresh(showUpdateConfirmation[0]?.id);
-        cancelDelete();
+        exitUpdateStatus();
       }
     };
     const exitUpdateStatus = () => {
@@ -754,7 +754,7 @@ export default function DetailSlide() {
 
     return (
       <>
-        <div className="w-[455px] h-full bg-white p-6 flex flex-col gap-8 text-black">
+        <div className="w-[600px] h-full bg-white p-6 flex flex-col gap-8 text-black">
           {/* Header */}
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
@@ -816,48 +816,57 @@ export default function DetailSlide() {
               {[
                 { label: "Lot Num:", value: dataDetail?.lotId },
                 { label: "Product Name:", value: lotData?.lotNumber },
-                { label: "Create date:", value: dataDetail?.createDate },
+                {
+                  label: "Create date:",
+                  value: format(
+                    add(new Date(dataDetail?.createDate), { hours: 7 }),
+                    "HH:mm - dd/MM/yyyy"
+                  ),
+                },
                 { label: "Description:", value: dataDetail?.description },
                 { label: "Amount:", value: lotData?.lotAmount + " lots" },
-                { label: "ProductPerLot:", value: lotData?.productPerLot },
+                { label: "Product Per Lot:", value: lotData?.productPerLot },
                 // { label: "Product ID:", value: "#ID394812" },
                 {
-                  label: "TotalProductAmount:",
+                  label: "Total Product Amount:",
                   value: lotData?.totalProductAmount,
                 },
                 {
-                  label: "ApporveDate:",
+                  label: "Apporve Date:",
                   value: dataDetail?.apporveDate
                     ? dataDetail?.apporveDate
-                    : "notYet",
+                    : "Not Yet",
                 },
                 {
-                  label: "DeliverDate:",
+                  label: "Deliver Date:",
                   value: dataDetail?.deliverDate
-                    ? dataDetail?.deliverDate
-                    : "notYet",
+                    ? format(
+                        add(new Date(dataDetail?.deliverDate), { hours: 7 }),
+                        "HH:mm - dd/MM/yyyy"
+                      )
+                    : "Not Yet",
                 },
 
                 { label: "To Warehouse:", value: dataDetail?.warehouseName },
               ]?.map((item, index) => (
-                <div key={index} className="flex justify-between text-lg">
-                  <span className="text-gray-600">{item.label}</span>
-                  <span className="text-black">{item.value}</span>
+                <div key={index} className="grid grid-cols-2 gap-4  text-lg">
+                  <div className="text-gray-600">{item.label}</div>
+                  <div className="text-black">{item.value}</div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="flex justify-between items-center w-full ">
+          <div className="flex justify-between items-center w-full gap-4">
             {dataDetail?.status === "Draft" ? (
               <>
                 <button
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  className="bg-red-500 text-white px-4 py-2 rounded-md w-full"
                   onClick={(e) => handleDeleteClick(e, dataDetail)}
                 >
                   Delete
                 </button>
                 <button
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                  className="bg-gray-500 text-white px-4 py-2 rounded-md w-full"
                   onClick={() => {
                     handleCloseDetail();
                     nav("request/update-request", { state: { ...dataDetail } });
@@ -866,7 +875,7 @@ export default function DetailSlide() {
                   Edit
                 </button>
                 <button
-                  className="bg-green-500 text-white px-4 py-2 rounded-md"
+                  className="bg-green-500 text-white px-4 py-2 rounded-md w-full"
                   onClick={handleSendRequest}
                 >
                   Send
@@ -889,29 +898,64 @@ export default function DetailSlide() {
           </div>
         </div>
         {showDeleteConfirmation && (
+          // <>
+          //   <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+          //   <div
+          //     className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+          //     style={{
+          //       top: "50%",
+          //       left: "-100%",
+          //       transform: "translate(-50%, -50%)",
+          //     }}
+          //   >
+          //     <p>{`Are you sure you want to delete ${dataDetail?.name}?`}</p>
+          //     <div className="flex justify-end gap-4">
+          //       <button
+          //         onClick={() => confirmDelete(showDeleteConfirmation)}
+          //         className="bg-red-500 text-white px-4 py-2 rounded-md"
+          //       >
+          //         Delete
+          //       </button>
+          //       <button
+          //         onClick={cancelDelete}
+          //         className="bg-gray-300 text-black px-4 py-2 rounded-md"
+          //       >
+          //         Cancel
+          //       </button>
+          //     </div>
+          //   </div>
+          // </>
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50"></div>
             <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              className="absolute bg-white border border-gray-300 shadow-md rounded-2xl p-8 w-[30rem] h-fit text-black"
               style={{
                 top: "50%",
-                left: "-100%",
+                left: "-50%",
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <p>{`Are you sure you want to delete ${dataDetail?.name}?`}</p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => confirmDelete(showDeleteConfirmation)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                >
-                  Delete
-                </button>
+              <div className="flex items-center justify-center">
+                <div className="text-5xl bg-fit h-fit p-4 bg-[#fff5f6] rounded-full mb-6">
+                  <Warning weight="fill" color="#fe3f56" />
+                </div>
+              </div>
+              <p className="w-full text-2xl font-semibold text-center  mb-6">
+                Delete Request
+              </p>
+              <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${dataDetail?.name}" request?`}</p>
+              <div className="flex justify-between gap-4">
                 <button
                   onClick={cancelDelete}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                  className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
                 >
-                  Cancel
+                  {t("No, Keep It.")}
+                </button>
+                <button
+                  onClick={() => confirmDelete(showDeleteConfirmation)}
+                  className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
+                >
+                  {t("Yes, Delete!")}
                 </button>
               </div>
             </div>
@@ -921,39 +965,47 @@ export default function DetailSlide() {
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50"></div>
             <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              className="absolute bg-white border border-gray-300 shadow-md rounded-2xl p-8 w-[30rem] h-fit text-black"
               style={{
                 top: "50%",
-                left: "-100%",
+                left: "-50%",
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <p>{`Are you sure you want to ${
-                showUpdateConfirmation[1] === "Canceled" ? "cancel:" : ""
-              } ${dataDetail?.name}?`}</p>
-              <div>
+              <div className="flex items-center justify-center">
+                <div className="text-5xl bg-fit h-fit p-4 bg-[#fff5f6] rounded-full mb-6">
+                  <Warning weight="fill" color="#fe3f56" />
+                </div>
+              </div>
+              <p className="w-full text-2xl font-semibold text-center  mb-6">
+                Cancel Request
+              </p>
+              <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${dataDetail?.name}" request?`}</p>
+              <div className="mb-8">
                 {showUpdateConfirmation[1] === "Canceled" && (
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 items-center">
                     <label>Reason</label>
                     <input
+                      className="w-full border-2 rounded-lg px-4 py-2"
+                      placeholder="Fill reason why you cancel the request"
                       type="text"
                       onChange={(e) => setCancelReason(e.target.value)}
                     />
                   </div>
                 )}
               </div>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={confirmUpdateStatus}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                >
-                  Cancel
-                </button>
+              <div className="flex justify-between gap-4">
                 <button
                   onClick={exitUpdateStatus}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                  className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
                 >
-                  Exist
+                  {t("No, Keep It.")}
+                </button>
+                <button
+                  onClick={confirmUpdateStatus}
+                  className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
+                >
+                  {t("Yes, Cancel!")}
                 </button>
               </div>
             </div>
@@ -1145,11 +1197,11 @@ export default function DetailSlide() {
                   label: "CompleteDeliveryDate" + ":",
                   value: dataDetail?.deliverFinishDate
                     ? format(
-                      add(new Date(dataDetail?.deliverFinishDate), {
-                        hours: 7,
-                      }),
-                      "HH:mm - dd/MM/yyyy"
-                    )
+                        add(new Date(dataDetail?.deliverFinishDate), {
+                          hours: 7,
+                        }),
+                        "HH:mm - dd/MM/yyyy"
+                      )
                     : t("NotYet"),
                 },
                 {

@@ -236,6 +236,7 @@ export default function ImportProductExcel({ result, setResult }) {
   const hanldeImportAll = async () => {
     try {
       console.log(excelData);
+      if (errorList.length > 0) return;
       const result = await createProductsWithUserId(excelData);
       console.log("cuuuuuuuuuuuuu", result);
       if (result.status == 200) {
@@ -256,6 +257,11 @@ export default function ImportProductExcel({ result, setResult }) {
   const handleImportSelectedProduct = async () => {
     try {
       console.log(selectedProducts);
+      const check = selectedProducts.find((selectedItem) =>
+        errorList?.some((errorItem) => errorItem.item === selectedItem)
+      );
+      if (check) return;
+
       const result = await createProductsWithUserId(selectedProducts);
       if (result.status == 200) {
         const updateData = excelData.filter(

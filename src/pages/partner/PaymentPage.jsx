@@ -3,7 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import AxiosPayment from "../../services/Payment";
 
 import axios from "axios";
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 import {
   ArrowsLeftRight,
   Coins,
@@ -232,7 +232,10 @@ export function PaymentPage() {
 
                           <td className=" px-3 py-2  ">{payment?.code}</td>
                           <td className=" px-1 py-2 ">
-                            {format(payment?.createDate, "hh:mm - dd/MM/yyyy")}
+                            {format(
+                              add(new Date(payment?.createDate), { hours: 7 }),
+                              "HH:mm - dd/MM/yyyy"
+                            )}
                           </td>
                           <td className=" px-1 py-2 max-w-[20rem]">
                             {payment?.description}
@@ -328,10 +331,16 @@ export function PaymentPage() {
                             {payment?.partner_bank_account}
                           </td>
                           <td className=" px-1 py-2 ">
-                            {format(payment?.createDate, "hh:mm - dd/MM/yyyy")}
+                            {format(
+                              add(new Date(payment?.createDate), { hours: 7 }),
+                              "HH:mm - dd/MM/yyyy"
+                            )}
                           </td>
                           <td className=" px-1 py-2 ">
-                            {format(payment?.confirmDate, "hh:mm - dd/MM/yyyy")}
+                            {format(
+                              add(new Date(payment?.confirmDate), { hours: 7 }),
+                              "HH:mm - dd/MM/yyyy"
+                            )}
                           </td>
                           <td className=" px-1 py-2 font-medium text-red-500">
                             {new Intl.NumberFormat().format(payment?.amount)}{" "}

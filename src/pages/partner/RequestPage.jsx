@@ -9,7 +9,7 @@ import { useDetail } from "../../context/DetailContext";
 import { NavLink } from "react-router-dom";
 import SpinnerLoading from "../../component/shared/Loading";
 import { t } from "i18next";
-import { ArrowCounterClockwise } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, Warning } from "@phosphor-icons/react";
 
 export default function RequestPage() {
   const { userInfor } = useContext(AuthContext);
@@ -259,26 +259,34 @@ export default function RequestPage() {
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50"></div>
             <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
+              className="absolute bg-white border border-gray-300 shadow-md rounded-2xl p-8 w-[30rem] h-fit text-black"
               style={{
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <p>{`Are you sure you want to delete ${showDeleteConfirmation.name}?`}</p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => confirmDelete(showDeleteConfirmation)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                >
-                  Delete
-                </button>
+              <div className="flex items-center justify-center">
+                <div className="text-5xl bg-fit h-fit p-4 bg-[#fff5f6] rounded-full mb-6">
+                  <Warning weight="fill" color="#fe3f56" />
+                </div>
+              </div>
+              <p className="w-full text-2xl font-semibold text-center  mb-6">
+                Delete Request
+              </p>
+              <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${showDeleteConfirmation?.name}" request?`}</p>
+              <div className="flex justify-between gap-4">
                 <button
                   onClick={cancelDelete}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                  className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
                 >
-                  Cancel
+                  {t("No, Keep It.")}
+                </button>
+                <button
+                  onClick={() => confirmDelete(showDeleteConfirmation)}
+                  className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
+                >
+                  {t("Yes, Delete!")}
                 </button>
               </div>
             </div>
