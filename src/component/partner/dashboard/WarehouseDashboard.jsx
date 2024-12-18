@@ -85,25 +85,25 @@ const WarehouseDashboard = () => {
   };
 
   const salesOrdersData = {
-    labels: revenueUpdate.map((item) => item?.warehouseName),
+    labels: revenueUpdate?.map((item) => item?.warehouseName),
     datasets: [
       {
         label: "OrdersSalesOverview",
-        data: revenueUpdate.map((item) => item?.totalRevenue || 100000),
-        backgroundColor: generateColorsForChart(revenueUpdate.length,0),
+        data: revenueUpdate?.map((item) => item?.totalRevenue || 100000),
+        backgroundColor: generateColorsForChart(revenueUpdate?.length,0),
         hoverOffset: 10,
       },
     ],
   };
   const salesInventoryData = {
-    labels: revenueInventoryUpdate.map((item) => item?.warehouseName),
+    labels: revenueInventoryUpdate?.map((item) => item?.warehouseName),
     datasets: [
       {
         label: "InventoriesSalesOverview",
-        data: revenueInventoryUpdate.map(
+        data: revenueInventoryUpdate?.map(
           (item) => item?.totalInventoryRevenue || 100000
         ),
-        backgroundColor: generateColorsForChart(revenueInventoryUpdate.length,100),
+        backgroundColor: generateColorsForChart(revenueInventoryUpdate?.length,0),
         hoverOffset: 10,
       },
     ],
@@ -158,10 +158,7 @@ const WarehouseDashboard = () => {
   console.log("revenueInventoryUpdate", revenueInventoryUpdate);
   console.log("revenueUpdate2", revenueUpdate2);
   console.log("revenueInventoryUpdate2", revenueInventoryUpdate2);
-  console.log(
-    "revenueData",
-    revenueUpdate.map((item) => item?.totalRevenue)
-  );
+
 
   const salesOverviewOptions = {
     plugins: {
