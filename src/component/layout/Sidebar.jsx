@@ -12,6 +12,8 @@ import {
   CarProfile,
   TreasureChest,
   MapPinArea,
+  Note,
+  ChartPie,
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
