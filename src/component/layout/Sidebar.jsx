@@ -11,6 +11,8 @@ import {
   CreditCard,
   CarProfile,
   TreasureChest,
+  Note,
+  ChartPie,
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
@@ -59,15 +61,15 @@ export function Sidebar() {
               className="flex navigate-menu"
             >
               <div className="sidebar-menu-container">
-                <House className="icon" weight="bold" />
+                <ChartPie  className="icon" weight="bold" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
 
             <NavLink to="inventory" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Package className="icon" weight="bold" />
-                <p className="label">{t("Inventory")}</p>
+                <Warehouse className="icon" weight="bold" />
+                <p className="label">{t("Warehouse")}</p>
               </div>
             </NavLink>
 
@@ -87,13 +89,13 @@ export function Sidebar() {
 
             <NavLink to="request" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="bold" />
+                <Note  className="icon" weight="bold" />
                 <p className="label">{t("Request")}</p>
               </div>
             </NavLink>
             <NavLink to="lots" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="bold" />
+                <Package className="icon" weight="bold" />
                 <p className="label">{t("Lots")}</p>
               </div>
             </NavLink>

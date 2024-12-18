@@ -285,6 +285,9 @@ i18n
           GenerateQRCode: "Generate QR Code",
           ChooseYourExchangeAmount: "Choose Your Exchange Amount",
           MoneyExchange: "Money Exchange",
+          YouNeedAtLeast1MonthToBuyInventory:
+            "You need at least 1 month to buy inventory",
+          NotEnoughtMoneyToDoThis: "Not enough money to do this",
         },
       },
       vi: {
@@ -562,6 +565,9 @@ i18n
           GenerateQRCode: "Tạo mã QR",
           ChooseYourExchangeAmount: "Chọn số tiền bạn muốn đổi",
           MoneyExchange: "Đổi tiền",
+          YouNeedAtLeast1MonthToBuyInventory:
+            "Bạn cần ít nhất 1 tháng để mua hàng tồn kho",
+          NotEnoughtMoneyToDoThis: "Không đủ tiền để thực hiện điều này",
         },
       },
       ja: {
@@ -837,6 +843,9 @@ i18n
           GenerateQRCode: "QRコードを生成",
           ChooseYourExchangeAmount: "交換する金額を選択",
           MoneyExchange: "両替",
+          YouNeedAtLeast1MonthToBuyInventory:
+            "在庫を購入するには最低1か月が必要です",
+          NotEnoughtMoneyToDoThis: "これを実行するためのお金が足りません",
         },
       },
     },

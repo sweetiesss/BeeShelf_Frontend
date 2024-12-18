@@ -2028,7 +2028,7 @@ export default function DetailSlide() {
               { label: "Import date:", value: dataDetail?.importDate },
               // { label: "Export date:", value: dataDetail },
               { label: "Expiration date:", value: dataDetail?.expirationDate },
-              { label: "To Warehouse:", value: dataDetail?.warehouseName },
+              { label: "Warehouse:", value: dataDetail?.warehouseName },
             ]?.map((item, index) => (
               <div key={index} className="flex justify-between text-lg">
                 <span className="text-gray-600">{item.label}</span>

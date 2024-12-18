@@ -100,6 +100,18 @@ export default function AxiosPayment() {
       return e;
     }
   };
+  const getOrdersSaleByUserId = async (userId) => {
+    try {
+      const fetching = await fetchDataBearer({
+        url: `payment/get-payments/${userId}`,
+        method: "GET",
+      });
+      return fetching;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  };
 
   return {
     createQrCode,
@@ -107,5 +119,6 @@ export default function AxiosPayment() {
     getPaymentTransactionByUserId,
     getPaymentWithDrawByUserId,
     createWithdrawnRequest,
+    getOrdersSaleByUserId,
   };
 }

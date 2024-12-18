@@ -52,6 +52,7 @@ export default function InventoryPage() {
 
   const [sortCriteria, setSortCriteria] = useState(null);
 
+
   const { userInfor, setRefrestAuthWallet, authWallet } = useAuth();
   const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
   const { updateDataDetail, updateTypeDetail, refresh, setRefresh } =
@@ -207,7 +208,7 @@ export default function InventoryPage() {
     if (data < 0 || data === null || data === undefined || data === "") {
       console.log("here");
 
-      setErrors("YouNeedAtLeast1MonthToBuyInventory.");
+      setErrors("YouNeedAtLeast1MonthToBuyInventory");
       setMonthToBuyInventory("");
       return;
     }
@@ -215,7 +216,7 @@ export default function InventoryPage() {
     console.log(dataPrice > authWallet?.totalAmount);
 
     if (dataPrice > authWallet?.totalAmount) {
-      setErrors("NotEnoughtMoneyToDoThis.");
+      setErrors("NotEnoughtMoneyToDoThis");
       return;
     }
   };
