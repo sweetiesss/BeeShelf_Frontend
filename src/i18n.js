@@ -274,6 +274,9 @@ i18n
   "Storage_Fee": "Storage Fee",
   "Additional_Fee": "Additional Fee",
    "Close": "Close",
+   "WarehouseName": "Warehouse Name",
+   "ShipperName": "Shipper Name",
+   "Batch_name_cannot_be_empty_or_whitespace": "Batch name cannot be empty or whitespace",
           //Payment
           "BankAccount":"Bank Account",
           "BankName":"Bank Name",
@@ -474,6 +477,7 @@ i18n
   "Yes,Delete?": "Có, Xóa",
   "Cancel": "Hủy",
 
+  "ShipperName": "Tên người giao",
 "Batch_deleted_successfully.": "Xóa lô thành công.",
   "Failed_to_delete_batch._Please_try_again.": "Xóa lô thất bại. Vui lòng thử lại.",
   "An_error_occurred_while_deleting_the_batch._Please_try_again.": "Đã xảy ra lỗi khi xóa lô. Vui lòng thử lại.",
@@ -580,6 +584,8 @@ i18n
   "Storage_Fee": "Phí Lưu Kho",
   "Additional_Fee": "Phí Phát Sinh",
    "Close": "Đóng",
+   "WarehouseName": "Tên kho",
+   "Batch_name_cannot_be_empty_or_whitespace": "Tên lô không được để trống hoặc chỉ chứa khoảng trắng",
           //Payment
           "BankAccount":"Số tài khoản",
           "BankName":"Tên ngân hàng",
@@ -776,7 +782,6 @@ i18n
   "Areyousureyouwanttodeletethisbatch?": "このバッチを削除してもよろしいですか？",
   "Yes,Delete?": "はい、削除",
   "Cancel": "キャンセル",
-
           "Batch_deleted_successfully.": "バッチが正常に削除されました。",
           "Failed_to_delete_batch._Please_try_again.": "バッチの削除に失敗しました。もう一度お試しください。",
           "An_error_occurred_while_deleting_the_batch._Please_try_again.": "バッチの削除中にエラーが発生しました。もう一度お試しください。",
@@ -883,6 +888,9 @@ i18n
   "Storage_Fee": "保管料",
   "Additional_Fee": "追加料金",
   "Close": "閉じる",
+  "ShipperName": "貴方",
+  "Batch_name_cannot_be_empty_or_whitespace": "バッチ名は空白またはスペースのみであってはなりません",
+  "WarehouseName": "倉庫",
           //Payment:
            "BankAccount": "口座番号",
           "BankName": "銀行名",

@@ -803,15 +803,15 @@ const RequestManagement = () => {
                 </div>
 
                 <div>
-                  <p className="font-bold">Old Warehouse Name:</p>
+                  <p className="font-bold">New Warehouse Name:</p>
                   <p>{selectedExportRequest.warehouseName}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Old Inventory Name:</p>
+                  <p className="font-bold">New Inventory Name:</p>
                   <p>{selectedExportRequest.sendToInventoryName}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Old Lot ID:</p>
+                  <p className="font-bold">New Lot ID:</p>
                   <p>{selectedExportRequest.lotId}</p>
                 </div>
                 {/* <div>
@@ -819,15 +819,15 @@ const RequestManagement = () => {
                   <p>{selectedExportRequest.sendToInventoryId}</p>
                 </div> */}
                 <div>
-                  <p className="font-bold">New Warehouse Name:</p>
+                  <p className="font-bold">Old Warehouse Name:</p>
                   <p>{selectedExportRequest.exportFromWarehouseName}</p>
                 </div>
                 <div>
-                  <p className="font-bold">New Inventory Name:</p>
+                  <p className="font-bold">Old Inventory Name:</p>
                   <p>{selectedExportRequest.exportFromInventoryName}</p>
                 </div>
                 <div>
-                  <p className="font-bold">New Lot ID:</p>
+                  <p className="font-bold">Old Lot ID:</p>
                   <p>{selectedExportRequest.exportFromLotId}</p>
                 </div>
                 {/* <div>
