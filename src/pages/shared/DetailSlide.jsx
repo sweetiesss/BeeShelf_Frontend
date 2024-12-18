@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDetail } from "../../context/DetailContext";
-import { X, XCircle } from "@phosphor-icons/react";
+import { Warning, X, XCircle } from "@phosphor-icons/react";
 import { AuthContext, useAuth } from "../../context/AuthContext";
 import AxiosProduct from "../../services/Product";
 import AxiosLot from "../../services/Lot";
@@ -1037,7 +1037,7 @@ export default function DetailSlide() {
 
     return (
       <>
-        <div className="w-[600px] h-full bg-white p-6 flex flex-col gap-8 text-black max-h-[100vh] overflow-auto">
+        <div className="w-[800px] h-full bg-white p-6 flex flex-col gap-8 text-black max-h-[100vh] overflow-auto">
           {/* Header */}
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
@@ -1172,7 +1172,7 @@ export default function DetailSlide() {
                 </p>
                 <p className="text-black  col-span-1">{t("x")}</p>
                 <p className="text-black  col-span-1">{t("Unit")}</p>
-                <p className="text-black  col-span-2">
+                <p className="text-black  col-span-2  text-end">
                   {t("Total")} <span className="text-gray-400">(vnd)</span>
                 </p>
               </div>
@@ -1197,7 +1197,7 @@ export default function DetailSlide() {
                   <span className="text-black  col-span-1">
                     {t(item?.unit)}
                   </span>
-                  <span className="text-black  col-span-2">
+                  <span className="text-black  col-span-2 text-end">
                     {new Intl.NumberFormat().format(
                       item.productPrice * item.productAmount
                     )}
@@ -1235,11 +1235,11 @@ export default function DetailSlide() {
               ))}
             </div>
           </div>
-          <div className="flex gap-8 items-center w-full ">
+          <div className="flex gap-8 items-center w-full justify-between">
             {dataDetail?.status === "Draft" ? (
               <>
                 <button
-                  className="bg-red-500 text-white px-4 py-2 rounded-md w-full"
+                  className="bg-red-500 text-white px-4 py-2 rounded-md w-full "
                   onClick={(e) => handleDeleteClick(e, dataDetail)}
                 >
                   {t("Delete")}
@@ -1264,14 +1264,14 @@ export default function DetailSlide() {
               </>
             ) : dataDetail?.status === "Pending" ? (
               <>
-                <button
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                {/* <button
+                  className="bg-red-500 text-white px-4 py-2 rounded-md w-full"
                   onClick={(e) => handleDeleteClick(e, dataDetail)}
                 >
                   {t("Delete")}
-                </button>
+                </button> */}
                 <button
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                  className="bg-gray-500 text-white px-4 py-2 rounded-md w-full"
                   // onClick={(e) =>handleUpdateStatusClick(e, dataDetail, "Canceled")}
                 >
                   {t("Cancel")}
@@ -1286,26 +1286,34 @@ export default function DetailSlide() {
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50"></div>
             <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
+              className="absolute bg-white border border-gray-300 shadow-md rounded-2xl p-8 w-[30rem] h-fit text-black"
               style={{
                 top: "50%",
-                left: "-100%",
+                left: "-10%",
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <p>{`Are you sure you want to delete order ${dataDetail?.orderCode} ?`}</p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => confirmDelete(showDeleteConfirmation)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                >
-                  {t("Delete")}
-                </button>
+              <div className="flex items-center justify-center">
+                <div className="text-5xl bg-fit h-fit p-4 bg-[#fff5f6] rounded-full mb-6">
+                  <Warning weight="fill" color="#fe3f56" />
+                </div>
+              </div>
+              <p className="w-full text-2xl font-semibold text-center  mb-6">
+                Delete Order
+              </p>
+              <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${dataDetail?.orderCode}" order?`}</p>
+              <div className="flex justify-between gap-4">
                 <button
                   onClick={cancelDelete}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                  className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
                 >
-                  {t("Cancel")}
+                  {t("No, Keep It.")}
+                </button>
+                <button
+                  onClick={() => confirmDelete(showDeleteConfirmation)}
+                  className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
+                >
+                  {t("Yes, Delete!")}
                 </button>
               </div>
             </div>
@@ -1853,38 +1861,42 @@ export default function DetailSlide() {
               <div onClick={handleEditProfile}>X</div>
             </div>
             <div className="grid grid-cols-2 gap-[16px] w-full">
-              <div className="text-[var(--en-vu-600)]">{t("PhoneNumber")}:</div>
+              <div className="text-[var(--en-vu-600)]">{t("PhoneNumber")}</div>
               <div className="text-[var(--en-vu-Base)]">{userInfor?.phone}</div>
-              <div className="text-[var(--en-vu-600)]">{t("Email")}:</div>
+              <div className="text-[var(--en-vu-600)]">{t("Email")}</div>
               <div className="text-[var(--en-vu-Base)] w-[11rem] overflow-hidden">
                 {userInfor?.email}
               </div>
             </div>
-            <div className="w-full border-b-2 my-4"></div>
-            <div className="font-medium mb-[16px] flex justify-between items-center">
-              <p>{t("BusinessDetails")}</p>
-              <div onClick={handleEditProfile}>X</div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 w-full">
-              <div className="text-[var(--en-vu-600)]">
-                {t("BusinessName")}:
-              </div>
-              <div className="text-[var(--en-vu-Base)]">
-                {userInfor?.businessName}
-              </div>
-              <div className="text-[var(--en-vu-600)]">
-                {t("CategoryName")}:
-              </div>
-              <div className="text-[var(--en-vu-Base)]">
-                {userInfor?.categoryName}
-              </div>
-              <div className="text-[var(--en-vu-600)]">
-                {t("OcopCategoryName")}:
-              </div>
-              <div className="text-[var(--en-vu-Base)]">
-                {userInfor?.ocopCategoryName}
-              </div>
-            </div>
+            {userInfor?.roleName === "Partner" && (
+              <>
+                <div className="w-full border-b-2 my-4"></div>
+                <div className="font-medium mb-[16px] flex justify-between items-center">
+                  <p>{t("BusinessDetails")}</p>
+                  <div onClick={handleEditProfile}>X</div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 w-full">
+                  <div className="text-[var(--en-vu-600)]">
+                    {t("BusinessName")}
+                  </div>
+                  <div className="text-[var(--en-vu-Base)]">
+                    {userInfor?.businessName}
+                  </div>
+                  <div className="text-[var(--en-vu-600)]">
+                    {t("CategoryName")}
+                  </div>
+                  <div className="text-[var(--en-vu-Base)]">
+                    {userInfor?.categoryName}
+                  </div>
+                  <div className="text-[var(--en-vu-600)]">
+                    {t("OcopCategoryName")}
+                  </div>
+                  <div className="text-[var(--en-vu-Base)]">
+                    {userInfor?.ocopCategoryName}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <button
