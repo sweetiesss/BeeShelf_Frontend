@@ -31,6 +31,7 @@ export function PaymentPage() {
   const [typePayment, setTypePayment] = useState("Exchange");
   const [payments, setPayment] = useState();
   const [withdrawPayments, setWithdrawPayment] = useState();
+  const [ordersSale, setOrdersSalePayment] = useState();
   const [openAction, handleOpenActionTab] = useState();
   const [selectedPayment, setSelectedPaymet] = useState();
   const moneyExchange = useRef();
@@ -47,6 +48,7 @@ export function PaymentPage() {
     createQrCode,
     getPaymentTransactionByUserId,
     getPaymentWithDrawByUserId,
+    getOrdersSaleByUserId,
   } = AxiosPayment();
 
   useEffect(() => {
@@ -89,6 +91,11 @@ export function PaymentPage() {
       if (result2?.status === 200) {
         console.log("withDrawnPayment", result2);
         setWithdrawPayment(result2?.data);
+      }
+      const result3 = await getOrdersSaleByUserId(userInfor?.id);
+      if (result3?.status === 200) {
+        console.log("withDrawnPayment", result3);
+        setOrdersSalePayment(result3?.data);
       }
 
       // await getAuthWalletMoney();
@@ -159,35 +166,6 @@ export function PaymentPage() {
     }
   };
 
-  // const getAuthWalletMoney = async () => {
-  //   try {
-  //     if (userInfor?.roleName === "Partner" && userInfor?.roleId == 2) {
-  //       if (userInfor && isAuthenticated) {
-  //         console.log("check tokeen", isAuthenticated);
-
-  //         const response = await axios.get(
-  //           `${process.env.REACT_APP_BASE_URL_API}partner/get-wallet/${userInfor?.id}`,
-  //           {
-  //             headers: {
-  //               Authorization: `Bearer ${isAuthenticated}`,
-  //             },
-  //           }
-  //         );
-  //         console.log(response);
-
-  //         setAuthWallet(response.data);
-  //       }
-  //     } else {
-  //       return;
-  //     }
-  //   } catch (error) {
-  //     console.error(
-  //       "Error fetching wallet:",
-  //       error.response?.data || error.message
-  //     );
-  //   } finally {
-  //   }
-  // };
   console.log("authWallet", authWallet);
 
   return (
@@ -223,6 +201,7 @@ export function PaymentPage() {
             >
               <option value="Exchange">{t("Exchange")}</option>
               <option value="Withdrawn">{t("Withdrawn")}</option>
+              <option value="OrdersSales">{t("Order Sales")}</option>
             </select>
           </div>
           {typePayment === "Exchange" ? (
@@ -258,7 +237,13 @@ export function PaymentPage() {
                           <td className=" px-1 py-2 max-w-[20rem]">
                             {payment?.description}
                           </td>
-                          <td className=" px-1 py-2 ">
+                          <td
+                            className={` px-1 py-2 font-medium ${
+                              payment?.inventoryId === null
+                                ? "text-green-500"
+                                : "text-red-500"
+                            }`}
+                          >
                             {new Intl.NumberFormat().format(payment?.amount)}{" "}
                             vnd
                           </td>
@@ -283,7 +268,7 @@ export function PaymentPage() {
                   })}
               </tbody>
             </table>
-          ) : (
+          ) : typePayment === "Withdrawn" ? (
             <table className="w-full">
               <thead>
                 <tr>
@@ -348,8 +333,79 @@ export function PaymentPage() {
                           <td className=" px-1 py-2 ">
                             {format(payment?.confirmDate, "hh:mm - dd/MM/yyyy")}
                           </td>
-                          <td className=" px-1 py-2 ">
+                          <td className=" px-1 py-2 font-medium text-red-500">
                             {new Intl.NumberFormat().format(payment?.amount)}{" "}
+                            vnd
+                          </td>
+                          <td className=" px-1 py-2 text-center align-middle">
+                            <p
+                              className={`px-2 py-1 inline-block rounded-full text-sm font-semibold h-fit w-fit ${
+                                payment?.isTransferred === 1
+                                  ? "bg-green-200 text-green-800"
+                                  : payment?.isTransferred === 0
+                                  ? "bg-gray-200 text-gray-800"
+                                  : "bg-red-200 text-red-800"
+                              }`}
+                            >
+                              {payment?.isTransferred === 1
+                                ? t("COMPLETE")
+                                : payment?.isTransferred === 0
+                                ? t("PENDING")
+                                : "CANCELED"}
+                            </p>
+                          </td>
+                        </tr>
+                      </>
+                    );
+                  })}
+              </tbody>
+            </table>
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <td className="text-center pb-2  ">#</td>
+
+                  <td className="text-left pb-2  px-3">{t("OrderCode")}</td>
+                  <td className="text-left pb-2 ">{t("ShipperEmail")}</td>
+                  <td className="text-left pb-2 ">{t("ShipperName")}</td>
+                  <td className="text-left pb-2 ">{t("Account")}</td>
+                  <td className="text-left pb-2 ">{t("CreateDate")}</td>
+                  <td className="text-left pb-2 ">{t("ConfirmDate")}</td>
+                  <td className="text-left pb-2 ">{t("Amount")}</td>
+                  <td className="text-center pb-2">{t("Status")}</td>
+                </tr>
+              </thead>
+              <tbody>
+                {ordersSale &&
+                  ordersSale?.map((payment, index) => {
+                    return (
+                      <>
+                        <tr
+                          key={index}
+                          className={`hover:bg-gray-100 border-t-2 relative h-[4rem] items-center`}
+                        >
+                          <td className=" px-1 py-2 text-center ">
+                            {index + 1}
+                          </td>
+                          <td className=" px-3 py-2  ">{payment?.orderCode}</td>
+                          <td className=" px-1 py-2 ">
+                            {payment?.shipperEmail}
+                          </td>
+                          <td className=" px-1 py-2">{payment?.shipperName}</td>
+                          <td className=" px-1 py-2">
+                            {payment?.partner_bank_account}
+                          </td>
+                          <td className=" px-1 py-2 ">
+                            {/* {format(payment?.createDate, "hh:mm - dd/MM/yyyy")} */}
+                          </td>
+                          <td className=" px-1 py-2 ">
+                            {/* {format(payment?.confirmDate, "hh:mm - dd/MM/yyyy")} */}
+                          </td>
+                          <td className=" px-1 py-2 text-green-500 font-medium">
+                            {new Intl.NumberFormat().format(
+                              payment?.totalAmount
+                            )}{" "}
                             vnd
                           </td>
                           <td className=" px-1 py-2 text-center align-middle">

@@ -14,11 +14,12 @@ import {
 } from "chart.js";
 import { useAuth } from "../../../context/AuthContext";
 import AxiosPartner from "../../../services/Partner";
-import { Minus, TrendDown, TrendUp } from "@phosphor-icons/react";
+import { Bag, Minus, Package, TrendDown, TrendUp } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import SpinnerLoading from "../../shared/Loading";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
+import AxiosInventory from "../../../services/Inventory";
 
 ChartJS.register(
   CategoryScale,
@@ -34,10 +35,14 @@ ChartJS.register(
 
 const OrderDashboard = () => {
   // Dummy data for sales overview
+  const [allProducts, setAllProduct] = useState();
+  const [allIventories, setAllIventory] = useState();
   const [orders, setOrders] = useState();
   const [ordersPrevious, setOrdersPrevious] = useState();
   const { userInfor } = useAuth();
-  const { getOrderRevunue } = AxiosPartner();
+  const { getOrderRevunue, getAllProduct } = AxiosPartner();
+  const { getInventory1000ByUserId } = AxiosInventory();
+
   const [revenueUpdate, setRevenueUpdate] = useState();
   const [revenueUpdate2, setRevenueUpdate2] = useState();
   const [totalStatusCount, setTotalStatusCount] = useState();
@@ -46,12 +51,24 @@ const OrderDashboard = () => {
   const [thisYear, setThisYear] = useState(new Date().getFullYear());
   const { t } = useTranslation();
   const salesOverviewData = {
-    labels: ["Profit", "Expense"],
+    labels: ["Canceled", "Completed", "Failed", "Pending", "Shipping"],
     datasets: [
       {
         label: "Sales Overview",
-        data: [23450, 23450],
-        backgroundColor: ["#4bc0c0", "#e5e5e5"],
+        data: [
+          totalStatusCount?.orderStatus?.Canceled,
+          totalStatusCount?.orderStatus?.Completed,
+          totalStatusCount?.orderStatus?.Failed,
+          totalStatusCount?.orderStatus?.Pending,
+          totalStatusCount?.orderStatus?.Shipping,
+        ],
+        backgroundColor: [
+          "#F44336",
+          "#4CAF50",
+          "#FF9800",
+          "#FFEB3B",
+          "#2196F3",
+        ],
         hoverOffset: 4,
       },
     ],
@@ -62,6 +79,8 @@ const OrderDashboard = () => {
         setLoading(true);
         const result = await getOrderRevunue(userInfor?.id, thisYear);
         const result2 = await getOrderRevunue(userInfor?.id, thisYear - 1);
+        const result3 = await getAllProduct(userInfor?.id);
+        const result4 = await getInventory1000ByUserId(userInfor?.id);
         if (result?.status === 200 && result2?.status === 200) {
           const getData = result?.data;
           const getData2 = result2?.data;
@@ -85,6 +104,12 @@ const OrderDashboard = () => {
           setTotalStatusCount(calculateOrderStatuses(getData));
           setTotalStatusCount2(calculateOrderStatuses(getData2));
         }
+        if (result3?.status === 200) {
+          setAllProduct(result3?.data);
+        }
+        if (result4?.status === 200) {
+          setAllIventory(result4?.data);
+        }
       } catch (e) {
       } finally {
         setLoading(false);
@@ -93,7 +118,8 @@ const OrderDashboard = () => {
     fetchBeginData();
   }, [thisYear]);
 
-  console.log(orders);
+  console.log(allProducts);
+  console.log(allIventories);
   console.log("totalStatusCount", totalStatusCount);
   console.log("totalStatusCount2", totalStatusCount2);
   console.log("revenueUpdate", revenueUpdate);
@@ -104,7 +130,7 @@ const OrderDashboard = () => {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (tooltipItem) => `$${tooltipItem.raw.toLocaleString()}`,
+          label: (tooltipItem) => `${tooltipItem.raw.toLocaleString()} orders`,
         },
       },
     },
@@ -205,20 +231,18 @@ const OrderDashboard = () => {
     ],
     datasets: [
       {
-        label: thisYear + " " + t("Sales"),
-
-        data: revenueUpdate,
-        borderColor: "#0a9a63",
-        backgroundColor: "#0db977",
+        label: thisYear - 1 + " " + t("Sales"),
+        data: revenueUpdate2,
+        borderColor: "#F5659C",
+        backgroundColor: "#F24688",
         fill: true,
         tension: 0.4,
       },
       {
-        label: thisYear - 1 + " " + t("Sales"),
-        data: revenueUpdate2,
-
-        borderColor: "#F5659C",
-        backgroundColor: "#F24688",
+        label: thisYear + " " + t("Sales"),
+        data: revenueUpdate,
+        borderColor: "#0a9a63",
+        backgroundColor: "#0db977",
         fill: true,
         tension: 0.4,
       },
@@ -256,274 +280,76 @@ const OrderDashboard = () => {
               value={dayjs(String(thisYear), "YYYY")}
             />
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-            {(() => {
-              const total = totalStatusCount?.totalOrder || 1;
-              const total2 = totalStatusCount2?.totalOrder || 1;
-              if (total > total2) {
-                const percentage = ((total2 / total) * 100).toFixed(2);
-                return (
-                  <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                    <div className="h-full w-fit flex items-center text-5xl text-green-500">
-                      <TrendUp />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold">
-                        {totalStatusCount?.totalOrder} {t("orders")}{" "}
-                        <span className="text-sm text-gray-500">
-                          {"(" + percentage + ")%"}
-                        </span>
-                      </p>
-                      <p className="text-gray-500">{t("TotalOrders")}</p>
-                    </div>
-                  </div>
-                );
-              }
-              if (total < total2) {
-                const percentage = ((total / total2) * 100).toFixed(2);
+          <div className="grid grid-cols-5 gap-6 grid-rows-2">
+            <div className="flex flex-col justify-between">
+              {(() => {
+                const total = totalStatusCount?.totalSales || 1;
+                const total2 = totalStatusCount2?.totalSales || 1;
+                if (total > total2) {
+                  const percentage = ((total2 / total) * 100).toFixed(2);
+                  return (
+                    <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
+                      <div className="h-full w-fit flex items-center text-5xl text-green-500">
+                        <TrendUp />
+                      </div>
+                      <div>
+                        <p className="text-xl font-bold">
+                          {(() => {
+                            const totalSales =
+                              totalStatusCount?.totalSales || 0;
+                            const formattedSales =
+                              totalSales > 1000000
+                                ? `${(totalSales / 1000000).toFixed(0)}m`
+                                : new Intl.NumberFormat().format(totalSales);
 
-                return (
-                  <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                    <div className="h-full w-fit flex items-center text-5xl text-red-500">
-                      <TrendDown />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold">
-                        {totalStatusCount?.totalOrder} {t("orders")}{" "}
-                        <span className="text-sm text-gray-500">
-                          {"(-" + percentage + ")%"}
-                        </span>
-                      </p>
-                      <p className="text-gray-500">{t("TotalOrders")}</p>
-                    </div>
-                  </div>
-                );
-              }
-              return (
-                <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                  <div className="h-full w-fit flex items-center text-5xl text-gray-500">
-                    <Minus />
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold">
-                      {totalStatusCount?.totalOrder} {t("orders")}{" "}
-                      <span className="text-sm text-gray-500"> {"(0%)"}</span>
-                    </p>
-                    <p className="text-gray-500">{t("TotalOrders")}</p>
-                  </div>
-                </div>
-              );
-            })()}
-            {(() => {
-              const total = totalStatusCount?.orderStatus?.Canceled || 1;
-              const total2 = totalStatusCount2?.orderStatus?.Canceled || 1;
-              if (total > total2) {
-                const percentage = ((total2 / total) * 100).toFixed(2);
-                return (
-                  <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                    <div className="h-full w-fit flex items-center text-5xl text-green-500">
-                      <TrendUp />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold">
-                        {totalStatusCount?.orderStatus?.Canceled} {t("orders")}{" "}
-                        <span className="text-sm text-gray-500">
-                          {"(" + percentage + ")%"}
-                        </span>
-                      </p>
-                      <p className="text-gray-500">{t("OrdersCanceled")}</p>
-                    </div>
-                  </div>
-                );
-              }
-              if (total < total2) {
-                const percentage = ((total / total2) * 100).toFixed(2);
+                            return formattedSales;
+                          })()}
+                          {" vnd "}
 
-                return (
-                  <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                    <div className="h-full w-fit flex items-center text-5xl text-red-500">
-                      <TrendDown />
+                          <span className="text-sm text-gray-500">
+                            {" (" + percentage + ")%"}
+                          </span>
+                        </p>
+                        <p className="text-gray-500">{t("TotalSales")}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xl font-bold">
-                        {totalStatusCount?.orderStatus?.Canceled} {t("orders")}{" "}
-                        <span className="text-sm text-gray-500">
-                          {"(-" + percentage + ")%"}
-                        </span>
-                      </p>
-                      <p className="text-gray-500">{t("OrdersCanceled")}</p>
-                    </div>
-                  </div>
-                );
-              }
-              return (
-                <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                  <div className="h-full w-fit flex items-center text-5xl text-gray-500">
-                    <Minus />
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold">
-                      {totalStatusCount?.orderStatus?.Canceled} {t("orders")}{" "}
-                      <span className="text-sm text-gray-500"> {"(0%)"}</span>
-                    </p>
-                    <p className="text-gray-500">{t("OrdersCanceled")}</p>
-                  </div>
-                </div>
-              );
-            })()}
-            {(() => {
-              const total = totalStatusCount?.orderStatus?.Completed || 1;
-              const total2 = totalStatusCount2?.orderStatus?.Completed || 1;
-              if (total > total2) {
-                const percentage = ((total2 / total) * 100).toFixed(2);
-                return (
-                  <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                    <div className="h-full w-fit flex items-center text-5xl text-green-500">
-                      <TrendUp />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold">
-                        {totalStatusCount?.orderStatus?.Completed} {t("orders")}{" "}
-                        <span className="text-sm text-gray-500">
-                          {"(" + percentage + ")%"}
-                        </span>
-                      </p>
-                      <p className="text-gray-500">{t("OrdersCompleted")}</p>
-                    </div>
-                  </div>
-                );
-              }
-              if (total < total2) {
-                const percentage = ((total / total2) * 100).toFixed(2);
+                  );
+                }
+                if (total < total2) {
+                  const percentage = ((total / total2) * 100).toFixed(2);
 
-                return (
-                  <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                    <div className="h-full w-fit flex items-center text-5xl text-red-500">
-                      <TrendDown />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold">
-                        {totalStatusCount?.orderStatus?.Completed} {t("orders")}{" "}
-                        <span className="text-sm text-gray-500">
-                          {"(-" + percentage + ")%"}
-                        </span>
-                      </p>
-                      <p className="text-gray-500">{t("OrdersCompleted")}</p>
-                    </div>
-                  </div>
-                );
-              }
-              return (
-                <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                  <div className="h-full w-fit flex items-center text-5xl text-gray-500">
-                    <Minus />
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold">
-                      {totalStatusCount?.orderStatus?.Completed} {t("orders")}{" "}
-                      <span className="text-sm text-gray-500"> {"(0%)"}</span>
-                    </p>
-                    <p className="text-gray-500">{t("OrdersCompleted")}</p>
-                  </div>
-                </div>
-              );
-            })()}
-            {(() => {
-              const total = totalStatusCount?.orderStatus?.Failed || 1;
-              const total2 = totalStatusCount2?.orderStatus?.Failed || 1;
-              if (total > total2) {
-                const percentage = ((total2 / total) * 100).toFixed(2);
-                return (
-                  <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                    <div className="h-full w-fit flex items-center text-5xl text-green-500">
-                      <TrendUp />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold">
-                        {totalStatusCount?.orderStatus?.Failed} {t("orders")}{" "}
-                        <span className="text-sm text-gray-500">
-                          {"(" + percentage + ")%"}
-                        </span>
-                      </p>
-                      <p className="text-gray-500">{t("OrdersFailed")}</p>
-                    </div>
-                  </div>
-                );
-              }
-              if (total < total2) {
-                const percentage = ((total / total2) * 100).toFixed(2);
+                  return (
+                    <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
+                      <div className="h-full w-fit flex items-center text-5xl text-red-500">
+                        <TrendDown />
+                      </div>
+                      <div>
+                        <p className="text-xl font-bold">
+                          {(() => {
+                            const totalSales =
+                              totalStatusCount?.totalSales || 0;
+                            const formattedSales =
+                              totalSales > 100000000
+                                ? `${(totalSales / 1000000).toFixed(0)}m`
+                                : new Intl.NumberFormat().format(totalSales);
 
-                return (
-                  <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                    <div className="h-full w-fit flex items-center text-5xl text-red-500">
-                      <TrendDown />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold">
-                        {totalStatusCount?.orderStatus?.Failed} {t("orders")}{" "}
-                        <span className="text-sm text-gray-500">
-                          {"(-" + percentage + ")%"}
-                        </span>
-                      </p>
-                      <p className="text-gray-500">{t("OrdersFailed")}</p>
-                    </div>
-                  </div>
-                );
-              }
-              return (
-                <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                  <div className="h-full w-fit flex items-center text-5xl text-gray-500">
-                    <Minus />
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold">
-                      {totalStatusCount?.orderStatus?.Failed} {t("orders")}{" "}
-                      <span className="text-sm text-gray-500"> {"(0%)"}</span>
-                    </p>
-                    <p className="text-gray-500">{t("OrdersFailed")}</p>
-                  </div>
-                </div>
-              );
-            })()}
-            {(() => {
-              const total = totalStatusCount?.totalSales || 1;
-              const total2 = totalStatusCount2?.totalSales || 1;
-              if (total > total2) {
-                const percentage = ((total2 / total) * 100).toFixed(2);
-                return (
-                  <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                    <div className="h-full w-fit flex items-center text-5xl text-green-500">
-                      <TrendUp />
-                    </div>
-                    <div>
-                      <p className="text-xl font-bold">
-                        {(() => {
-                          const totalSales = totalStatusCount?.totalSales || 0;
-                          const formattedSales =
-                            totalSales > 1000000
-                              ? `${(totalSales / 1000000).toFixed(0)}m`
-                              : new Intl.NumberFormat().format(totalSales);
+                            return formattedSales;
+                          })()}
+                          {" vnd "}
 
-                          return formattedSales;
-                        })()}
-                        {" vnd "}
-
-                        <span className="text-sm text-gray-500">
-                          {" (" + percentage + ")%"}
-                        </span>
-                      </p>
-                      <p className="text-gray-500">{t("TotalSales")}</p>
+                          <span className="text-sm text-gray-500">
+                            {" (-" + percentage + ")%"}
+                          </span>
+                        </p>
+                        <p className="text-gray-500">{t("TotalSales")}</p>
+                      </div>
                     </div>
-                  </div>
-                );
-              }
-              if (total < total2) {
-                const percentage = ((total / total2) * 100).toFixed(2);
-
+                  );
+                }
                 return (
-                  <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                    <div className="h-full w-fit flex items-center text-5xl text-red-500">
-                      <TrendDown />
+                  <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
+                    <div className="h-full w-fit flex items-center text-5xl text-gray-300">
+                      <Minus />
                     </div>
                     <div>
                       <p className="text-xl font-bold">
@@ -539,58 +365,88 @@ const OrderDashboard = () => {
                         {" vnd "}
 
                         <span className="text-sm text-gray-500">
-                          {" (-" + percentage + ")%"}
+                          {" "}
+                          {" (0%)"}
                         </span>
                       </p>
                       <p className="text-gray-500">{t("TotalSales")}</p>
                     </div>
                   </div>
                 );
-              }
-              return (
-                <div className="p-4 bg-white rounded-lg shadow-lg flex gap-4">
-                  <div className="h-full w-fit flex items-center text-5xl text-gray-500">
-                    <Minus />
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold">
-                      {(() => {
-                        const totalSales = totalStatusCount?.totalSales || 0;
-                        const formattedSales =
-                          totalSales > 100000000
-                            ? `${(totalSales / 1000000).toFixed(0)}m`
-                            : new Intl.NumberFormat().format(totalSales);
-
-                        return formattedSales;
-                      })()}
-                      {" vnd "}
-
-                      <span className="text-sm text-gray-500"> {" (0%)"}</span>
-                    </p>
-                    <p className="text-gray-500">{t("TotalSales")}</p>
-                  </div>
+              })()}
+              <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
+                <div className="h-full w-fit flex items-center text-5xl text-gray-300">
+                  <Bag />
                 </div>
-              );
-            })()}
-          </div>
-
-          {/* Bottom Row for Charts */}
-          <div className="grid grid-cols-2 gap-6">
-            {/* Sales Overview */}
-            {/* <div className="p-4 bg-white rounded-lg shadow-lg">
-          <h2 className="text-lg font-bold mb-4">Sales Overview</h2>
-          <Doughnut data={salesOverviewData} options={salesOverviewOptions} />
-        </div> */}
-
-            {/* Revenue Updates */}
-            <div className="p-4 bg-white rounded-lg shadow-lg">
-              <h2 className="text-lg font-bold mb-4">{t("RevenueSales")}{" (vnd)"}</h2>
-              <Bar data={revenueUpdateData} options={revenueUpdateOptions} />
+                <div>
+                  <p className="text-xl font-bold">
+                    {allProducts?.totalProductAmount}
+                  </p>
+                  <p className="text-gray-500">
+                    {t("Total Imported Products")}
+                  </p>
+                </div>
+              </div>
+              <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
+                <div className="h-full w-fit flex items-center text-5xl text-gray-300">
+                  <Package />
+                </div>
+                <div>
+                  <p className="text-xl font-bold">
+                    {allIventories?.totalItemsCount}
+                  </p>
+                  <p className="text-gray-500">
+                    {t("Total Bought Inventories")}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Yearly Sales */}
-            <div className="p-4 bg-white rounded-lg shadow-lg">
-              <h2 className="text-lg font-bold mb-4">{t("YearlySales")}{" (vnd)"}</h2>
+            <div className="p-4 bg-white rounded-lg shadow-lg col-span-2 border-[1px]">
+              <h2 className="text-lg font-bold mb-4">
+                {t("RevenueSales")}
+                {" (vnd)"}
+              </h2>
+              <Bar data={revenueUpdateData} options={revenueUpdateOptions} />
+            </div>
+            <div className="grid col-span-2 row-span-2 ">
+              <div className="p-4 bg-white rounded-lg shadow-xl border-[1px]  overflow-auto max-h-[74.7vh] h-fit">
+                <h2 className="text-lg font-bold mb-4">
+                  {t("Imported Product Overview")}
+                </h2>
+                <div className="flex flex-col gap-4  ">
+                  {allProducts?.products?.map((item) => (
+                    <div className="border-[1px] shadow-lg px-4 py-4 rounded-xl">
+                      <p className="font-medium text-lg">{item?.productName}</p>
+                      <div className="text-sm text-gray-500">
+                        <div className="flex gap-4">
+                          <p>{t("Stock")}:</p>
+                          <p>{item?.stock}</p>
+                        </div>
+                        <div className="flex gap-4">
+                          <p>{t("Stored At")}:</p>
+                          <p>{item?.warehouseName}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-white rounded-lg shadow-lg border-[1px]">
+              <h2 className="text-lg font-bold mb-4">Orders Overview</h2>
+              <Doughnut
+                data={salesOverviewData}
+                options={salesOverviewOptions}
+              />
+            </div>
+
+            <div className="p-4 bg-white rounded-lg shadow-lg col-span-2 border-[1px]">
+              <h2 className="text-lg font-bold mb-4">
+                {t("YearlySales")}
+                {" (vnd)"}
+              </h2>
               <Line data={yearlySalesData} options={yearlySalesOptions} />
             </div>
           </div>

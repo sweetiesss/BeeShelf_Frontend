@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Table, message, Spin, Button, Input, Modal, Form, Select } from "antd";
 import { useParams } from "react-router-dom";
 import useAxios from "../../../services/CustomizeAxios";
@@ -8,17 +9,19 @@ const Payment = () => {
   const { userInfor } = useAuth(); // Lấy thông tin user từ hook useAuth
   const { moneyTransferId: urlPaymentId } = useParams(); // Lấy paymentId từ URL
   const [moneyTransferId, setPaymentId] = useState(urlPaymentId || ""); // Trạng thái cho paymentId (lấy từ URL nếu có)
+  const [pictureLink, setPictureLink] = useState(null); // Trạng thái cho picture_link
+  const [file, setFile] = useState(null); // Trạng thái cho file ảnh
   const [visible, setVisible] = useState(false); // Trạng thái hiển thị modal
   const [payments, setPayments] = useState([]);
   const [paymentIdOptions, setPaymentIdOptions] = useState([]); // Trạng thái cho danh sách paymentId options
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
-    pageSize: 10,
-    totalPagesCount: 0,
+    pageSize: 8,
     pageIndex: 0,
   });
   const { fetchDataBearer } = useAxios();
+  const { t } = useTranslation();
 
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchPayments = async () => {
@@ -27,13 +30,14 @@ const Payment = () => {
       const warehouseId = userInfor?.workAtWarehouseId;
 
       if (!warehouseId) {
-        console.error("Warehouse ID is not available");
+       
+        message.error(t("WarehouseIDisnotavailable.Pleaseloginagain."));
         setLoading(false);
         return;
       }
 
       const response = await fetchDataBearer({
-        url: `/payment/get-money-transfers/${warehouseId}`, // Sử dụng URL với warehouseId động
+        url: `/payment/get-money-transfers/${warehouseId}`,
         method: "GET",
         params: {
           pageIndex: pagination.pageIndex,
@@ -43,25 +47,62 @@ const Payment = () => {
 
       if (response && response.data) {
         setPayments(response.data);
-        message.success("Data loaded successfully!");
+        message.success(t("Dataloadedsuccessfully!"));
 
-        // Map the response data to paymentId options for the Select component
-        const options = response.data.map((moneyTransferId) => ({
-          value: moneyTransferId.id, // ID của payment sẽ là value
-          label: `MoneyTransferId: ${moneyTransferId.id} - 
-          OCOP Partner ID: ${moneyTransferId.ocopPartnerId} - 
-          Amount: ${new Intl.NumberFormat('vi-VN', { style: 'decimal', maximumFractionDigits: 0 }).format(moneyTransferId.amount)} VNĐ`,
-           // Hiển thị Payment ID trong label
-        }));
+        // Tạo danh sách paymentId cho Select component
+        const options = response.data
+          .filter((item) => item.isTransferred === 0)
+          .map((item) => ({
+            value: item.id,
+            label: `MoneyTransferId: ${item.id} - OCOP Partner ID: ${
+              item.ocopPartnerId
+            } - Amount: ${new Intl.NumberFormat("vi-VN", {
+              style: "decimal",
+              maximumFractionDigits: 0,
+            }).format(item.amount)} VNĐ`,
+          }));
+
         setPaymentIdOptions(options);
       } else {
-        message.error("No data returned from the server.");
+        message.error(t("Nodatareturnedfromtheserver."));
       }
     } catch (error) {
-      console.error("Error fetching payments:", error);
-      message.error("Failed to fetch payments.");
+      console.error(t("Errorfetchingpayments:"), error);
+      message.error(t("Failedtofetchpayments."));
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Xử lý thay đổi file ảnh và upload ảnh lên server
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files[0];
+
+    if (!selectedFile) {
+      message.error(t("Pleaseselectavalidimagefile."));
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    try {
+      const response = await fetchDataBearer({
+        url: "/picture/upload-image", // Sử dụng API mới
+        method: "POST",
+        data: formData,
+      });
+
+      if (response && response.data) {
+        setFile(selectedFile);
+        setPictureLink(response.data); // Giả sử response.data chứa URL của ảnh
+        message.success(t("Imageuploadedsuccessfully!"));
+      } else {
+        message.error(t("Failedtouploadimage."));
+      }
+    } catch (error) {
+      console.error(t("Erroruploadingimage:"), error);
+      message.error(t("Anerroroccurredwhileuploadingtheimage."));
     }
   };
 
@@ -69,87 +110,264 @@ const Payment = () => {
   const createPayment = async () => {
     setLoading(true);
     try {
-      // Kiểm tra thông tin trước khi gọi API
-      console.log("Creating payment with moneyTransferId:", moneyTransferId, "and staffId:", userInfor?.id);
+      if (!moneyTransferId) {
+        message.error(t("PleaseselectaPaymentID."));
+        setLoading(false);
+        return;
+      }
+
+      if (!pictureLink) {
+        message.error(t("Pleaseuploadapicture."));
+        setLoading(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("moneyTransferId", moneyTransferId);
+      formData.append("picture_link", pictureLink);
+
+      const pictureLinkParam = encodeURIComponent(
+        pictureLink.name || pictureLink
+      );
 
       const response = await fetchDataBearer({
-        url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}`,
+        url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}?picture_link=${pictureLinkParam}`,
         method: "POST",
-        data: {
-          moneyTransferId,
-        },
+        data: formData,
       });
 
       if (response && response.status === 200) {
-        message.success("Payment Confirm successfully!");
-        fetchPayments(); // Cập nhật lại danh sách thanh toán
-        setVisible(false); // Đóng modal khi tạo payment thành công
+        message.success(t("Paymentconfirmedsuccessfully!"));
+        fetchPayments();
+        setVisible(false);
+        setPictureLink(null);
+        setPaymentId("");
       } else {
         const errorMessage =
-          response?.data?.message || "Failed to Confirm money transfer.";
+          response?.data?.message || t("Failedtoconfirmmoneytransfer");
         message.error(errorMessage);
       }
     } catch (error) {
-      message.error(error.response.data.message);
+      console.error(t("Errorconfirmingpayment:"), error);
+      message.error(t("Anerroroccurredwhileconfirmingthpayment"));
     } finally {
       setLoading(false);
     }
   };
 
-  // Cột trong bảng
+  // Định nghĩa các cột trong bảng
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id" },
     {
-      title: "Ocop Partner ID",
-      dataIndex: "ocopPartnerId",
-      key: "ocopPartnerId",
+      title: t("ID"), 
+      dataIndex: "id",
+      key: "id",
+      align: "center",
     },
-    { title: "Transfer By", dataIndex: "transferBy", key: "transferBy" },
-    { title: "TransferByStaffEmail", dataIndex: "transferByStaffEmail", key: "transferByStaffEmail" },
+    // {
+    //   title: t("ocopPartnerId"),
+    //   dataIndex: "ocopPartnerId",
+    //   key: "ocopPartnerId",
+    //   align: "center",
+    // },
     {
-      title: "Amount",
+      title: t("OcopPartnerEmail"),
+      dataIndex: "partner_email",
+      key: "partner_email",
+      align: "center",
+    },
+    {
+      title: t("OcopPartnerEmail"),
+      dataIndex: "partner_email",
+      key: "partner_email",
+      align: "center",
+    },
+    {
+      title: t("BankName"),
+      dataIndex: "partner_bank_name",
+      key: "partner_bank_name",
+      align: "center",
+    },
+    {
+      title: t("BankAccount"),
+      dataIndex: "partner_bank_account",
+      key: "partner_bank_account",
+      align: "center",
+    },
+    // {
+    //   title: t("TransferBy"),
+    //   dataIndex: "transferBy",
+    //   key: "transferBy",
+    //   align: "center",
+    // },
+    {
+      title: t("TransferByStaffEmail"),
+      dataIndex: "transferByStaffEmail",
+      key: "transferByStaffEmail",
+      align: "center",
+    },
+    {
+      title: t("Amount"),
       dataIndex: "amount",
       key: "amount",
+      align: "center",
       render: (amount) =>
-        new Intl.NumberFormat('vi-VN', { style: 'decimal', maximumFractionDigits: 0 }).format(amount) + " VNĐ",
+        `${new Intl.NumberFormat("vi-VN", {
+          style: "decimal",
+          maximumFractionDigits: 0,
+        }).format(amount)} VNĐ`,
     },
     {
-      title: "CreateDate",
+      title: t("CreateDate"),
       dataIndex: "createDate",
       key: "createDate",
+      align: "center",
       render: (text) => {
+        if (!text) return "N/A";
         const date = new Date(text);
-        return new Intl.DateTimeFormat('vi-VN').format(date); // Định dạng ngày theo kiểu dd/mm/yyyy
+        const formattedDate = new Intl.DateTimeFormat("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          timeZone: "Asia/Ho_Chi_Minh",
+        }).format(date);
+
+        const formattedTime = new Intl.DateTimeFormat("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+          timeZone: "Asia/Ho_Chi_Minh",
+        }).format(date);
+
+        return (
+          <>
+            {formattedDate}
+            <br />
+            {formattedTime}
+          </>
+        );
       },
-    }
-    
+    },
+    {
+      title: t("ConfirmDate"),
+      dataIndex: "confirmDate",
+      key: "confirmDate",
+      align: "center",
+      render: (text) => {
+        if (!text) return "Null";
+        const date = new Date(text);
+        const formattedDate = new Intl.DateTimeFormat("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          timeZone: "Asia/Ho_Chi_Minh",
+        }).format(date);
+
+        const formattedTime = new Intl.DateTimeFormat("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+          timeZone: "Asia/Ho_Chi_Minh",
+        }).format(date);
+
+        return (
+          <>
+            {formattedDate}
+            <br />
+            {formattedTime}
+          </>
+        );
+      },
+    },
+
+
+    {
+      title: t("PictureLink"), 
+      dataIndex: "pictureLink",
+      key: "pictureLink",
+      align: "center",
+      render: (link) => {
+        const baseStyle = {
+          borderRadius: "4px",
+          padding: "6px 12px",
+          display: "inline-block",
+          color: "#fff",
+          textDecoration: "none",
+          cursor: "pointer",
+          transition: "transform 0.2s, opacity 0.2s",
+        };
+
+        const viewImageStyle = {
+          ...baseStyle,
+          backgroundColor: "#1890ff", // Màu xanh cho View Image
+        };
+
+        const noImageStyle = {
+          ...baseStyle,
+          backgroundColor: "#ffcccc", // Màu đỏ nhạt cho No Image
+          color: "#a8071a", // Màu chữ đỏ đậm
+        };
+
+        return link ? (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={viewImageStyle}
+            onMouseDown={(e) =>
+              (e.currentTarget.style.transform = "scale(0.95)")
+            }
+            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            {t("ViewImage")}
+          </a>
+        ) : (
+          <span
+            style={noImageStyle}
+            onMouseDown={(e) =>
+              (e.currentTarget.style.transform = "scale(0.95)")
+            }
+            onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            {t("NoImage")}
+          </span>
+        );
+      },
+    },
   ];
 
-  // Lấy dữ liệu thanh toán khi component mount
   useEffect(() => {
     fetchPayments();
-  }, []);
+  }, [pagination.pageIndex]);
 
   return (
     <div style={{ padding: "20px" }}>
-      {/* Nút "Create Payment" để mở modal */}
-      <Button
-        type="primary"
-        onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
-        style={{ marginBottom: 20 }}
-      >
-        Confirm Money Transfer
-      </Button>
-      <h1>Transfer Money Request List</h1>
-      
-      {/* Modal hiển thị form nhập staffId và paymentId */}
+       <h1 className="text-4xl font-bold text-gray-800 mb-8">
+      {t("TransferManage")} 
+    </h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-lg font-bold">
+        {t("TransferMoneyRequestList")}
+      </h1>
+        <Button
+          type="primary"
+          onClick={() => setVisible(true)}
+          style={{ marginBottom: 20 }}
+        >
+         {t("ConfirmMoneyTransferRequest")}
+        </Button>
+      </div>
+
       <Modal
-        title="Confirm Money Transfer Request"
+        title={t("ConfirmMoneyTransferRequest")}
         visible={visible}
-        onCancel={() => setVisible(false)} // Đóng modal khi nhấn cancel
+        onCancel={() => setVisible(false)}
         footer={[
           <Button key="back" onClick={() => setVisible(false)}>
-            Cancel
+            {t("Cancel")}
           </Button>,
           <Button
             key="submit"
@@ -157,24 +375,21 @@ const Payment = () => {
             loading={loading}
             onClick={createPayment}
           >
-            Confirm Money Transfer Request 
+            {t("ConfirmMoneyTransferRequest")} 
           </Button>,
         ]}
       >
         <Form layout="vertical">
-          <Form.Item label="Staff ID" required>
-            <Input
-              value={userInfor?.id} // Để giá trị mặc định là userInfor?.id
-              disabled // Chặn người dùng chỉnh sửa trường này
-              placeholder="Staff ID"
-            />
+          <Form.Item label={t("StaffID")}  required>
+            <Input value={userInfor?.id} disabled placeholder="Staff ID" />
           </Form.Item>
 
-          <Form.Item label="Payment ID" required>
+          <Form.Item label={t("PaymentID")} required>
             <Select
-              value={moneyTransferId} // Đảm bảo paymentId là state hoặc prop đang lưu trữ giá trị đã chọn
-              onChange={(value) => setPaymentId(value)} // Cập nhật giá trị khi người dùng chọn
-              placeholder="Select Payment ID"
+              value={moneyTransferId}
+              onChange={setPaymentId}
+              placeholder={t("SelectPaymentID")} 
+              allowClear
             >
               {paymentIdOptions.map((option) => (
                 <Select.Option key={option.value} value={option.value}>
@@ -183,34 +398,28 @@ const Payment = () => {
               ))}
             </Select>
           </Form.Item>
+
+          <Form.Item label={t("UploadPicture")}  required>
+            <Input type="file" accept="image/*" onChange={handleFileChange} />
+          </Form.Item>
         </Form>
       </Modal>
 
-      {/* Hiển thị loading khi đang tải dữ liệu */}
-      {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "300px" }}>
-          <Spin tip="Loading payments..." />
-        </div>
-      ) : (
-        <Table
-          dataSource={payments}
-          columns={columns}
-          loading={loading}
-          pagination={{
-            current: pagination.pageIndex + 1,
-            pageSize: pagination.pageSize,
-            total: pagination.totalItemsCount,
-            onChange: (page) => {
-              setPagination((prev) => ({
-                ...prev,
-                pageIndex: page - 1,
-              }));
-              fetchPayments(); // Gọi lại API khi chuyển trang
-            },
-          }}
-          rowKey="id"
-        />
-      )}
+      <Table
+        dataSource={payments}
+        columns={columns}
+        rowKey="id"
+        loading={{
+          spinning: loading,
+        }}
+        pagination={{
+          current: pagination.pageIndex + 1,
+          pageSize: pagination.pageSize,
+          total: pagination.totalItemsCount,
+          onChange: (page) =>
+            setPagination((prev) => ({ ...prev, pageIndex: page - 1 })),
+        }}
+      />
     </div>
   );
 };

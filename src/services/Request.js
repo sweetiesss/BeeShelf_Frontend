@@ -74,7 +74,7 @@ export default function AxiosRequest() {
   ) => {
     try {
       const queryParams = new URLSearchParams();
-      status != "" && queryParams.append("status", status);
+      status !== "" && queryParams.append("status", status);
 
       if (isImported === "import") {
         queryParams.append("import", true);

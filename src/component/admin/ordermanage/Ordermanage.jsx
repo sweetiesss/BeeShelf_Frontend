@@ -1,40 +1,25 @@
 // export default Ordermanage;
-import {
-  Button,
-  Card,
-  Image,
-  Input,
-  Modal,
-  Select,
-  Table,
-  Tag,
-  Typography,
-  message,
-} from "antd";
+import { Button, Image, Modal, Select, Table, Tag, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import useAxios from "../../../services/CustomizeAxios"; // Giả sử bạn đang sử dụng Axios hook
 
 const { Option } = Select;
 
-const { Title, Paragraph } = Typography;
-
 const Ordermanage = () => {
   const [data, setData] = useState([]); // Dữ liệu đơn hàng
   const [loading, setLoading] = useState(false); // Trạng thái loading
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
-    pageSize: 8,
+    pageSize: 10,
     totalPagesCount: 0,
     pageIndex: 0,
   });
   const { fetchDataBearer } = useAxios(); // Giả sử bạn đã tạo một hook Axios tùy chỉnh
   const { userInfor } = useAuth(); // Giả sử bạn có context để lấy thông tin người dùng
-  const [cancellationReason, setCancellationReason] = useState("");
-  const [newStatus, setNewStatus] = useState(undefined);
 
   // Hàm gọi API để lấy danh sách đơn hàng theo warehouseId
-  const GetOrderWarehouse = async (pageIndex, pageSize) => {
+  const GetOrderWarehouse = async () => {
     setLoading(true);
     try {
       const response = await fetchDataBearer({
@@ -42,8 +27,8 @@ const Ordermanage = () => {
         method: "GET",
         params: {
           warehouseId: userInfor?.workAtWarehouseId, // Lấy warehouseId từ thông tin người dùng
-          pageIndex: pageIndex,
-          pageSize: pageSize,
+          pageIndex: pagination.pageIndex,
+          pageSize: pagination.pageSize,
         },
       });
 
@@ -74,39 +59,8 @@ const Ordermanage = () => {
     }
   };
 
-
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "Null"; // Return "Null" if the input is falsy
-  
-    // Tạo một đối tượng Date với múi giờ Asia/Bangkok (UTC+7)
-    const dateInBangkok = new Date(
-      new Date(dateString).toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
-    );
-  
-    // Cộng thêm 7 tiếng (7 giờ * 60 phút * 60 giây * 1000 ms)
-    const dateWithExtra7Hours = new Date(dateInBangkok.getTime() + 7 * 60 * 60 * 1000);
-  
-    // Format the date part
-    const formattedDate = dateWithExtra7Hours.toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  
-    // Format the time part
-    const formattedTime = dateWithExtra7Hours.toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      // second: "2-digit",
-      hour12: false,
-    });
-  
-    return `${formattedDate} ${formattedTime}`;
-  };
-  
-
   // Cập nhật trạng thái đơn hàng
-  const updateRequestStatus = async (id) => {
+  const updateRequestStatus = async (id, newStatus) => {
     setLoading(true);
     try {
       const currentOrder = data.find((order) => order.id === id);
@@ -120,12 +74,8 @@ const Ordermanage = () => {
       }
 
       const response = await fetchDataBearer({
-        url: `/order/update-order-status/${id}`,
+        url: `/order/update-order-status/${id}?orderStatus=${newStatus}`,
         method: "PUT",
-        params: {
-          orderStatus: newStatus,
-          cancellationReason: cancellationReason,
-        },
       });
 
       if (response && response.status === 200) {
@@ -147,9 +97,6 @@ const Ordermanage = () => {
       );
     } finally {
       setLoading(false);
-      setIsModalVisible(false);
-      setNewStatus(undefined);
-      setCancellationReason("");
     }
   };
 
@@ -208,15 +155,10 @@ const Ordermanage = () => {
   // Cột trong bảng
   const columns = [
     {
-      title: "Order ID",
+      title: "OrderID",
       dataIndex: "id",
       key: "id",
       render: (text) => <span>{text}</span>,
-    },
-    {
-      title: "Order Code",
-      dataIndex: "orderCode",
-      key: "orderCode",
     },
     {
       title: "Partner Email",
@@ -274,25 +216,30 @@ const Ordermanage = () => {
       title: "Create Date",
       dataIndex: "createDate",
       key: "createDate",
-      sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
-      sortDirections: ["descend", "ascend"],
       render: (text) => {
-        if (!text) return "";
-        return formatDateTime(text);
+        const date = new Date(text);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() bắt đầu từ 0
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+    
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
       },
     },
+    
+
     {
       title: "Total Price",
       dataIndex: "totalPrice",
       key: "totalPrice",
-      sorter: (a, b) => a.totalPrice - b.totalPrice,
-      sortDirections: ["descend", "ascend"],
       render: (text) =>
         new Intl.NumberFormat("vi-VN", {
           style: "currency",
           currency: "VND",
         }).format(text), // Định dạng theo tiền tệ VNĐ
     },
+
     {
       title: "Action",
       dataIndex: "",
@@ -310,18 +257,17 @@ const Ordermanage = () => {
     },
   ];
 
-
   // Add this function to check valid status transitions
   const getValidStatusTransitions = (currentStatus) => {
     switch (currentStatus) {
       case "Draft":
         return ["Pending"];
       case "Pending":
-        return ["Processing"]; // Staff confirmed or OCOP Partner Cancelled
+        return ["Processing", "Canceled"]; // Staff confirmed or OCOP Partner Cancelled
       case "Processing":
         return ["Canceled"]; // Shipper delivery or Out of stock
-      case "Shipping":
-        return ["Delivered", "Canceled"]; // Shipping Finish delivery or OCOP Partner Cancelled
+      // case "Shipping":
+      //   return ["Delivered", "Canceled"]; // Shipping Finish delivery or OCOP Partner Cancelled
       case "Delivered":
         return ["Completed"]; // Receiver returns or Return window expire
       case "Returned":
@@ -337,18 +283,15 @@ const Ordermanage = () => {
 
   // Sử dụng useEffect để tự động lấy dữ liệu khi component được render
   useEffect(() => {
-    GetOrderWarehouse(0, pagination.pageSize);
+    GetOrderWarehouse();
   }, []); // Chạy một lần khi component mount
 
   return (
     <>
-      <div>
-        <h1 className="text-4xl font-bold text-gray-800 mb-8">
-          Order Management
-        </h1>
-        <h1 className="text-lg font-bold">Order List</h1>
+      <div style={{ padding: "20px" }}>
+        <h1>Order Management</h1>
         <Table
-          className="overflow-auto min-w-[800px] w-full"
+          className="overflow-x-scroll min-w-[800px] w-full"
           dataSource={data}
           columns={columns}
           loading={loading}
@@ -357,12 +300,11 @@ const Ordermanage = () => {
             pageSize: pagination.pageSize,
             total: pagination.totalItemsCount,
             onChange: (page) => {
-              console.log("Current page:", page);
               setPagination((prev) => ({
                 ...prev,
-                pageIndex: page - 1, // Chuyển trang (index bắt đầu từ 0)
+                pageIndex: page - 1,
               }));
-              GetOrderWarehouse(page - 1, pagination.pageSize);
+              GetOrderWarehouse();
             },
           }}
         />
@@ -387,149 +329,34 @@ const Ordermanage = () => {
                   className="w-full"
                 />
               </div>
-              <div>
-                <label htmlFor="statusSelect" className="font-bold">
-                  Status:
-                </label>
-                <Select
-                  id="statusSelect"
-                  className="w-full"
-                  value={newStatus}
-                  onChange={(newStatus) =>
-                    // updateRequestStatus(selectedOrder.id, newStatus)
-                    setNewStatus(newStatus)
-                  }
-                  placeholder="Select a status"
-                  disabled={
-                    getValidStatusTransitions(selectedOrder.status).length === 0
-                  }
-                >
-                  {getValidStatusTransitions(selectedOrder.status).map(
-                    (status) => (
-                      <Option key={status} value={status}>
-                        {status}
-                      </Option>
-                    )
-                  )}
-                </Select>
-                {newStatus === "Canceled" && (
-                  <div>
-                    <label htmlFor="cancellationReason" className="font-bold">
-                      Cancellation Reason:
-                    </label>
-                    <Input
-                      id="cancellationReason"
-                      value={cancellationReason}
-                      onChange={(e) => setCancellationReason(e.target.value)}
-                    />
-                  </div>
+              <label htmlFor="statusSelect" className="font-bold">
+                Update Status:
+              </label>
+              <Select
+                id="statusSelect"
+                className="w-full"
+                value={selectedOrder.status}
+                onChange={(newStatus) =>
+                  updateRequestStatus(selectedOrder.id, newStatus)
+                }
+                disabled={
+                  getValidStatusTransitions(selectedOrder.status).length === 0
+                }
+              >
+                {getValidStatusTransitions(selectedOrder.status).map(
+                  (status) => (
+                    <Option key={status} value={status}>
+                      {status}
+                    </Option>
+                  )
                 )}
-                <Button
-                  className="px-4 py-2 mt-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
-                  onClick={() => updateRequestStatus(selectedOrder.id)}
-                  disabled={
-                    !newStatus ||
-                    (newStatus === "Canceled" && !cancellationReason)
-                  }
-                >
-                  Update Status
-                </Button>
-              </div>
-              <div>
-                {selectedOrder?.orderDetails?.map((item, index) => (
-                  <Card className="mt-2" key={index}>
-                    <Typography>
-                      <Title level={5}>Detail</Title>
-                      <Paragraph>
-                        <strong>Name:</strong> {item.productName}
-                      </Paragraph>
-                      <Paragraph>
-                        <strong>Price:</strong>{" "}
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(item.productPrice)}
-                      </Paragraph>
-                      <Paragraph>
-                        <strong>Amount:</strong> {item.productAmount}
-                      </Paragraph>
-                      <Paragraph>
-                        <strong>Weight:</strong> {item.weight} kg
-                      </Paragraph>
-                      <Paragraph>
-                        <strong>Unit:</strong> {item.unit}
-                      </Paragraph>
-                      <Paragraph>
-                        <strong>Inventory ID:</strong> {item.inventoryId}
-                      </Paragraph>
-                      <Paragraph>
-                        <strong>Inventory Name:</strong> {item.inventoryName}
-                      </Paragraph>
-                      <Paragraph>
-                        <strong>Lot ID:</strong> {item.lotId}
-                      </Paragraph>
-                    </Typography>
-                  </Card>
-                ))}
-              </div>
-
-              <div>
-                {selectedOrder?.orderFees?.map((item, idx) => (
-                  <Card className="mt-2" key={idx}>
-                    <Typography>
-                      <Title level={5}>Fee</Title>
-
-                      <Paragraph>
-                        <strong>Storage Fee:</strong>{" "}
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(item.storageFee)}
-                      </Paragraph>
-
-                      <Paragraph>
-                        <strong>Delivery Fee:</strong>{" "}
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(item.deliveryFee)}
-                      </Paragraph>
-
-                      <Paragraph>
-                        <strong>Additional Fee:</strong>{" "}
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(item.additionalFee)}
-                      </Paragraph>
-
-                      {/* <Paragraph>
-                        <strong className="text-gray-700">Total Fee:</strong>{" "}
-                        <span className="text-green-600 font-bold">
-                          {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                          }).format(
-                            item.storageFee +
-                              item.deliveryFee +
-                              item.additionalFee
-                          )}
-                        </span>
-                      </Paragraph> */}
-                    </Typography>
-                  </Card>
-                ))}
-              </div>
+              </Select>
             </div>
             <div>
               <div className="grid grid-cols-1 gap-2">
                 <div>
                   <p className="font-bold">Order ID:</p>
                   <p>{selectedOrder.id}</p>
-                </div>
-                <div>
-                  <p className="font-bold">Order Code:</p>
-                  <p>{selectedOrder.orderCode}</p>
                 </div>
                 <div>
                   <p className="font-bold">Partner Email:</p>
@@ -547,42 +374,19 @@ const Ordermanage = () => {
                   <p className="font-bold">Receiver Address:</p>
                   <p>{selectedOrder.receiverAddress}</p>
                 </div>
-                {/* Create Date */}
                 <div>
                   <p className="font-bold">Create Date:</p>
-                  <p>{formatDateTime(selectedOrder.createDate)}</p>
-                </div>
-
-                <div>
-                  <p className="font-bold">Delivery Start Date:</p>
-                  <p>{formatDateTime(selectedOrder.deliverStartDate)}</p>
-                </div>
-
-                <div>
-                  <p className="font-bold">Delivery Finish Date:</p>
-                  <p>{formatDateTime(selectedOrder.deliverFinishDate)}</p>
-                </div>
-
-                <div>
-                  <p className="font-bold">Completion Date:</p>
-                  <p>{formatDateTime(selectedOrder.completeDate)}</p>
-                </div>
-
-                <div>
-                  <p className="font-bold">Return Date:</p>
-                  <p>{formatDateTime(selectedOrder.returnDate)}</p>
-                </div>
-
-                <div>
-                  <p className="font-bold">Cancellation Date:</p>
-                  <p>{formatDateTime(selectedOrder.cancelDate)}</p>
-                </div>
-
-                {/* Reason For Cancellation */}
-                <div>
-                  <p className="font-bold">Reason For Cancellation:</p>
-                  <p className="text-gray-700">
-                    {selectedOrder.cancellationReason || "N/A"}
+                  <p>
+                    {(() => {
+                      const date = new Date(selectedOrder.createDate);
+                      const day = String(date.getDate()).padStart(2, "0");
+                      const month = String(date.getMonth() + 1).padStart(
+                        2,
+                        "0"
+                      ); // getMonth() bắt đầu từ 0
+                      const year = String(date.getFullYear()).slice(-2); // Lấy 2 chữ số cuối của năm
+                      return `${day}/${month}/${year}`;
+                    })()}
                   </p>
                 </div>
 
@@ -593,15 +397,6 @@ const Ordermanage = () => {
                       style: "currency",
                       currency: "VND",
                     }).format(selectedOrder.totalPrice)}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-bold">Total Price After Fee:</p>
-                  <p>
-                    {new Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    }).format(selectedOrder.totalPriceAfterFee)}
                   </p>
                 </div>
                 <div>

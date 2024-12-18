@@ -14,6 +14,7 @@ import Dashboard from "../component/staff/dashboard/Dashboard";
 import Inventory from "../component/staff/inventory/Inventory";
 import Vehicle from "../component/staff/vehicle/Vehicle";
 import ProfileEdit from "../pages/shared/EditProfilePage";
+import DeliveryZone from "../component/staff/deliveryzone/DeliveryZone";
 
 export default function StaffRoutes() {
   const { dataDetail, typeDetail } = useDetail();
@@ -31,6 +32,7 @@ export default function StaffRoutes() {
           <Route path="requestmanage" element={<RequestManagement />} />
           <Route path="payment" element={<Payment />} />
           <Route path="vehicle" element={<Vehicle />} />
+          <Route path="deliveryzone" element={<DeliveryZone />} />
           <Route path="editProfile" element={<ProfileEdit />} />
         </Route>
         {/* <Route path="payment" element={<Payment/>}/> */}

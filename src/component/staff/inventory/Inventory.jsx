@@ -10,22 +10,82 @@ import {
   Spin,
   Modal,
   Input,
+  DatePicker,
 } from "antd";
 import { useAuth } from "../../../context/AuthContext";
 import useAxiosBearer from "../../../services/CustomizeAxios";
+import { useNavigate } from "react-router-dom";
+import { Pagination } from "antd"; // Import Pagination từ Ant Design
 
 const { Title, Paragraph } = Typography;
 const { Search } = Input;
+const { RangePicker } = DatePicker;
 
 const Inventory = () => {
+  const [buttonLoading, setButtonLoading] = useState({});
   const { userInfor } = useAuth(); // Lấy thông tin user từ hook useAuth
   const [loading, setLoading] = useState(false);
+  const [filterLoading, setFilterLoading] = useState(false);
   const [inventories, setInventories] = useState([]);
   const [filteredInventories, setFilteredInventories] = useState([]);
+  const [boughtDateRange, setBoughtDateRange] = useState(null);
+  const [expirationDateRange, setExpirationDateRange] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
   const { fetchDataBearer } = useAxiosBearer();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState([]);
-  // const [loadingDetails, setLoadingDetails] = useState({}); // Track loading for each inventory item
+  const navigate = useNavigate();
+
+  //Phân trang cho Card Inventory
+  const [currentPage, setCurrentPage] = useState(1); // State lưu trang hiện tại
+  const pageSize = 8; // Số lượng card hiển thị trên mỗi trang
+
+  // Tính toán card cần hiển thị dựa trên trang hiện tại
+  const paginatedInventories = filteredInventories.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  //Phân trang cho card Inventory Detail
+  const [modalCurrentPage, setModalCurrentPage] = useState(1);
+  const modalPageSize = 6; // Số lượng card hiển thị trên mỗi trang trong modal
+
+  // Tính toán card cần hiển thị trong modal dựa trên trang hiện tại
+  const paginatedSelectedInventory = selectedInventory?.slice(
+    (modalCurrentPage - 1) * modalPageSize,
+    modalCurrentPage * modalPageSize
+  );
+  //Hàm format datetime
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "Null"; // Return "Null" if the input is falsy
+
+    // Tạo một đối tượng Date với múi giờ Asia/Bangkok (UTC+7)
+    const dateInBangkok = new Date(
+      new Date(dateString).toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
+    );
+
+    // Cộng thêm 7 tiếng (7 giờ * 60 phút * 60 giây * 1000 ms)
+    const dateWithExtra7Hours = new Date(
+      dateInBangkok.getTime() + 7 * 60 * 60 * 1000
+    );
+
+    // Format the date part
+    const formattedDate = dateWithExtra7Hours.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+
+    // Format the time part
+    const formattedTime = dateWithExtra7Hours.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      // second: "2-digit",
+      hour12: false,
+    });
+
+    return `${formattedDate} ${formattedTime}`;
+  };
 
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchInventories = async () => {
@@ -72,22 +132,18 @@ const Inventory = () => {
       fetchInventories();
     }
   }, [userInfor]);
-
   const getDetailInventory = async (id) => {
-    // setLoadingDetails((prev) => ({ ...prev, [id]: true })); // Set loading to true for this specific inventory
+    setButtonLoading((prev) => ({ ...prev, [id]: true }));
     try {
       const response = await fetchDataBearer({
         url: `/inventory/get-inventory/${id}`,
         method: "GET",
       });
       if (response && response.data) {
-        // Assuming the first element of the 'lots' array contains the inventory lot details
         const lotData = response.data.lots;
 
         if (lotData) {
-          // Now, setting the inventory lot details
           setSelectedInventory(lotData);
-
           setIsModalVisible(true);
         }
       } else {
@@ -97,7 +153,7 @@ const Inventory = () => {
       console.error("Error fetching inventory details:", error);
       message.error("Failed to fetch inventory details. Please try again.");
     } finally {
-      // setLoadingDetails((prev) => ({ ...prev, [id]: false })); // Reset loading for this specific inventory
+      setButtonLoading((prev) => ({ ...prev, [id]: false }));
     }
   };
 
@@ -108,61 +164,170 @@ const Inventory = () => {
 
   // Hàm lọc theo tên
   const handleSearch = (value) => {
-    if (value) {
-      // Lọc danh sách dựa trên tên
-      const filtered = inventories.filter((item) =>
-        (item.name || '').toLowerCase().includes(value.toLowerCase()) // Kiểm tra nếu item.name là null hoặc undefined
-      );
-      setFilteredInventories(filtered);
-    } else {
-      // Nếu ô tìm kiếm trống, hiển thị tất cả inventory
-      setFilteredInventories(inventories);
-    }
+    setFilterLoading(true);
+    applyFilters(value, boughtDateRange, expirationDateRange);
+    setFilterLoading(false);
   };
-  
+
+  const handleBoughtDateChange = (dates) => {
+    setFilterLoading(true);
+    setBoughtDateRange(dates);
+    applyFilters(searchValue, dates, expirationDateRange);
+    setFilterLoading(false);
+  };
+
+  const handleExpirationDateChange = (dates) => {
+    setFilterLoading(true);
+    setExpirationDateRange(dates);
+    applyFilters(searchValue, boughtDateRange, dates);
+    setFilterLoading(false);
+  };
+
+  const applyFilters = (searchText, boughtDates, expirationDates) => {
+    let filtered = [...inventories];
+
+    // Apply search filter
+    if (searchText) {
+      filtered = filtered.filter((item) =>
+        (item.name || "").toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    // Apply bought date filter
+    if (boughtDates && boughtDates[0] && boughtDates[1]) {
+      filtered = filtered.filter((item) => {
+        const boughtDate = new Date(item.boughtDate);
+        return (
+          boughtDate >= boughtDates[0].startOf("day").toDate() &&
+          boughtDate <= boughtDates[1].endOf("day").toDate()
+        );
+      });
+    }
+
+    // Apply expiration date filter
+    if (expirationDates && expirationDates[0] && expirationDates[1]) {
+      filtered = filtered.filter((item) => {
+        const expirationDate = new Date(item.expirationDate);
+        return (
+          expirationDate >= expirationDates[0].startOf("day").toDate() &&
+          expirationDate <= expirationDates[1].endOf("day").toDate()
+        );
+      });
+    }
+
+    setFilteredInventories(filtered);
+  };
 
   return (
     <div style={{ padding: "20px" }}>
-      {/* Thêm ô tìm kiếm theo tên */}
-      <Search
-        placeholder="Search by Inventory Name"
-        onSearch={handleSearch}
-        style={{ marginBottom: 20, width: 300 }}
-        allowClear
-      />
+      <div style={{ marginBottom: "20px" }}>
+        <Title level={2} style={{ fontSize: "2.5rem", fontWeight: "bold" }}>
+          Inventory Management
+        </Title>
+
+        <div className="flex flex-col gap-4 mb-4">
+          <Search
+            placeholder="Search by Inventory Name"
+            onSearch={handleSearch}
+            onChange={(e) => {
+              setSearchValue(e.target.value);
+              handleSearch(e.target.value);
+            }}
+            style={{ width: 300 }}
+          />
+          <div className="flex gap-4 items-center">
+            <div>
+              <span className="mr-2">Bought Date:</span>
+              <RangePicker onChange={handleBoughtDateChange} />
+            </div>
+            <div>
+              <span className="mr-2">Expiration Date:</span>
+              <RangePicker onChange={handleExpirationDateChange} />
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Dùng Row và Col để chia card thành nhiều cột */}
       <Row gutter={[16, 16]} justify="center">
-        {loading ? (
-          <Spin size={32} className="text-center" />
+        {loading || filterLoading ? (
+          <div className="flex justify-center py-8 w-full">
+            <Spin size="large" tip="Loading..." />
+          </div>
         ) : (
-          filteredInventories.map((item, index) => (
-            <Col key={index} xs={24} sm={12} md={8} lg={6}>
+          paginatedInventories.map((item, index) => (
+            <Col key={index} xs={24} sm={12} md={12} lg={8} xl={6}>
               <Card
                 style={{
-                  padding: "20px",
-                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                  borderRadius: "10px",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Bóng đổ tinh tế
+                  borderRadius: "12px", // Bo tròn góc card
+                  border: "1px solid #e6e6e6", // Viền card
+                  transition: "transform 0.2s, box-shadow 0.2s", // Hiệu ứng chuyển đổi mượt mà
+                  backgroundColor: "#f9f9f9", // Màu nền nhạt
                 }}
-                title={<Title level={4}>Inventory {index + 1}</Title>}
+                title={
+                  <Title level={4} style={{ margin: 0, color: "#1890ff" }}>
+                    Inventory ID: {item.id}
+                  </Title>
+                }
+                hoverable // Tạo hiệu ứng hover mặc định của Ant Design
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-5px)"; // Di chuyển nhẹ lên trên khi hover
+                  e.currentTarget.style.boxShadow =
+                    "0 8px 20px rgba(0, 0, 0, 0.15)"; // Tăng bóng đổ khi hover
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)"; // Trở lại vị trí ban đầu khi rời chuột
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 12px rgba(0, 0, 0, 0.1)"; // Bóng đổ ban đầu
+                }}
               >
                 <Space direction="vertical" style={{ width: "100%" }}>
                   <Typography>
-                    <Title level={5}>Overview Inventory</Title>
-                    <Paragraph>Name: {item.name}</Paragraph>
-                    <Paragraph>Max Weight: {item.maxWeight}</Paragraph>
-                    <Paragraph>OCOP Partner ID: {item.ocopPartnerId}</Paragraph>
-                    <Paragraph>Weight: {item.weight}</Paragraph>
-                    <Paragraph>Total Product: {item.totalProduct}</Paragraph>
-                    <Paragraph>Warehouse Name: {item.warehouseName}</Paragraph>
+                    <Title level={5} style={{ color: "#555" }}>
+                      Overview Inventory
+                    </Title>
+                    {/* <Paragraph>
+                      <strong>Inventory ID:</strong> {item.id}
+                    </Paragraph> */}
+                    <Paragraph>
+                      <strong>Name:</strong> {item.name}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Max Weight:</strong> {item.maxWeight}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>OCOP Partner ID:</strong> {item.ocopPartnerId}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Weight:</strong> {item.weight}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Total Product:</strong> {item.totalProduct}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Warehouse Name:</strong> {item.warehouseName}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Bought Date:</strong>{" "}
+                      {formatDateTime(item.boughtDate)}
+                    </Paragraph>
+                    <Paragraph>
+                      <strong>Expiration Date:</strong>{" "}
+                      {formatDateTime(item.expirationDate)}
+                    </Paragraph>
                   </Typography>
                   <Button
                     type="primary"
                     size="small"
                     onClick={() => getDetailInventory(item.id)}
-                    // disabled={loadingDetails[item.id]} // Disable button if loading for this item
+                    disabled={buttonLoading[item.id]}
                   >
-                    {"View Details"}
+                    {buttonLoading[item.id] ? (
+                      <Spin size="small" />
+                    ) : (
+                      "View Details"
+                    )}
                   </Button>
                 </Space>
               </Card>
@@ -171,58 +336,100 @@ const Inventory = () => {
         )}
       </Row>
 
+      {/* Pagination */}
+      <div className="flex justify-center mt-8">
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={filteredInventories.length}
+          onChange={(page) => setCurrentPage(page)}
+        />
+      </div>
+
       <Modal
         className="!w-[800px]"
         title="Inventory Details"
         open={isModalVisible}
-        onCancel={handleModalClose}
+        onCancel={() => {
+          handleModalClose();
+          setModalCurrentPage(1); // Reset về trang đầu khi đóng modal
+        }}
         footer={[
           <Button key="close" onClick={handleModalClose}>
             Close
           </Button>,
         ]}
       >
-        {/* Wrap content with Spin */}
-        {/* {loadingDetails[selectedInventory?.id] ? (
-          <Spin size="large" className="flex justify-center items-center" />
-        ) : ( */}
         <div className="grid grid-cols-2 gap-4">
-          {selectedInventory?.map((item, idx) => (
-            <>
-              <Card key={idx}>
+          {paginatedSelectedInventory?.map((item, idx) => (
+            <Card
+              key={idx}
+              style={{
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Bóng đổ nhẹ
+                borderRadius: "12px", // Bo tròn góc
+                border: "1px solid #f0f0f0", // Viền nhạt
+                backgroundColor: "#ffffff", // Màu nền trắng
+                transition: "transform 0.3s, box-shadow 0.3s", // Hiệu ứng chuyển đổi mượt mà
+              }}
+              hoverable // Hiệu ứng hover mặc định của Ant Design
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-5px)";
+                e.currentTarget.style.boxShadow =
+                  "0 8px 20px rgba(0, 0, 0, 0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(0, 0, 0, 0.1)";
+              }}
+            >
+              <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <p className="font-bold">Lot ID:</p>
-                  <p>{item.id}</p>
+                  <p className="font-bold text-gray-600">Lot ID:</p>
+                  <p className="text-gray-800">{item.id}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold">Lot Number:</p>
-                  <p>{item.lotNumber}</p>
+                  <p className="font-bold text-gray-600">Lot Number:</p>
+                  <p className="text-gray-800">{item.lotNumber}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold">Lot Name:</p>
-                  <p>{item.name}</p>
+                  <p className="font-bold text-gray-600">Lot Name:</p>
+                  <p className="text-gray-800">{item.name}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold">Lot Amount:</p>
-                  <p>{item.lotAmount}</p>
+                  <p className="font-bold text-gray-600">Lot Amount:</p>
+                  <p className="text-gray-800">{item.lotAmount}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold">Product PerLot:</p>
-                  <p>{item.productPerLot}</p>
+                  <p className="font-bold text-gray-600">Product PerLot:</p>
+                  <p className="text-gray-800">{item.productPerLot}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold">Product Name:</p>
-                  <p>{item.productName}</p>
+                  <p className="font-bold text-gray-600">Product Name:</p>
+                  <p className="text-gray-800">{item.productName}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold">Total Product Amount:</p>
-                  <p>{item.totalProductAmount}</p>
+                  <p className="font-bold text-gray-600">
+                    Total Product Amount:
+                  </p>
+                  <p className="text-gray-800">{item.totalProductAmount}</p>
                 </div>
-              </Card>
-            </>
+              </div>
+            </Card>
           ))}
         </div>
-        {/* )} */}
+
+        {/* Pagination trong modal */}
+        {selectedInventory && selectedInventory.length > modalPageSize && (
+          <div className="flex justify-center mt-4">
+            <Pagination
+              current={modalCurrentPage}
+              pageSize={modalPageSize}
+              total={selectedInventory.length}
+              onChange={(page) => setModalCurrentPage(page)}
+            />
+          </div>
+        )}
       </Modal>
     </div>
   );

@@ -27,6 +27,7 @@ const CategoryPage = () => {
 
   // State cho danh sách vehicles
   const [vehicles, setVehicles] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [showVehicles, setShowVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -55,7 +56,15 @@ const CategoryPage = () => {
           pageSize: filter?.pageSize,
         },
       });
-      console.log("vehicles", response);
+      const response2 = await fetchDataBearer({
+        url: `productCategory/get-categories`,
+        method: "GET",
+        params: {
+          pageIndex: 0,
+          pageSize: 100,
+        },
+      });
+      setCategories(response2?.data);
       setVehicles(response?.data);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
@@ -69,13 +78,13 @@ const CategoryPage = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [updateVisible, setUpdateVisible] = useState(false);
 
-
   // Hàm mở modal và gán dữ liệu vehicle cần update
   const openUpdateModal = (record) => {
     setSelectedVehicle(record);
     form.setFieldsValue({
       typeName: record?.typeName,
       typeDescription: record?.typeDescription,
+      categoryId:record?.categoryId,
       expireIn: record?.expireIn,
     });
     setUpdateVisible(true);
@@ -149,6 +158,7 @@ const CategoryPage = () => {
       setDeleteConfirmation(false);
     }
   };
+  console.log("categories", categories);
 
   // Hàm tạo vehicle
   const createVehicle = async () => {
@@ -161,6 +171,7 @@ const CategoryPage = () => {
         url: `/productCategory/create-product-category`,
         method: "POST",
         data: {
+          categoryId: values.categoryId,
           typeName: values.typeName,
           typeDescription: values.typeDescription,
           expireIn: values.expireIn,
@@ -206,18 +217,18 @@ const CategoryPage = () => {
   return (
     <div className="">
       <Button
-      style={{marginBottom:"2rem"}}
+        style={{ marginBottom: "2rem" }}
         type="primary"
         onClick={
           () => setVisible(true) // Show modal
         }
       >
-        CreateCategory
+        CreateProductCategory
       </Button>
 
       {/* Modal tạo vehicle */}
       <Modal
-        title="CreateCategory"
+        title="CreateProductCategory"
         open={visible}
         onCancel={() => {
           setVisible(false);
@@ -233,7 +244,7 @@ const CategoryPage = () => {
             loading={loading}
             onClick={createVehicle}
           >
-            Create Vehicle
+            Create Product Category
           </Button>,
         ]}
       >
@@ -265,10 +276,28 @@ const CategoryPage = () => {
           >
             <Input placeholder="Enter product category Description" />
           </Form.Item>
+          <Form.Item label="Category" name="categoryId">
+            <Select
+              placeholder="Select Category"
+              onChange={(value) => {
+                console.log(value);
+
+                form.setFieldsValue({
+                  categoryId: value,
+                });
+              }}
+            >
+              {categories?.items?.map((cate) => (
+                <Option key={cate?.id} value={cate?.id}>
+                  {cate?.type}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
 
           {/* License Plate */}
           <Form.Item
-            label="ExpireIn"
+            label={"ExpireIn" + " (" + "days" + ")"}
             name="expireIn"
             rules={[
               { required: true, message: "Please enter expire in days!" },
@@ -321,7 +350,7 @@ const CategoryPage = () => {
             loading={loading}
             onClick={handleUpdateVehicle}
           >
-            Update Vehicle
+            Update Product Category
           </Button>,
         ]}
       >
@@ -352,7 +381,23 @@ const CategoryPage = () => {
           >
             <Input placeholder="Enter product category Description" />
           </Form.Item>
-
+          <Form.Item label="Category" name="categoryId">
+            <Select
+              placeholder="Select Category"
+              onChange={(value) => {
+                console.log(value);
+                form.setFieldsValue({
+                  categoryId: value,
+                });
+              }}
+            >
+              {categories?.items?.map((cate) => (
+                <Option key={cate?.id} value={cate?.id}>
+                  {cate?.type}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
           {/* License Plate */}
           <Form.Item
             label="ExpireIn"
@@ -389,13 +434,6 @@ const CategoryPage = () => {
         dataSource={vehicles?.items}
         size="large"
         columns={[
-          {
-            title: "Index",
-            key: "index",
-            width: 70,
-            align: "start",
-            render: (text, record, index) => index + 1,
-          },
           {
             title: "Type",
             dataIndex: "typeName",
