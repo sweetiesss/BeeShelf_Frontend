@@ -4,7 +4,7 @@ import defaultImg from "../../../assets/img/defaultImg.jpg";
 import Pagination from "../../shared/Paggination";
 import { useEffect, useRef, useState } from "react";
 import { DotsThreeVertical } from "@phosphor-icons/react";
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 export default function OrderList({
   orders,
   selectedOrder,
@@ -67,8 +67,7 @@ export default function OrderList({
         <tbody>
           {orders &&
             orders?.items?.map((order, index) => {
-             
-               console.log("here",order);
+              console.log("here", order);
 
               return (
                 <tr
@@ -92,7 +91,11 @@ export default function OrderList({
 
                   <td className=" px-1 py-2 ">{order?.receiverPhone}</td>
                   <td className=" px-1 py-2 ">
-                    {format(order?.createDate, "dd/MM/yyyy")}
+                    {format(
+                      add(new Date(order?.createDate), { hours: 7 }),
+                      "HH:mm - dd/MM/yyyy"
+                    )}
+           
                   </td>
                   <td className=" px-1 py-2 ">
                     {new Intl.NumberFormat().format(order?.totalPriceAfterFee)}

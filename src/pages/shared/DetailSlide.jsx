@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
 import defaultImg from "../../assets/img/defaultImg.jpg";
 import AxiosOrder from "../../services/Order";
-import { addMonths, format } from "date-fns";
+import { add, addMonths, format } from "date-fns";
 import AxiosInventory from "../../services/Inventory";
 
 import Select from "react-select";
@@ -964,10 +964,10 @@ export default function DetailSlide() {
   };
 
   const OrderDetail = () => {
-    const { sendOrderById, deleteOrderById } = AxiosOrder();
+    const { sendOrderById, deleteOrderById, cancelOrderById } = AxiosOrder();
     const [lotData, setLotData] = useState();
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
-    const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
+    const [showCancelConfirmation, setShowCancelConfirmation] = useState(null);
 
     console.log("dataDetail", dataDetail);
 
@@ -989,6 +989,7 @@ export default function DetailSlide() {
     const handleSendRequest = async () => {
       await sendOrderById(dataDetail?.id);
       setRefresh(dataDetail?.id);
+      handleCloseDetail();
     };
 
     const handleDeleteClick = (e, order) => {
@@ -1011,6 +1012,27 @@ export default function DetailSlide() {
     };
     const cancelDelete = () => {
       setShowDeleteConfirmation(null);
+    };
+
+    const handleCancelClick = (e, order) => {
+      e.stopPropagation();
+      setShowCancelConfirmation(order);
+    };
+    const confirmCancel = async () => {
+      try {
+        setRefresh(0);
+        const res = await cancelOrderById(showCancelConfirmation?.id);
+        console.log(res);
+      } catch (e) {
+      } finally {
+        setRefresh(-1);
+        updateDataDetail();
+        updateTypeDetail();
+        cancelDelete();
+      }
+    };
+    const cancelCancel = () => {
+      setShowCancelConfirmation(null);
     };
 
     // const handleUpdateStatusClick = (e, request, status) => {
@@ -1103,21 +1125,31 @@ export default function DetailSlide() {
                 },
                 {
                   label: t("CreateDate") + ":",
-                  value: format(dataDetail?.createDate, "HH:mm - dd/MM/yyyy"),
+                  value: format(
+                    add(new Date(dataDetail?.createDate), { hours: 7 }),
+                    "HH:mm - dd/MM/yyyy"
+                  ),
                 },
                 {
                   label: "StartDeliveryDate" + ":",
                   value: dataDetail?.deliverStartDate
-                    ? format(dataDetail?.deliverStartDate, "HH:mm - dd/MM/yyyy")
+                    ? format(
+                        add(new Date(dataDetail?.deliverStartDate), {
+                          hours: 7,
+                        }),
+                        "HH:mm - dd/MM/yyyy"
+                      )
                     : t("NotYet"),
                 },
                 {
                   label: "CompleteDeliveryDate" + ":",
                   value: dataDetail?.deliverFinishDate
                     ? format(
-                        dataDetail?.deliverFinishDate,
-                        "HH:mm - dd/MM/yyyy"
-                      )
+                      add(new Date(dataDetail?.deliverFinishDate), {
+                        hours: 7,
+                      }),
+                      "HH:mm - dd/MM/yyyy"
+                    )
                     : t("NotYet"),
                 },
                 {
@@ -1272,7 +1304,7 @@ export default function DetailSlide() {
                 </button> */}
                 <button
                   className="bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-                  // onClick={(e) =>handleUpdateStatusClick(e, dataDetail, "Canceled")}
+                  onClick={(e) => handleCancelClick(e, dataDetail)}
                 >
                   {t("Cancel")}
                 </button>
@@ -1314,6 +1346,43 @@ export default function DetailSlide() {
                   className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
                 >
                   {t("Yes, Delete!")}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+        {showCancelConfirmation && (
+          <>
+            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
+            <div
+              className="absolute bg-white border border-gray-300 shadow-md rounded-2xl p-8 w-[30rem] h-fit text-black"
+              style={{
+                top: "50%",
+                left: "-10%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <div className="flex items-center justify-center">
+                <div className="text-5xl bg-fit h-fit p-4 bg-[#fff9f5] rounded-full mb-6">
+                  <Warning weight="fill" color="#feca3f" />
+                </div>
+              </div>
+              <p className="w-full text-2xl font-semibold text-center  mb-6">
+                Cancel Order
+              </p>
+              <p className="text-center w-full text-wrap  mb-6">{`You are going to cancel the "${dataDetail?.orderCode}" order?`}</p>
+              <div className="flex justify-between gap-4">
+                <button
+                  onClick={cancelCancel}
+                  className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
+                >
+                  {t("No, Keep It.")}
+                </button>
+                <button
+                  onClick={() => confirmCancel(showDeleteConfirmation)}
+                  className="bg-[#feca3f] text-white px-4 py-2 rounded-3xl w-full"
+                >
+                  {t("Yes, Cancel!")}
                 </button>
               </div>
             </div>

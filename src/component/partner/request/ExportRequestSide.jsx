@@ -86,6 +86,7 @@ export default function ExportRequestSide({
     }
     setProduct(pro);
   };
+  
   const handleSelectProduct = (pro) => {
     setSelectedProduct(pro);
     if (inventory?.isCold === pro?.isCold) {
@@ -155,7 +156,7 @@ export default function ExportRequestSide({
             <div className="col-span-3 h-full  flex flex-col items-start py-2  justify-between">
               <p className="text-lg">
                 <span className="font-medium">{t("Lot")}: </span>
-                {selectedProduct?.name}
+                {selectedProduct?.lotNumber}
               </p>
               <p className="text-gray-400">
                 <span className="font-medium">{t("Product")}: </span>
@@ -353,10 +354,14 @@ export default function ExportRequestSide({
                     className={`  relative text-base h-fit gap-4 flex flex-col  p-4 px-6  `}
                     onClick={() => handleShowDetailProduct(pro)}
                   >
-                    <div className="flex gap-10">
+                    <div className="flex justify-between">
                       <p>
                         <span className="font-medium">{t("Lot")}: </span>
-                        {pro?.name}
+                        {pro?.lotNumber}
+                      </p>
+                      <p>
+                        <span className="font-medium">{t("Product")}: </span>
+                        {pro?.productName}
                       </p>
                     </div>
                     <div className="flex justify-between text-gray-400">
@@ -388,7 +393,7 @@ export default function ExportRequestSide({
                       }`}
                     />
                     {[
-                      { label: t("LotName"), value: product?.name },
+                      { label: t("LotNumber"), value: product?.lotNumber },
                       { label: t("ProductName"), value: product?.productName },
                       {
                         label: t("WarehouseName"),
@@ -419,6 +424,10 @@ export default function ExportRequestSide({
                           " " +
                           t("TotalProducts") +
                           ")",
+                      },
+                      {
+                        label: t("ProductPerLot"),
+                        value: product?.productPerLot,
                       },
                       {
                         label: t("Frozen"),
@@ -461,10 +470,14 @@ export default function ExportRequestSide({
                       `}
                 onClick={() => handleShowDetailProduct(pro)}
               >
-                <div className="flex gap-10">
+                <div className="flex justify-between">
                   <p>
                     <span className="font-medium">{t("Lot")}: </span>
-                    {pro?.name}
+                    {pro?.lotNumber}
+                  </p>
+                  <p>
+                    <span className="font-medium">{t("Product")}: </span>
+                    {pro?.productName}
                   </p>
                 </div>
                 <div className="flex justify-between text-gray-400">
