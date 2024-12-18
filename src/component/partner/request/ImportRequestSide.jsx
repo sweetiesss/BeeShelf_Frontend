@@ -152,6 +152,59 @@ export default function ImportRequestSide({ inventories, products }) {
             onChange={handleInput}
           />
         </div>
+        {selectedProduct ? (
+          <div className="grid grid-cols-7  relative h-[6rem] items-center border-2   p-4 shadow-lg  ">
+            <div className="col-span-1 h-[4rem] w-[4rem] overflow-hidden">
+              <img
+                className="w-full h-full object-cover object-center border-2 "
+                src={selectedProduct?.pictureLink}
+              />
+            </div>
+            <div className="grid-rows-2 col-span-6">
+              <div>{selectedProduct?.name}</div>
+              <div className="text-gray-400">
+                {selectedProduct?.productCategoryName}
+              </div>
+            </div>
+            <div
+              className="absolute top-[1rem] right-[1.5rem] text-2xl  w-[4rem] h-[4rem] flex items-center justify-center text-gray-400 hover:text-black cursor-pointer"
+              onClick={() => setSelectedProduct()}
+            >
+              <X weight="bold" />
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-7  relative h-[6rem] items-center border-2 border-dashed  p-4 cursor-pointer ">
+            <div className="col-start-2 col-span-5 text-center text-gray-400">
+              {t("YourProductSelection")}
+            </div>
+          </div>
+        )}
+
+        <div className="flex w-full gap-10">
+          <div className="form-group gap-2 w-full">
+            <label>{t("AmountofLot")}</label>
+            <input
+              className="outline-none border-2 py-2 px-4 focus-within:border-black"
+              type="number"
+              name="lot.lotAmount"
+              value={form?.lot?.lotAmount || ""}
+              onChange={handleInput}
+            />
+          </div>
+          <div className="form-group gap-2 w-full">
+            <label className="text-[var(--en-vu-600)] font-normal">
+              {t("AmountofProductPerLot")}
+            </label>
+            <input
+              className="outline-none border-2 py-2 px-4 focus-within:border-black"
+              type="number"
+              name="lot.productPerLot"
+              value={form?.lot?.productPerLot || ""}
+              onChange={handleInput}
+            />
+          </div>
+        </div>
         <div className="form-group gap-2">
           <label className="text-[var(--en-vu-600)] font-normal">
             {t("Inventory")}
@@ -204,7 +257,10 @@ export default function ImportRequestSide({ inventories, products }) {
             )}
             formatOptionLabel={(selectedOption) => (
               <div className="">
-                <p>{selectedOption?.name}</p>
+                <div className="flex gap-4 ">
+                  <p>{selectedOption?.name}</p>
+                  <p className="text-sm text-gray-500">{"(" + selectedOption?.warehouseName + ")"}</p>
+                </div>
                 <div
                   className={`flex items-center justify-between text-sm text-gray-500`}
                 >
@@ -245,58 +301,6 @@ export default function ImportRequestSide({ inventories, products }) {
             placeholder={"ChooseProductFirst..."}
           />
         </div>
-        <div className="flex w-full gap-10">
-          <div className="form-group gap-2 w-full">
-            <label>{t("AmountofLot")}</label>
-            <input
-              className="outline-none border-2 py-2 px-4 focus-within:border-black"
-              type="number"
-              name="lot.lotAmount"
-              value={form?.lot?.lotAmount || ""}
-              onChange={handleInput}
-            />
-          </div>
-          <div className="form-group gap-2 w-full">
-            <label className="text-[var(--en-vu-600)] font-normal">
-              {t("AmountofProductPerLot")}
-            </label>
-            <input
-              className="outline-none border-2 py-2 px-4 focus-within:border-black"
-              type="number"
-              name="lot.productPerLot"
-              value={form?.lot?.productPerLot || ""}
-              onChange={handleInput}
-            />
-          </div>
-        </div>
-        {selectedProduct ? (
-          <div className="grid grid-cols-7  relative h-[6rem] items-center border-2   p-4 shadow-lg  ">
-            <div className="col-span-1 h-[4rem] w-[4rem] overflow-hidden">
-              <img
-                className="w-full h-full object-cover object-center border-2 "
-                src={selectedProduct?.pictureLink}
-              />
-            </div>
-            <div className="grid-rows-2 col-span-6">
-              <div>{selectedProduct?.name}</div>
-              <div className="text-gray-400">
-                {selectedProduct?.productCategoryName}
-              </div>
-            </div>
-            <div
-              className="absolute top-[1rem] right-[1.5rem] text-2xl  w-[4rem] h-[4rem] flex items-center justify-center text-gray-400 hover:text-black cursor-pointer"
-              onClick={() => setSelectedProduct()}
-            >
-              <X weight="bold" />
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-7  relative h-[6rem] items-center border-2 border-dashed  p-4 cursor-pointer ">
-            <div className="col-start-2 col-span-5 text-center text-gray-400">
-              {t("YourProductSelection")}
-            </div>
-          </div>
-        )}
         <div className="flex justify-between py-2 pb-4">
           <div className="space-x-10">
             <button className="bg-red-300 text-black hover:text-white px-4 py-2 rounded-md hover:bg-red-500">

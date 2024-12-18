@@ -4,7 +4,7 @@ import defaultImg from "../../../assets/img/defaultImg.jpg";
 import Pagination from "../../shared/Paggination";
 import { useEffect, useRef, useState } from "react";
 import { DotsThreeVertical } from "@phosphor-icons/react";
-import {format} from "date-fns"
+import { format } from "date-fns";
 export default function OrderList({
   orders,
   selectedOrder,
@@ -44,7 +44,6 @@ export default function OrderList({
     setOpenAction();
   };
 
-
   return (
     <div className="shadow-lg bg-white rounded-lg p-4  mb-3 overflow-y-scroll max-h-[70vh] w-full relative">
       <table className="w-full">
@@ -57,7 +56,10 @@ export default function OrderList({
             <td className="text-left pb-2 ">{t("ReceiverAddress")}</td>
             <td className="text-left pb-2 ">{t("ReceiverPhone")}</td>
             <td className="text-left pb-2 ">{t("CreateDate")}</td>
-            <td className="text-left pb-2 ">{t("Total")}{" (vnd)"}</td>
+            <td className="text-left pb-2 ">
+              {t("Total")}
+              {" (vnd)"}
+            </td>
             <td className="text-center pb-2">{t("Status")}</td>
             <td className="text-left pb-2 ">{t("")}</td>
           </tr>
@@ -65,8 +67,8 @@ export default function OrderList({
         <tbody>
           {orders &&
             orders?.items?.map((order, index) => {
-              let check = selectedOrder === order;
-              // console.log(selectedOrder);
+             
+               console.log("here",order);
 
               return (
                 <tr
@@ -84,7 +86,9 @@ export default function OrderList({
                   </td>
                   <td className=" px-1 py-2 ">{order?.orderCode}</td>
                   <td className=" px-1 py-2 ">{order?.warehouseName}</td>
-                  <td className=" px-1 py-2 ">{order?.receiverAddress}</td>
+                  <td className=" px-1 py-2 ">
+                    {order?.receiverAddress} {order?.deliveryZoneName}
+                  </td>
 
                   <td className=" px-1 py-2 ">{order?.receiverPhone}</td>
                   <td className=" px-1 py-2 ">
@@ -92,7 +96,6 @@ export default function OrderList({
                   </td>
                   <td className=" px-1 py-2 ">
                     {new Intl.NumberFormat().format(order?.totalPriceAfterFee)}
-    
                   </td>
                   <td className=" px-1 py-2 text-center align-middle">
                     <p

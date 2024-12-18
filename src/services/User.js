@@ -95,10 +95,13 @@ export default function AxiosUser() {
             objectCheck &&
             (objectCheck?.[
               "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-            ] === "Staff" ||
+            ] === "Staff" || 
               objectCheck?.[
                 "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-              ] === "Manager")
+              ] === "Manager" ||
+              objectCheck?.[
+                "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+              ] === "Admin")
           ) {
             const getEmployeeAccount = await requestGetEmployeeByEmail(
               data.email,
@@ -213,6 +216,7 @@ export default function AxiosUser() {
       return error;
     }
   };
+ 
   //????
   return {
     requestSignUp,

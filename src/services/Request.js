@@ -129,10 +129,37 @@ export default function AxiosRequest() {
         method: "PUT",
       });
       await toast.promise(fetching, {
-        pending: "Request in progress...",
+        pending: "Request in progressing...",
         success: {
           render() {
             return `${status} request successfully`;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log("data Error", data.response.data.message);
+            return `${data.response.data.message || "Something went wrong!"}`;
+          },
+        },
+      });
+      return await fetching;
+    } catch (e) {
+      return e;
+    }
+  };
+  const cancelRequest = async (id, reason) => {
+    try {
+      const fetching = fetchDataBearer({
+        url:
+          `request/cancel-request?id=` + id + "&cancellationReason=" + reason,
+        method: "POST",
+        body: JSON.stringify({ data: "Cancelled" }),
+      });
+      await toast.promise(fetching, {
+        pending: "Request in progressing...",
+        success: {
+          render() {
+            return `Request cancel successfully`;
           },
         },
         error: {
@@ -180,5 +207,6 @@ export default function AxiosRequest() {
     deleteRequestById,
     updateRequestStatus,
     updateRequest,
+    cancelRequest,
   };
 }

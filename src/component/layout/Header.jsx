@@ -51,10 +51,11 @@ export function HeaderUnauthenticated() {
       {/* Logo */}
       <div className="flex items-center gap-[20px]">
         <div
-          className="text-[#0db977] text-[25px] font-bold cursor-pointer"
+          className="text-[#0db977] text-[25px] font-bold cursor-pointer  relative"
           onClick={() => handleScroll("home")}
         >
-          BeeShelf
+          <img src="../../../beeShelf.png" className="h-[5rem] w-fit absolute top-[-25px] left-[-85px]"/>
+          <p>BeeShelf</p>
         </div>
       </div>
 
@@ -254,7 +255,7 @@ export function HeaderAuthenticated() {
           </label>
         </div> */}
 
-        {authWallet && (
+        {authWallet && userInfor?.roleName === "Partner" && (
           <div
             className="w-fit cursor-pointer flex gap-4 items-center"
             onClick={handleAddingCoinsButton}

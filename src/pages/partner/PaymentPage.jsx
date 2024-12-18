@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import AxiosPayment from "../../services/Payment";
-import { t } from "i18next";
+
 import axios from "axios";
 import { format } from "date-fns";
 import {
@@ -11,18 +11,22 @@ import {
   Eye,
   EyeClosed,
 } from "@phosphor-icons/react";
+import { useTranslation } from "react-i18next";
+import defaultImg from "../../assets/img/defaultImg.jpg";
 
 export function PaymentPage() {
-  const { userInfor, isAuthenticated } = useAuth();
+  const { userInfor, isAuthenticated, authWallet } = useAuth();
   const [option, setOption] = useState("Custom_Amount");
   const [customeAmount, setCustomAmount] = useState();
   const [error, setError] = useState();
-  const [authWallet, setAuthWallet] = useState();
+  // const [authWallet, setAuthWallet] = useState();
   const [hiddenNumber, setHiddenNumber] = useState(true);
   const [exhangePage, openExhangePage] = useState(false);
   const [withdrawnPage, openWithdrawnPage] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingButton, setLoadingButton] = useState(false);
   const [refresh, setRefresh] = useState(false);
+  const { t } = useTranslation();
 
   const [typePayment, setTypePayment] = useState("Exchange");
   const [payments, setPayment] = useState();
@@ -87,7 +91,7 @@ export function PaymentPage() {
         setWithdrawPayment(result2?.data);
       }
 
-      await getAuthWalletMoney();
+      // await getAuthWalletMoney();
     } catch (e) {
       console.log(e);
     } finally {
@@ -101,6 +105,7 @@ export function PaymentPage() {
     console.log(form);
 
     try {
+      setLoadingButton(true);
       let thisError = error;
       if (customeAmount >= 2000) {
         thisError = undefined;
@@ -125,79 +130,78 @@ export function PaymentPage() {
       }
     } catch (e) {
       console.error("Error during payment creation:", e);
+    } finally {
     }
   };
   const handleSubmitWithdrawnPayment = async () => {
     console.log(customeAmount);
     try {
       let thisError = error;
-      if (customeAmount >= 2000) {
-        thisError = undefined;
+      if (customeAmount > authWallet?.totalAmount) {
+        return;
+      }
+      if (customeAmount <= 2000) {
+        return;
       }
 
-      if (!thisError) {
-        const result = await createWithdrawnRequest(
-          userInfor?.id,
-          customeAmount
-        );
+      const result = await createWithdrawnRequest(userInfor?.id, customeAmount);
 
-        if (result?.status === 200) {
-          setRefresh((prev) => !prev);
-          openWithdrawnPage(true);
-          setCustomAmount(0);
-          setTypePayment("Withdrawn")
-        }
-
-        console.log(result);
+      if (result?.status === 200) {
+        setRefresh((prev) => !prev);
+        openWithdrawnPage(true);
+        setCustomAmount(0);
+        setTypePayment("Withdrawn");
       }
+
+      console.log(result);
     } catch (e) {
       console.error("Error during payment creation:", e);
     }
   };
 
-  const getAuthWalletMoney = async () => {
-    try {
-      if (userInfor?.roleName === "Partner" && userInfor?.roleId == 2) {
-        if (userInfor && isAuthenticated) {
-          console.log("check tokeen", isAuthenticated);
+  // const getAuthWalletMoney = async () => {
+  //   try {
+  //     if (userInfor?.roleName === "Partner" && userInfor?.roleId == 2) {
+  //       if (userInfor && isAuthenticated) {
+  //         console.log("check tokeen", isAuthenticated);
 
-          const response = await axios.get(
-            `${process.env.REACT_APP_BASE_URL_API}partner/get-wallet/${userInfor?.id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${isAuthenticated}`,
-              },
-            }
-          );
-          console.log(response);
+  //         const response = await axios.get(
+  //           `${process.env.REACT_APP_BASE_URL_API}partner/get-wallet/${userInfor?.id}`,
+  //           {
+  //             headers: {
+  //               Authorization: `Bearer ${isAuthenticated}`,
+  //             },
+  //           }
+  //         );
+  //         console.log(response);
 
-          setAuthWallet(response.data);
-        }
-      } else {
-        return;
-      }
-    } catch (error) {
-      console.error(
-        "Error fetching wallet:",
-        error.response?.data || error.message
-      );
-    } finally {
-    }
-  };
-  console.log(typePayment);
+  //         setAuthWallet(response.data);
+  //       }
+  //     } else {
+  //       return;
+  //     }
+  //   } catch (error) {
+  //     console.error(
+  //       "Error fetching wallet:",
+  //       error.response?.data || error.message
+  //     );
+  //   } finally {
+  //   }
+  // };
+  console.log("authWallet", authWallet);
 
   return (
     <div className="h-full relative">
       <div className="flex justify-between">
         <div>
-          <p className="text-3xl font-semibold">{t("MyWallet")}</p>
+          <p className="text-3xl font-semibold">{t("TransactionManagement")}</p>
         </div>
         <div className="flex gap-4">
           <button
             className="p-2 px-4  border-2 rounded-2xl hover:bg-gray-100 bg-white"
             onClick={() => openWithdrawnPage(true)}
           >
-            {t("Withdraw")}
+            {t("Withdrawn")}
           </button>
           <button
             className="p-2 px-4  border-2 rounded-2xl hover:bg-green-600 bg-[var(--Xanh-Base)] text-white flex items-center"
@@ -207,62 +211,11 @@ export function PaymentPage() {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-7 gap-4 my-8">
-        <div className="col-span-2   border-2 p-8 rounded-xl shadow-xl h-fit">
-          <div className="flex mb-4 justify-between items-center">
-            <div className="text-2xl">{t("WalletBalance")}</div>
-            <>
-              {hiddenNumber ? (
-                <EyeClosed
-                  weight="bold"
-                  className="text-3xl hover:scale-110 cursor-pointer"
-                  onClick={() => setHiddenNumber(false)}
-                />
-              ) : (
-                <Eye
-                  weight="bold"
-                  className="text-3xl hover:scale-110 cursor-pointer"
-                  onClick={() => setHiddenNumber(true)}
-                />
-              )}
-            </>
-          </div>
-          {[
-            {
-              walletColor:
-                "linear-gradient(254deg, #0A9A63 0.24%, #35C48D 99.76%",
-              walletName: "BeeShelf Coin",
-              walletCoins: hiddenNumber
-                ? "xxxxxxxxxxxx"
-                : new Intl.NumberFormat().format(authWallet?.totalAmount),
-              createDate: userInfor?.createDate,
-            },
-          ].map((wallet) => (
-            <div
-              className=" rounded-xl px-10 py-8 text-white"
-              style={{ background: wallet.walletColor }}
-            >
-              <div>
-                <div className="font-medium text-2xl">{wallet.walletName}</div>
-                <div className="text-3xl mt-5 mb-7">
-                  {wallet.walletCoins} vnd
-                </div>
-                {wallet?.createDate && (
-                  <div className="text-base text-[var(--en-vu-10-white)]">
-                    {t("ActiveOn") +
-                      ": " +
-                      format(wallet?.createDate, "MMM dd,yyyy")}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="shadow-xl border-2 bg-white col-span-5 rounded-lg p-8  mb-3 overflow-y-scroll max-h-[50rem] w-full relative">
+      <div className="my-8">
+        <div className="shadow-xl border-2 bg-white rounded-lg p-8  mb-3 overflow-y-scroll max-h-[50rem] w-full relative">
           <div className="text-2xl mb-4">{t("Transaction")}</div>
           <div className="flex gap-4 items-center mb-4">
-            <label>{t("TypyeOfTransaction")}: </label>
+            <label>{t("TypeOfTransaction")}: </label>
             <select
               className="border-2 px-2 py-1 rounded-xl text-gray-300 focus-within:text-black focus-within:border-black"
               value={typePayment}
@@ -277,6 +230,7 @@ export function PaymentPage() {
               <thead>
                 <tr>
                   <td className="text-center pb-2  ">#</td>
+
                   <td className="text-left pb-2  px-3">{t("Code")}</td>
                   <td className="text-left pb-2 ">{t("CreateDate")}</td>
                   <td className="text-left pb-2 ">{t("Description")}</td>
@@ -311,7 +265,7 @@ export function PaymentPage() {
                           <td className=" px-1 py-2 text-center align-middle">
                             <p
                               className={`px-2 py-1 inline-block rounded-full text-sm font-semibold h-fit w-fit ${
-                                payment.status === "COMPLETED"
+                                payment.status === "PAID"
                                   ? "bg-green-200 text-green-800"
                                   : payment.status === "Shipped"
                                   ? "bg-yellow-200 text-yellow-800"
@@ -320,7 +274,7 @@ export function PaymentPage() {
                                   : "bg-red-200 text-red-800"
                               }`}
                             >
-                              {payment.status}
+                              {t(payment.status)}
                             </p>
                           </td>
                         </tr>
@@ -334,9 +288,13 @@ export function PaymentPage() {
               <thead>
                 <tr>
                   <td className="text-center pb-2  ">#</td>
+                  <td className="text-center pb-2">{t("Image")}</td>
                   <td className="text-left pb-2  px-3">{t("StaffName")}</td>
                   <td className="text-left pb-2 ">{t("StaffEmail")}</td>
+                  <td className="text-left pb-2 ">{t("Bank")}</td>
+                  <td className="text-left pb-2 ">{t("Account")}</td>
                   <td className="text-left pb-2 ">{t("CreateDate")}</td>
+                  <td className="text-left pb-2 ">{t("ConfirmDate")}</td>
                   <td className="text-left pb-2 ">{t("Amount")}</td>
                   <td className="text-center pb-2">{t("Status")}</td>
                 </tr>
@@ -353,7 +311,17 @@ export function PaymentPage() {
                           <td className=" px-1 py-2 text-center ">
                             {index + 1}
                           </td>
-
+                          <td className=" py-2  flex justify-center items-center ">
+                            <img
+                              src={
+                                payment?.pictureLink
+                                  ? payment?.pictureLink
+                                  : defaultImg
+                              }
+                              alt={payment?.name}
+                              className="h-20 w-20 rounded-xl object-cover object-center"
+                            />
+                          </td>
                           <td className=" px-3 py-2  ">
                             {payment?.transferByStaffName || (
                               <span className="text-gray-400">
@@ -361,15 +329,24 @@ export function PaymentPage() {
                               </span>
                             )}
                           </td>
-                          <td className=" px-1 py-2 max-w-[20rem]">
+                          <td className=" px-1 py-2 ">
                             {payment?.transferByStaffEmail || (
                               <span className="text-gray-400">
                                 {t("Pending...")}
                               </span>
                             )}
                           </td>
+                          <td className=" px-1 py-2">
+                            {payment?.partner_bank_name}
+                          </td>
+                          <td className=" px-1 py-2">
+                            {payment?.partner_bank_account}
+                          </td>
                           <td className=" px-1 py-2 ">
                             {format(payment?.createDate, "hh:mm - dd/MM/yyyy")}
+                          </td>
+                          <td className=" px-1 py-2 ">
+                            {format(payment?.confirmDate, "hh:mm - dd/MM/yyyy")}
                           </td>
                           <td className=" px-1 py-2 ">
                             {new Intl.NumberFormat().format(payment?.amount)}{" "}
@@ -386,9 +363,9 @@ export function PaymentPage() {
                               }`}
                             >
                               {payment?.isTransferred === 1
-                                ? "COMPLETE"
+                                ? t("COMPLETE")
                                 : payment?.isTransferred === 0
-                                ? "PENDING"
+                                ? t("PENDING")
                                 : "CANCELED"}
                             </p>
                           </td>
@@ -423,7 +400,7 @@ export function PaymentPage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-10">
               {/* Predefined Amount Options */}
-              {[10000, 50000, 100000, 200000].map((amount) => (
+              {[30000, 50000, 100000, 200000].map((amount) => (
                 <div
                   key={amount}
                   className={`p-4 text-center rounded-lg cursor-pointer shadow-md transition-all ${
@@ -474,7 +451,7 @@ export function PaymentPage() {
                   onChange={(e) => {
                     setError();
                     if ((e.target.value < 20000) & (e.target.value > 0))
-                      setError("TheMinimumAmountMustBe2000vnd");
+                      setError("TheMinimumAmountMustBeLarger20000vnd");
                     setCustomAmount(e.target.value);
                   }}
                 />
@@ -500,14 +477,15 @@ export function PaymentPage() {
             </div>
             {error && (
               <div className="text-red-500 text-center w-full mt-4">
-                {error}
+                {t(error)}
               </div>
             )}
             <div className="mt-8 text-center w-full">
               {/* Submit Button */}
               <button
-                onClick={handleSubmitPayment}
+                onClick={!loadingButton ? handleSubmitPayment : undefined}
                 className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-lg transition-all"
+                disabled={loadingButton}
               >
                 {t("GenerateQRCode")}
               </button>
@@ -537,7 +515,7 @@ export function PaymentPage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-10">
               {/* Predefined Amount Options */}
-              {[10000, 50000, 100000, 200000].map((amount) => (
+              {[30000, 50000, 100000, 200000].map((amount) => (
                 <div
                   key={amount}
                   className={`p-4 text-center rounded-lg cursor-pointer shadow-md transition-all ${
@@ -546,6 +524,10 @@ export function PaymentPage() {
                       : "bg-gray-100 hover:bg-gray-200"
                   }`}
                   onClick={() => {
+                    setError();
+                    if (amount > authWallet?.totalAmount)
+                      setError("TheMinimumAmountMustBeLargerYourWallet");
+
                     setCustomAmount(amount);
                   }}
                 >
@@ -588,7 +570,10 @@ export function PaymentPage() {
                   onChange={(e) => {
                     setError();
                     if ((e.target.value < 20000) & (e.target.value > 0))
-                      setError("TheMinimumAmountMustBe20000vnd");
+                      setError("TheMinimumAmountMustBeLarger20000vnd");
+                    if (e.target.value > authWallet?.totalAmount)
+                      setError("TheMinimumAmountMustBeLargerYourWallet");
+
                     setCustomAmount(e.target.value);
                   }}
                 />
@@ -615,7 +600,7 @@ export function PaymentPage() {
             </div>
             {error && (
               <div className="text-red-500 text-center w-full mt-4">
-                {error}
+                {t(error)}
               </div>
             )}
             <div className="mt-8 text-center w-full">

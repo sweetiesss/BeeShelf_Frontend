@@ -10,6 +10,7 @@ import {
   Select,
 } from "antd";
 import AxiosEmployee from "../../services/Employee";
+import { useAuth } from "../../context/AuthContext";
 
 export default function EmployeePage() {
   const [form] = Form.useForm();
@@ -22,6 +23,7 @@ export default function EmployeePage() {
   const [filterByRole, setFilterByRole] = useState();
   const [descending, setDescending] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const { userInfor } = useAuth();
 
   const [newEmployee, setNewEmployee] = useState({
     email: "",
@@ -146,7 +148,9 @@ export default function EmployeePage() {
   const roleOptions = [
     { label: "Staff", value: 3 },
     { label: "Shipper", value: 4 },
-    { label: "Manager", value: 5 },
+    ...(userInfor?.roleName === "Admin"
+      ? [{ label: "Manager", value: 5 }]
+      : []),
   ];
 
   // Edit row

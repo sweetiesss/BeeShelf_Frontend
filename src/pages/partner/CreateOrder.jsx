@@ -285,11 +285,15 @@ export default function CreateOrderPage() {
       console.log("Order Created:", form);
       const submitForm = {
         ...form,
-        deliveryZoneId: parseInt(defaultLocation?.id),
+        deliveryZoneId: parseInt(deliveryZone?.id),
         distance: parseFloat(distance),
       };
-      const result = await createOrder(submitForm, warehouse?.warehouseId);
-      console.log(result);
+      const result = await createOrder(
+        submitForm,
+        warehouse?.warehouseId,
+        true
+      );
+      console.log(submitForm);
       setForm(baseForm);
     } catch (e) {
       console.log(e);
@@ -304,10 +308,14 @@ export default function CreateOrderPage() {
       console.log("Order Created:", form);
       const submitForm = {
         ...form,
-        deliveryZoneId: parseInt(defaultLocation?.id),
+        deliveryZoneId: parseInt(deliveryZone?.id),
         distance: parseFloat(distance),
       };
-      const result = await createOrder(submitForm, warehouse?.warehouseId);
+      const result = await createOrder(
+        submitForm,
+        warehouse?.warehouseId,
+        false
+      );
       console.log(result);
       setForm(baseForm);
     } catch (e) {
@@ -607,11 +615,6 @@ export default function CreateOrderPage() {
           </div>
 
           <div className="flex justify-between space-x-4 mt-6 items-center">
-            {distance && (
-              <p className="mt-4 text-lg">
-                {t("Distance")}: {distance.toFixed(3)} {"km"}
-              </p>
-            )}
             <div className="flex justify-between w-full gap-8">
               <button
                 type="button"

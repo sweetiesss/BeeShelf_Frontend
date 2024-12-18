@@ -53,9 +53,10 @@ export default function AxiosPartner() {
       return error;
     }
   };
-  const getOrderRevunue = async (userId) => {
+  const getOrderRevunue = async (userId, showYear) => {
     try {
-      const url = `partner/get-partner-revenue/${userId}`;
+      const url =
+        `partner/get-partner-revenue/${userId}?year=` + parseInt(showYear);
 
       const fetching = await fetchDataBearer({
         url,
@@ -71,5 +72,5 @@ export default function AxiosPartner() {
     }
   };
 
-  return { updateProfile, getAllProduct,getOrderRevunue };
+  return { updateProfile, getAllProduct, getOrderRevunue };
 }

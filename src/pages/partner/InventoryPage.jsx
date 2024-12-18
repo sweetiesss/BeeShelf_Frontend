@@ -52,7 +52,7 @@ export default function InventoryPage() {
 
   const [sortCriteria, setSortCriteria] = useState(null);
 
-  const { userInfor, setRefrestAuthWallet } = useAuth();
+  const { userInfor, setRefrestAuthWallet, authWallet } = useAuth();
   const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
   const { updateDataDetail, updateTypeDetail, refresh, setRefresh } =
     useDetail();
@@ -64,6 +64,7 @@ export default function InventoryPage() {
   const [monthBuyInvrentory, setMonthToBuyInventory] = useState(1);
 
   const [warehouseOnId, setWareHouseOnId] = useState(0);
+  const [errors, setErrors] = useState();
 
   const [filters, setFilters] = useState({
     name: "",
@@ -195,6 +196,27 @@ export default function InventoryPage() {
       setProvinencesList(result?.data);
     } catch (e) {
       console.log(e);
+    }
+  };
+
+  const handleSetMonthToBuy = (price, data) => {
+    console.log("data", data);
+
+    const dataPrice = Math.round(parseFloat(price) * parseFloat(data));
+    setErrors("");
+    if (data < 0 || data === null || data === undefined || data === "") {
+      console.log("here");
+
+      setErrors("YouNeedAtLeast1MonthToBuyInventory.");
+      setMonthToBuyInventory("");
+      return;
+    }
+    setMonthToBuyInventory(Math.floor(data));
+    console.log(dataPrice > authWallet?.totalAmount);
+
+    if (dataPrice > authWallet?.totalAmount) {
+      setErrors("NotEnoughtMoneyToDoThis.");
+      return;
     }
   };
 
@@ -451,6 +473,11 @@ export default function InventoryPage() {
   };
   const handleConfirmBuyInventory = async () => {
     try {
+      setLoading(true);
+
+      if (errors?.length > 0) {
+        return;
+      }
       const result = await buyInventory(
         inventory.id,
         userInfor.id,
@@ -459,7 +486,6 @@ export default function InventoryPage() {
       if (result?.status == 200) {
         handleCancelBuyInventory();
         setRefetchingInventory((prev) => !prev);
-        setLoading(true);
         getBackWareHouseIsInding();
         setWareHouseOnId(warehouse?.id);
         setRefrestAuthWallet((prev) => !prev);
@@ -940,26 +966,29 @@ export default function InventoryPage() {
                     type="number"
                     className="outline-none w-[5rem]"
                     value={monthBuyInvrentory}
-                    onChange={(e) => setMonthToBuyInventory(e.target.value)}
+                    step={1}
+                    onChange={(e) =>
+                      handleSetMonthToBuy(inventory?.price, e.target.value)
+                    }
                   ></input>
 
                   <p>{t("Months")}</p>
                 </div>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
-                  onClick={() => setMonthToBuyInventory(6)}
+                  onClick={() => handleSetMonthToBuy(inventory?.price, 6)}
                 >
                   6 {t("Months")}
                 </button>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
-                  onClick={() => setMonthToBuyInventory(12)}
+                  onClick={() => handleSetMonthToBuy(inventory?.price, 12)}
                 >
                   1 {t("Year")}
                 </button>
                 <button
                   className="bg-gray-300 px-3 py-2 h-fit rounded-lg hover:bg-gray-400"
-                  onClick={() => setMonthToBuyInventory(24)}
+                  onClick={() => handleSetMonthToBuy(inventory?.price, 24)}
                 >
                   2 {t("Years")}
                 </button>
@@ -1001,6 +1030,9 @@ export default function InventoryPage() {
                     )}
                   </p>
                 </div>
+                <div className="col-span-8 text-red-500">
+                  <div className="">{t(errors)}</div>
+                </div>
               </div>
               <div className="flex justify-end gap-4">
                 <button
@@ -1011,6 +1043,7 @@ export default function InventoryPage() {
                 </button>
                 <button
                   onClick={handleConfirmBuyInventory}
+                  disabled={errors?.length > 0 || loading}
                   className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                 >
                   {t("Confirm")}
