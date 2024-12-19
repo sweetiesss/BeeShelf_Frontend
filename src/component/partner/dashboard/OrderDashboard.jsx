@@ -118,13 +118,6 @@ const OrderDashboard = () => {
     fetchBeginData();
   }, [thisYear]);
 
-  console.log(allProducts);
-  console.log(allIventories);
-  console.log("totalStatusCount", totalStatusCount);
-  console.log("totalStatusCount2", totalStatusCount2);
-  console.log("revenueUpdate", revenueUpdate);
-  console.log("revenueUpdate2", revenueUpdate2);
-
   const salesOverviewOptions = {
     plugins: {
       legend: { display: false },
@@ -272,7 +265,7 @@ const OrderDashboard = () => {
       {!loading ? (
         <div>
           <div className="flex gap-4 mb-8 items-center">
-            <p className="font-medium text-xl">{t("SelectYear")}</p>
+            <p className="font-medium text-xl">{t("Select Year")}</p>
             <DatePicker
               size="large"
               onChange={onChange}
@@ -310,7 +303,7 @@ const OrderDashboard = () => {
                             {" (" + percentage + ")%"}
                           </span>
                         </p>
-                        <p className="text-gray-500">{t("TotalSales")}</p>
+                        <p className="text-gray-500">{t("Total Sales")}</p>
                       </div>
                     </div>
                   );
@@ -341,7 +334,7 @@ const OrderDashboard = () => {
                             {" (-" + percentage + ")%"}
                           </span>
                         </p>
-                        <p className="text-gray-500">{t("TotalSales")}</p>
+                        <p className="text-gray-500">{t("Total Sales")}</p>
                       </div>
                     </div>
                   );
@@ -369,7 +362,7 @@ const OrderDashboard = () => {
                           {" (0%)"}
                         </span>
                       </p>
-                      <p className="text-gray-500">{t("TotalSales")}</p>
+                      <p className="text-gray-500">{t("Total Sales")}</p>
                     </div>
                   </div>
                 );
@@ -404,7 +397,7 @@ const OrderDashboard = () => {
 
             <div className="p-4 bg-white rounded-lg shadow-lg col-span-2 border-[1px]">
               <h2 className="text-lg font-bold mb-4">
-                {t("RevenueSales")}
+                {t("Revenue Sales")}
                 {" (vnd)"}
               </h2>
               <Bar data={revenueUpdateData} options={revenueUpdateOptions} />
@@ -444,7 +437,7 @@ const OrderDashboard = () => {
 
             <div className="p-4 bg-white rounded-lg shadow-lg col-span-2 border-[1px]">
               <h2 className="text-lg font-bold mb-4">
-                {t("YearlySales")}
+                {t("Yearly Sales")}
                 {" (vnd)"}
               </h2>
               <Line data={yearlySalesData} options={yearlySalesOptions} />

@@ -153,7 +153,7 @@ export default function LotsPage() {
             {inventory?.name} {">"}
           </h1>
         )}
-        <h1 className="text-3xl font-bold mb-6">{t("LotsManagement")}</h1>
+        <h1 className="text-3xl font-bold mb-6">{t("Lots Management")}</h1>
       </div>
       <div className="flex gap-10">
         <div
