@@ -27,6 +27,7 @@ const Vehicle = () => {
   const { fetchDataBearer } = useAxios();
   const typeVehicles = ["Truck", "Van", "Motorcycle"];
   const { t } = useTranslation();
+
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchVehicles = async (pageIndex, pageSize) => {
     setLoading(true);
@@ -46,7 +47,7 @@ const Vehicle = () => {
         const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
           response.data;
         setVehicles(items || []);
-        message.success("Data loaded successfully!");
+        message.success(t("Data_loaded_successfully"));
 
         setPagination({
           totalItemsCount,
@@ -54,26 +55,30 @@ const Vehicle = () => {
           totalPagesCount,
           pageIndex,
         });
+
         const options = (items || [])
-          ?.filter((vehicle) => vehicle.status === "Available")
+          ?.filter((vehicle) => vehicle.status === t("Available"))
           ?.filter((item) => !item.assignedDriverId)
           .map((vehicle) => ({
             value: vehicle.id,
-            label: `VehicleId: ${vehicle.id} - Name Vehicle: ${vehicle.name} - License Plate: ${vehicle.licensePlate}`,
+            label: `${t("VehicleId")}: ${vehicle.id} - ${t("Name_Vehicle")}: ${
+              vehicle.name
+            } - ${t("License_Plate")}: ${vehicle.licensePlate}`,
           }));
         setVehicleIdOptions(options);
       } else {
-        message.error("No data returned or invalid data format.");
+        message.error(t("No_data_returned_or_invalid_data_format"));
         setVehicles([]); // In case of invalid data, set to empty array
       }
     } catch (error) {
-      console.error("Error fetching payments:", error);
-      message.error("Failed to fetch payments.");
+      console.error(t("Error_fetching_payments"), error);
+      message.error(t("Failed_to_fetch_payments"));
       setVehicles([]); // Ensure empty array if error occurs
     } finally {
       setLoading(false);
     }
   };
+
   // Hàm Unassign Vehicle
   const handleUnassignVehicle = async (vehicleId) => {
     try {
@@ -83,15 +88,15 @@ const Vehicle = () => {
         method: "POST",
       });
 
-      message.success("Vehicle unassigned successfully!");
+      message.success(t("Vehicle_unassigned_successfully"));
       fetchVehicles(pagination.pageIndex, pagination.pageSize); // Refresh the vehicle list
     } catch (error) {
-      console.error("Error unassigning vehicle:", error);
-      message.error("Failed to unassign vehicle.");
+      console.error(t("Error_unassigning_vehicle"), error);
+      message.error(t("Failed_to_unassign_vehicle"));
     }
   };
 
-  // Hàm gọi API để assignVehicle mới
+  // Hàm gọi API để assign vehicle mới
   const assignVehicleToShipper = async (vehicleId, shipperId) => {
     setLoading(true);
     try {
@@ -101,16 +106,18 @@ const Vehicle = () => {
       });
 
       if (response && response.status === 200) {
-        message.success("vehicle Assign successfully!");
+        message.success(t("Vehicle_assigned_successfully"));
         fetchVehicles(pagination.pageIndex, pagination.pageSize); // Cập nhật lại danh sách vehicle
-        setVisible(false); // Đóng modal khi tạo Assign thành công
+        setVisible(false); // Đóng modal khi tạo assign thành công
       } else {
         const errorMessage =
-          response?.data?.message || "Failed to Confirm money transfer.";
+          response?.data?.message || t("Failed_to_confirm_money_transfer");
         message.error(errorMessage);
       }
     } catch (error) {
-      message.error(error?.response?.data?.message || "Something went wrong!");
+      message.error(
+        error?.response?.data?.message || t("Something_went_wrong")
+      );
     } finally {
       setLoading(false);
     }
@@ -123,7 +130,7 @@ const Vehicle = () => {
         const warehouseId = userInfor?.workAtWarehouseId;
 
         if (!warehouseId) {
-          console.error("Warehouse ID is not available");
+          console.error(t("Warehouse_ID_is_not_available"));
           return;
         }
 
@@ -140,17 +147,17 @@ const Vehicle = () => {
         });
 
         if (response.status === 200 && response.data) {
-          console.log("Shippers data:", response.data);
-          // Lọc shipper chua co xe
+          console.log(t("Shippers_data"), response.data);
+          // Lọc shipper chưa có xe
           setShipperIdOptions(
             response.data.items.filter((item) => item.vehicles.length <= 0) ||
               []
           );
         } else {
-          console.error("Failed to fetch shippers data");
+          console.error(t("Failed_to_fetch_shippers_data"));
         }
       } catch (error) {
-        console.error("Error fetching shippers data:", error);
+        console.error(t("Error_fetching_shippers_data"), error);
       }
     };
 
@@ -177,20 +184,18 @@ const Vehicle = () => {
       setSelectedVehicle(response.data);
       setIsModalVisible(true);
     } catch (error) {
-      toast.error("Failed to fetch vehicle data");
+      toast.error(t("Failed_to_fetch_vehicle_data"));
     }
   };
-
-  // Cột trong bảng
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id" },
+    { title: t("ID"), dataIndex: "id", key: "id" },
     {
-      title: "Vehicle Name ",
+      title: t("Vehicle_Name"),
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Status",
+      title: t("Status"),
       dataIndex: "status",
       key: "status",
       filterDropdown: ({
@@ -209,28 +214,32 @@ const Vehicle = () => {
             }}
             allowClear
           >
-            <Option value="InService">InService</Option>
-            <Option value="Repair">Repair</Option>
-            <Option value="Available">Available</Option>
+            <Option value="InService">{t("In_Service")}</Option>
+            <Option value="Repair">{t("Repair")}</Option>
+            <Option value="Available">{t("Available")}</Option>
           </Select>
         </div>
       ),
       onFilter: (value, record) => record.status === value,
-      render: (status) => status,
+      render: (status) => t(status),
     },
     {
-      title: "Assigned Driver Email",
+      title: t("Assigned_Driver_Email"),
       dataIndex: "assignedDriverEmail",
       key: "assignedDriverEmail",
     },
     {
-      title: "Assigned Driver Name",
+      title: t("Assigned_Driver_Name"),
       dataIndex: "assignedDriverName",
       key: "assignedDriverName",
     },
-    { title: "LicensePlate", dataIndex: "licensePlate", key: "licensePlate" },
     {
-      title: "Action",
+      title: t("License_Plate"),
+      dataIndex: "licensePlate",
+      key: "licensePlate",
+    },
+    {
+      title: t("Action"),
       key: "action",
       align: "center",
       render: (record) => (
@@ -242,26 +251,26 @@ const Vehicle = () => {
             style={{ minWidth: "100px", padding: "0 10px" }}
             onClick={() => handleViewDetail(record.id)}
           >
-            View Detail
+            {t("View_Detail")}
           </Button>
-
           {/* Nút Unassign Vehicle */}
           <Button
             type="default"
             danger
             size="small"
-            disabled={record.status !== "Available"}
+            disabled={record.status !== t("Available")}
             style={{
               minWidth: "120px",
               padding: "0 10px",
-              color: record.status === "Available" ? "#ff4d4f" : "#d9d9d9",
+              color: record.status === t("Available") ? "#ff4d4f" : "#d9d9d9",
               borderColor:
-                record.status === "Available" ? "#ff4d4f" : "#d9d9d9",
-              cursor: record.status === "Available" ? "pointer" : "not-allowed",
+                record.status === t("Available") ? "#ff4d4f" : "#d9d9d9",
+              cursor:
+                record.status === t("Available") ? "pointer" : "not-allowed",
             }}
             onClick={() => handleUnassignVehicle(record.id)}
           >
-            Unassign Vehicle
+            {t("Unassign_Vehicle")}
           </Button>
         </div>
       ),
@@ -270,7 +279,6 @@ const Vehicle = () => {
     // Cột bổ sung có thể bỏ qua nếu không cần thiết
   ];
 
-  // Update vehicle status
   const updateVehicleStatus = async (id, newStatus) => {
     setLoading(true);
     try {
@@ -279,7 +287,10 @@ const Vehicle = () => {
 
       if (!validTransitions.includes(newStatus)) {
         message.error(
-          `Invalid status transition from ${currentVehicle.status} to ${newStatus}`
+          t("Invalid_status_transition", {
+            currentStatus: currentVehicle.status,
+            newStatus: newStatus,
+          })
         );
         return;
       }
@@ -293,18 +304,17 @@ const Vehicle = () => {
       });
 
       if (response && response.status === 200) {
-        message.success("Status updated successfully!");
+        message.success(t("Status_updated_successfully"));
         fetchVehicles();
       } else {
         const errorMessage =
-          response?.data?.message || "Failed to update status.";
+          response?.data?.message || t("Failed_to_update_status");
         message.error(errorMessage);
       }
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error(t("Error_updating_status"), error);
       message.error(
-        error.response?.data?.message ||
-          "Failed to update status. Please try again."
+        error.response?.data?.message || t("Failed_to_update_status_try_again")
       );
     } finally {
       setLoading(false);
@@ -331,18 +341,17 @@ const Vehicle = () => {
       });
 
       if (response && response.status === 200) {
-        message.success("Type updated successfully!");
+        message.success(t("Type_updated_successfully"));
         fetchVehicles();
       } else {
         const errorMessage =
-          response?.data?.message || "Failed to update type.";
+          response?.data?.message || t("Failed_to_update_type");
         message.error(errorMessage);
       }
     } catch (error) {
-      console.error("Error updating type:", error);
+      console.error(t("Error_updating_type"), error);
       message.error(
-        error.response?.data?.message ||
-          "Failed to update type. Please try again."
+        error.response?.data?.message || t("Failed_to_update_type_try_again")
       );
     } finally {
       setLoading(false);
@@ -352,12 +361,12 @@ const Vehicle = () => {
   // Add this function to check valid status transitions
   const getValidStatusTransitions = (currentStatus) => {
     switch (currentStatus) {
-      case "Available":
-        return ["Repair"];
-      case "InService":
+      case t("Available"):
+        return [t("Repair")];
+      case t("InService"):
         return [];
-      case "Repair":
-        return ["Available"];
+      case t("Repair"):
+        return [t("Available")];
       default:
         return [];
     }
@@ -371,28 +380,27 @@ const Vehicle = () => {
   return (
     <div className="p-[20px]">
       <h1 className="text-4xl font-bold text-gray-800 mb-8">
-        Vehicle Management
+        {t("Vehicle_Management")}
       </h1>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-lg font-bold">Vehicle List</h1>
+        <h1 className="text-lg font-bold">{t("Vehicle_List")}</h1>
         <div className="flex gap-4">
           <Button
             type="primary"
             onClick={() => setVisible(true)} // Hiển thị modal khi nhấn nút
           >
-            Assign Vehicle To Shipper
+            {t("Assign_Vehicle_To_Shipper")}
           </Button>
         </div>
       </div>
-
       {/* Modal hiển thị form nhập staffId và paymentId */}
       <Modal
-        title="Assign vehicle to shipper"
+        title={t("Assign_Vehicle_To_Shipper")}
         open={visible}
         onCancel={() => setVisible(false)} // Đóng modal khi nhấn cancel
         footer={[
           <Button key="back" onClick={() => setVisible(false)}>
-            Cancel
+            {t("Cancel")}
           </Button>,
           <Button
             key="submit"
@@ -400,41 +408,40 @@ const Vehicle = () => {
             loading={loading}
             onClick={() => assignVehicleToShipper(vehicleId, shipperId)}
           >
-            Assign Vehicle To Shipper
+            {t("Assign_Vehicle_To_Shipper")}
           </Button>,
         ]}
       >
         <Form layout="vertical">
-          <Form.Item label="Shipper ID" required>
-            {/* <Input
-              value={userInfor?.id} // Để giá trị mặc định là userInfor?.id
-              disabled
-              placeholder="Staff ID"
-            /> */}
+          {/* Shipper ID */}
+          <Form.Item label={t("Shipper_ID")} required>
             <Select
               value={shipperId}
               onChange={(value) => setShipperId(value)}
-              placeholder="Select Vehicle ID"
+              placeholder={t("Select_Shipper_ID")}
             >
               {shippperIdOptions.map(
                 (shipper) =>
                   shipper.employeeId &&
                   shipper.warehouseId && (
-                    // eslint-disable-next-line react/jsx-no-undef
-                    <Option key={shipper.employeeId} value={shipper.employeeId}>
-                      Employee Name: {shipper.shipperName} - WarehouseId:{" "}
-                      {shipper.warehouseId}
-                    </Option>
+                    <Select.Option
+                      key={shipper.employeeId}
+                      value={shipper.employeeId}
+                    >
+                      {t("Employee_Name")}: {shipper.shipperName} -{" "}
+                      {t("Warehouse_ID")}: {shipper.warehouseId}
+                    </Select.Option>
                   )
               )}
             </Select>
           </Form.Item>
 
-          <Form.Item label="Vehicle" required>
+          {/* Vehicle */}
+          <Form.Item label={t("Vehicle")} required>
             <Select
               value={vehicleId}
               onChange={(value) => setVehicleId(value)}
-              placeholder="Select Vehicle ID"
+              placeholder={t("Select_Vehicle_ID")}
             >
               {vehicleIdOptions.map((option) => (
                 <Select.Option key={option.value} value={option.value}>
@@ -468,7 +475,7 @@ const Vehicle = () => {
       <Modal
         title={
           <div className="text-2xl font-bold text-gray-800">
-            Vehicle Details
+            {t("Vehicle_Details")}
           </div>
         }
         open={isModalVisible}
@@ -479,7 +486,7 @@ const Vehicle = () => {
             onClick={handleModalClose}
             className="bg-red-500 text-white hover:bg-red-600 transition duration-200"
           >
-            Close
+            {t("Close")}
           </Button>,
         ]}
         className="!w-[700px]"
@@ -493,7 +500,7 @@ const Vehicle = () => {
                   htmlFor="statusSelect"
                   className="block text-lg font-bold mb-2 text-gray-700"
                 >
-                  Status:
+                  {t("Status")}:
                 </label>
                 <Select
                   id="statusSelect"
@@ -502,7 +509,7 @@ const Vehicle = () => {
                   onChange={(newStatus) =>
                     updateVehicleStatus(selectedVehicle.id, newStatus)
                   }
-                  placeholder="Select a status"
+                  placeholder={t("Select_a_status")}
                   disabled={
                     getValidStatusTransitions(selectedVehicle.status).length ===
                     0
@@ -522,20 +529,22 @@ const Vehicle = () => {
             {/* Vehicle Information Display */}
             <div className="p-4 bg-white rounded-lg shadow space-y-4">
               <div className="flex justify-between items-center">
-                <span className="font-semibold text-gray-700">Vehicle ID:</span>
+                <span className="font-semibold text-gray-700">
+                  {t("Vehicle_ID")}:
+                </span>
                 <span className="text-gray-900">{selectedVehicle.id}</span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-gray-700">
-                  Vehicle Name:
+                  {t("Vehicle_Name")}:
                 </span>
                 <span className="text-gray-900">{selectedVehicle.name}</span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-gray-700">
-                  License Plate:
+                  {t("License_Plate")}:
                 </span>
                 <span className="text-gray-900">
                   {selectedVehicle.licensePlate}
@@ -543,7 +552,9 @@ const Vehicle = () => {
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="font-semibold text-gray-700">Type:</span>
+                <span className="font-semibold text-gray-700">
+                  {t("Type")}:
+                </span>
                 <span className="text-gray-900">{selectedVehicle.type}</span>
               </div>
             </div>

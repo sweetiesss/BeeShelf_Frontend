@@ -16,7 +16,7 @@ import { useAuth } from "../../../context/AuthContext";
 import useAxiosBearer from "../../../services/CustomizeAxios";
 import { useNavigate } from "react-router-dom";
 import { Pagination } from "antd"; // Import Pagination từ Ant Design
-
+import { useTranslation } from "react-i18next";
 const { Title, Paragraph } = Typography;
 const { Search } = Input;
 const { RangePicker } = DatePicker;
@@ -35,7 +35,7 @@ const Inventory = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState([]);
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   //Phân trang cho Card Inventory
   const [currentPage, setCurrentPage] = useState(1); // State lưu trang hiện tại
   const pageSize = 8; // Số lượng card hiển thị trên mỗi trang
@@ -94,7 +94,7 @@ const Inventory = () => {
       const warehouseId = userInfor?.workAtWarehouseId;
 
       if (!warehouseId) {
-        console.error("Warehouse ID is not available");
+        console.error(t("Warehouse_ID_is_not_available"));
         setLoading(false);
         return;
       }
@@ -115,13 +115,13 @@ const Inventory = () => {
       if (response && response.data) {
         setInventories(response.data.items);
         setFilteredInventories(response.data.items); // Set initial inventories to filtered inventories
-        message.success("Data loaded successfully!");
+        message.success(t("Data_loaded_successfully"));
       } else {
-        message.error("No data returned from the server.");
+        message.error(t("No_data_returned_from_the_server"));
       }
     } catch (error) {
-      console.error("Error fetching inventories:", error);
-      message.error("Failed to fetch inventories. Please try again.");
+      console.error(t("Error_fetching_inventories"), error);
+      message.error(t("Failed_to_fetch_inventories_Please_try_again"));
     } finally {
       setLoading(false);
     }
@@ -132,6 +132,7 @@ const Inventory = () => {
       fetchInventories();
     }
   }, [userInfor]);
+
   const getDetailInventory = async (id) => {
     setButtonLoading((prev) => ({ ...prev, [id]: true }));
     try {
@@ -147,11 +148,11 @@ const Inventory = () => {
           setIsModalVisible(true);
         }
       } else {
-        message.error("No data returned from the server.");
+        message.error(t("No_data_returned_from_the_server"));
       }
     } catch (error) {
-      console.error("Error fetching inventory details:", error);
-      message.error("Failed to fetch inventory details. Please try again.");
+      console.error(t("Error_fetching_inventory_details"), error);
+      message.error(t("Failed_to_fetch_inventory_details_Please_try_again"));
     } finally {
       setButtonLoading((prev) => ({ ...prev, [id]: false }));
     }
@@ -222,12 +223,12 @@ const Inventory = () => {
     <div style={{ padding: "20px" }}>
       <div style={{ marginBottom: "20px" }}>
         <Title level={2} style={{ fontSize: "2.5rem", fontWeight: "bold" }}>
-          Inventory Management
+          {t("Inventory_Management")}
         </Title>
 
         <div className="flex flex-col gap-4 mb-4">
           <Search
-            placeholder="Search by Inventory Name"
+            placeholder={t("Search_by_Inventory_Name")}
             onSearch={handleSearch}
             onChange={(e) => {
               setSearchValue(e.target.value);
@@ -237,11 +238,11 @@ const Inventory = () => {
           />
           <div className="flex gap-4 items-center">
             <div>
-              <span className="mr-2">Bought Date:</span>
+              <span className="mr-2">{t("Bought_Date")}:</span>
               <RangePicker onChange={handleBoughtDateChange} />
             </div>
             <div>
-              <span className="mr-2">Expiration Date:</span>
+              <span className="mr-2">{t("Expiration_Date")}:</span>
               <RangePicker onChange={handleExpirationDateChange} />
             </div>
           </div>
@@ -252,7 +253,7 @@ const Inventory = () => {
       <Row gutter={[16, 16]} justify="center">
         {loading || filterLoading ? (
           <div className="flex justify-center py-8 w-full">
-            <Spin size="large" tip="Loading..." />
+            <Spin size="large" tip={t("Loading")} />
           </div>
         ) : (
           paginatedInventories.map((item, index) => (
@@ -267,53 +268,54 @@ const Inventory = () => {
                 }}
                 title={
                   <Title level={4} style={{ margin: 0, color: "#1890ff" }}>
-                    Inventory ID: {item.id}
+                    {t("Inventory_ID")}: {item.id}
                   </Title>
                 }
-                hoverable // Tạo hiệu ứng hover mặc định của Ant Design
+                hoverable
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-5px)"; // Di chuyển nhẹ lên trên khi hover
+                  e.currentTarget.style.transform = "translateY(-5px)";
                   e.currentTarget.style.boxShadow =
-                    "0 8px 20px rgba(0, 0, 0, 0.15)"; // Tăng bóng đổ khi hover
+                    "0 8px 20px rgba(0, 0, 0, 0.15)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)"; // Trở lại vị trí ban đầu khi rời chuột
+                  e.currentTarget.style.transform = "translateY(0)";
                   e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(0, 0, 0, 0.1)"; // Bóng đổ ban đầu
+                    "0 4px 12px rgba(0, 0, 0, 0.1)";
                 }}
               >
                 <Space direction="vertical" style={{ width: "100%" }}>
                   <Typography>
                     <Title level={5} style={{ color: "#555" }}>
-                      Overview Inventory
+                      {t("Overview_Inventory")}
                     </Title>
-                    {/* <Paragraph>
-                      <strong>Inventory ID:</strong> {item.id}
-                    </Paragraph> */}
                     <Paragraph>
-                      <strong>Name:</strong> {item.name}
+                      <strong>{t("Name")}:</strong> {item.name}
                     </Paragraph>
                     <Paragraph>
-                      <strong>Max Weight:</strong> {item.maxWeight}
+                      <strong>{t("Max_Weight")}:</strong> {item.maxWeight} kg
+                    </Paragraph>
+
+                    <Paragraph>
+                      <strong>{t("OCOP_Partner_ID")}:</strong>{" "}
+                      {item.ocopPartnerId}
                     </Paragraph>
                     <Paragraph>
-                      <strong>OCOP Partner ID:</strong> {item.ocopPartnerId}
+                      <strong>{t("Weight")}:</strong> {item.weight} kg
+                    </Paragraph>
+
+                    <Paragraph>
+                      <strong>{t("Total_Product")}:</strong> {item.totalProduct}
                     </Paragraph>
                     <Paragraph>
-                      <strong>Weight:</strong> {item.weight}
+                      <strong>{t("Warehouse_Name")}:</strong>{" "}
+                      {item.warehouseName}
                     </Paragraph>
                     <Paragraph>
-                      <strong>Total Product:</strong> {item.totalProduct}
-                    </Paragraph>
-                    <Paragraph>
-                      <strong>Warehouse Name:</strong> {item.warehouseName}
-                    </Paragraph>
-                    <Paragraph>
-                      <strong>Bought Date:</strong>{" "}
+                      <strong>{t("Bought_Date")}:</strong>{" "}
                       {formatDateTime(item.boughtDate)}
                     </Paragraph>
                     <Paragraph>
-                      <strong>Expiration Date:</strong>{" "}
+                      <strong>{t("Expiration_Date")}:</strong>{" "}
                       {formatDateTime(item.expirationDate)}
                     </Paragraph>
                   </Typography>
@@ -326,7 +328,7 @@ const Inventory = () => {
                     {buttonLoading[item.id] ? (
                       <Spin size="small" />
                     ) : (
-                      "View Details"
+                      t("View_Details")
                     )}
                   </Button>
                 </Space>
@@ -348,7 +350,7 @@ const Inventory = () => {
 
       <Modal
         className="!w-[800px]"
-        title="Inventory Details"
+        title={t("Inventory_Details")}
         open={isModalVisible}
         onCancel={() => {
           handleModalClose();
@@ -356,7 +358,7 @@ const Inventory = () => {
         }}
         footer={[
           <Button key="close" onClick={handleModalClose}>
-            Close
+            {t("Close")}
           </Button>,
         ]}
       >
@@ -365,13 +367,13 @@ const Inventory = () => {
             <Card
               key={idx}
               style={{
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Bóng đổ nhẹ
-                borderRadius: "12px", // Bo tròn góc
-                border: "1px solid #f0f0f0", // Viền nhạt
-                backgroundColor: "#ffffff", // Màu nền trắng
-                transition: "transform 0.3s, box-shadow 0.3s", // Hiệu ứng chuyển đổi mượt mà
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                borderRadius: "12px",
+                border: "1px solid #f0f0f0",
+                backgroundColor: "#ffffff",
+                transition: "transform 0.3s, box-shadow 0.3s",
               }}
-              hoverable // Hiệu ứng hover mặc định của Ant Design
+              hoverable
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-5px)";
                 e.currentTarget.style.boxShadow =
@@ -385,32 +387,36 @@ const Inventory = () => {
             >
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <p className="font-bold text-gray-600">Lot ID:</p>
+                  <p className="font-bold text-gray-600">{t("Lot_ID")}:</p>
                   <p className="text-gray-800">{item.id}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold text-gray-600">Lot Number:</p>
+                  <p className="font-bold text-gray-600">{t("Lot_Number")}:</p>
                   <p className="text-gray-800">{item.lotNumber}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold text-gray-600">Lot Name:</p>
+                  <p className="font-bold text-gray-600">{t("Lot_Name")}:</p>
                   <p className="text-gray-800">{item.name}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold text-gray-600">Lot Amount:</p>
+                  <p className="font-bold text-gray-600">{t("Lot_Amount")}:</p>
                   <p className="text-gray-800">{item.lotAmount}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold text-gray-600">Product PerLot:</p>
+                  <p className="font-bold text-gray-600">
+                    {t("Product_PerLot")}:
+                  </p>
                   <p className="text-gray-800">{item.productPerLot}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold text-gray-600">Product Name:</p>
+                  <p className="font-bold text-gray-600">
+                    {t("Product_Name")}:
+                  </p>
                   <p className="text-gray-800">{item.productName}</p>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="font-bold text-gray-600">
-                    Total Product Amount:
+                    {t("Total_Product_Amount")}:
                   </p>
                   <p className="text-gray-800">{item.totalProductAmount}</p>
                 </div>

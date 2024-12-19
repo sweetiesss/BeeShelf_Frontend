@@ -3,7 +3,7 @@ import { Button, Image, message, Modal, Select, Table, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import useAxios from "../../../services/CustomizeAxios";
-
+import { useTranslation } from "react-i18next";
 const { Option } = Select;
 
 const RequestManagement = () => {
@@ -26,7 +26,7 @@ const RequestManagement = () => {
   });
   const { fetchDataBearer } = useAxios();
   const [statusFilter, setStatusFilter] = useState(null);
-
+  const { t } = useTranslation();
   useEffect(() => {
     fetchRequests(0);
     fetchRequestExports(0);
@@ -71,17 +71,20 @@ const RequestManagement = () => {
           pageIndex,
         });
 
-        message.success("Data loaded successfully!");
+        message.success(t("Data_loaded_successfully"));
       } else {
-        message.error("No data returned from the server.");
+        message.error(t("No_data_returned_from_the_server"));
       }
     } catch (error) {
-      console.error("Error fetching requests:", error);
-      message.error("Failed to fetch requests. Please check the Warehouse ID.");
+      console.error(t("Error_fetching_requests"), error);
+      message.error(
+        t("Failed_to_fetch_requests_Please_check_the_Warehouse_ID")
+      );
     } finally {
       setLoading(false);
     }
   };
+
   const formatDateTime = (dateString) => {
     if (!dateString) return "Null"; // Return "Null" if the input is falsy
 
@@ -150,13 +153,15 @@ const RequestManagement = () => {
           pageIndex,
         });
 
-        message.success("Data loaded successfully!");
+        message.success(t("Data_loaded_successfully"));
       } else {
-        message.error("No data returned from the server.");
+        message.error(t("No_data_returned_from_the_server"));
       }
     } catch (error) {
-      console.error("Error fetching requests:", error);
-      message.error("Failed to fetch requests. Please check the Warehouse ID.");
+      console.error(t("Error_fetching_requests"), error);
+      message.error(
+        t("Failed_to_fetch_requests_Please_check_the_Warehouse_ID")
+      );
     } finally {
       setLoadingExport(false);
     }
@@ -182,7 +187,8 @@ const RequestManagement = () => {
       Failed: "red",
       Canceled: "orange",
     };
-    return <Tag color={colorMap[status] || "default"}>{status}</Tag>;
+
+    return <Tag color={colorMap[status] || "default"}>{t(status)}</Tag>;
   };
 
   // Show import request detail
@@ -217,13 +223,13 @@ const RequestManagement = () => {
   const getValidStatusTransitions = (currentStatus) => {
     switch (currentStatus) {
       case "Draft":
-        return ["Pending"]; // Request Created
+        return [t("Pending")]; // Request Created
       case "Pending":
-        return ["Processing"]; // Staff confirmed or OCOP Partner Cancelled
+        return [t("Processing")]; // Staff confirmed or OCOP Partner Cancelled
       case "Processing":
-        return ["Delivered"]; // OCOP Partner Delivered or Deliver window expire
+        return [t("Delivered")]; // OCOP Partner Delivered or Deliver window expire
       case "Delivered":
-        return ["Failed", "Completed"]; // Item stored
+        return [t("Failed"), t("Completed")]; // Item stored
       case "Failed":
       case "Completed":
       case "Cancelled":
@@ -237,13 +243,13 @@ const RequestManagement = () => {
   const getValidExportStatusTransitions = (currentStatus) => {
     switch (currentStatus) {
       case "Draft":
-        return ["Pending"]; // Request Created
+        return [t("Pending")]; // Request Created
       case "Pending":
-        return ["Processing", "Cancelled"]; // Staff confirmed or OCOP Partner Cancelled
+        return [t("Processing"), t("Cancelled")]; // Staff confirmed or OCOP Partner Cancelled
       case "Processing":
-        return ["Delivered", "Failed"]; // OCOP Partner Delivered or Deliver window expire
+        return [t("Delivered"), t("Failed")]; // OCOP Partner Delivered or Deliver window expire
       case "Delivered":
-        return ["Completed"]; // Item stored
+        return [t("Completed")]; // Item stored
       case "Failed":
       case "Completed":
       case "Cancelled":
@@ -263,7 +269,10 @@ const RequestManagement = () => {
 
       if (!validTransitions.includes(newStatus)) {
         message.error(
-          `Invalid status transition from ${currentRequest.status} to ${newStatus}`
+          t("Invalid_status_transition", {
+            current: t(currentRequest.status),
+            next: t(newStatus),
+          })
         );
         return;
       }
@@ -278,19 +287,18 @@ const RequestManagement = () => {
       });
 
       if (response && response.status === 200) {
-        message.success("Status updated successfully!");
+        message.success(t("Status_updated_successfully"));
         fetchRequests(); // Refresh request list
         setIsModalVisible(false);
       } else {
         const errorMessage =
-          response?.data?.message || "Failed to update status.";
+          response?.data?.message || t("Failed_to_update_status");
         message.error(errorMessage);
       }
     } catch (error) {
       console.error("Error updating status:", error);
       message.error(
-        error.response?.data?.message ||
-          "Failed to update status. Please try again."
+        error.response?.data?.message || t("Failed_to_update_status_try_again")
       );
     } finally {
       setLoading(false);
@@ -310,7 +318,10 @@ const RequestManagement = () => {
 
       if (!validTransitions.includes(newStatus)) {
         message.error(
-          `Invalid status transition from ${currentRequest.status} to ${newStatus}`
+          t("Invalid_status_transition", {
+            current: t(currentRequest.status),
+            next: t(newStatus),
+          })
         );
         return;
       }
@@ -325,79 +336,80 @@ const RequestManagement = () => {
       });
 
       if (response && response.status === 200) {
-        message.success("Status updated successfully!");
+        message.success(t("Status_updated_successfully"));
         fetchRequestExports();
         setIsModalVisibleExport(false);
       } else {
         const errorMessage =
-          response?.data?.message || "Failed to update status.";
+          response?.data?.message || t("Failed_to_update_status");
         message.error(errorMessage);
       }
     } catch (error) {
       console.error("Error updating status:", error);
       message.error(
-        error.response?.data?.message ||
-          "Failed to update status. Please try again."
+        error.response?.data?.message || t("Failed_to_update_status_try_again")
       );
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <>
       <div className="p-[20px] overflow-auto">
-        <h1 className="text-4xl font-bold text-gray-800  mb-8">
-          Request Management
+        <h1 className="text-4xl font-bold text-gray-800 mb-8">
+          {t("Request_Management")}
         </h1>
 
         {/* Dropdown lựa chọn giữa Import và Export */}
-        <div className="flex  mb-6">
+        <div className="flex mb-6">
           <Select
             defaultValue="import"
             style={{ width: 220 }}
             onChange={(value) => setSelectedView(value)}
             className="rounded-lg shadow-md"
           >
-            <Option value="import">Import Requests</Option>
-            <Option value="export">Export Requests</Option>
+            <Option value="import">{t("Import_Requests")}</Option>
+            <Option value="export">{t("Export_Requests")}</Option>
           </Select>
         </div>
 
         {/* Hiển thị bảng Import hoặc Export dựa trên lựa chọn */}
         {selectedView === "import" && (
           <>
-            <h2 className="text-lg font-bold">Import Request Management</h2>
+            <h2 className="text-lg font-bold">
+              {t("Import_Request_Management")}
+            </h2>
             <Table
               dataSource={requests}
               columns={[
-                { title: "Request ID", dataIndex: "id", key: "id" },
+                { title: t("Request_ID"), dataIndex: "id", key: "id" },
                 {
-                  title: "Partner Email",
+                  title: t("Partner_Email"),
                   dataIndex: "partner_email",
                   key: "partner_email",
                 },
-                { title: "Request Name", dataIndex: "name", key: "name" },
+                { title: t("Request_Name"), dataIndex: "name", key: "name" },
                 {
-                  title: "Product Name",
+                  title: t("Product_Name"),
                   dataIndex: "productName",
                   key: "productName",
                   filters: Array.from(
                     new Set(
                       (requests || [])
                         .map((item) => item.productName)
-                        .filter((name) => name) // Lọc ra những giá trị hợp lệ (không null/undefined)
+                        .filter((name) => name)
                     )
-                  ).map((name) => ({ text: name, value: name })), // Tạo mảng filters từ productName duy nhất
-                  onFilter: (value, record) => record.productName === value, // Lọc theo productName
+                  ).map((name) => ({ text: name, value: name })),
+                  onFilter: (value, record) => record.productName === value,
                 },
-
                 {
-                  title: "Request Type",
+                  title: t("Request_Type"),
                   dataIndex: "requestType",
                   key: "requestType",
                 },
                 {
-                  title: "Status",
+                  title: t("Status"),
                   dataIndex: "status",
                   key: "status",
                   filterDropdown: ({
@@ -416,12 +428,12 @@ const RequestManagement = () => {
                         }}
                         allowClear
                       >
-                        <Option value="Pending">Pending</Option>
-                        <Option value="Processing">Processing</Option>
-                        <Option value="Failed">Failed</Option>
-                        <Option value="Delivered">Delivered</Option>
-                        <Option value="Canceled">Canceled</Option>
-                        <Option value="Completed">Completed</Option>
+                        <Option value="Pending">{t("Pending")}</Option>
+                        <Option value="Processing">{t("Processing")}</Option>
+                        <Option value="Failed">{t("Failed")}</Option>
+                        <Option value="Delivered">{t("Delivered")}</Option>
+                        <Option value="Canceled">{t("Canceled")}</Option>
+                        <Option value="Completed">{t("Completed")}</Option>
                       </Select>
                     </div>
                   ),
@@ -429,7 +441,7 @@ const RequestManagement = () => {
                   render: (status) => renderStatusTag(status),
                 },
                 {
-                  title: "Create Date",
+                  title: t("Create_Date"),
                   dataIndex: "createDate",
                   key: "createDate",
                   sorter: (a, b) =>
@@ -442,7 +454,7 @@ const RequestManagement = () => {
                   },
                 },
                 {
-                  title: "Action",
+                  title: t("Action"),
                   dataIndex: "",
                   key: "x",
                   render: (_, record) => (
@@ -451,7 +463,7 @@ const RequestManagement = () => {
                         className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
                         onClick={() => showRequestDetail(record)}
                       >
-                        View Details
+                        {t("View_Details")}
                       </Button>
                     </div>
                   ),
@@ -467,23 +479,24 @@ const RequestManagement = () => {
             />
           </>
         )}
-
         {/* Hiển thị bảng Export khi selectedView === "export" */}
         {selectedView === "export" && (
           <>
-            <h2 className="text-lg font-bold">Export Request Management</h2>
+            <h2 className="text-lg font-bold">
+              {t("Export_Request_Management")}
+            </h2>
             <Table
               dataSource={requestExports}
               columns={[
-                { title: "Request ID", dataIndex: "id", key: "id" },
+                { title: t("Request_ID"), dataIndex: "id", key: "id" },
                 {
-                  title: "Partner Email",
+                  title: t("Partner_Email"),
                   dataIndex: "partner_email",
                   key: "partner_email",
                 },
-                { title: "Request Name", dataIndex: "name", key: "name" },
+                { title: t("Request_Name"), dataIndex: "name", key: "name" },
                 {
-                  title: "Product Name",
+                  title: t("Product_Name"),
                   dataIndex: "productName",
                   key: "productName",
                   filters: Array.from(
@@ -496,17 +509,17 @@ const RequestManagement = () => {
                   onFilter: (value, record) => record.productName === value, // Lọc theo productName
                 },
                 {
-                  title: "Request Type",
+                  title: t("Request_Type"),
                   dataIndex: "requestType",
                   key: "requestType",
                 },
                 {
-                  title: "Warehouse Name",
+                  title: t("Warehouse_Name"),
                   dataIndex: "warehouseName",
                   key: "warehouseName",
                 },
                 {
-                  title: "Status",
+                  title: t("Status"),
                   dataIndex: "status",
                   key: "status",
                   filterDropdown: ({
@@ -525,12 +538,12 @@ const RequestManagement = () => {
                         }}
                         allowClear
                       >
-                        <Option value="Pending">Pending</Option>
-                        <Option value="Processing">Processing</Option>
-                        <Option value="Failed">Failed</Option>
-                        <Option value="Delivered">Delivered</Option>
-                        <Option value="Canceled">Canceled</Option>
-                        <Option value="Completed">Completed</Option>
+                        <Option value="Pending">{t("Pending")}</Option>
+                        <Option value="Processing">{t("Processing")}</Option>
+                        <Option value="Failed">{t("Failed")}</Option>
+                        <Option value="Delivered">{t("Delivered")}</Option>
+                        <Option value="Canceled">{t("Canceled")}</Option>
+                        <Option value="Completed">{t("Completed")}</Option>
                       </Select>
                     </div>
                   ),
@@ -538,7 +551,7 @@ const RequestManagement = () => {
                   render: (status) => renderStatusTag(status),
                 },
                 {
-                  title: "Create Date",
+                  title: t("Create_Date"),
                   dataIndex: "createDate",
                   key: "createDate",
                   sorter: (a, b) =>
@@ -547,7 +560,7 @@ const RequestManagement = () => {
                   render: (text) => formatDateTime(text),
                 },
                 {
-                  title: "Action",
+                  title: t("Action"),
                   dataIndex: "",
                   key: "x",
                   render: (_, record) => (
@@ -556,7 +569,7 @@ const RequestManagement = () => {
                         className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
                         onClick={() => showRequestDetailExport(record)}
                       >
-                        View Details
+                        {t("View_Details")}
                       </Button>
                     </div>
                   ),
@@ -575,12 +588,12 @@ const RequestManagement = () => {
       </div>
 
       <Modal
-        title="Import Request Details"
+        title={t("Import_Request_Details")}
         open={isModalVisible}
         onCancel={handleModalClose}
         footer={[
           <Button key="close" onClick={handleModalClose}>
-            Close
+            {t("Close")}
           </Button>,
         ]}
       >
@@ -590,12 +603,12 @@ const RequestManagement = () => {
               <div>
                 <Image
                   src={selectedRequest.productImage}
-                  alt="Request Image"
+                  alt={t("Request_Image")}
                   className="w-full"
                 />
               </div>
               <label htmlFor="statusSelect" className="font-bold">
-                Update Status:
+                {t("Update_Status")}:
               </label>
               <Select
                 id="statusSelect"
@@ -611,7 +624,7 @@ const RequestManagement = () => {
                 {getValidStatusTransitions(selectedRequest.status).map(
                   (status) => (
                     <Option key={status} value={status}>
-                      {status}
+                      {t(status)}
                     </Option>
                   )
                 )}
@@ -620,70 +633,66 @@ const RequestManagement = () => {
             <div>
               <div className="grid grid-cols-1 gap-2">
                 <div>
-                  <p className="font-bold">Request ID:</p>
+                  <p className="font-bold">{t("Request_ID")}:</p>
                   <p>{selectedRequest.id}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Partner Email:</p>
+                  <p className="font-bold">{t("Partner_Email")}:</p>
                   <p>{selectedRequest.partner_email}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Status:</p>
+                  <p className="font-bold">{t("Status")}:</p>
                   <p>{renderStatusTag(selectedRequest.status)}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Description:</p>
+                  <p className="font-bold">{t("Description")}:</p>
                   <p>{selectedRequest.description}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Lot Amount:</p>
+                  <p className="font-bold">{t("Lot_Amount")}:</p>
                   <p>{selectedRequest.lotAmount}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Product Per Lot Amount:</p>
+                  <p className="font-bold">{t("Product_Per_Lot_Amount")}:</p>
                   <p>{selectedRequest.productPerLotAmount}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Total Product Amount:</p>
+                  <p className="font-bold">{t("Total_Product_Amount")}:</p>
                   <p>{selectedRequest.totalProductAmount}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Create Date:</p>
+                  <p className="font-bold">{t("Create_Date")}:</p>
                   <p>{formatDateTime(selectedRequest.createDate)}</p>
                 </div>
-
                 <div>
-                  <p className="font-bold">Approve Date:</p>
+                  <p className="font-bold">{t("Approve_Date")}:</p>
                   <p>{formatDateTime(selectedRequest.apporveDate)}</p>
                 </div>
-
                 <div>
-                  <p className="font-bold">Delivery Date:</p>
+                  <p className="font-bold">{t("Delivery_Date")}:</p>
                   <p>{formatDateTime(selectedRequest.deliverDate)}</p>
                 </div>
-
                 <div>
-                  <p className="font-bold">Cancel Date:</p>
+                  <p className="font-bold">{t("Cancel_Date")}:</p>
                   <p>{formatDateTime(selectedRequest.cancelDate)}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Cancel Reason:</p>
-                  <p>{selectedRequest.cancellationReason || "Null"}</p>
+                  <p className="font-bold">{t("Cancel_Reason")}:</p>
+                  <p>{selectedRequest.cancellationReason || t("Null")}</p>
                 </div>
-
                 <div>
-                  <p className="font-bold">Warehouse Name:</p>
+                  <p className="font-bold">{t("Warehouse_Name")}:</p>
                   <p>{selectedRequest.warehouseName}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Inventory Name:</p>
+                  <p className="font-bold">{t("Inventory_Name")}:</p>
                   <p>{selectedRequest.sendToInventoryName}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Lot ID:</p>
+                  <p className="font-bold">{t("Lot_ID")}:</p>
                   <p>{selectedRequest.lotId}</p>
                 </div>
-               
+
                 {/* <div>
                   <p className="font-bold">Export To Lot ID:</p>
                   <p>{selectedRequest.exportFromLotId}</p>
@@ -692,7 +701,6 @@ const RequestManagement = () => {
                   <p className="font-bold">Inventory ID:</p>
                   <p>{selectedRequest.sendToInventoryId}</p>
                 </div> */}
-                
               </div>
             </div>
           </div>
@@ -700,12 +708,12 @@ const RequestManagement = () => {
       </Modal>
 
       <Modal
-        title="Export Request Details"
+        title={t("Export_Request_Details")}
         open={isModalExportVisible}
         onCancel={handleModalExportClose}
         footer={[
           <Button key="close" onClick={handleModalExportClose}>
-            Close
+            {t("Close")}
           </Button>,
         ]}
       >
@@ -715,12 +723,12 @@ const RequestManagement = () => {
               <div>
                 <Image
                   src={selectedExportRequest.productImage}
-                  alt="Request Image"
+                  alt={t("Request_Image")}
                   className="w-full"
                 />
               </div>
               <label htmlFor="statusSelect" className="font-bold">
-                Update Status:
+                {t("Update_Status")}:
               </label>
               <Select
                 id="statusSelect"
@@ -738,7 +746,7 @@ const RequestManagement = () => {
                   selectedExportRequest.status
                 ).map((status) => (
                   <Option key={status} value={status}>
-                    {status}
+                    {t(status)}
                   </Option>
                 ))}
               </Select>
@@ -746,98 +754,83 @@ const RequestManagement = () => {
             <div>
               <div className="grid grid-cols-1 gap-2">
                 <div>
-                  <p className="font-bold">Request ID:</p>
+                  <p className="font-bold">{t("Request_ID")}:</p>
                   <p>{selectedExportRequest.id}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Partner Email:</p>
+                  <p className="font-bold">{t("Partner_Email")}:</p>
                   <p>{selectedExportRequest.partner_email}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Status:</p>
+                  <p className="font-bold">{t("Status")}:</p>
                   <p>{renderStatusTag(selectedExportRequest.status)}</p>
                 </div>
-                
                 <div>
-                  <p className="font-bold">Product Name:</p>
+                  <p className="font-bold">{t("Product_Name")}:</p>
                   <p>{selectedExportRequest.productName}</p>
-                </div> 
+                </div>
                 <div>
-                  <p className="font-bold">Description:</p>
+                  <p className="font-bold">{t("Description")}:</p>
                   <p>{selectedExportRequest.description}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Lot Amount:</p>
+                  <p className="font-bold">{t("Lot_Amount")}:</p>
                   <p>{selectedExportRequest.lotAmount}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Product Per Lot Amount:</p>
+                  <p className="font-bold">{t("Product_Per_Lot_Amount")}:</p>
                   <p>{selectedExportRequest.productPerLotAmount}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Total Product Amount:</p>
+                  <p className="font-bold">{t("Total_Product_Amount")}:</p>
                   <p>{selectedExportRequest.totalProductAmount}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Create Date:</p>
+                  <p className="font-bold">{t("Create_Date")}:</p>
                   <p>{formatDateTime(selectedExportRequest.createDate)}</p>
                 </div>
-
                 <div>
-                  <p className="font-bold">Approve Date:</p>
+                  <p className="font-bold">{t("Approve_Date")}:</p>
                   <p>{formatDateTime(selectedExportRequest.apporveDate)}</p>
                 </div>
-
                 <div>
-                  <p className="font-bold">Delivery Date:</p>
+                  <p className="font-bold">{t("Delivery_Date")}:</p>
                   <p>{formatDateTime(selectedExportRequest.deliverDate)}</p>
                 </div>
 
                 <div>
-                  <p className="font-bold">Cancel Date:</p>
-                  <p>{formatDateTime(selectedExportRequest.cancelDate)}</p>
-                </div>
-                <div>
-                  <p className="font-bold">Cancel Reason:</p>
-                  <p>{selectedExportRequest.cancellationReason || "Null"}</p>
-                </div>
-
-                <div>
-                  <p className="font-bold">New Warehouse Name:</p>
-                  <p>{selectedExportRequest.warehouseName}</p>
-                </div>
-                <div>
-                  <p className="font-bold">New Inventory Name:</p>
-                  <p>{selectedExportRequest.sendToInventoryName}</p>
-                </div>
-                <div>
-                  <p className="font-bold">New Lot ID:</p>
-                  <p>{selectedExportRequest.lotId}</p>
-                </div>
-                {/* <div>
-                  <p className="font-bold">Old Inventory ID:</p>
-                  <p>{selectedExportRequest.sendToInventoryId}</p>
-                </div> */}
-                <div>
-                  <p className="font-bold">Old Warehouse Name:</p>
-                  <p>{selectedExportRequest.exportFromWarehouseName}</p>
-                </div>
-                <div>
-                  <p className="font-bold">Old Inventory Name:</p>
-                  <p>{selectedExportRequest.exportFromInventoryName}</p>
-                </div>
-                <div>
-                  <p className="font-bold">Old Lot ID:</p>
-                  <p>{selectedExportRequest.exportFromLotId}</p>
-                </div>
-                {/* <div>
-                  <p className="font-bold">New Inventory ID:</p>
-                  <p>{selectedExportRequest.exportFromLotId}</p>
-                </div> */}
-                
-               
-                
-              </div>
+      <p className="font-bold">{t("Cancel_Date")}:</p>
+      <p>{formatDateTime(selectedExportRequest.cancelDate)}</p>
+    </div>
+    <div>
+      <p className="font-bold">{t("Cancel_Reason")}:</p>
+      <p>{selectedExportRequest.cancellationReason || t("Null")}</p>
+    </div>
+    <div>
+      <p className="font-bold">{t("New_Warehouse_Name")}:</p>
+      <p>{selectedExportRequest.warehouseName}</p>
+    </div>
+    <div>
+      <p className="font-bold">{t("New_Inventory_Name")}:</p>
+      <p>{selectedExportRequest.sendToInventoryName}</p>
+    </div>
+    <div>
+      <p className="font-bold">{t("New_Lot_ID")}:</p>
+      <p>{selectedExportRequest.lotId}</p>
+    </div>
+    <div>
+      <p className="font-bold">{t("Old_Warehouse_Name")}:</p>
+      <p>{selectedExportRequest.exportFromWarehouseName}</p>
+    </div>
+    <div>
+      <p className="font-bold">{t("Old_Inventory_Name")}:</p>
+      <p>{selectedExportRequest.exportFromInventoryName}</p>
+    </div>
+    <div>
+      <p className="font-bold">{t("Old_Lot_ID")}:</p>
+      <p>{selectedExportRequest.exportFromLotId}</p>
+    </div>
+  </div>
             </div>
           </div>
         )}
