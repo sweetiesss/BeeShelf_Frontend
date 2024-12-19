@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SignIn from "../../component/guest/SignIn";
 import SignUp from "../../component/guest/SignUp";
 import ForgotPassword from "../../component/guest/ForgotPassword";
 import SignInAndLoginGif from "../../assets/img/loginAndSignup.gif";
+import { useLocation } from "react-router-dom";
 
 export default function LoginAndSignInPage({ toAction }) {
+  const location = useLocation();
+  let data = location.state;
   const [action, setAction] = useState(toAction);
-
   return (
     <div className="flex h-screen w-screen justify-between items-center  bg-gray-100">
       {/* Sidebar or background */}
@@ -54,7 +56,7 @@ export default function LoginAndSignInPage({ toAction }) {
               : "translate-y-[200%]"
           }`}
         >
-          <SignUp setAction={setAction} />
+          <SignUp setAction={setAction} baseForm={data} />
         </div>
       </div>
     </div>

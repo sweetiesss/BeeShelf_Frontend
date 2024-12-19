@@ -23,12 +23,6 @@ export function LayoutGuest() {
         <div id="service" className="section">
           <ServicePage />
         </div>
-        <div id="feature" className="section">
-          <FeaturePage />
-        </div>
-        <div id="customer" className="section">
-          <CustomerPage />
-        </div>
         <div id="contact" className="section">
           <ContactPage />
         </div>
