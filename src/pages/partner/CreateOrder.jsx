@@ -10,15 +10,18 @@ import { toast } from "react-toastify";
 import AxiosOthers from "../../services/Others";
 import Select from "react-select";
 import { useLocation } from "react-router-dom";
+import AxiosProduct from "../../services/Product";
 
 export default function CreateOrderPage() {
   const { t } = useTranslation();
   const { userInfor } = useAuth();
   const { getAllProduct } = AxiosPartner();
+  const { getProductByUserId } = AxiosProduct();
   const { createOrder } = AxiosOrder();
   const { getWarehouseById } = AxiosWarehouse();
 
   const [inventories, setInventories] = useState();
+  const [products, setProducts] = useState();
   const [inventoriesShowList, setInventoriesShowList] = useState();
   const [loading, setLoading] = useState();
   const [warehouseFilter, setWareHouseFilter] = useState();
@@ -45,6 +48,7 @@ export default function CreateOrderPage() {
     distance: 0,
     products: [],
   };
+
   const defaultForm = {
     ocopPartnerId: userInfor?.id,
     receiverPhone: "",
@@ -158,6 +162,22 @@ export default function CreateOrderPage() {
       if (result?.status === 200) {
         setInventories(result?.data?.products);
       }
+
+      const result2 = await getProductByUserId(
+        userInfor?.id,
+        0,
+        1000,
+        "",
+        undefined,
+        undefined,
+        undefined,
+        undefined
+      );
+      if (result2?.status === 200) {
+        console.log("result2", result2);
+
+        setProducts(result2?.data?.items);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -244,7 +264,6 @@ export default function CreateOrderPage() {
       );
       console.log(submitForm);
       setForm(baseForm);
-
     } catch (e) {
       console.log(e);
     } finally {
@@ -428,7 +447,7 @@ export default function CreateOrderPage() {
                   type="number"
                   name="productAmount"
                   placeholder={t("productAmount")}
-                  value={item.productAmount||0}
+                  value={item.productAmount || 0}
                   onChange={handleItemChange}
                   className="col-span-2 mt-1 block w-full border-[1px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
                   required
@@ -455,6 +474,10 @@ export default function CreateOrderPage() {
                     console.log("pro", pro);
                     return parseInt(pro.id) === parseInt(item.productId);
                   });
+                  const detailProduct = products.find((pro) => {
+                    console.log("pro2", pro);
+                    return parseInt(pro.id) === parseInt(item.productId);
+                  });
                   return (
                     <>
                       <li
@@ -465,13 +488,21 @@ export default function CreateOrderPage() {
                           {product?.productName} - {item.productAmount}/
                           {product?.stock} stock
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => removeItem(item.productId)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          {t("Remove")}
-                        </button>
+                        <div className="flex gap-6">
+                          <span>
+                            {new Intl.NumberFormat().format(
+                              detailProduct?.price * item.productAmount
+                            )}{" "}
+                            vnd
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.productId)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            {t("Remove")}
+                          </button>
+                        </div>
                       </li>
                     </>
                   );
