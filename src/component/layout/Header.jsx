@@ -83,26 +83,6 @@ export function HeaderUnauthenticated() {
         </button>
         <button
           className={`menu-item px-[15px] h-[40px] text-lg text-[#848a9f] hover:text-[#0db977] ${
-            activeSection === "feature"
-              ? "font-bold border-b-4 border-[#0db977] text-[#0db977]"
-              : ""
-          }`}
-          onClick={() => handleScroll("feature")}
-        >
-          {t("Feature")}
-        </button>
-        <button
-          className={`menu-item px-[15px] h-[40px] text-lg text-[#848a9f] hover:text-[#0db977] ${
-            activeSection === "customer"
-              ? "font-bold border-b-4 border-[#0db977] text-[#0db977]"
-              : ""
-          }`}
-          onClick={() => handleScroll("customer")}
-        >
-          {t("Customers")}
-        </button>
-        <button
-          className={`menu-item px-[15px] h-[40px] text-lg text-[#848a9f] hover:text-[#0db977] ${
             activeSection === "contact"
               ? "font-bold border-b-4 border-[#0db977] text-[#0db977]"
               : ""

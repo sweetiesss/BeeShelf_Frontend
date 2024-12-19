@@ -213,7 +213,7 @@ export default function RequestPage() {
                 : "text-[var(--en-vu-300)]"
             }`}
           >
-            <label>{t("RequestType")}: </label>
+            <label>{t("Request Type")}: </label>
             <select
               className="outline-none"
               name="isImport"
@@ -236,7 +236,7 @@ export default function RequestPage() {
           to="create-request"
           className="outline-2 outline flex items-center gap-2 outline-[var(--line-main-color)] text-[var(--en-vu-500-disable)] hover:outline-[var(--Xanh-Base)] hover:text-black  pr-4 pl-3 py-1 rounded-xl font-semibold"
         >
-          + {"CreateRequest"}
+          + {"Create Request"}
         </NavLink>
       </div>
       <div className="flex justify-left gap-4 mt-6 ">

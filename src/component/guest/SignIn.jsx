@@ -163,60 +163,65 @@ export default function SignIn({ action, setAction }) {
                 provinceId: 1,
                 pictureLink: userInfo?.picture,
               };
-              const createAccount = await axios.post(
-                "https://beeshelfgateway.azurewebsites.net/gateway/auth/sign-up",
+              console.log("hereeeeeee");
 
-                submitForm
-              );
-              console.log("createAccount", createAccount);
-              try {
-                const checkLogin = await axios.post(
-                  "https://beeshelfgateway.azurewebsites.net/gateway/auth/login",
-                  {
-                    email: userInfo.email,
-                    password:
-                      "p7$G3@L9k#2N1%yZxT!m8&jQ4bV6*rW$H2eD^fK9@xYzP3$cR&1b*",
-                  }
-                );
-                console.log(checkLogin);
+              nav("../authorize/signup", {
+                state: { action: "SignUp", ...submitForm },
+              });
+              // const createAccount = await axios.post(
+              //   "https://beeshelfgateway.azurewebsites.net/gateway/auth/sign-up",
 
-                if (checkLogin && checkLogin?.status === 200) {
-                  if (checkLogin?.data && checkLogin?.data.length > 0) {
-                    const successDataToken = checkLogin?.data;
-                    const objectCheck = jwtDecode(successDataToken);
-                    console.log("check", successDataToken);
+              //   submitForm
+              // );
+              // console.log("createAccount", createAccount);
+              // try {
+              //   const checkLogin = await axios.post(
+              //     "https://beeshelfgateway.azurewebsites.net/gateway/auth/login",
+              //     {
+              //       email: userInfo.email,
+              //       password:
+              //         "p7$G3@L9k#2N1%yZxT!m8&jQ4bV6*rW$H2eD^fK9@xYzP3$cR&1b*",
+              //     }
+              //   );
+              //   console.log(checkLogin);
 
-                    setIsAuthenticated(successDataToken);
-                    if (
-                      objectCheck &&
-                      objectCheck?.[
-                        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                      ] === "Partner"
-                    ) {
-                      const getAccount = await axios.get(
-                        "https://beeshelfgateway.azurewebsites.net/gateway/partner/get-partner/" +
-                          userInfo.email,
-                        {
-                          headers: {
-                            Authorization: `Bearer ${successDataToken}`,
-                          },
-                        }
-                      );
-                      console.log(getAccount);
-                      if (
-                        getAccount &&
-                        getAccount?.status === 200 &&
-                        getAccount?.data
-                      ) {
-                        handleLogin(getAccount?.data);
-                        nav("/" + getAccount?.data?.roleName);
-                      }
-                    }
-                  }
-                }
-              } catch (e) {
-                console.log(e);
-              }
+              //   if (checkLogin && checkLogin?.status === 200) {
+              //     if (checkLogin?.data && checkLogin?.data.length > 0) {
+              //       const successDataToken = checkLogin?.data;
+              //       const objectCheck = jwtDecode(successDataToken);
+              //       console.log("check", successDataToken);
+
+              //       setIsAuthenticated(successDataToken);
+              //       if (
+              //         objectCheck &&
+              //         objectCheck?.[
+              //           "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+              //         ] === "Partner"
+              //       ) {
+              //         const getAccount = await axios.get(
+              //           "https://beeshelfgateway.azurewebsites.net/gateway/partner/get-partner/" +
+              //             userInfo.email,
+              //           {
+              //             headers: {
+              //               Authorization: `Bearer ${successDataToken}`,
+              //             },
+              //           }
+              //         );
+              //         console.log(getAccount);
+              //         if (
+              //           getAccount &&
+              //           getAccount?.status === 200 &&
+              //           getAccount?.data
+              //         ) {
+              //           handleLogin(getAccount?.data);
+              //           nav("/" + getAccount?.data?.roleName);
+              //         }
+              //       }
+              //     }
+              //   }
+              // } catch (e) {
+              //   console.log(e);
+              // }
             }
             console.log("checkLogin", checkLogin);
           }

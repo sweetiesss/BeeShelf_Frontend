@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Table, message, Button, Input, Modal, Form, Select } from "antd";
+import {
+  Table,
+  InputNumber,
+  message,
+  Button,
+  Input,
+  Modal,
+  Form,
+  Select,
+} from "antd";
 import useAxios from "../../services/CustomizeAxios";
 import { Descriptions } from "antd";
 import { t } from "i18next";
+
 import {
   Garage,
   GearSix,
@@ -35,7 +45,6 @@ const VehiclePage = () => {
     pageIndex: 0,
     pageSize: 10,
   });
-
 
   const [isColdSelected, setIsColdSelected] = useState(null); // State lưu trữ giá trị isCold được chọn
 
@@ -228,6 +237,7 @@ const VehiclePage = () => {
           licensePlate: values.licensePlate,
           warehouseId: values.warehouseId,
           isCold: values.isCold,
+          capacity: values.capacity,
         },
       });
 
@@ -279,6 +289,7 @@ const VehiclePage = () => {
           licensePlate: values.licensePlate,
           warehouseId: values.warehouseId,
           isCold: values.isCold,
+          capacity: values.capacity,
         },
       });
 
@@ -467,186 +478,346 @@ const VehiclePage = () => {
 
       {/* Modal tạo vehicle */}
       <Modal
-      title="Create Vehicle"
-      open={visible}
-      onCancel={() => {
-        setVisible(false);
-        form.resetFields(); // Reset form khi đóng modal
-        setIsColdSelected(null); // Reset giá trị isCold khi đóng modal
-      }}
-      footer={[
-        <Button key="back" onClick={() => setVisible(false)}>
-          Cancel
-        </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          loading={loading}
-          onClick={() => form.submit()}
-        >
-          Create Vehicle
-        </Button>,
-      ]}
-    >
-      <Form form={form} layout="vertical" onFinish={createVehicle}>
-        {/* Vehicle Type */}
-        <Form.Item
-          label="Vehicle Type"
-          name="type"
-          rules={[{ required: true, message: "Please select vehicle type!" }]}
-        >
-          <Select placeholder="Select Vehicle Type">
-            <Option value="Truck">Truck</Option>
-            <Option value="Van">Van</Option>
-            <Option value="Motorcycle">Motorcycle</Option>
-          </Select>
-        </Form.Item>
-
-        {/* Vehicle Name */}
-        <Form.Item
-          label="Vehicle Name"
-          name="name"
-          rules={[{ required: true, message: "Please enter vehicle name!" }]}
-        >
-          <Input placeholder="Enter Vehicle Name" />
-        </Form.Item>
-
-        {/* License Plate */}
-        <Form.Item
-          label="License Plate"
-          name="licensePlate"
-          rules={[{ required: true, message: "Please enter license plate!" }]}
-        >
-          <Input placeholder="Enter License Plate" />
-        </Form.Item>
-
-        {/* Is Cold Storage? */}
-        <Form.Item
-          label="Is Cold Storage?"
-          name="isCold"
-          rules={[{ required: true, message: "Please select cold storage option!" }]}
-        >
-          <Select
-            placeholder="Select Option"
-            onChange={(value) => setIsColdSelected(value)} // Cập nhật isColdSelected khi thay đổi
+        title="Create Vehicle"
+        open={visible}
+        onCancel={() => {
+          setVisible(false);
+          form.resetFields(); // Reset form khi đóng modal
+          setIsColdSelected(null); // Reset giá trị isCold khi đóng modal
+        }}
+        footer={[
+          <Button key="back" onClick={() => setVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={loading}
+            onClick={() => form.submit()}
           >
-            <Option value={1}>Yes</Option>
-            <Option value={0}>No</Option>
-          </Select>
-        </Form.Item>
-
-        {/* Warehouse ID */}
-        <Form.Item
-          label="Warehouse ID"
-          name="warehouseId"
-          rules={[{ required: true, message: "Please select warehouse!" }]}
-        >
-          <Select placeholder="Select Warehouse" disabled={isColdSelected === null}>
-            {filteredWarehouses.length > 0 ? (
-              filteredWarehouses.map((warehouse) => (
-                <Option key={warehouse.id} value={warehouse.id}>
-                  ID: {warehouse.id} - Name: {warehouse.name} -{" "}
-                  {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
-                </Option>
-              ))
-            ) : (
-              <Option disabled>No warehouses available</Option>
-            )}
-          </Select>
-        </Form.Item>
-      </Form>
-    </Modal>
-
-    <Modal
-      title="Update Vehicle"
-      open={updateVisible}
-      onCancel={() => {
-        setUpdateVisible(false);
-        form.resetFields();
-        setIsColdSelected(null); // Reset giá trị isCold khi đóng modal
-      }}
-      footer={[
-        <Button key="back" onClick={() => setUpdateVisible(false)}>
-          Cancel
-        </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          loading={loading}
-          onClick={() => form.submit()}
-        >
-          Update Vehicle
-        </Button>,
-      ]}
-    >
-      <Form form={form} layout="vertical" onFinish={handleUpdateVehicle}>
-        {/* Vehicle Type */}
-        <Form.Item
-          label="Vehicle Type"
-          name="type"
-          rules={[{ required: true, message: "Please select vehicle type!" }]}
-        >
-          <Select placeholder="Select Vehicle Type">
-            <Option value="Truck">Truck</Option>
-            <Option value="Van">Van</Option>
-            <Option value="Motorcycle">Motorcycle</Option>
-          </Select>
-        </Form.Item>
-
-        {/* Vehicle Name */}
-        <Form.Item
-          label="Vehicle Name"
-          name="name"
-          rules={[{ required: true, message: "Please enter vehicle name!" }]}
-        >
-          <Input placeholder="Enter Vehicle Name" />
-        </Form.Item>
-
-        {/* License Plate */}
-        <Form.Item
-          label="License Plate"
-          name="licensePlate"
-          rules={[{ required: true, message: "Please enter license plate!" }]}
-        >
-          <Input placeholder="Enter License Plate" />
-        </Form.Item>
-
-        {/* Is Cold Storage */}
-        <Form.Item
-          label="Is Cold Storage?"
-          name="isCold"
-          rules={[{ required: true, message: "Please select cold storage option!" }]}
-        >
-          <Select
-            placeholder="Select Option"
-            onChange={(value) => setIsColdSelected(value)} // Cập nhật isColdSelected khi thay đổi
+            Create Vehicle
+          </Button>,
+        ]}
+      >
+        <Form form={form} layout="vertical" onFinish={createVehicle}>
+          {/* Vehicle Type */}
+          <Form.Item
+            label="Vehicle Type"
+            name="type"
+            rules={[{ required: true, message: "Please select vehicle type!" }]}
           >
-            <Option value={1}>Yes</Option>
-            <Option value={0}>No</Option>
-          </Select>
-        </Form.Item>
+            <Select placeholder="Select Vehicle Type">
+              <Option value="Truck">Truck</Option>
+              <Option value="Van">Van</Option>
+              <Option value="Motorcycle">Motorcycle</Option>
+            </Select>
+          </Form.Item>
 
-        {/* Warehouse ID */}
-        <Form.Item
-          label="Warehouse ID"
-          name="warehouseId"
-          rules={[{ required: true, message: "Please select warehouse!" }]}
-        >
-          <Select placeholder="Select Warehouse" disabled={isColdSelected === null}>
-            {filteredWarehouses.length > 0 ? (
-              filteredWarehouses.map((warehouse) => (
-                <Option key={warehouse.id} value={warehouse.id}>
-                  ID: {warehouse.id} - Name: {warehouse.name} -{" "}
-                  {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
-                </Option>
-              ))
-            ) : (
-              <Option disabled>No warehouses available</Option>
-            )}
-          </Select>
-        </Form.Item>
-      </Form>
-    </Modal>
+          {/* Vehicle Name */}
+          <Form.Item
+            label="Vehicle Name"
+            name="name"
+            rules={[
+              { required: true, message: "Please enter the vehicle name!" },
+              {
+                validator: (_, value) => {
+                  if (!value || value.trim() === "") {
+                    return Promise.reject(
+                      new Error("Vehicle name cannot be empty or just spaces.")
+                    );
+                  }
+                  if (value.length > 50) {
+                    return Promise.reject(
+                      new Error("Vehicle name must be 50 characters or fewer.")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <Input placeholder="Enter Vehicle Name" maxLength={50} />
+          </Form.Item>
+
+          {/* License Plate */}
+          <Form.Item
+            label="License Plate"
+            name="licensePlate"
+            rules={[
+              { required: true, message: "Please enter the license plate!" },
+              {
+                validator: (_, value) => {
+                  if (!value || value.trim() === "") {
+                    return Promise.reject(
+                      new Error("License plate cannot be empty or just spaces.")
+                    );
+                  }
+                  if (value.length > 20) {
+                    return Promise.reject(
+                      new Error("License plate must be 20 characters or fewer.")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <Input placeholder="Enter License Plate" maxLength={20} />
+          </Form.Item>
+
+          <Form.Item
+            label="Capacity (kg)"
+            name="capacity"
+            rules={[
+              { required: true, message: "Please enter the capacity!" },
+              {
+                validator: (_, value) => {
+                  if (value === undefined || value === null || value === "") {
+                    return Promise.reject(
+                      new Error(
+                        "Capacity cannot be empty. Please enter a value."
+                      )
+                    );
+                  }
+                  if (value <= 0) {
+                    return Promise.reject(
+                      new Error(
+                        "Capacity must be a positive number greater than 0."
+                      )
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <InputNumber
+              placeholder="Enter capacity in kg"
+              min={1}
+              step={1}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+
+          {/* Is Cold Storage? */}
+          <Form.Item
+            label="Is Cold Storage?"
+            name="isCold"
+            rules={[
+              { required: true, message: "Please select cold storage option!" },
+            ]}
+          >
+            <Select
+              placeholder="Select Option"
+              onChange={(value) => setIsColdSelected(value)} // Cập nhật isColdSelected khi thay đổi
+            >
+              <Option value={1}>Yes</Option>
+              <Option value={0}>No</Option>
+            </Select>
+          </Form.Item>
+
+          {/* Warehouse ID */}
+          <Form.Item
+            label="Warehouse ID"
+            name="warehouseId"
+            rules={[{ required: true, message: "Please select warehouse!" }]}
+          >
+            <Select
+              placeholder="Select Warehouse"
+              disabled={isColdSelected === null}
+            >
+              {filteredWarehouses.length > 0 ? (
+                filteredWarehouses.map((warehouse) => (
+                  <Option key={warehouse.id} value={warehouse.id}>
+                    ID: {warehouse.id} - Name: {warehouse.name} -{" "}
+                    {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
+                  </Option>
+                ))
+              ) : (
+                <Option disabled>No warehouses available</Option>
+              )}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="Update Vehicle"
+        open={updateVisible}
+        onCancel={() => {
+          setUpdateVisible(false);
+          form.resetFields();
+          setIsColdSelected(null); // Reset giá trị isCold khi đóng modal
+        }}
+        footer={[
+          <Button key="back" onClick={() => setUpdateVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={loading}
+            onClick={() => form.submit()}
+          >
+            Update Vehicle
+          </Button>,
+        ]}
+      >
+        <Form form={form} layout="vertical" onFinish={handleUpdateVehicle}>
+          {/* Vehicle Type */}
+          <Form.Item
+            label="Vehicle Type"
+            name="type"
+            rules={[{ required: true, message: "Please select vehicle type!" }]}
+          >
+            <Select placeholder="Select Vehicle Type">
+              <Option value="Truck">Truck</Option>
+              <Option value="Van">Van</Option>
+              <Option value="Motorcycle">Motorcycle</Option>
+            </Select>
+          </Form.Item>
+
+          {/* Vehicle Name */}
+          <Form.Item
+            label="Vehicle Name"
+            name="name"
+            rules={[
+              { required: true, message: "Please enter the vehicle name!" },
+              {
+                validator: (_, value) => {
+                  if (!value || value.trim() === "") {
+                    return Promise.reject(
+                      new Error("Vehicle name cannot be empty or just spaces.")
+                    );
+                  }
+                  if (value.length < 3) {
+                    return Promise.reject(
+                      new Error(
+                        "Vehicle name must be at least 3 characters long."
+                      )
+                    );
+                  }
+                  if (value.length > 50) {
+                    return Promise.reject(
+                      new Error("Vehicle name must be 50 characters or fewer.")
+                    );
+                  }
+                  if (!/^[a-zA-Z0-9 ]+$/.test(value)) {
+                    return Promise.reject(
+                      new Error(
+                        "Vehicle name can only contain letters, numbers, and spaces."
+                      )
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <Input placeholder="Enter Vehicle Name" maxLength={50} />
+          </Form.Item>
+
+          {/* License Plate */}
+          <Form.Item
+            label="License Plate"
+            name="licensePlate"
+            rules={[
+              { required: true, message: "Please enter the license plate!" },
+              {
+                validator: (_, value) => {
+                  if (!value || value.trim() === "") {
+                    return Promise.reject(
+                      new Error("License plate cannot be empty or just spaces.")
+                    );
+                  }
+                  if (value.length > 20) {
+                    return Promise.reject(
+                      new Error("License plate must be 20 characters or fewer.")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <Input placeholder="Enter License Plate" maxLength={20} />
+          </Form.Item>
+
+          <Form.Item
+            label="Capacity (kg)"
+            name="capacity"
+            rules={[
+              { required: true, message: "Please enter the capacity!" },
+              {
+                validator: (_, value) => {
+                  if (value === undefined || value === null || value === "") {
+                    return Promise.reject(
+                      new Error(
+                        "Capacity cannot be empty. Please enter a value."
+                      )
+                    );
+                  }
+                  if (value <= 0) {
+                    return Promise.reject(
+                      new Error(
+                        "Capacity must be a positive number greater than 0."
+                      )
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <InputNumber
+              placeholder="Enter capacity in kg"
+              min={1}
+              step={1}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+
+          {/* Is Cold Storage */}
+          <Form.Item
+            label="Is Cold Storage?"
+            name="isCold"
+            rules={[
+              { required: true, message: "Please select cold storage option!" },
+            ]}
+          >
+            <Select
+              placeholder="Select Option"
+              onChange={(value) => setIsColdSelected(value)} // Cập nhật isColdSelected khi thay đổi
+            >
+              <Option value={1}>Yes</Option>
+              <Option value={0}>No</Option>
+            </Select>
+          </Form.Item>
+
+          {/* Warehouse ID */}
+          <Form.Item
+            label="Warehouse ID"
+            name="warehouseId"
+            rules={[{ required: true, message: "Please select warehouse!" }]}
+          >
+            <Select
+              placeholder="Select Warehouse"
+              disabled={isColdSelected === null}
+            >
+              {filteredWarehouses.length > 0 ? (
+                filteredWarehouses.map((warehouse) => (
+                  <Option key={warehouse.id} value={warehouse.id}>
+                    ID: {warehouse.id} - Name: {warehouse.name} -{" "}
+                    {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
+                  </Option>
+                ))
+              ) : (
+                <Option disabled>No warehouses available</Option>
+              )}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
 
       <Modal
         title="Vehicle Details"

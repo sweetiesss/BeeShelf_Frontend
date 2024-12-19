@@ -50,7 +50,7 @@ export function Sidebar() {
           </p>
         )}
       </div>
-      <nav className="flex flex-col flex-grow items-center text-[var(--en-vu-200)] sidebar-navigate space-y-4">
+      <nav className="flex flex-col flex-grow items-center text-[var(--en-vu-200)] sidebar-navigate space-y-4 h-full">
         {userInfor?.roleName === "Partner" && (
           <>
             <NavLink
@@ -62,7 +62,7 @@ export function Sidebar() {
               className="flex navigate-menu"
             >
               <div className="sidebar-menu-container">
-                <ChartPie  className="icon" weight="bold" />
+                <ChartPie className="icon" weight="bold" />
                 <p className="label">{t("Dashboard")}</p>
               </div>
             </NavLink>
@@ -90,7 +90,7 @@ export function Sidebar() {
 
             <NavLink to="request" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <Note  className="icon" weight="bold" />
+                <Note className="icon" weight="bold" />
                 <p className="label">{t("Request")}</p>
               </div>
             </NavLink>
@@ -232,7 +232,6 @@ export function Sidebar() {
               </div>
             </NavLink>
 
-
             <NavLink to="deliveryzone" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <MapPinArea className="icon" weight="fill" />
@@ -261,7 +260,7 @@ export function Sidebar() {
             <NavLink to="payment" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <CreditCard className="icon" weight="fill" />
-                <p className="label">{t("Transfer Money")}</p>
+                <p className="label">{t("Transactions")}</p>
               </div>
             </NavLink>
             <NavLink to="batchflow" className="flex navigate-menu">
@@ -270,23 +269,10 @@ export function Sidebar() {
                 <p className="label">{t("Batch")}</p>
               </div>
             </NavLink>
-            <NavLink to="vehicle" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <CarProfile className="icon" weight="fill" />
-                <p className="label">{t("Vehicle")}</p>
-              </div>
-            </NavLink>
             <NavLink to="ordermanage" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Bag className="icon" weight="fill" />
-                <p className="label">{t("Order Manage")}</p>
-              </div>
-            </NavLink>
-
-            <NavLink to="requestmanage" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <AddressBook className="icon" weight="fill" />
-                <p className="label">{t("RequestManage")}</p>
+                <p className="label">{t("Orders")}</p>
               </div>
             </NavLink>
 
