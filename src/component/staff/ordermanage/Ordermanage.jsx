@@ -14,7 +14,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import useAxios from "../../../services/CustomizeAxios"; // Giả sử bạn đang sử dụng Axios hook
-
+import { useTranslation } from "react-i18next";
 const { Option } = Select;
 
 const { Title, Paragraph } = Typography;
@@ -32,7 +32,7 @@ const Ordermanage = () => {
   const { userInfor } = useAuth(); // Giả sử bạn có context để lấy thông tin người dùng
   const [cancellationReason, setCancellationReason] = useState("");
   const [newStatus, setNewStatus] = useState(undefined);
-
+  const { t } = useTranslation();
   // Hàm gọi API để lấy danh sách đơn hàng theo warehouseId
   const GetOrderWarehouse = async (pageIndex, pageSize) => {
     setLoading(true);
@@ -50,7 +50,8 @@ const Ordermanage = () => {
       if (response && response.data) {
         const { totalItemsCount, pageSize, totalPagesCount, pageIndex, items } =
           response.data;
-        // const filteredItems = items.filter((item) => item.status !== "Draft");
+
+        // Lọc các đơn hàng có status khác "Draft"
         const filteredItems = items.filter((item) => item.status !== "Draft");
 
         // Cập nhật dữ liệu vào state
@@ -62,37 +63,38 @@ const Ordermanage = () => {
           pageIndex,
         });
 
-        message.success("Data loaded successfully!");
+        message.success(t("Data_loaded_successfully"));
       } else {
-        message.error("No data returned from the server.");
+        message.error(t("No_data_returned_from_server"));
       }
     } catch (error) {
-      console.error("Error fetching orders:", error);
-      message.error("Failed to fetch orders. Please try again.");
+      console.error(t("Error_fetching_orders"), error);
+      message.error(t("Failed_to_fetch_orders"));
     } finally {
       setLoading(false);
     }
   };
 
-
   const formatDateTime = (dateString) => {
     if (!dateString) return "Null"; // Return "Null" if the input is falsy
-  
+
     // Tạo một đối tượng Date với múi giờ Asia/Bangkok (UTC+7)
     const dateInBangkok = new Date(
       new Date(dateString).toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
     );
-  
+
     // Cộng thêm 7 tiếng (7 giờ * 60 phút * 60 giây * 1000 ms)
-    const dateWithExtra7Hours = new Date(dateInBangkok.getTime() + 7 * 60 * 60 * 1000);
-  
+    const dateWithExtra7Hours = new Date(
+      dateInBangkok.getTime() + 7 * 60 * 60 * 1000
+    );
+
     // Format the date part
     const formattedDate = dateWithExtra7Hours.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
-  
+
     // Format the time part
     const formattedTime = dateWithExtra7Hours.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
@@ -100,10 +102,9 @@ const Ordermanage = () => {
       // second: "2-digit",
       hour12: false,
     });
-  
+
     return `${formattedDate} ${formattedTime}`;
   };
-  
 
   // Cập nhật trạng thái đơn hàng
   const updateRequestStatus = async (id) => {
@@ -114,7 +115,10 @@ const Ordermanage = () => {
 
       if (!validTransitions.includes(newStatus)) {
         message.error(
-          `Invalid status transition from ${currentOrder.status} to ${newStatus}`
+          t("Invalid_status_transition", {
+            currentStatus: currentOrder.status,
+            newStatus: newStatus,
+          })
         );
         return;
       }
@@ -129,21 +133,20 @@ const Ordermanage = () => {
       });
 
       if (response && response.status === 200) {
-        message.success("Status updated successfully!");
+        message.success(t("Status_updated_successfully"));
         GetOrderWarehouse(); // Refresh order list
         if (selectedOrder?.id === id) {
           setSelectedOrder({ ...selectedOrder, status: newStatus }); // Update modal if open
         }
       } else {
         const errorMessage =
-          response?.data?.message || "Failed to update status.";
+          response?.data?.message || t("Failed_to_update_status");
         message.error(errorMessage);
       }
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error(t("Error_updating_status"), error);
       message.error(
-        error.response?.data?.message ||
-          "Failed to update status. Please try again."
+        error.response?.data?.message || t("Failed_to_update_status_try_again")
       );
     } finally {
       setLoading(false);
@@ -157,28 +160,28 @@ const Ordermanage = () => {
   const renderStatusTag = (status) => {
     let color;
     switch (status) {
-      case "Pending":
+      case t("Pending"):
         color = "orange";
         break;
-      case "Canceled":
+      case t("Canceled"):
         color = "red";
         break;
-      case "Processing":
+      case t("Processing"):
         color = "purple";
         break;
-      case "Delivered":
+      case t("Delivered"):
         color = "green";
         break;
-      case "Shipping":
+      case t("Shipping"):
         color = "blue";
         break;
-      case "Returned":
+      case t("Returned"):
         color = "magenta";
         break;
-      case "Refunded":
+      case t("Refunded"):
         color = "gold";
         break;
-      case "Completed":
+      case t("Completed"):
         color = "cyan";
         break;
       default:
@@ -190,7 +193,6 @@ const Ordermanage = () => {
       </Tag>
     );
   };
-
   // Show order detail
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -208,24 +210,24 @@ const Ordermanage = () => {
   // Cột trong bảng
   const columns = [
     {
-      title: "Order ID",
+      title: t("Order_ID"),
       dataIndex: "id",
       key: "id",
       render: (text) => <span>{text}</span>,
     },
     {
-      title: "Order Code",
+      title: t("Order_Code"),
       dataIndex: "orderCode",
       key: "orderCode",
     },
     {
-      title: "Partner Email",
+      title: t("Partner_Email"),
       dataIndex: "partner_email",
       key: "partner_email",
       render: (text) => <span>{text}</span>,
     },
     {
-      title: "Status",
+      title: t("Status"),
       dataIndex: "status",
       key: "status",
       filterDropdown: ({
@@ -244,16 +246,16 @@ const Ordermanage = () => {
             }}
             allowClear
           >
-            <Option value="Pending">Pending</Option>
-            <Option value="Canceled">Canceled</Option>
-            <Option value="Processing">Processing</Option>
-            <Option value="Delivered">Delivered</Option>
-            <Option value="Shipping">Shipping</Option>
-            <Option value="Returned">Returned</Option>
-            <Option value="Refunded">Refunded</Option>
-            <Option value="Approved">Approved</Option>
-            <Option value="Rejected">Rejected</Option>
-            <Option value="Completed">Completed</Option>
+            <Option value={t("Pending")}>{t("Pending")}</Option>
+            <Option value={t("Canceled")}>{t("Canceled")}</Option>
+            <Option value={t("Processing")}>{t("Processing")}</Option>
+            <Option value={t("Delivered")}>{t("Delivered")}</Option>
+            <Option value={t("Shipping")}>{t("Shipping")}</Option>
+            <Option value={t("Returned")}>{t("Returned")}</Option>
+            <Option value={t("Refunded")}>{t("Refunded")}</Option>
+            <Option value={t("Approved")}>{t("Approved")}</Option>
+            <Option value={t("Rejected")}>{t("Rejected")}</Option>
+            <Option value={t("Completed")}>{t("Completed")}</Option>
           </Select>
         </div>
       ),
@@ -261,17 +263,17 @@ const Ordermanage = () => {
       render: (status) => renderStatusTag(status),
     },
     {
-      title: "Receiver Phone",
+      title: t("Receiver_Phone"),
       dataIndex: "receiverPhone",
       key: "receiverPhone",
     },
     {
-      title: "Receiver Address",
+      title: t("Receiver_Address"),
       dataIndex: "receiverAddress",
       key: "receiverAddress",
     },
     {
-      title: "Create Date",
+      title: t("Create_Date"),
       dataIndex: "createDate",
       key: "createDate",
       sorter: (a, b) => new Date(a.createDate) - new Date(b.createDate),
@@ -282,7 +284,7 @@ const Ordermanage = () => {
       },
     },
     {
-      title: "Total Price",
+      title: t("Total_Price"),
       dataIndex: "totalPrice",
       key: "totalPrice",
       sorter: (a, b) => a.totalPrice - b.totalPrice,
@@ -291,10 +293,10 @@ const Ordermanage = () => {
         new Intl.NumberFormat("vi-VN", {
           style: "currency",
           currency: "VND",
-        }).format(text), // Định dạng theo tiền tệ VNĐ
+        }).format(text),
     },
     {
-      title: "Action",
+      title: t("Action"),
       dataIndex: "",
       key: "x",
       render: (_, record) => (
@@ -303,32 +305,31 @@ const Ordermanage = () => {
             className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
             onClick={() => showOrderDetail(record)}
           >
-            View Details
+            {t("View_Details")}
           </Button>
         </div>
       ),
     },
   ];
 
-
   // Add this function to check valid status transitions
   const getValidStatusTransitions = (currentStatus) => {
     switch (currentStatus) {
-      case "Draft":
-        return ["Pending"];
-      case "Pending":
-        return ["Processing"]; // Staff confirmed or OCOP Partner Cancelled
-      case "Processing":
-        return ["Canceled"]; // Shipper delivery or Out of stock
-      case "Shipping":
-        return ["Delivered", "Canceled"]; // Shipping Finish delivery or OCOP Partner Cancelled
-      case "Delivered":
-        return ["Completed"]; // Receiver returns or Return window expire
-      case "Returned":
-        return ["Refunded"]; // Refund processed
-      case "Completed":
-      case "Canceled":
-      case "Refunded":
+      case t("Draft"):
+        return [t("Pending")];
+      case t("Pending"):
+        return [t("Processing")]; // Staff confirmed or OCOP Partner Cancelled
+      case t("Processing"):
+        return [t("Canceled")]; // Shipper delivery or Out of stock
+      case t("Shipping"):
+        return [t("Delivered"), t("Canceled")]; // Shipping Finish delivery or OCOP Partner Cancelled
+      case t("Delivered"):
+        return [t("Completed")]; // Receiver returns or Return window expire
+      case t("Returned"):
+        return [t("Refunded")]; // Refund processed
+      case t("Completed"):
+      case t("Canceled"):
+      case t("Refunded"):
         return []; // Final states - no further transitions allowed
       default:
         return [];
@@ -344,9 +345,9 @@ const Ordermanage = () => {
     <>
       <div>
         <h1 className="text-4xl font-bold text-gray-800 mb-8">
-          Order Management
+          {t("Order_Management")}
         </h1>
-        <h1 className="text-lg font-bold">Order List</h1>
+        <h1 className="text-lg font-bold">{t("Order_List")}</h1>
         <Table
           className="overflow-auto min-w-[800px] w-full"
           dataSource={data}
@@ -357,7 +358,7 @@ const Ordermanage = () => {
             pageSize: pagination.pageSize,
             total: pagination.totalItemsCount,
             onChange: (page) => {
-              console.log("Current page:", page);
+              console.log(t("Current_Page"), page);
               setPagination((prev) => ({
                 ...prev,
                 pageIndex: page - 1, // Chuyển trang (index bắt đầu từ 0)
@@ -368,12 +369,12 @@ const Ordermanage = () => {
         />
       </div>
       <Modal
-        title="Order Details"
+        title={t("Order_Details")}
         open={isModalVisible}
         onCancel={handleModalClose}
         footer={[
           <Button key="close" onClick={handleModalClose}>
-            Close
+            {t("Close")}
           </Button>,
         ]}
       >
@@ -383,23 +384,20 @@ const Ordermanage = () => {
               <div>
                 <Image
                   src={selectedOrder.pictureLink}
-                  alt="Order Image"
+                  alt={t("Order_Image")}
                   className="w-full"
                 />
               </div>
               <div>
                 <label htmlFor="statusSelect" className="font-bold">
-                  Status:
+                  {t("Status")}:
                 </label>
                 <Select
                   id="statusSelect"
                   className="w-full"
                   value={newStatus}
-                  onChange={(newStatus) =>
-                    // updateRequestStatus(selectedOrder.id, newStatus)
-                    setNewStatus(newStatus)
-                  }
-                  placeholder="Select a status"
+                  onChange={(newStatus) => setNewStatus(newStatus)}
+                  placeholder={t("Select_Status")}
                   disabled={
                     getValidStatusTransitions(selectedOrder.status).length === 0
                   }
@@ -407,15 +405,15 @@ const Ordermanage = () => {
                   {getValidStatusTransitions(selectedOrder.status).map(
                     (status) => (
                       <Option key={status} value={status}>
-                        {status}
+                        {t(status)}
                       </Option>
                     )
                   )}
                 </Select>
-                {newStatus === "Canceled" && (
+                {newStatus === t("Canceled") && (
                   <div>
                     <label htmlFor="cancellationReason" className="font-bold">
-                      Cancellation Reason:
+                      {t("Cancellation_Reason")}:
                     </label>
                     <Input
                       id="cancellationReason"
@@ -429,44 +427,45 @@ const Ordermanage = () => {
                   onClick={() => updateRequestStatus(selectedOrder.id)}
                   disabled={
                     !newStatus ||
-                    (newStatus === "Canceled" && !cancellationReason)
+                    (newStatus === t("Canceled") && !cancellationReason)
                   }
                 >
-                  Update Status
+                  {t("Update_Status")}
                 </Button>
               </div>
               <div>
                 {selectedOrder?.orderDetails?.map((item, index) => (
                   <Card className="mt-2" key={index}>
                     <Typography>
-                      <Title level={5}>Detail</Title>
+                      <Title level={5}>{t("Detail")}</Title>
                       <Paragraph>
-                        <strong>Name:</strong> {item.productName}
+                        <strong>{t("Name")}:</strong> {item.productName}
                       </Paragraph>
                       <Paragraph>
-                        <strong>Price:</strong>{" "}
+                        <strong>{t("Price")}:</strong>{" "}
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
                         }).format(item.productPrice)}
                       </Paragraph>
                       <Paragraph>
-                        <strong>Amount:</strong> {item.productAmount}
+                        <strong>{t("Amount")}:</strong> {item.productAmount}
                       </Paragraph>
                       <Paragraph>
-                        <strong>Weight:</strong> {item.weight} kg
+                        <strong>{t("Weight")}:</strong> {item.weight} kg
                       </Paragraph>
                       <Paragraph>
-                        <strong>Unit:</strong> {item.unit}
+                        <strong>{t("Unit")}:</strong> {item.unit}
                       </Paragraph>
                       <Paragraph>
-                        <strong>Inventory ID:</strong> {item.inventoryId}
+                        <strong>{t("Inventory_ID")}:</strong> {item.inventoryId}
                       </Paragraph>
                       <Paragraph>
-                        <strong>Inventory Name:</strong> {item.inventoryName}
+                        <strong>{t("Inventory_Name")}:</strong>{" "}
+                        {item.inventoryName}
                       </Paragraph>
                       <Paragraph>
-                        <strong>Lot ID:</strong> {item.lotId}
+                        <strong>{t("Lot_ID")}:</strong> {item.lotId}
                       </Paragraph>
                     </Typography>
                   </Card>
@@ -477,10 +476,10 @@ const Ordermanage = () => {
                 {selectedOrder?.orderFees?.map((item, idx) => (
                   <Card className="mt-2" key={idx}>
                     <Typography>
-                      <Title level={5}>Fee</Title>
+                      <Title level={5}>{t("Fee")}</Title>
 
                       <Paragraph>
-                        <strong>Storage Fee:</strong>{" "}
+                        <strong>{t("Storage_Fee")}:</strong>{" "}
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
@@ -488,7 +487,7 @@ const Ordermanage = () => {
                       </Paragraph>
 
                       <Paragraph>
-                        <strong>Delivery Fee:</strong>{" "}
+                        <strong>{t("Delivery_Fee")}:</strong>{" "}
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
@@ -496,13 +495,12 @@ const Ordermanage = () => {
                       </Paragraph>
 
                       <Paragraph>
-                        <strong>Additional Fee:</strong>{" "}
+                        <strong>{t("Additional_Fee")}:</strong>{" "}
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
                         }).format(item.additionalFee)}
                       </Paragraph>
-
                       {/* <Paragraph>
                         <strong className="text-gray-700">Total Fee:</strong>{" "}
                         <span className="text-green-600 font-bold">
@@ -524,70 +522,70 @@ const Ordermanage = () => {
             <div>
               <div className="grid grid-cols-1 gap-2">
                 <div>
-                  <p className="font-bold">Order ID:</p>
+                  <p className="font-bold">{t("Order_ID")}:</p>
                   <p>{selectedOrder.id}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Order Code:</p>
+                  <p className="font-bold">{t("Order_Code")}:</p>
                   <p>{selectedOrder.orderCode}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Partner Email:</p>
+                  <p className="font-bold">{t("Partner_Email")}:</p>
                   <p>{selectedOrder.partner_email}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Status:</p>
+                  <p className="font-bold">{t("Status")}:</p>
                   <p>{renderStatusTag(selectedOrder.status)}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Receiver Phone:</p>
+                  <p className="font-bold">{t("Receiver_Phone")}:</p>
                   <p>{selectedOrder.receiverPhone}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Receiver Address:</p>
+                  <p className="font-bold">{t("Receiver_Address")}:</p>
                   <p>{selectedOrder.receiverAddress}</p>
                 </div>
                 {/* Create Date */}
                 <div>
-                  <p className="font-bold">Create Date:</p>
+                  <p className="font-bold">{t("Create_Date")}:</p>
                   <p>{formatDateTime(selectedOrder.createDate)}</p>
                 </div>
 
                 <div>
-                  <p className="font-bold">Delivery Start Date:</p>
+                  <p className="font-bold">{t("Delivery_Start_Date")}:</p>
                   <p>{formatDateTime(selectedOrder.deliverStartDate)}</p>
                 </div>
 
                 <div>
-                  <p className="font-bold">Delivery Finish Date:</p>
+                  <p className="font-bold">{t("Delivery_Finish_Date")}:</p>
                   <p>{formatDateTime(selectedOrder.deliverFinishDate)}</p>
                 </div>
 
                 <div>
-                  <p className="font-bold">Completion Date:</p>
+                  <p className="font-bold">{t("Completion_Date")}:</p>
                   <p>{formatDateTime(selectedOrder.completeDate)}</p>
                 </div>
 
                 <div>
-                  <p className="font-bold">Return Date:</p>
+                  <p className="font-bold">{t("Return_Date")}:</p>
                   <p>{formatDateTime(selectedOrder.returnDate)}</p>
                 </div>
 
                 <div>
-                  <p className="font-bold">Cancellation Date:</p>
+                  <p className="font-bold">{t("Cancellation_Date")}:</p>
                   <p>{formatDateTime(selectedOrder.cancelDate)}</p>
                 </div>
 
                 {/* Reason For Cancellation */}
                 <div>
-                  <p className="font-bold">Reason For Cancellation:</p>
+                  <p className="font-bold">{t("Reason_For_Cancellation")}:</p>
                   <p className="text-gray-700">
-                    {selectedOrder.cancellationReason || "N/A"}
+                    {selectedOrder.cancellationReason || t("N/A")}
                   </p>
                 </div>
 
                 <div>
-                  <p className="font-bold">Total Price:</p>
+                  <p className="font-bold">{t("Total_Price")}:</p>
                   <p>
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
@@ -596,7 +594,7 @@ const Ordermanage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="font-bold">Total Price After Fee:</p>
+                  <p className="font-bold">{t("Total_Price_After_Fee")}:</p>
                   <p>
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
@@ -605,11 +603,11 @@ const Ordermanage = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="font-bold">Warehouse Name:</p>
+                  <p className="font-bold">{t("Warehouse_Name")}:</p>
                   <p>{selectedOrder.warehouseName}</p>
                 </div>
                 <div>
-                  <p className="font-bold">Warehouse Location:</p>
+                  <p className="font-bold">{t("Warehouse_Location")}:</p>
                   <p>{selectedOrder.warehouseLocation}</p>
                 </div>
               </div>
