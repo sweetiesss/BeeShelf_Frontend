@@ -146,7 +146,7 @@ export default function OrderPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6">{t("OrdersManagement")}</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("Orders Management")}</h1>
 
       {/* <select
         name="filterByStatus"
@@ -194,7 +194,7 @@ export default function OrderPage() {
           className="outline-2 outline flex items-center gap-2 outline-[var(--line-main-color)] text-[var(--en-vu-500-disable)] hover:outline-[var(--Xanh-Base)] hover:text-black  pr-4 pl-3 py-1 rounded-xl font-semibold"
           onClick={() => nav("create-order")}
         >
-          + {t("CreateOrder")}
+          + {t("Create Order")}
         </button>
       </div>
       <div className="flex justify-left gap-4 mt-6 ">
