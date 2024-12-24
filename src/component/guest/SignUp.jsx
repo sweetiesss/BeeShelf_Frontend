@@ -4,9 +4,12 @@ import AxiosUser from "../../services/User";
 import {
   Bank,
   Buildings,
+  Check,
   CheckCircle,
+  CheckFat,
   Coins,
   CreditCard,
+  DownloadSimple,
   EnvelopeSimple,
   IdentificationCard,
   Phone,
@@ -15,12 +18,16 @@ import {
 import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../../context/AuthContext";
 import Select from "react-select";
+import { useTranslation } from "react-i18next";
+import { ConfigProvider, Spin } from "antd";
+import axios from "axios";
 
 export default function SignUp({ setAction, baseForm }) {
   const defaulform = {
     email: baseForm?.email || "",
-    firstName: baseForm?.firstName || "",
-    lastName: baseForm?.lastName || "",
+    // firstName: baseForm?.firstName || "",
+    // lastName: baseForm?.lastName || "",
+    fullName: baseForm?.fullName || "",
     phone: "",
     citizenIdentificationNumber: "",
     taxIdentificationNumber: "",
@@ -41,10 +48,59 @@ export default function SignUp({ setAction, baseForm }) {
   const [isSuccess, setSuccess] = useState(false);
   const [ocopCategory, setOcopCategory] = useState();
   const { banksList, ocopCategoriesList, provinces } = useAuth();
+  const baseIdData = {
+    address: "80 ĐƯỜNG CỘNG HN, PHƯỜNG 4, TÂN BÌNH, TP HỒ CHÍ MINH",
+    address_entities: {
+      province: "HỒ CHÍ MINH",
+      district: "TÂN BÌNH",
+      ward: "PHƯỜNG 04",
+      street: "80 ĐƯỜNG CỘNG HN",
+    },
+    address_prob: "99.06",
+    dob: "06/05/2006",
+    dob_prob: "99.56",
+    doe: "06/05/2031",
+    doe_prob: "98.17",
+    home: "PHƯỜNG 4, TÂN BÌNH, TP HỒ CHÍ MINH",
+    home_prob: "99.01",
+    id: "079306031544",
+    id_prob: "98.02",
+    name: "VI NGỌC NHI",
+    name_prob: "98.58",
+    nationality: "VIỆT NAM",
+    nationality_prob: "99.27",
+    number_of_name_lines: "1",
+    overall_score: "99.18",
+    sex: "NỮ",
+    sex_prob: "99.15",
+    type: "chip_front",
+    type_new: "cccd_chip_front",
+  };
 
-  const [step, setStep] = useState(1);
+  const [checkIdCard, setCheckIdCard] = useState(false);
+  const [idCardHolder, setIdCardHolder] = useState();
+  const [checkIdCardLoading, setCheckIdCardLoading] = useState(false);
+  const [checkIdCardError, setCheckIdCardError] = useState(false);
+
+  const [imageLink, setImageLink] = useState();
+  const [imagePreview, setImagePreview] = useState("");
+
+  const [checkBussiness, setCheckBussiness] = useState(false);
+  const [checkBussinessLoading, setCheckBussinessLoading] = useState(false);
+  const [checkBussinessError, setCheckBussinessError] = useState(false);
+
+  const [step, setStep] = useState(3);
   const nav = useNavigate();
   const { requestSignUp } = AxiosUser();
+  const { t } = useTranslation();
+  const contentStyle = {
+    padding: 10,
+    color: "var(--Xanh-Base)",
+    primaryColor: "var(--Xanh-Base)",
+
+    borderRadius: 4,
+  };
+
   const handleInput = (e) => {
     const { name, value } = e.target;
     setForm(() => ({ ...form, [name]: value }));
@@ -54,39 +110,28 @@ export default function SignUp({ setAction, baseForm }) {
       );
       setOcopCategory(ocopCategoryFind);
     }
+    if (name === "taxIdentificationNumber") {
+      setCheckBussiness(false);
+      setForm((prev) => ({ ...prev, businessName: "" }));
+      setCheckBussinessError();
+    }
   };
 
   const validateForm = () => {
     let formErrors = {};
     if (step === 1) {
+      // if (!form?.firstName) {
+      //   formErrors.firstName = "First name is required.";
+      // }
+      // if (!form?.lastName) {
+      //   formErrors.lastName = "Last name is required.";
+      // }
+    } else if (step === 2) {
       if (!form?.email || !/\S+@\S+\.\S+/.test(form.email)) {
         formErrors.email = "Please enter a valid email address.";
       }
-      if (!form?.firstName) {
-        formErrors.firstName = "First name is required.";
-      }
-
-      if (!form?.lastName) {
-        formErrors.lastName = "Last name is required.";
-      }
       if (!form?.phone || !/^\d{10,12}$/.test(form.phone)) {
         formErrors.phone = "Please enter a valid phone number.";
-      }
-    } else if (step === 2) {
-      if (!form?.citizenIdentificationNumber) {
-        formErrors.citizenIdentificationNumber =
-          "Citizen Identification Number is required.";
-      } else if (!/^\d{12,14}$/.test(form.citizenIdentificationNumber)) {
-        formErrors.citizenIdentificationNumber =
-          "Invalid format. It must be 12-14 digits.";
-      }
-
-      if (!form?.taxIdentificationNumber) {
-        formErrors.taxIdentificationNumber =
-          "Tax Identification Number is required.";
-      } else if (!/^\d{10}$/.test(form.taxIdentificationNumber)) {
-        formErrors.taxIdentificationNumber =
-          "Invalid format. It must be 10 digits.";
       }
 
       if (!form?.bankName) {
@@ -100,6 +145,13 @@ export default function SignUp({ setAction, baseForm }) {
           "Invalid format. It must be 9-18 digits.";
       }
     } else if (step === 3) {
+      if (!form?.taxIdentificationNumber) {
+        formErrors.taxIdentificationNumber =
+          "Tax Identification Number is required.";
+      } else if (!/^\d{10}$/.test(form.taxIdentificationNumber)) {
+        formErrors.taxIdentificationNumber =
+          "Invalid format. It must be 10 digits.";
+      }
       if (!form?.businessName) {
         formErrors.businessName = "Business Name is required.";
       }
@@ -229,9 +281,91 @@ export default function SignUp({ setAction, baseForm }) {
       setStep((step) => step + 1);
     }
   };
-  const loginByGoogle = useGoogleLogin({
-    onSuccess: (tokenResponse) => console.log(tokenResponse),
-  });
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setCheckIdCard(false);
+    setImageLink(file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+  const checkIdCardImage = async () => {
+    try {
+      if (imageLink) {
+        setCheckIdCardLoading(true);
+        const formData = new FormData();
+
+        formData.append("image", imageLink);
+        formData.append("ContentType", imageLink.type || "image/jpeg");
+        formData.append("ContentDisposition", "");
+        formData.append("Length", imageLink.size);
+        formData.append("Name", imageLink.name);
+        formData.append("FileName", imageLink.name);
+
+        if (imageLink.Headers) {
+          formData.append("Headers", JSON.stringify(imageLink.Headers));
+        }
+        const response = await axios.post(
+          "https://api.fpt.ai/vision/idr/vnm",
+          formData,
+          {
+            headers: {
+              "api-key": "hbeFAZkSFCDrvjmIFtwFr5FcutgTq52S", // Your API key
+              "Content-Type": "multipart/form-data", // Specify the content type
+            },
+          }
+        );
+        console.log(response);
+        if (response?.status == 200) {
+          setCheckIdCard(true);
+          const data = response?.data?.data[0];
+          console.log("data", data);
+          setIdCardHolder(data);
+          setForm((prev) => ({ ...prev, fullName: data?.name }));
+          setForm((prev) => ({
+            ...prev,
+            citizenIdentificationNumber: data?.id,
+          }));
+        } else {
+          setCheckIdCardError(response?.response?.data?.errorMessage);
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      setCheckIdCardError(e?.response?.data?.errorMessage);
+    } finally {
+      setCheckIdCardLoading(false);
+    }
+  };
+  const checkBussinessClick = async () => {
+    try {
+      setCheckBussinessLoading(true);
+      if (form?.taxIdentificationNumber) {
+        const result = await axios.get(
+          "https://api.vietqr.io/v2/business/" + form?.taxIdentificationNumber
+        );
+        if (result?.status == 200 && result?.data?.code === "00") {
+          setCheckBussiness(true);
+          setForm((prev) => ({
+            ...prev,
+            businessName: result?.data?.data?.internationalName,
+          }));
+          setCheckBussinessError();
+        } else {
+          setCheckBussinessError(result?.data?.desc);
+        }
+        console.log(result);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setCheckBussinessLoading(false);
+    }
+  };
 
   return (
     <div className="w-full p-4  overflow-hidden relative bg-white h-full">
@@ -272,16 +406,127 @@ export default function SignUp({ setAction, baseForm }) {
           {step === 1 ? (
             <>
               <div>
-                {errors.firstName && (
+                <div className="h-full ml-auto">
+                  <label
+                    htmlFor="file-upload"
+                    className="block text-lg font-medium leading-6 "
+                  >
+                    <span className="text-red-500 text-xl">*</span>
+                    {t("ID Recognition Image")}
+                  </label>
+                  <label htmlFor="file-upload" className="cursor-pointer ">
+                    <div
+                      className={`${
+                        imagePreview
+                          ? "background-setting-input justify-start  pl-2 gap-10"
+                          : " justify-center"
+                      } mt-2 relative flex  items-center rounded-xl border  border-dashed border-gray-400 min-h-[20vh] max-h-[25vh] border-hover py-5`}
+                    >
+                      <div
+                        className={`text-center ${imagePreview && "hidden"} `}
+                      >
+                        <div className="mt-4 flex text-sm leading-6 ">
+                          <p className="relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 ">
+                            <div className="flex gap-4 items-center">
+                              <span className="text-3xl">
+                                <DownloadSimple />
+                              </span>
+                              <span className="span-hover">
+                                {t("UploadAFilePNGJPGGIFUpTo10MB")}
+                              </span>
+                            </div>
+                            <input
+                              id="file-upload"
+                              name="file-upload"
+                              type="file"
+                              className="sr-only "
+                              accept="image/*"
+                              onChange={handleImageChange}
+                            />
+                          </p>
+                        </div>
+                      </div>
+                      {imagePreview && (
+                        <>
+                          <img
+                            src={imagePreview}
+                            className="rounded-xl relative  object-cover object-center max-h-[15rem] w-auto"
+                          />
+                          <button
+                            className={` bottom-0 right-0 ${
+                              checkIdCard
+                                ? "bg-[#dedede] text-[#7d7d7d]"
+                                : "bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white"
+                            }  px-5 py-2 rounded-xl `}
+                            disabled={checkIdCard}
+                            onClick={checkIdCardImage}
+                          >
+                            {checkIdCardLoading ? (
+                              <div className="h-[20px] w-[20px]">
+                                <ConfigProvider
+                                  theme={{
+                                    token: {
+                                      colorPrimary: "green", // Set the primary color to green
+                                    },
+                                  }}
+                                >
+                                  <Spin size="medium">
+                                    <div style={contentStyle} />
+                                  </Spin>
+                                </ConfigProvider>
+                              </div>
+                            ) : checkIdCard ? (
+                              <CheckFat weight="fill" className="text-xl" />
+                            ) : (
+                              "Check"
+                            )}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                </div>
+                {checkIdCardError && (
                   <p className="text-red-500 text-md font-medium">
-                    {errors.firstName}
+                    {checkIdCardError}
                   </p>
                 )}
+              </div>
+              <div>
                 <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.firstName
+                  className={`flex items-center border cursor-not-allowed border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                    errors.citizenIdentificationNumber
                       ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.firstName
+                      : form?.citizenIdentificationNumber
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  } "border-gray-300"
+                }`}
+                >
+                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
+                    <IdentificationCard />
+                  </label>
+                  <input
+                    className="p-4 w-full rounded-lg outline-none cursor-not-allowed"
+                    type="text"
+                    disabled={true}
+                    name="citizenIdentificationNumber"
+                    placeholder="Citizen Identification Number"
+                    value={form?.citizenIdentificationNumber || ""}
+                  />
+                </div>
+                {errors.citizenIdentificationNumber && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.citizenIdentificationNumber}
+                  </p>
+                )}
+              </div>
+              <div>
+                <div
+                  className={`flex items-center cursor-not-allowed border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                    errors.fullName
+                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
+                      : form?.fullName
                       ? "text-black ring-[var(--Xanh-Base)] ring-2"
                       : "text-[var(--en-vu-300)]"
                   } "border-gray-300"
@@ -291,16 +536,16 @@ export default function SignUp({ setAction, baseForm }) {
                     <User />
                   </label>
                   <input
-                    className="p-4 w-full rounded-lg outline-none"
+                    className="p-4 w-full rounded-lg outline-none cursor-not-allowed"
                     type="text"
-                    onChange={handleInput}
-                    name="firstName"
-                    placeholder="First Name"
-                    value={form?.firstName || ""}
+                    disabled={true}
+                    name="fullName"
+                    placeholder="Full Name"
+                    value={form?.fullName || ""}
                   />
                 </div>
               </div>
-              <div>
+              {/* <div>
                 {errors.lastName && (
                   <p className="text-red-500 text-md font-medium">
                     {errors.lastName}
@@ -328,15 +573,25 @@ export default function SignUp({ setAction, baseForm }) {
                     value={form?.lastName || ""}
                   />
                 </div>
-              </div>
+              </div> */}
+
+              <button
+                className={`w-full ${
+                  checkIdCard
+                    ? "bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white"
+                    : "bg-[#dedede] text-[#7d7d7d]"
+                } border-2 font-semibold text-xl rounded-2xl p-4 transition duration-200 relative`}
+                onClick={handleNext}
+                disabled={!checkIdCard}
+              >
+                Next
+              </button>
+            </>
+          ) : step === 2 ? (
+            <>
               <div>
-                {errors.email && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.email}
-                  </p>
-                )}
                 <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                  className={`flex items-center border border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
                     errors.email
                       ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
                       : form?.email
@@ -357,15 +612,15 @@ export default function SignUp({ setAction, baseForm }) {
                     value={form?.email || ""}
                   />
                 </div>
-              </div>
-              <div>
-                {errors.phone && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.phone}
+                {errors.email && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.email}
                   </p>
                 )}
+              </div>
+              <div>
                 <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                  className={`flex items-center border border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
                     errors.phone
                       ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
                       : form?.phone
@@ -386,82 +641,15 @@ export default function SignUp({ setAction, baseForm }) {
                     value={form?.phone || ""}
                   />
                 </div>
-              </div>
-              <button
-                className={`w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative`}
-                onClick={handleNext}
-              >
-                Next
-              </button>
-            </>
-          ) : step === 2 ? (
-            <>
-              <div>
-                {errors.citizenIdentificationNumber && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.citizenIdentificationNumber}
+                {errors.phone && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.phone}
                   </p>
                 )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.citizenIdentificationNumber
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.citizenIdentificationNumber
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <IdentificationCard />
-                  </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="citizenIdentificationNumber"
-                    placeholder="Citizen Identification Number"
-                    value={form?.citizenIdentificationNumber || ""}
-                  />
-                </div>
               </div>
               <div>
-                {errors.taxIdentificationNumber && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.taxIdentificationNumber}
-                  </p>
-                )}
                 <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                    errors.taxIdentificationNumber
-                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                      : form?.taxIdentificationNumber
-                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                      : "text-[var(--en-vu-300)]"
-                  } "border-gray-300"
-                }`}
-                >
-                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                    <Coins />
-                  </label>
-                  <input
-                    className="p-4 w-full rounded-lg outline-none"
-                    type="text"
-                    onChange={handleInput}
-                    name="taxIdentificationNumber"
-                    placeholder="Tax Identification Number"
-                    value={form?.taxIdentificationNumber || ""}
-                  />
-                </div>
-              </div>
-              <div>
-                {errors.bankName && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.bankName}
-                  </p>
-                )}
-                <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                  className={`flex items-center border border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
                     errors.bankName
                       ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
                       : form?.bankName
@@ -526,15 +714,15 @@ export default function SignUp({ setAction, baseForm }) {
                     )}
                   ></Select>
                 </div>
-              </div>
-              <div>
-                {errors.bankAccountNumber && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.bankAccountNumber}
+                {errors.bankName && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.bankName}
                   </p>
                 )}
+              </div>
+              <div>
                 <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                  className={`flex items-center border border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
                     errors.bankAccountNumber
                       ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
                       : form?.bankAccountNumber
@@ -555,6 +743,11 @@ export default function SignUp({ setAction, baseForm }) {
                     value={form?.bankAccountNumber || ""}
                   />
                 </div>
+                {errors.bankAccountNumber && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.bankAccountNumber}
+                  </p>
+                )}
               </div>
               <button
                 className={`w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative`}
@@ -566,13 +759,70 @@ export default function SignUp({ setAction, baseForm }) {
           ) : (
             <>
               <div>
-                {errors.businessName && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.businessName}
+                <div className="flex gap-4 items-center ">
+                  <div
+                    className={`flex items-center border w-full overflow-hidden border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                      errors.taxIdentificationNumber
+                        ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
+                        : form?.taxIdentificationNumber
+                        ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                        : "text-[var(--en-vu-300)]"
+                    } "border-gray-300"
+                }`}
+                  >
+                    <label className="text-3xl p-4 pr-0  rounded-s-lg ">
+                      <Coins />
+                    </label>
+                    <input
+                      className="p-4 w-full outline-none"
+                      type="text"
+                      onChange={handleInput}
+                      name="taxIdentificationNumber"
+                      placeholder="Tax Identification Number"
+                      value={form?.taxIdentificationNumber || ""}
+                    />
+                  </div>
+                  {checkBussinessLoading ? (
+                    <div className="h-[20px] w-[88px]">
+                      <ConfigProvider
+                        theme={{
+                          token: {
+                            colorPrimary: "green", // Set the primary color to green
+                          },
+                        }}
+                      >
+                        <Spin size="medium">
+                          <div style={contentStyle} />
+                        </Spin>
+                      </ConfigProvider>
+                    </div>
+                  ) : (
+                    <button
+                      className={`${
+                        checkIdCard
+                          ? "bg-[#dedede] text-[#7d7d7d]"
+                          : "bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white"
+                      }  px-5 py-2 rounded-xl `}
+                      disabled={checkBussiness}
+                      onClick={checkBussinessClick}
+                    >
+                      {checkBussiness ? (
+                        <CheckFat weight="fill" className="text-xl" />
+                      ) : (
+                        "Check"
+                      )}
+                    </button>
+                  )}
+                </div>
+                {checkBussinessError && (
+                  <p className="text-red-500 text-md font-medium mt-2 ">
+                    {checkBussinessError}
                   </p>
                 )}
+              </div>
+              <div>
                 <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                  className={`flex items-center border border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
                     errors.businessName
                       ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
                       : form?.businessName
@@ -593,15 +843,15 @@ export default function SignUp({ setAction, baseForm }) {
                     value={form?.businessName || ""}
                   />
                 </div>
-              </div>
-              <div>
-                {errors.ocopCategoryId && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.ocopCategoryId}
+                {errors.businessName && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.businessName}
                   </p>
                 )}
+              </div>
+              <div>
                 <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                  className={`flex items-center border border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
                     errors.ocopCategoryId
                       ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
                       : form?.ocopCategoryId
@@ -629,15 +879,15 @@ export default function SignUp({ setAction, baseForm }) {
                     ))}
                   </select>
                 </div>
-              </div>
-              <div>
-                {errors.categoryId && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.categoryId}
+                {errors.ocopCategoryId && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.ocopCategoryId}
                   </p>
                 )}
+              </div>
+              <div>
                 <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                  className={`flex items-center border border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
                     errors.categoryId
                       ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
                       : form?.categoryId
@@ -664,15 +914,15 @@ export default function SignUp({ setAction, baseForm }) {
                     ))}
                   </select>
                 </div>
-              </div>
-              <div>
-                {errors.provinceId && (
-                  <p className="text-red-500 text-md font-medium">
-                    {errors.provinceId}
+                {errors.categoryId && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.categoryId}
                   </p>
                 )}
+              </div>
+              <div>
                 <div
-                  className={`flex items-center border border-gray-300 rounded-2xl mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                  className={`flex items-center border border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
                     errors.provinceId
                       ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
                       : form?.provinceId
@@ -703,6 +953,11 @@ export default function SignUp({ setAction, baseForm }) {
                     ))}
                   </select>
                 </div>
+                {errors.provinceId && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.provinceId}
+                  </p>
+                )}
               </div>
               <div
                 className={`flex items-center ${
@@ -733,10 +988,10 @@ export default function SignUp({ setAction, baseForm }) {
 
               <button
                 className={`${
-                  loading && "loading-button"
+                  loading || (!checkBussiness && "bg-[#dedede] text-[#7d7d7d]")
                 } w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
                 onClick={handleSubmit}
-                disabled={loading}
+                disabled={loading || !checkBussiness}
               >
                 {loading ? (
                   <div className="loading-container h-[2rem]">
@@ -749,7 +1004,6 @@ export default function SignUp({ setAction, baseForm }) {
               </button>
             </>
           )}
-
           <div className="h-[23px] justify-start items-center gap-4 inline-flex">
             <div className="grow shrink basis-0 h-[0px] border border-[#c6c9d8]"></div>
             <div className="text-[#848a9f] text-lg font-normal font-['Lexend']">
@@ -771,23 +1025,6 @@ export default function SignUp({ setAction, baseForm }) {
           text="continue_with"
           auto_select={false}
         /> */}
-          <div
-            className="h-16 px-[15px] py-5 rounded-[15px] border border-[#848a9f] justify-center items-center gap-4 inline-flex cursor-pointer hover:border-blue-500 hover:bg-blue-100 transition-all duration-200"
-            onClick={loginByGoogle}
-          >
-            <div className="justify-start items-center gap-4 flex">
-              <div className="w-8 h-8 relative">
-                <img
-                  src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg"
-                  className="w-full h-full object-contain"
-                  alt="Google Icon"
-                />
-              </div>
-              <div className="text-[#091540] text-lg font-normal font-['Lexend'] hover:text-blue-500 transition-colors duration-200">
-                Continue with Google
-              </div>
-            </div>
-          </div>
 
           <div className="flex justify-center">
             <p className="text-[#848a9f] mr-2">Already have an account?</p>{" "}

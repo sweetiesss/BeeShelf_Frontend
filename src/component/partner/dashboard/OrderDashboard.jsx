@@ -87,13 +87,13 @@ const OrderDashboard = () => {
           setOrders(getData);
           setOrdersPrevious(getData2);
 
-          const completedOrderTotals = getData.map((entry) => {
+          const completedOrderTotals = getData?.map((entry) => {
             // Filter for Completed orders and sum their orderAmount
             return entry.data
               .filter((order) => order.orderStatus === "Completed")
               .reduce((sum, order) => sum + order.amount, 0);
           });
-          const completedOrderTotals2 = getData2.map((entry) => {
+          const completedOrderTotals2 = getData2?.map((entry) => {
             // Filter for Completed orders and sum their orderAmount
             return entry.data
               .filter((order) => order.orderStatus === "Completed")

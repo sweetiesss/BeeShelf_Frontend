@@ -898,33 +898,6 @@ export default function DetailSlide() {
           </div>
         </div>
         {showDeleteConfirmation && (
-          // <>
-          //   <div className="fixed inset-0 bg-black bg-opacity-50"></div>
-          //   <div
-          //     className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
-          //     style={{
-          //       top: "50%",
-          //       left: "-100%",
-          //       transform: "translate(-50%, -50%)",
-          //     }}
-          //   >
-          //     <p>{`Are you sure you want to delete ${dataDetail?.name}?`}</p>
-          //     <div className="flex justify-end gap-4">
-          //       <button
-          //         onClick={() => confirmDelete(showDeleteConfirmation)}
-          //         className="bg-red-500 text-white px-4 py-2 rounded-md"
-          //       >
-          //         Delete
-          //       </button>
-          //       <button
-          //         onClick={cancelDelete}
-          //         className="bg-gray-300 text-black px-4 py-2 rounded-md"
-          //       >
-          //         Cancel
-          //       </button>
-          //     </div>
-          //   </div>
-          // </>
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50"></div>
             <div
