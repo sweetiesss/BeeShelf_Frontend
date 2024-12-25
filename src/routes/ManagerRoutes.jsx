@@ -9,6 +9,7 @@ import VehiclePage from "../pages/manager/VehiclePage";
 import CategoryPage from "../pages/manager/CategoryPage";
 import { ConfigProvider } from "antd";
 import WarehouseDashboard from "../component/partner/dashboard/WarehouseDashboard";
+import PartnerPage from "../pages/manager/PartnerPage";
 
 export default function ManagerRoutes() {
   const { dataDetail, typeDetail } = useDetail();
@@ -30,6 +31,7 @@ export default function ManagerRoutes() {
             <Route path="warehouse" element={<WarehousesPage />} />
             <Route path="vehicle" element={<VehiclePage />} />
             <Route path="category" element={<CategoryPage />} />
+            <Route path="partner" element={<PartnerPage />} />
             {/* <Route path="payment/result" element={<PaymentResult />} /> */}
           </Route>
         </Routes>

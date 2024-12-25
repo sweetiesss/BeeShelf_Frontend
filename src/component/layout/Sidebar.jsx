@@ -14,6 +14,7 @@ import {
   MapPinArea,
   Note,
   ChartPie,
+  UserPlus,
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
@@ -51,7 +52,7 @@ export function Sidebar() {
         )}
       </div>
       <nav className="flex flex-col flex-grow items-center text-[var(--en-vu-200)] sidebar-navigate space-y-4 h-full">
-        {userInfor?.roleName === "Partner" && (
+        {userInfor?.roleName === "Partner" && userInfor?.isVerified === 1 ? (
           <>
             <NavLink
               to={
@@ -101,6 +102,22 @@ export function Sidebar() {
               </div>
             </NavLink>
           </>
+        ) : (
+          <>
+            <NavLink
+              to={
+                location.pathname.toLocaleLowerCase() === "/partner"
+                  ? ""
+                  : "verify"
+              }
+              className="flex navigate-menu"
+            >
+              <div className="sidebar-menu-container">
+                <UserPlus className="icon" weight="bold" />
+                <p className="label">{t("Verify")}</p>
+              </div>
+            </NavLink>
+          </>
         )}
         {userInfor?.roleName === "Manager" && (
           <>
@@ -142,6 +159,12 @@ export function Sidebar() {
               <div className="sidebar-menu-container">
                 <AddressBook className="icon" />
                 <p className="label">{t("Category")}</p>
+              </div>
+            </NavLink>
+            <NavLink to="partner" className="flex navigate-menu">
+              <div className="sidebar-menu-container">
+                <AddressBook className="icon" />
+                <p className="label">{t("Partner")}</p>
               </div>
             </NavLink>
           </>
