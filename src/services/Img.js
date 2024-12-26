@@ -78,8 +78,7 @@ export default function AxiosImg() {
           "Content-Type": "multipart/form-data", // Required for file upload
         },
       });
-      console.log("api hrere",response);
-      
+      console.log("api hrere", response);
 
       return response.data; // Return the response for further use
     } catch (error) {

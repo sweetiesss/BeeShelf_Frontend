@@ -70,8 +70,8 @@ export default function PartnerRoutes() {
             </>
           ) : (
             <>
-              <Route  index element={<VerifyPage />} />
-              <Route  path="verify" element={<VerifyPage />} />
+              <Route index element={<VerifyPage />} />
+              <Route path="verify" element={<VerifyPage />} />
             </>
           )}
 

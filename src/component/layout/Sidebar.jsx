@@ -103,21 +103,23 @@ export function Sidebar() {
             </NavLink>
           </>
         ) : (
-          <>
-            <NavLink
-              to={
-                location.pathname.toLocaleLowerCase() === "/partner"
-                  ? ""
-                  : "verify"
-              }
-              className="flex navigate-menu"
-            >
-              <div className="sidebar-menu-container">
-                <UserPlus className="icon" weight="bold" />
-                <p className="label">{t("Verify")}</p>
-              </div>
-            </NavLink>
-          </>
+          userInfor?.roleName === "Partner" && (
+            <>
+              <NavLink
+                to={
+                  location.pathname.toLocaleLowerCase() === "/partner"
+                    ? ""
+                    : "verify"
+                }
+                className="flex navigate-menu"
+              >
+                <div className="sidebar-menu-container">
+                  <UserPlus className="icon" weight="bold" />
+                  <p className="label">{t("Verify")}</p>
+                </div>
+              </NavLink>
+            </>
+          )
         )}
         {userInfor?.roleName === "Manager" && (
           <>

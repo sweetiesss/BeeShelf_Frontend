@@ -8,9 +8,10 @@ import {
   Form,
   Select,
   InputNumber,
+  Descriptions,
 } from "antd";
 import useAxios from "../../services/CustomizeAxios";
-import { Descriptions } from "antd";
+
 import { t } from "i18next";
 import {
   Garage,
@@ -20,6 +21,8 @@ import {
   Truck,
   Van,
 } from "@phosphor-icons/react";
+import { add, format } from "date-fns";
+import AxiosPartner from "../../services/Partner";
 const { Option } = Select;
 
 const PartnerPage = () => {
@@ -35,11 +38,24 @@ const PartnerPage = () => {
   const [visible, setVisible] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [deleteHolder, setDeleteHolder] = useState();
+  const {
+    getVerificationPaper,
+    verifyVerificationPaper,
+    rejectVerificationPaper,
+  } = AxiosPartner();
 
   const [filter, setFilter] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [updateVisible, setUpdateVisible] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailAvailable, setDetaukAvailable] = useState(false);
+  const [onAction, setOnAction] = useState("");
+  const [refresh, setRefresh] = useState(false);
+  const [reasonReject, setReasonReject] = useState("");
 
   // Form instance
   const [form] = Form.useForm();
@@ -57,15 +73,15 @@ const PartnerPage = () => {
         },
       });
       setVehicles(response?.data);
-    //   const response2 = await fetchDataBearer({
-    //     url: `productCategory/get-categories`,
-    //     method: "GET",
-    //     params: {
-    //       pageIndex: 0,
-    //       pageSize: 100,
-    //     },
-    //   });
-    //   setCategories(response2?.data);
+      //   const response2 = await fetchDataBearer({
+      //     url: `productCategory/get-categories`,
+      //     method: "GET",
+      //     params: {
+      //       pageIndex: 0,
+      //       pageSize: 100,
+      //     },
+      //   });
+      //   setCategories(response2?.data);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
       message.error("Failed to fetch vehicles.");
@@ -74,9 +90,6 @@ const PartnerPage = () => {
       setLoading(false);
     }
   };
-
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [updateVisible, setUpdateVisible] = useState(false);
 
   // Hàm mở modal và gán dữ liệu vehicle cần update
   const openUpdateModal = (record) => {
@@ -98,6 +111,8 @@ const PartnerPage = () => {
     setDetailVisible(false);
     setVehicleDetail(null);
   };
+
+  console.log("vehicleDetail", vehicleDetail);
 
   // Hàm cập nhật vehicle
   const handleUpdateVehicle = async () => {
@@ -207,12 +222,85 @@ const PartnerPage = () => {
 
   useEffect(() => {
     fetchVehicles();
-  }, [filter]);
+  }, [filter, refresh]);
 
   console.log("vehicles", vehicles);
   console.log("showVehicles", showVehicles);
 
-  console.log(form.getFieldValue());
+  const handleShowDetails = async (record) => {
+    try {
+      setDetailLoading(true);
+      setVehicleDetail();
+      const result = await getVerificationPaper(record?.id);
+      console.log("result", result);
+      if (result?.status == 200) {
+        const resultData = result?.data?.data[result?.data?.data?.length - 1];
+        if (resultData) {
+          console.log("resultData", resultData);
+          const { id: paperId, ...remainingData } = resultData;
+          setVehicleDetail({ ...record, ...remainingData, paperId });
+        } else {
+          setVehicleDetail({ ...record });
+        }
+        setDetailVisible(true);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const confirmVerifyPartner = async () => {
+    try {
+      setDetailLoading(true);
+      if (vehicleDetail) {
+        const result = await verifyVerificationPaper(vehicleDetail?.paperId);
+        console.log("result", result);
+
+        if (result?.status === 200) {
+          setOnAction("");
+          await fetchVehicles();
+          const result = vehicles?.items?.find(
+            (item) => item.id === vehicleDetail?.id
+          );
+          if (result) {
+            handleShowDetails(result);
+          }
+        }
+      }
+    } catch (e) {
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+  const rejectVerifyPartner = async () => {
+    try {
+      setDetailLoading(true);
+      if (vehicleDetail) {
+        const result = await rejectVerificationPaper(
+          vehicleDetail?.paperId,
+          reasonReject
+        );
+        console.log("result", result);
+
+        if (result?.status === 200) {
+          setOnAction("");
+          setReasonReject("");
+          await fetchVehicles();
+          const result = vehicles?.items?.find(
+            (item) => item.id === vehicleDetail?.id
+          );
+          if (result) {
+            handleShowDetails(result);
+          }
+        }
+      }
+    } catch (e) {
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
   return (
     <div className="">
@@ -435,36 +523,79 @@ const PartnerPage = () => {
         size="large"
         columns={[
           {
-            title: "Type",
-            dataIndex: "typeName",
-            key: "typeName",
+            title: "Picture",
+            key: "Picture",
+            width: 50,
+            align: "start",
+            render: (text, record) => (
+              <img src={record?.pictureLink} className="h-[5rem] w-[5rem] " />
+            ),
+          },
+          {
+            title: "Email",
+            dataIndex: "email",
+            key: "email",
             width: 150,
             align: "start",
           },
           {
-            title: "Description",
-            dataIndex: "typeDescription",
-            key: "typeDescription",
+            title: "Name",
+            key: "Name",
+            width: 150,
+            align: "start",
+            render: (text, record) => (
+              <span>{record?.firstName + " " + record?.lastName}</span>
+            ),
+          },
+          {
+            title: "Phone",
+            dataIndex: "phone",
+            key: "phone",
+            width: 50,
+            align: "start",
+          },
+          {
+            title: "Tax Identification Number",
+            dataIndex: "taxIdentificationNumber",
+            key: "taxIdentificationNumber",
             width: 150,
             align: "start",
           },
           {
-            title: "ExpireIn",
-
-            key: "expireIn",
+            title: "Create Date",
+            key: "createDate",
             width: 100,
             align: "start",
             render: (text, record) => (
               <span>
-                {record?.expireIn} {t("days")}
+                {format(
+                  add(new Date(record?.createDate), { hours: 7 }),
+                  "HH:mm - dd/MM/yyyy"
+                )}
               </span>
             ),
           },
-
+          {
+            title: "Status",
+            key: "isVerify",
+            width: 50,
+            align: "start",
+            render: (text, record) => (
+              <span
+                className={`${
+                  record?.isVerified === 1
+                    ? "bg-green-500 text-white font-medium px-2 py-1 rounded-xl"
+                    : ""
+                }`}
+              >
+                {record?.isVerified === 1 ? "Verified" : ""}
+              </span>
+            ),
+          },
           {
             title: "Actions",
             key: "actions",
-            width: 100,
+            width: 150,
             align: "start",
             render: (text, record) => (
               <div
@@ -481,7 +612,7 @@ const PartnerPage = () => {
                   <Button
                     type="default"
                     size="small"
-                    onClick={() => openUpdateModal(record)}
+                    onClick={() => handleShowDetails(record)}
                     style={{
                       color: "#0db977",
                       borderColor: "#0db977",
@@ -491,7 +622,7 @@ const PartnerPage = () => {
                       height: "2rem",
                     }}
                   >
-                    Update
+                    Show details
                   </Button>
                   <Button
                     type="default"
@@ -535,6 +666,287 @@ const PartnerPage = () => {
           Do you want to delete:{" "}
           <span className="font-semibold">{deleteHolder?.typeName}</span>
         </p>
+      </Modal>
+      {/* Detail Modal */}
+      <Modal
+        centered
+        open={detailVisible}
+        width={1450}
+        onCancel={handleCloseDetailModal}
+        footer={
+          onAction === ""
+            ? [
+                <button
+                  key="Verify"
+                  size="large"
+                  className={`${
+                    vehicleDetail?.isVerified === 1 ||
+                    !vehicleDetail?.backPictureLink ||
+                    !vehicleDetail?.frontPictureLink
+                      ? "bg-gray-100"
+                      : "text-[#0db977] border-[#0db977] hover:text-green-400 hover:border-green-400"
+                  } border mr-4`}
+                  onClick={() => setOnAction("verify")}
+                  style={{
+                    lineHeight: "24px",
+                    borderRadius: "5px",
+                    padding: "0 8px",
+                    minWidth: "80px",
+                    height: "2rem",
+                  }}
+                  disabled={
+                    vehicleDetail?.isVerified === 1 ||
+                    !vehicleDetail?.backPictureLink ||
+                    !vehicleDetail?.frontPictureLink
+                  }
+                >
+                  Verify
+                </button>,
+                <Button
+                  key="Reject"
+                  size="large"
+                  disabled={
+                    vehicleDetail?.isVerified === 1 ||
+                    vehicleDetail?.isRejected === 1
+                  }
+                  onClick={() => setOnAction("reject")}
+                  danger
+                  // className={`${
+                  //   vehicleDetail?.isVerified === 1 ||
+                  //   vehicleDetail?.isRejected === 1
+                  //     ? ""
+                  //     : "text-[#ff4d4f] border-[#ff4d4f]"
+                  // } hover:text-[#ff4d4f] hover:border-[#ff4d4f]`}
+                  style={{
+                    borderRadius: "5px",
+                    padding: "0 8px",
+                    minWidth: "80px",
+                    height: "2rem",
+                  }}
+                >
+                  Reject
+                </Button>,
+                <button
+                  key="close"
+                  color="default"
+                  onClick={handleCloseDetailModal}
+                  size="large"
+                  className="hover:text-gray-500 hover:border-gray-500 border ml-4"
+                  style={{
+                    lineHeight: "24px",
+                    borderRadius: "5px",
+                    padding: "0 8px",
+                    minWidth: "80px",
+                    height: "2rem",
+                  }}
+                >
+                  Close
+                </button>,
+              ]
+            : onAction === "verify"
+            ? [
+                <Button
+                  key="Verifybutton"
+                  onClick={() => confirmVerifyPartner()}
+                  style={{
+                    backgroundColor: "#0db977",
+                    borderColor: "#0db977",
+                    color: "white",
+                    borderRadius: "5px",
+                    padding: "0 8px",
+                    minWidth: "80px",
+                    height: "2rem",
+                  }}
+                  size="large"
+                  loading={detailLoading}
+                  disabled={detailLoading}
+                >
+                  YES, verify this partner.
+                </Button>,
+                <Button
+                  key="Reject"
+                  size="large"
+                  onClick={() => setOnAction("")}
+                  style={{
+                    backgroundColor: "#ff4d4f",
+                    color: "white",
+                    borderColor: "#ff4d4f",
+                    borderRadius: "5px",
+                    padding: "0 8px",
+                    minWidth: "80px",
+                    height: "2rem",
+                  }}
+                  disabled={detailLoading}
+                >
+                  NO, turn back.
+                </Button>,
+              ]
+            : [
+                <div
+                  key="RejectActions"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    width: "100%",
+                  }}
+                >
+                  <Input
+                    placeholder="Reject reason"
+                    onChange={(e) => setReasonReject(e.target.value)}
+                    value={reasonReject}
+                    size="large"
+                    style={{ flex: 1 }}
+                  />
+                  <Button
+                    key="Verifybutton"
+                    onClick={() => rejectVerifyPartner()}
+                    style={{
+                      backgroundColor: "#0db977",
+                      borderColor: "#0db977",
+                      color: "white",
+                      borderRadius: "5px",
+                      padding: "0 8px",
+                      minWidth: "80px",
+                      height: "2rem",
+                    }}
+                    size="large"
+                    loading={detailLoading}
+                    disabled={detailLoading}
+                  >
+                    YES, reject this partner.
+                  </Button>
+                  <Button
+                    key="Reject"
+                    onClick={() => setOnAction("")}
+                    style={{
+                      backgroundColor: "#ff4d4f",
+                      color: "white",
+                      borderColor: "#ff4d4f",
+                      borderRadius: "5px",
+                      padding: "0 8px",
+                      minWidth: "80px",
+                      height: "2rem",
+                    }}
+                    size="large"
+                    disabled={detailLoading}
+                  >
+                    NO, turn back.
+                  </Button>
+                </div>,
+              ]
+        }
+      >
+        {vehicleDetail ? (
+          <>
+            <p className="text-xl font-medium">User Detail Infor</p>
+            <div className="flex justify-center mt-6 gap-6">
+              <Descriptions column={1} bordered>
+                <Descriptions.Item label="Picture">
+                  <img
+                    src={vehicleDetail?.pictureLink}
+                    alt="Picture"
+                    style={{ maxHeight: "100px" }}
+                  />
+                </Descriptions.Item>
+                <Descriptions.Item label="Status">
+                  {vehicleDetail?.isVerified === 1 ? (
+                    <span className="font-medium text-green-500">Verified</span>
+                  ) : vehicleDetail?.isRejected === 1 ? (
+                    <span className="font-medium text-red-500">Rejected</span>
+                  ) : (
+                    <span className="font-medium ">None action yet</span>
+                  )}
+                </Descriptions.Item>
+                <Descriptions.Item label="Name">
+                  <div className="overflow-clip text-ellipsis">
+                    {vehicleDetail?.firstName + " " + vehicleDetail?.lastName}
+                  </div>
+                </Descriptions.Item>
+                <Descriptions.Item label="Email">
+                  {vehicleDetail?.email}
+                </Descriptions.Item>
+                <Descriptions.Item label="Phone">
+                  {vehicleDetail?.phone}
+                </Descriptions.Item>
+                <Descriptions.Item label="Tax Identification Number">
+                  {vehicleDetail?.taxIdentificationNumber}
+                </Descriptions.Item>
+                <Descriptions.Item label="Create Date">
+                  {format(
+                    add(new Date(vehicleDetail?.createDate), { hours: 7 }),
+                    "HH:mm - dd/MM/yyyy"
+                  )}
+                </Descriptions.Item>
+                <Descriptions.Item label="Bank Name">
+                  {vehicleDetail?.bankName}
+                </Descriptions.Item>
+                <Descriptions.Item label="Bank Account">
+                  {vehicleDetail?.bankAccountNumber}
+                </Descriptions.Item>
+              </Descriptions>
+
+              <Descriptions column={2} bordered>
+                <Descriptions.Item label="Create Verify Request" span={2}>
+                  {format(
+                    add(new Date(vehicleDetail?.createDate), { hours: 7 }),
+                    "HH:mm - dd/MM/yyyy"
+                  )}
+                </Descriptions.Item>
+                {vehicleDetail?.isVerified === 1 ? (
+                  <>
+                    <Descriptions.Item label="Verify Date" span={2}>
+                      {format(
+                        add(new Date(vehicleDetail?.verifyDate), { hours: 7 }),
+                        "HH:mm - dd/MM/yyyy"
+                      )}
+                    </Descriptions.Item>
+                  </>
+                ) : vehicleDetail?.isRejected === 1 ? (
+                  <>
+                    <Descriptions.Item label="Reject Date" span={2}>
+                      {format(
+                        add(new Date(vehicleDetail?.rejectDate), {
+                          hours: 7,
+                        }),
+                        "HH:mm - dd/MM/yyyy"
+                      )}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Reject reason" span={2}>
+                      {vehicleDetail?.rejectReason}
+                    </Descriptions.Item>
+                  </>
+                ) : (
+                  <></>
+                )}
+                <Descriptions.Item label="Business License">
+                  {vehicleDetail?.frontPictureLink ? (
+                    <img
+                      src={vehicleDetail?.frontPictureLink}
+                      alt="Picture"
+                      style={{ maxHeight: "430px" }}
+                    />
+                  ) : (
+                    <span className="font-medium">No license uploaded yet</span>
+                  )}
+                </Descriptions.Item>
+                <Descriptions.Item label="OCOP License">
+                  {vehicleDetail?.backPictureLink ? (
+                    <img
+                      src={vehicleDetail?.backPictureLink}
+                      alt="Picture"
+                      style={{ maxHeight: "430px" }}
+                    />
+                  ) : (
+                    <span className="font-medium">No license uploaded yet</span>
+                  )}
+                </Descriptions.Item>
+              </Descriptions>
+            </div>
+          </>
+        ) : (
+          <p>No details available.</p>
+        )}
       </Modal>
     </div>
   );

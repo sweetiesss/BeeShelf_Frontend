@@ -71,6 +71,64 @@ export default function AxiosPartner() {
       return error;
     }
   };
+  const getVerificationPaper = async (userId) => {
+    try {
+      const url = `partner/get-verification-paper/${userId}`;
 
-  return { updateProfile, getAllProduct, getOrderRevunue };
+      const fetching = await fetchDataBearer({
+        url,
+        method: "GET",
+      });
+
+      console.log(fetching);
+
+      return fetching;
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return error;
+    }
+  };
+  const verifyVerificationPaper = async (paperId) => {
+    try {
+      const url = `partner/verify-verification-paper?verificationPaperId=${paperId}`;
+
+      const fetching = await fetchDataBearer({
+        url,
+        method: "PUT",
+      });
+
+      console.log(fetching);
+
+      return fetching;
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return error;
+    }
+  };
+  const rejectVerificationPaper = async (paperId, reason) => {
+    try {
+      const url = `partner/reject-verification-paper?verificationPaperId=${paperId}&reason=${reason}`;
+
+      const fetching = await fetchDataBearer({
+        url,
+        method: "PUT",
+      });
+
+      console.log(fetching);
+
+      return fetching;
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return error;
+    }
+  };
+
+  return {
+    updateProfile,
+    getAllProduct,
+    getOrderRevunue,
+    getVerificationPaper,
+    verifyVerificationPaper,
+    rejectVerificationPaper,
+  };
 }

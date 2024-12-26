@@ -13,6 +13,7 @@ import {
   DownloadSimple,
   EnvelopeSimple,
   IdentificationCard,
+  MapPin,
   Phone,
   Plant,
   User,
@@ -31,6 +32,9 @@ export default function SignUp({ setAction, baseForm }) {
     lastName: baseForm?.lastName || "",
     phone: "",
     taxIdentificationNumber: "",
+    businessNameInternational: "",
+    businessShortName: "",
+    businessAddress: "",
     businessName: "",
     bankName: "",
     bankAccountNumber: "",
@@ -53,7 +57,7 @@ export default function SignUp({ setAction, baseForm }) {
   const [checkBussinessLoading, setCheckBussinessLoading] = useState(false);
   const [checkBussinessError, setCheckBussinessError] = useState(false);
 
-  const [step, setStep] = useState(3);
+  const [step, setStep] = useState(1);
   const nav = useNavigate();
   const { requestSignUp } = AxiosUser();
   const { t } = useTranslation();
@@ -263,7 +267,10 @@ export default function SignUp({ setAction, baseForm }) {
           console.log("check hrere", provincedFoundId);
           setForm((prev) => ({
             ...prev,
-            businessName: result?.data?.data?.internationalName,
+            businessName: result?.data?.data?.name,
+            businessNameInternational: result?.data?.data?.internationalName,
+            businessShortName: result?.data?.data?.shortName,
+            businessAddress: result?.data?.data?.address,
             provinceId: provincedFoundId?.id,
           }));
           setCheckBussinessError();
@@ -657,45 +664,74 @@ export default function SignUp({ setAction, baseForm }) {
                     {errors.businessName}
                   </p>
                 )}
-                <div>
-                  <div
-                    className={`flex items-center border mt-6 border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
-                      errors.provinceId
-                        ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
-                        : form?.provinceId
-                        ? "text-black ring-[var(--Xanh-Base)] ring-2"
-                        : "text-[var(--en-vu-300)]"
-                    } "border-gray-300"
+              </div>
+              <div>
+                <div
+                  className={`flex items-center border border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                    errors.businessAddress
+                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
+                      : form?.businessAddress
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  } "border-gray-300"
                 }`}
-                  >
-                    <label className="text-3xl p-4 pr-0  rounded-s-lg ">
-                      <Buildings />
-                    </label>
-                    <select
-                      className="p-4 w-full rounded-lg outline-none"
-                      type="text"
-                      disabled={true}
-                      name="provinceId"
-                      placeholder="Province"
-                      value={form?.provinceId || 0}
-                    >
-                      <option value={0}>Choose provinces code</option>
-                      {provinces?.data?.map((province) => (
-                        <option
-                          value={province?.id}
-                          className="flex justify-between"
-                        >
-                          <span>{province?.subDivisionName}</span>
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  {errors.provinceId && (
-                    <p className="text-red-500 text-md font-medium mt-2">
-                      {errors.provinceId}
-                    </p>
-                  )}
+                >
+                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
+                    <MapPin />
+                  </label>
+                  <input
+                    className="p-4 w-full rounded-lg outline-none"
+                    type="text"
+                    disabled={true}
+                    name="businessAddress"
+                    placeholder="Business Address"
+                    value={form?.businessAddress || ""}
+                  />
                 </div>
+                {errors.businessAddress && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.businessAddress}
+                  </p>
+                )}
+              </div>
+              <div>
+                <div
+                  className={`flex items-center border border-gray-300 rounded-2xl focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black  ${
+                    errors.provinceId
+                      ? "ring-[var(--Do-Base)] ring-2 text-[var(--Do-Base)] "
+                      : form?.provinceId
+                      ? "text-black ring-[var(--Xanh-Base)] ring-2"
+                      : "text-[var(--en-vu-300)]"
+                  } "border-gray-300"
+                }`}
+                >
+                  <label className="text-3xl p-4 pr-0  rounded-s-lg ">
+                    <Buildings />
+                  </label>
+                  <select
+                    className="p-4 w-full rounded-lg outline-none"
+                    type="text"
+                    disabled={true}
+                    name="provinceId"
+                    placeholder="Province"
+                    value={form?.provinceId || 0}
+                  >
+                    <option value={0}>Choose provinces code</option>
+                    {provinces?.data?.map((province) => (
+                      <option
+                        value={province?.id}
+                        className="flex justify-between"
+                      >
+                        <span>{province?.subDivisionName}</span>
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {errors.provinceId && (
+                  <p className="text-red-500 text-md font-medium mt-2">
+                    {errors.provinceId}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -799,8 +835,11 @@ export default function SignUp({ setAction, baseForm }) {
 
               <button
                 className={`${
-                  loading || (!checkBussiness && "bg-[#dedede] text-[#7d7d7d]")
-                } w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
+                  loading ||
+                  (!checkBussiness
+                    ? "bg-[#dedede] text-[#7d7d7d]"
+                    : "bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)]")
+                } w-full  text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
                 onClick={handleSubmit}
                 disabled={loading || !checkBussiness}
               >
