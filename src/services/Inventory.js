@@ -7,7 +7,7 @@ export default function AxiosInventory() {
   const getInventory1000ByWarehouseId = async (warehouseId) => {
     try {
       const fetching = await fetchDataBearer({
-        url: `inventory/get-inventories?filterBy=WarehouseId&filterQuery=${warehouseId}&descending=false&pageIndex=0&pageSize=1000`,
+        url: `room/get-rooms?filterBy=StoreId&filterQuery=${warehouseId}&descending=false&pageIndex=0&pageSize=1000`,
         method: "GET",
       });
       return fetching;
@@ -22,7 +22,7 @@ export default function AxiosInventory() {
   ) => {
     try {
       const fetching = await fetchDataBearer({
-        url: `inventory/get-inventories/${userId}?filterBy=WarehouseId&filterQuery=${warehouseId}&descending=false&pageIndex=0&pageSize=1000`,
+        url: `room/get-rooms/${userId}?filterBy=StoreId&filterQuery=${warehouseId}&descending=false&pageIndex=0&pageSize=1000`,
         method: "GET",
       });
       return fetching;
@@ -34,7 +34,7 @@ export default function AxiosInventory() {
   const getInventory1000ByUserId = async (userId) => {
     try {
       const fetching = await fetchDataBearer({
-        url: `inventory/get-inventories/${userId}?descending=false&pageIndex=0&pageSize=1000`,
+        url: `room/get-rooms/${userId}?descending=false&pageIndex=0&pageSize=1000`,
         method: "GET",
       });
       return fetching;
@@ -46,7 +46,7 @@ export default function AxiosInventory() {
   const getInventoryById = async (id) => {
     try {
       const fetching = await fetchDataBearer({
-        url: `inventory/get-inventory/` + id,
+        url: `room/get-room/` + id,
         method: "GET",
       });
       return fetching;
@@ -58,14 +58,14 @@ export default function AxiosInventory() {
   const buyInventory = async (id, userId, monthBuyInvrentory) => {
     try {
       const fetching = fetchDataBearer({
-        url: `inventory/buy-inventory/${id}/${userId}?month=${monthBuyInvrentory}`,
+        url: `room/buy-room/${id}/${userId}?month=${monthBuyInvrentory}`,
         method: "POST",
       });
       await toast.promise(fetching, {
-        pending: "Buying inventory...",
+        pending: "Buying room...",
         success: {
           render() {
-            return `Inventory bought`;
+            return `Room bought`;
           },
         },
         error: {
@@ -84,14 +84,14 @@ export default function AxiosInventory() {
   const extendInventory = async (id, userId, monthBuyInvrentory) => {
     try {
       const fetching = fetchDataBearer({
-        url: `inventory/extend-inventory/${id}/${userId}?month=${monthBuyInvrentory}`,
+        url: `room/extend-room/${id}/${userId}?month=${monthBuyInvrentory}`,
         method: "POST",
       });
       await toast.promise(fetching, {
-        pending: "Extending inventory...",
+        pending: "Extending room...",
         success: {
           render() {
-            return `Inventory extended`;
+            return `Room extended`;
           },
         },
         error: {
@@ -110,15 +110,15 @@ export default function AxiosInventory() {
   const createInventory = async (data) => {
     try {
       const fetching = fetchDataBearer({
-        url: `inventory/create-inventory`,
+        url: `room/create-room`,
         method: "POST",
         data: data,
       });
       await toast.promise(fetching, {
-        pending: "Inventory creating...",
+        pending: "Room creating...",
         success: {
           render() {
-            return `Inventory created`;
+            return `Room created`;
           },
         },
         error: {

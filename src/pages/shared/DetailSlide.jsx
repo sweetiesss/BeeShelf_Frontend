@@ -683,7 +683,7 @@ export default function DetailSlide() {
       name: dataDetail?.name,
       description: dataDetail?.description,
       exportFromLotId: 0,
-      sendToInventoryId: dataDetail?.sendToInventoryId,
+      sendToRoomId: dataDetail?.sendToRoomId,
       lot: {
         lotNumber: "string",
         name: "string",
@@ -1472,7 +1472,7 @@ export default function DetailSlide() {
       if (data < 0 || data === null || data === undefined || data === "") {
         console.log("here");
 
-        setErrors("YouNeedAtLeast1MonthToBuyInventory.");
+        setErrors("YouNeedAtLeast1MonthToBuyRoom.");
         setMonthToBuyInventory("");
         return;
       }
@@ -1630,7 +1630,7 @@ export default function DetailSlide() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-semibold text-black">
-                  {t("InventoryInformation")}
+                  {t("RoomInformation")}
                 </h2>
               </div>
               <div
@@ -1647,7 +1647,7 @@ export default function DetailSlide() {
           <div className="w-full flex flex-col gap-4">
             {[
               {
-                label: t("InventoryName") + ":",
+                label: t("RoomName") + ":",
                 value: dataDetail?.name,
               },
               {
@@ -1794,7 +1794,7 @@ export default function DetailSlide() {
               >
                 <XCircle fill="#ef4444" weight="fill" />
               </div>
-              <p className="text-2xl">{`${t("ExtendingInventory")}: ${
+              <p className="text-2xl">{`${t("ExtendingRoom")}: ${
                 dataDetail?.name
               }`}</p>
               <div className="flex items-center justify-between my-7">

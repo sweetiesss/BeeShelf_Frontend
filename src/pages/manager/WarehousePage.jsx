@@ -17,6 +17,7 @@ import AxiosEmployee from "../../services/Employee";
 import AxiosInventory from "../../services/Inventory";
 import AxiosOthers from "../../services/Others";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 const { Option } = Select;
 export default function WarehousesPage() {
   const [form] = Form.useForm();
@@ -56,6 +57,7 @@ export default function WarehousesPage() {
   const [selectedShippers, setSelectedShippers] = useState();
   const [warehouseListSelection, setWarehouseListSelection] = useState();
 
+  const { t } = useTranslation();
   const [isCreateInventoryModalVisible, setIsCreateInventoryModalVisible] =
     useState(false);
   const [newInventory, setNewInventory] = useState({
@@ -138,7 +140,7 @@ export default function WarehousesPage() {
         }));
       }
     } catch (e) {
-      console.error("Failed to fetch warehouses:", e);
+      console.error("Failed to fetch stores:", e);
     } finally {
       setLoading(false);
     }
@@ -199,7 +201,7 @@ export default function WarehousesPage() {
         setWarehouseList(warehouseListSelection);
       }
     } catch (e) {
-      console.error("Failed to fetch warehouses:", e);
+      console.error("Failed to fetch stores:", e);
     } finally {
       setLoading(false);
     }
@@ -292,7 +294,7 @@ export default function WarehousesPage() {
       handleModalClose();
       fetchWarehousesList(); // Refresh list after creation
     } catch (error) {
-      console.error("Failed to create warehouse:", error);
+      console.error("Failed to create store:", error);
     }
   };
 
@@ -364,7 +366,7 @@ export default function WarehousesPage() {
         fetchWarehousesList();
       }
     } catch (error) {
-      console.error("Failed to create warehouse:", error);
+      console.error("Failed to create store:", error);
     }
   };
 
@@ -395,7 +397,7 @@ export default function WarehousesPage() {
         fetchWarehousesList();
       }
     } catch (error) {
-      console.error("Failed to create warehouse:", error);
+      console.error("Failed to create store:", error);
     }
   };
 
@@ -446,7 +448,7 @@ export default function WarehousesPage() {
             </Button>
 
             <Popconfirm
-              title="Are you sure to delete this warehouse?"
+              title="Are you sure to delete this store?"
               onConfirm={() => handleDelete(record.id)}
             >
               <Button type="link" danger>
@@ -487,7 +489,7 @@ export default function WarehousesPage() {
         setIsDrawerVisible(true);
       }
     } catch (e) {
-      console.error("Failed to fetch warehouse details:", e);
+      console.error("Failed to fetch store details:", e);
     }
   };
 
@@ -499,16 +501,17 @@ export default function WarehousesPage() {
 
   return (
     <>
+      <h1 className="text-3xl font-bold mb-6">{t("Store Management")}</h1>
       <Form form={form} component={false}>
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginBottom: "16px" }} className="flex gap-4">
           <Input.Search
-            placeholder="Search warehouses"
+            placeholder="Search stores"
             allowClear
             onSearch={(value) => setSearch(value)}
-            style={{ width: "300px", marginRight: "16px" }}
+            style={{ width: "300px" }}
           />
           <Button type="primary" onClick={handleModalOpen}>
-            Add Warehouse
+            Add Store
           </Button>
           <Button type="primary" onClick={openAssignModal}>
             Assign Employee
@@ -538,7 +541,7 @@ export default function WarehousesPage() {
         />
       </Form>
       <Modal
-        title="Add Warehouse"
+        title="Add Store"
         visible={isModalVisible}
         onCancel={handleModalClose}
         onOk={handleCreateWarehouse}
@@ -546,12 +549,12 @@ export default function WarehousesPage() {
         cancelText="Cancel"
       >
         <Form layout="vertical">
-          <Form.Item label="Warehouse Name" required>
+          <Form.Item label="Store Name" required>
             <Input
               name="name"
               value={newWarehouse.name}
               onChange={handleInputChange}
-              placeholder="Enter warehouse name"
+              placeholder="Enter store name"
             />
           </Form.Item>
           <Form.Item label="Capacity (kg)" required>
@@ -599,20 +602,20 @@ export default function WarehousesPage() {
         </Form>
       </Modal>
       <Modal
-        title="Update Warehouse"
+        title="Update Store"
         visible={isUpdateModalVisible}
         onCancel={handleModalClose}
         onOk={handleUpdateWarehouse}
-        okText="Create"
+        okText="Update"
         cancelText="Cancel"
       >
         <Form layout="vertical">
-          <Form.Item label="Warehouse Name" required>
+          <Form.Item label="Store Name" required>
             <Input
               name="name"
               value={newWarehouse.name}
               onChange={handleInputChange}
-              placeholder="Enter warehouse name"
+              placeholder="Enter Store Name"
             />
           </Form.Item>
           <Form.Item label="Capacity (kg)" required>
@@ -668,7 +671,7 @@ export default function WarehousesPage() {
         cancelText="Cancel"
       >
         <Select
-          placeholder="Select warehouse to assign"
+          placeholder="Select store to assign"
           options={warehouseList}
           onChange={(value) => setAssignWarehouseId(value)}
           value={assignWarehouseId}
@@ -700,9 +703,9 @@ export default function WarehousesPage() {
         cancelText="Cancel"
       >
         <Form layout="vertical">
-          <Form.Item label="Warehouse" required>
+          <Form.Item label="Store" required>
             <Select
-              placeholder="Select warehouse"
+              placeholder="Select store"
               options={warehouseListSelection}
               onChange={(value) => handleWarehouseSelection(value)}
               value={newInventory.warehouseId}
@@ -739,7 +742,7 @@ export default function WarehousesPage() {
       </Modal>
 
       <Drawer
-        title="Warehouse Details"
+        title="Store Details"
         visible={isDrawerVisible}
         onClose={closeDetailsDrawer}
         width={400}

@@ -24,7 +24,7 @@ export default function ImportRequestSide({ inventories, products }) {
     name: "",
     description: "",
     exportFromLotId: 0,
-    sendToInventoryId: 0,
+    sendToRoomId: 0,
     lot: {
       lotNumber: "",
       name: "",
@@ -38,7 +38,7 @@ export default function ImportRequestSide({ inventories, products }) {
     name: "",
     description: "",
     exportFromLotId: 0,
-    sendToInventoryId: 0,
+    sendToRoomId: 0,
     lot: {
       lotAmount: null,
     },
@@ -72,7 +72,7 @@ export default function ImportRequestSide({ inventories, products }) {
     const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Generate unique timestamp
     const updatedForm = {
       ...form,
-      sendToInventoryId: parseInt(inventory?.id),
+      sendToRoomId: parseInt(inventory?.id),
       lot: {
         ...form.lot,
         productId: parseInt(selectedProduct?.id),

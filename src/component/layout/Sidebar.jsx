@@ -16,6 +16,9 @@ import {
   ChartPie,
   UserPlus,
   Scroll,
+  Truck,
+  Plant,
+  UserCheck,
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
@@ -72,7 +75,7 @@ export function Sidebar() {
             <NavLink to="inventory" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Warehouse className="icon" weight="bold" />
-                <p className="label">{t("Warehouse")}</p>
+                <p className="label">{t("Store")}</p>
               </div>
             </NavLink>
 
@@ -144,10 +147,10 @@ export function Sidebar() {
               </div>
             </NavLink>
 
-            <NavLink to="warehouse" className="flex navigate-menu">
+            <NavLink to="store" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Bag className="icon" />
-                <p className="label">{t("Warehouse")}</p>
+                <p className="label">{t("Store")}</p>
               </div>
             </NavLink>
 
@@ -160,19 +163,19 @@ export function Sidebar() {
 
             <NavLink to="vehicle" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" />
+                <Truck className="icon" />
                 <p className="label">{t("Vehicle")}</p>
               </div>
             </NavLink>
             <NavLink to="category" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" />
+                <Plant className="icon" />
                 <p className="label">{t("Category")}</p>
               </div>
             </NavLink>
             <NavLink to="partner" className="flex navigate-menu">
               <div className="sidebar-menu-container">
-                <AddressBook className="icon" />
+                <UserCheck className="icon" />
                 <p className="label">{t("Partner")}</p>
               </div>
             </NavLink>
@@ -194,10 +197,10 @@ export function Sidebar() {
               </div>
             </NavLink>
 
-            <NavLink to="warehouse" className="flex navigate-menu">
+            <NavLink to="store" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <Bag className="icon" />
-                <p className="label">{t("Warehouse")}</p>
+                <p className="label">{t("Store")}</p>
               </div>
             </NavLink>
 
@@ -329,10 +332,10 @@ export function Sidebar() {
                 </div>
               </NavLink>
 
-              <NavLink to="warehouse" className="flex navigate-menu">
+              <NavLink to="store" className="flex navigate-menu">
                 <div className="sidebar-menu-container">
                   <Warehouse className="icon" weight="bold" />
-                  <p className="label">{t("Warehouse")}</p>
+                  <p className="label">{t("Store")}</p>
                 </div>
               </NavLink>
 

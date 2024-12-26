@@ -28,7 +28,7 @@ export default function ManagerRoutes() {
             <Route index element={<WarehouseDashboard />} />
             <Route path="dashboard" element={<WarehouseDashboard />} />
             <Route path="employee" element={<EmployeePage />} />
-            <Route path="warehouse" element={<WarehousesPage />} />
+            <Route path="store" element={<WarehousesPage />} />
             <Route path="vehicle" element={<VehiclePage />} />
             <Route path="category" element={<CategoryPage />} />
             <Route path="partner" element={<PartnerPage />} />
