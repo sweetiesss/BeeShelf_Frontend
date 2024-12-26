@@ -22,6 +22,7 @@ import LotsPage from "../pages/partner/LotsPage";
 import UpdateOrderPage from "../pages/partner/UpdateOrder";
 import UpdateRequestPage from "../pages/partner/UpdateRequestPage";
 import { useAuth } from "../context/AuthContext";
+import VerificationListPage from "../pages/partner/VerificationListPage";
 export default function PartnerRoutes() {
   const { dataDetail, typeDetail } = useDetail();
   const { userInfor } = useAuth();
@@ -72,6 +73,7 @@ export default function PartnerRoutes() {
             <>
               <Route index element={<VerifyPage />} />
               <Route path="verify" element={<VerifyPage />} />
+              <Route path="verify-list" element={<VerificationListPage />} />
             </>
           )}
 

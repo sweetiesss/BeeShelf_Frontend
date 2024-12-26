@@ -25,6 +25,84 @@ import { add, format } from "date-fns";
 import AxiosPartner from "../../services/Partner";
 const { Option } = Select;
 
+const ZoomableImageModal = ({ imageUrl, visible, onClose }) => {
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+
+  const handleZoom = (e) => {
+    e.preventDefault();
+    const zoomDelta = e.deltaY > 0 ? -0.1 : 0.1;
+    setScale((prevScale) => Math.max(1, prevScale + zoomDelta));
+  };
+
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setStartPosition({ x: e.clientX - position.x, y: e.clientY - position.y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    setPosition({
+      x: e.clientX - startPosition.x,
+      y: e.clientY - startPosition.y,
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (!visible) {
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [visible]);
+
+  return (
+    <Modal
+      visible={visible}
+      footer={null}
+      onCancel={onClose}
+      centered
+      bodyStyle={{ textAlign: "center", overflow: "hidden", padding: 0 }}
+      style={{ maxWidth: "80vw", maxHeight: "80vh" }}
+    >
+      {imageUrl && (
+        <div
+          onWheel={handleZoom}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          style={{
+            cursor: isDragging ? "grabbing" : "grab",
+            overflow: "hidden",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <img
+            src={imageUrl}
+            alt="Zoomable"
+            style={{
+              transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
+              transformOrigin: "center center",
+              transition: isDragging ? "none" : "transform 0.3s",
+              maxWidth: "100%",
+              maxHeight: "100%",
+            }}
+          />
+        </div>
+      )}
+    </Modal>
+  );
+};
+
 const PartnerPage = () => {
   const { fetchDataBearer } = useAxios();
 
@@ -38,6 +116,10 @@ const PartnerPage = () => {
   const [visible, setVisible] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [deleteHolder, setDeleteHolder] = useState();
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const {
     getVerificationPaper,
     verifyVerificationPaper,
@@ -56,6 +138,19 @@ const PartnerPage = () => {
   const [onAction, setOnAction] = useState("");
   const [refresh, setRefresh] = useState(false);
   const [reasonReject, setReasonReject] = useState("");
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleImageClick = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedImage(null);
+  };
 
   // Form instance
   const [form] = Form.useForm();
@@ -683,7 +778,7 @@ const PartnerPage = () => {
                     vehicleDetail?.isVerified === 1 ||
                     !vehicleDetail?.backPictureLink ||
                     !vehicleDetail?.frontPictureLink
-                      ? "bg-gray-100"
+                      ? "bg-[#0000000a] border-[#d9d9d9] text-[#00000040]"
                       : "text-[#0db977] border-[#0db977] hover:text-green-400 hover:border-green-400"
                   } border mr-4`}
                   onClick={() => setOnAction("verify")}
@@ -707,7 +802,9 @@ const PartnerPage = () => {
                   size="large"
                   disabled={
                     vehicleDetail?.isVerified === 1 ||
-                    vehicleDetail?.isRejected === 1
+                    vehicleDetail?.isRejected === 1 ||
+                    !vehicleDetail?.backPictureLink ||
+                    !vehicleDetail?.frontPictureLink
                   }
                   onClick={() => setOnAction("reject")}
                   danger
@@ -925,6 +1022,9 @@ const PartnerPage = () => {
                       src={vehicleDetail?.frontPictureLink}
                       alt="Picture"
                       style={{ maxHeight: "430px" }}
+                      onClick={() =>
+                        handleImageClick(vehicleDetail?.frontPictureLink)
+                      }
                     />
                   ) : (
                     <span className="font-medium">No license uploaded yet</span>
@@ -936,6 +1036,9 @@ const PartnerPage = () => {
                       src={vehicleDetail?.backPictureLink}
                       alt="Picture"
                       style={{ maxHeight: "430px" }}
+                      onClick={() =>
+                        handleImageClick(vehicleDetail?.backPictureLink)
+                      }
                     />
                   ) : (
                     <span className="font-medium">No license uploaded yet</span>
@@ -948,6 +1051,11 @@ const PartnerPage = () => {
           <p>No details available.</p>
         )}
       </Modal>
+      <ZoomableImageModal
+        imageUrl={selectedImage}
+        visible={isModalVisible}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };

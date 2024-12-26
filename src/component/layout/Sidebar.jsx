@@ -15,6 +15,7 @@ import {
   Note,
   ChartPie,
   UserPlus,
+  Scroll,
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
@@ -116,6 +117,12 @@ export function Sidebar() {
                 <div className="sidebar-menu-container">
                   <UserPlus className="icon" weight="bold" />
                   <p className="label">{t("Verify")}</p>
+                </div>
+              </NavLink>
+              <NavLink to="verify-list" className="flex navigate-menu">
+                <div className="sidebar-menu-container">
+                  <Scroll className="icon" weight="bold" />
+                  <p className="label">{t("Verify List")}</p>
                 </div>
               </NavLink>
             </>
