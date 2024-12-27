@@ -293,9 +293,9 @@ export default function SignUp({ setAction, baseForm }) {
     <div className="w-full p-4  overflow-hidden relative bg-white h-full">
       {loading && <div className="loading"></div>}
       <header className="mb-4">
-        <h1 className="text-4xl font-semibold">Welcome to BeeShelf</h1>
+        <h1 className="text-4xl font-semibold">{t("WelcometoBeeShelf")}</h1>
         <p className="text-[var(--en-vu-600)] text-lg">
-          Come on and create an account
+          {t("Comeonandcreateanaccount")}
         </p>
       </header>
       {!isSuccess && (
@@ -360,7 +360,7 @@ export default function SignUp({ setAction, baseForm }) {
                     type="text"
                     onChange={handleInput}
                     name="firstName"
-                    placeholder="First Name"
+                    placeholder={t("FirstName")}
                     value={form?.firstName || ""}
                   />
                 </div>
@@ -389,7 +389,7 @@ export default function SignUp({ setAction, baseForm }) {
                     type="text"
                     onChange={handleInput}
                     name="lastName"
-                    placeholder="Last Name"
+                    placeholder={t("LastName")}
                     value={form?.lastName || ""}
                   />
                 </div>
@@ -413,7 +413,7 @@ export default function SignUp({ setAction, baseForm }) {
                     type="email"
                     onChange={handleInput}
                     name="email"
-                    placeholder="Email"
+                    placeholder={t("Email")}
                     value={form?.email || ""}
                   />
                 </div>
@@ -442,7 +442,7 @@ export default function SignUp({ setAction, baseForm }) {
                     type="text"
                     onChange={handleInput}
                     name="phone"
-                    placeholder="Phone Number"
+                    placeholder={t("PhoneNumber")}
                     value={form?.phone || ""}
                   />
                 </div>
@@ -457,7 +457,7 @@ export default function SignUp({ setAction, baseForm }) {
                 className={`w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white border-2 font-semibold text-xl rounded-2xl p-4 transition duration-200 relative`}
                 onClick={handleNext}
               >
-                Next
+                {t("Next")}
               </button>
             </>
           ) : step === 2 ? (
@@ -509,7 +509,7 @@ export default function SignUp({ setAction, baseForm }) {
                       image: bank.logo,
                     }))}
                     name="bankName"
-                    placeholder="Bank Name"
+                    placeholder={t("BankName")}
                     value={banksList?.data?.data
                       ?.map((bank) => ({
                         value: bank.shortName,
@@ -554,7 +554,7 @@ export default function SignUp({ setAction, baseForm }) {
                     type="text"
                     onChange={handleInput}
                     name="bankAccountNumber"
-                    placeholder="Bank Account Number"
+                    placeholder={t("BankAccountNumber")}
                     value={form?.bankAccountNumber || ""}
                   />
                 </div>
@@ -569,7 +569,7 @@ export default function SignUp({ setAction, baseForm }) {
                 className={`w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white border-2 font-semibold text-xl rounded-2xl p-4 transition duration-200 relative`}
                 onClick={handleNext}
               >
-                Next
+                {t("Next")}
               </button>
             </>
           ) : (
@@ -594,7 +594,7 @@ export default function SignUp({ setAction, baseForm }) {
                       type="text"
                       onChange={handleInput}
                       name="taxIdentificationNumber"
-                      placeholder="Tax Identification Number"
+                      placeholder={t("TaxIdentificationNumber")}
                       value={form?.taxIdentificationNumber || ""}
                     />
                   </div>
@@ -625,7 +625,7 @@ export default function SignUp({ setAction, baseForm }) {
                       {checkBussiness ? (
                         <CheckFat weight="fill" className="text-xl" />
                       ) : (
-                        "Check"
+                        t("Check")
                       )}
                     </button>
                   )}
@@ -655,7 +655,7 @@ export default function SignUp({ setAction, baseForm }) {
                     type="text"
                     disabled={true}
                     name="businessName"
-                    placeholder="Business Name"
+                    placeholder={t("BusinessName")}
                     value={form?.businessName || ""}
                   />
                 </div>
@@ -684,7 +684,7 @@ export default function SignUp({ setAction, baseForm }) {
                     type="text"
                     disabled={true}
                     name="businessAddress"
-                    placeholder="Business Address"
+                    placeholder={t("BusinessAddress")}
                     value={form?.businessAddress || ""}
                   />
                 </div>
@@ -716,7 +716,7 @@ export default function SignUp({ setAction, baseForm }) {
                     placeholder="Province"
                     value={form?.provinceId || 0}
                   >
-                    <option value={0}>Choose provinces code</option>
+                    <option value={0}>{t("ChooseProvincesCode")}</option>
                     {provinces?.data?.map((province) => (
                       <option
                         value={province?.id}
@@ -756,7 +756,7 @@ export default function SignUp({ setAction, baseForm }) {
                     placeholder="Business Name"
                     value={form?.ocopCategoryId || 0}
                   >
-                    <option value={0}>Choose Ocop Category</option>
+                    <option value={0}>{t("ChooseOcopCategory")}</option>
                     {ocopCategoriesList?.data?.items?.map((ocopCategory) => (
                       <option value={ocopCategory.id}>
                         {ocopCategory.type}
@@ -789,11 +789,10 @@ export default function SignUp({ setAction, baseForm }) {
                     type="text"
                     onChange={handleInput}
                     name="categoryId"
-                    placeholder="Business Name"
                     value={form?.categoryId || 0}
                     disabled={!ocopCategory}
                   >
-                    <option value={0}>Choose category</option>
+                    <option value={0}>{t("ChooseProductCategory")}</option>
                     {ocopCategory?.categories?.map((category) => (
                       <option value={category?.id}>{category?.type}</option>
                     ))}
@@ -829,7 +828,7 @@ export default function SignUp({ setAction, baseForm }) {
                   readOnly
                 />
                 <label className=" cursor-pointer">
-                  I agree to the terms and conditions
+                  {t("Iagreetothetermsandconditions")}
                 </label>
               </div>
 
@@ -849,7 +848,7 @@ export default function SignUp({ setAction, baseForm }) {
                     <div className="dot" />
                   </div>
                 ) : (
-                  "Sign Up"
+                  t("SignUp")
                 )}
               </button>
             </>
@@ -857,7 +856,7 @@ export default function SignUp({ setAction, baseForm }) {
           <div className="h-[23px] justify-start items-center gap-4 inline-flex">
             <div className="grow shrink basis-0 h-[0px] border border-[#c6c9d8]"></div>
             <div className="text-[#848a9f] text-lg font-normal font-['Lexend']">
-              or
+              {t("or")}
             </div>
             <div className="grow shrink basis-0 h-[0px] border border-[#c6c9d8]"></div>
           </div>
@@ -877,7 +876,7 @@ export default function SignUp({ setAction, baseForm }) {
         /> */}
 
           <div className="flex justify-center">
-            <p className="text-[#848a9f] mr-2">Already have an account?</p>{" "}
+            <p className="text-[#848a9f] mr-2">{t("Alreadyhaveanaccount")}?</p>{" "}
             <button
               onClick={() => {
                 nav("/authorize/signin");
@@ -885,7 +884,7 @@ export default function SignUp({ setAction, baseForm }) {
               }}
               className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
             >
-              Login
+              {t("Login")}
             </button>
           </div>
         </div>
@@ -900,19 +899,21 @@ export default function SignUp({ setAction, baseForm }) {
                   weight="fill"
                 />
               </div>
-              <p className="mt-2">Your account has been create successfully.</p>
+              <p className="mt-2">
+                {t("Youraccounthasbeencreatesuccessfully")}.
+              </p>
             </p>
           </div>
           <div className="flex flex-col items-center mt-10">
             <p className="font-medium text-lg text-[var(--en-vu-base)]">
-              We have already{" "}
+              {t("Wehavealready")}{" "}
               <span className="text-[var(--Xanh-Base)] font-semibold">
-                sent an email
+                {t("sentanemail")}
               </span>{" "}
-              for your password.
+              {t("foryourpassword")}.
             </p>
             <p className="font-medium text-lg text-[var(--en-vu-base)]">
-              Login and change the password again.
+              {t("Loginandchangethepasswordagain")}.
             </p>
           </div>
 
@@ -920,7 +921,7 @@ export default function SignUp({ setAction, baseForm }) {
             className={`mt-10 w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
             onClick={handleToLogin}
           >
-            Sign In
+            {t("SignIn")}
           </button>
         </div>
       )}

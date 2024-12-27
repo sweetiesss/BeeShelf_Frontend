@@ -4,6 +4,7 @@ import SignUp from "../../component/guest/SignUp";
 import ForgotPassword from "../../component/guest/ForgotPassword";
 import SignInAndLoginGif from "../../assets/img/loginAndSignup.gif";
 import { useLocation } from "react-router-dom";
+import { LanguageSelector } from "../../component/shared/ChangeLanguages";
 
 export default function LoginAndSignInPage({ toAction }) {
   const location = useLocation();
@@ -20,6 +21,7 @@ export default function LoginAndSignInPage({ toAction }) {
 
       {/* Animated Content */}
       <div className="relative w-[40%] h-full overflow-hidden bg-white">
+        <LanguageSelector className={"absolute top-4 left-2 z-10"} />
         {/* ForgotPassword */}
         <div
           className={`p-20 absolute w-full h-full transform transition-transform duration-500 flex flex-col items-center justify-center ${
