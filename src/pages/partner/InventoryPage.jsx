@@ -881,14 +881,14 @@ export default function InventoryPage() {
             </div>
           </div>
         ) : (
-          <div className=" grid grid-cols-4 grid-rows-12 mt-10 gap-y-4 gap-x-1 py-10">
-            <p className="text-2xl font-semibold row-span-1">
+          <div className=" grid grid-cols-5 grid-rows-12 mt-10 gap-y-4 gap-x-10 py-10">
+            <p className="text-2xl font-semibold col-span-2 row-span-1">
               {t("WarehouseInformation")}
             </p>
             <p className="text-2xl font-semibold col-span-3 row-span-1">
               {t("InventoriesInTheWarehouse")}
             </p>
-            <div className="flex flex-col row-span-11">
+            <div className="flex flex-col col-span-2 row-span-11">
               <div className="w-full h-fit max-h-1/3">
                 {[
                   { label: t("Name") + ":", value: warehouse?.name },
@@ -935,6 +935,8 @@ export default function InventoryPage() {
                 <Mapping {...mappingProps} />
               </div>
             </div>
+
+            
             <div className=" col-span-3 row-span-11  ">
               <RoomMapping
                 data={inventoriesShowList}

@@ -228,6 +228,7 @@ export default function WarehousesPage() {
   const handleAssignStaff = async () => {
     try {
       console.log("selectedWarehouse", selectedWarehouse);
+      console.log("assignWarehouseId", assignWarehouseId);
       console.log("selectedStaff", selectedStaff);
       console.log("selectedShippers", selectedShippers);
 
@@ -243,14 +244,14 @@ export default function WarehousesPage() {
       }
       const submitShipper = selectedShippers?.map((ship) => ({
         employeeId: ship,
-        warehouseId: assignWarehouseId,
+        storeId: assignWarehouseId,
       }));
 
       console.log("submitShipper", submitShipper);
       console.log(selectedStaff);
       const submitSelectStaff = selectedStaff?.map((item) => ({
         employeeId: item,
-        warehouseId: assignWarehouseId,
+        storeId: assignWarehouseId,
       }));
 
       let checkrefresh = false;

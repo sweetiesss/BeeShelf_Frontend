@@ -40,8 +40,8 @@ const RoomMapping = ({
       i: room.roomCode,
       x: Number(room.x),
       y: Number(room.y),
-      w: parseFloat(room.width / pixelToMeterRatio),
-      h: parseFloat(room.length / pixelToMeterRatio),
+      w: Math.round(room.width / pixelToMeterRatio),
+      h: Math.round(room.length / pixelToMeterRatio),
       static: true, // Read-only
     }));
     setLayout(takeingData);
@@ -81,7 +81,7 @@ const RoomMapping = ({
             >
               {layout.map((box) => (
                 <div
-                  className="relative cursor-pointer bg-white hover:bg-[var(--en-vu-200)] grid grid-cols-2 text-sm py-4 px-2 overflow-hidden"
+                  className="relative cursor-pointer bg-white hover:bg-[var(--en-vu-200)] flex justify-center items-center overflow-hidden"
                   key={box.i}
                   onClick={(e) =>
                     !box.ocopPartnerId
@@ -97,16 +97,7 @@ const RoomMapping = ({
                       <p>{t("H")}</p>
                     </div>
                   )}
-                  <p className="font-medium">Room: </p>
                   <p>{box.roomCode}</p>
-                  <p className="font-medium">Weight: </p>
-                  <p>{box.maxWeight}kg</p>
-                  <p className="font-medium">Price: </p>
-                  <p>
-                    {box.price > 1000 ? box.price / 1000 + "k" : box.price} vnd
-                  </p>
-                  <p className="font-medium">Type: </p>
-                  <p>{box.isCold === 0 ? "Normal" : "Frozen"}</p>
                 </div>
               ))}
             </GridLayout>
