@@ -115,10 +115,10 @@ export default function AxiosInventory() {
         data: data,
       });
       await toast.promise(fetching, {
-        pending: "Room creating...",
+        pending: "Rooms creating...",
         success: {
           render() {
-            return `Room created`;
+            return `Rooms created`;
           },
         },
         error: {

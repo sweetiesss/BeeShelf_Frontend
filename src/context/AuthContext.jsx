@@ -39,9 +39,9 @@ export function AuthProvider({ children }) {
   const [refrestAuthWallet, setRefrestAuthWallet] = useState(false);
 
   useEffect(() => {
-    fetchBankList();
-    fetchOcopCategoriesList();
-    fetchgetProvincesList();
+    // fetchBankList();
+    // fetchOcopCategoriesList();
+    // fetchgetProvincesList();
   }, []);
 
   useEffect(() => {

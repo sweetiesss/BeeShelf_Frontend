@@ -35,10 +35,14 @@ export default function Mapping({
   toLocation,
   defaultLocation,
   setDistance,
+  setLatLng,
 }) {
+  console.log("defaultLocation", defaultLocation);
+
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null); // Ref for the map container div
   const routingControlRef = useRef(null);
+  const lastCoordinatesRef = useRef(null);
   const fetchCoordinates = async (address, defaultAddress) => {
     try {
       const response = await axios.get(
@@ -46,13 +50,16 @@ export default function Mapping({
           address
         )}`
       );
+      console.log("responsehreeee", response);
+
       if (response.data && response.data.length > 0) {
         const { lat, lon } = response.data[0];
+
         return { lat, lon };
       } else if (defaultAddress) {
         const response2 = await axios.get(
           `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            address
+            defaultAddress
           )}`
         );
         if (response2.data && response2.data.length > 0) {
@@ -86,7 +93,21 @@ export default function Mapping({
     const initializeMap = async () => {
       const fromCoordinates = showLocation?.location
         ? await fetchCoordinates(showLocation?.location, defaultLocation)
-        : null;
+        : await fetchCoordinates("", defaultLocation);
+
+      if (fromCoordinates) {
+        // Check if coordinates have changed
+        if (
+          !lastCoordinatesRef.current ||
+          lastCoordinatesRef.current.lat !== fromCoordinates.lat ||
+          lastCoordinatesRef.current.lon !== fromCoordinates.lon
+        ) {
+          lastCoordinatesRef.current = fromCoordinates; // Update last known coordinates
+          setLatLng(fromCoordinates); // Update parent state
+        }
+      }
+
+      console.log("hereeee", fromCoordinates);
 
       const toCoordinates = toLocation
         ? await fetchCoordinates(toLocation, defaultLocation)
@@ -225,7 +246,7 @@ export default function Mapping({
         mapRef.current = null;
       }
     };
-  }, [showLocation, toLocation]);
+  }, [showLocation, toLocation, setLatLng]);
 
   return <div ref={mapContainerRef} id="map" className="h-full w-full"></div>;
 }

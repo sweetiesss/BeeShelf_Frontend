@@ -547,6 +547,9 @@ export default function InventoryPage() {
     await fetchingDataWarehousesByUserId();
   };
 
+  console.log(warehouse);
+  
+
   return (
     <div>
       <div className="text-left">

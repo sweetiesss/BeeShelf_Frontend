@@ -137,13 +137,13 @@ export function HeaderAuthenticated() {
 
   useEffect(() => {
     document.addEventListener("mousedown", mouseDownEvent);
-    getAuthWalletMoney();
+    // getAuthWalletMoney();
     return () => {
       document.removeEventListener("mousedown", mouseDownEvent);
     };
   }, []);
   useEffect(() => {
-    getAuthWalletMoney();
+    // getAuthWalletMoney();
   }, [refrestAuthWallet]);
 
   const changeTheme = () => {

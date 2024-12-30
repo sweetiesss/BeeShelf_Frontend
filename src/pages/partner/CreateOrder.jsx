@@ -639,14 +639,12 @@ export default function CreateOrderPage() {
             </div>
           </div>
         </form>
-        <div className="max-w-[50%] w-[50%] h-[] z-10 max-h-[20%vh]">
+        <div className="max-w-[50%] w-[50%]  z-10 max-h-[20%]">
           <Mapping
             showLocation={detailWarehouse}
             toLocation={deliveryZone?.name + " " + deliveryZone?.provinceName}
             defaultLocation={defaultLocation}
             setDistance={setDistance}
-
-            // cloneWarehouseData={cloneWarehouseData}
           />
           {/* <Mapping
               showLocation="123 Main St, New York, NY"

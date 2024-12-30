@@ -7,37 +7,53 @@ const RoomMapping = () => {
   const storeData = {
     name: "storeA",
     width: 500,
-    length: 900,
+    length: 200,
     cols: 12,
     rooms: [
       {
-        name: "room2",
-        width: "6.00",
-        length: "5.00",
-        x: "6.00",
-        y: "0.00",
+        roomCode: "A1",
+        isCold: 0,
+        maxWeight: 0,
+        price: 0,
+        width: "41.67",
+        length: "41.67",
+        x: 0,
+        y: 0,
       },
-
       {
-        name: "room4",
-        width: "6.00",
-        length: "3.00",
-        x: "0.00",
-        y: "2.00",
+        roomCode: "A2",
+        isCold: 0,
+        maxWeight: 0,
+        price: 0,
+        width: "41.67",
+        length: "41.67",
+        x: 1,
+        y: 0,
+      },
+      {
+        roomCode: "A3",
+        isCold: "1",
+        maxWeight: 0,
+        price: 0,
+        width: "41.67",
+        length: "41.67",
+        x: 0,
+        y: 1,
       },
     ],
   };
 
-  const cols = storeData.cols;
+  const cols = storeData.cols || 1;
   const gridWidth = storeData.width;
+  const pixelToMeterRatio = gridWidth / cols;
 
   // Convert room data to GridLayout format
   const layout = storeData.rooms.map((room) => ({
-    i: room.name,
-    x: parseFloat(room.x),
-    y: parseFloat(room.y),
-    w: parseFloat(room.width),
-    h: parseFloat(room.length),
+    i: room.roomCode,
+    x: Number(room.x),
+    y: Number(room.y),
+    w: parseFloat(room.width / pixelToMeterRatio),
+    h: parseFloat(room.length / pixelToMeterRatio),
     static: true, // Read-only
   }));
 
