@@ -28,7 +28,7 @@ export default function ExportRequestSide({
     name: "",
     description: "",
     exportFromLotId: 0,
-    sendToInventoryId: 0,
+    sendToRoomId: 0,
     lot: {
       lotNumber: "",
       name: "",
@@ -65,7 +65,7 @@ export default function ExportRequestSide({
     const updatedForm = {
       ...form,
       exportFromLotId: parseInt(selectedProduct?.id),
-      sendToInventoryId: parseInt(inventory?.id),
+      sendToRoomId: parseInt(inventory?.id),
       lot: {
         ...form.lot,
       },
@@ -86,7 +86,7 @@ export default function ExportRequestSide({
     }
     setProduct(pro);
   };
-  
+
   const handleSelectProduct = (pro) => {
     setSelectedProduct(pro);
     if (inventory?.isCold === pro?.isCold) {
@@ -237,7 +237,7 @@ export default function ExportRequestSide({
                   textAlign: "left", // Center-align text
                 }),
               }}
-              getOptionLabel={(option) => option.name}
+              getOptionLabel={(option) => option.storeName}
               getOptionValue={(option) => option.id}
               value={
                 inventories.find((item) => item.id === inventory?.id) || null
@@ -247,13 +247,13 @@ export default function ExportRequestSide({
                 (item) =>
                   (item?.isCold === 0 ? false : true) ===
                     selectedProduct?.isCold &&
-                  item?.warehouseName !== selectedProduct?.warehouseName
+                  item?.storeName !== selectedProduct?.storeName
               )}
               formatOptionLabel={(selectedOption) => (
                 <div className="">
                   <p>
-                    {selectedOption?.name}{" "}
-                    {"(" + selectedOption?.warehouseName + ")"}
+                    {"Room: " + selectedOption?.roomCode}{" "}
+                    {"(" + selectedOption?.storeName + ")"}
                   </p>
                   <div
                     className={`flex items-center justify-between text-sm text-gray-500`}
@@ -295,7 +295,7 @@ export default function ExportRequestSide({
               isDisabled={typeRequest === "Export"}
               placeholder={
                 typeRequest === "Export"
-                  ? selectedProductImported?.warehouseName
+                  ? selectedProductImported?.storeName
                   : t("ChooseProductFirst...")
               }
             />
@@ -367,9 +367,9 @@ export default function ExportRequestSide({
                     <div className="flex justify-between text-gray-400">
                       <p>
                         <span className="font-medium">
-                          {t("WarehouseName") + ": "}
+                          {t("storeName") + ": "}
                         </span>
-                        {pro?.warehouseName}
+                        {pro?.storeName}
                       </p>
                       <p>
                         {pro?.expirationDate
@@ -396,8 +396,8 @@ export default function ExportRequestSide({
                       { label: t("LotNumber"), value: product?.lotNumber },
                       { label: t("ProductName"), value: product?.productName },
                       {
-                        label: t("WarehouseName"),
-                        value: product?.warehouseName,
+                        label: t("storeName"),
+                        value: product?.storeName,
                       },
                       {
                         label: t("Expiration"),
@@ -482,10 +482,8 @@ export default function ExportRequestSide({
                 </div>
                 <div className="flex justify-between text-gray-400">
                   <p>
-                    <span className="font-medium">
-                      {t("WarehouseName") + ": "}
-                    </span>
-                    {pro?.warehouseName}
+                    <span className="font-medium">{t("storeName") + ": "}</span>
+                    {pro?.storeName}
                   </p>
                   <p>
                     {pro?.expirationDate
