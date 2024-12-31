@@ -67,6 +67,10 @@ export default function AxiosWarehouse() {
     pageSize
   ) => {
     try {
+      const queryParam = new URLSearchParams();
+      search && queryParam.append("search", search);
+      sortCriteria && queryParam.append("sortCriteria", sortCriteria);
+      descending && queryParam.append("descending", descending);
       const fetching = await fetchDataBearer({
         url: `store/get-stores`,
         method: "GET",

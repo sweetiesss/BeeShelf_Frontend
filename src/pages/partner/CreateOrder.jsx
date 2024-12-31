@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import AxiosPartner from "../../services/Partner";
@@ -11,6 +11,7 @@ import AxiosOthers from "../../services/Others";
 import Select from "react-select";
 import { useLocation } from "react-router-dom";
 import AxiosProduct from "../../services/Product";
+import haversine from "haversine-distance";
 
 export default function CreateOrderPage() {
   const { t } = useTranslation();
@@ -18,7 +19,8 @@ export default function CreateOrderPage() {
   const { getAllProduct } = AxiosPartner();
   const { getProductByUserId } = AxiosProduct();
   const { createOrder } = AxiosOrder();
-  const { getWarehouseById } = AxiosWarehouse();
+  const { getWarehouseById, getWarehouses } = AxiosWarehouse();
+  const { getProvinces } = AxiosOthers();
 
   const [inventories, setInventories] = useState();
   const [products, setProducts] = useState();
@@ -26,17 +28,21 @@ export default function CreateOrderPage() {
   const [loading, setLoading] = useState();
   const [warehouseFilter, setWareHouseFilter] = useState();
 
+  const [receiverLocation, setReceiverLoaction] = useState("");
   const [distance, setDistance] = useState(null); // State for storing calculated distance
   const [item, setItem] = useState({ productId: null, productAmount: null });
 
   const [deliveryZone, setDeliveryZone] = useState();
 
+  const [fullWarehouses, setFullWarehouses] = useState();
   const [warehouses, setWarehouses] = useState();
   const [warehouse, setWarehouse] = useState();
   const [detailWarehouse, setDetailWarehouse] = useState();
   const debounceTimeoutRef = useRef(null);
   const location = useLocation();
   const [errors, setErrors] = useState({});
+  const [provinces, setProvinces] = useState();
+  const [latLon, setLatLon] = useState();
 
   const [defaultLocation, setDefaultLocation] = useState("");
 
@@ -70,35 +76,12 @@ export default function CreateOrderPage() {
 
   useEffect(() => {
     console.log("inventories", inventories);
-
-    if (inventories) {
-      const warehouseMap = new Map();
-
-      inventories.forEach((item) => {
-        if (!warehouseMap.has(item.warehouseId)) {
-          warehouseMap.set(item.warehouseId, {
-            warehouseId: item.warehouseId,
-            warehouseName: item.warehouseName,
-            productStock: item.stock || 0,
-          });
-        } else {
-          const currentWarehouse = warehouseMap.get(item.warehouseId);
-          warehouseMap.set(item.warehouseId, {
-            ...currentWarehouse,
-            productStock: currentWarehouse.productStock + (item.stock || 0),
-          });
-        }
-      });
-
-      const uniqueWarehouses = Array.from(warehouseMap.values());
-      setWarehouses(uniqueWarehouses);
-    }
   }, [inventories]);
   const validateForm = () => {
     const newErrors = {};
 
     if (!warehouse) {
-      newErrors.warehouse = t("Warehouse is required");
+      newErrors.warehouse = t("Store is required");
     }
 
     if (!deliveryZone) {
@@ -146,7 +129,7 @@ export default function CreateOrderPage() {
   const filterWarehouse = () => {
     if (inventories) {
       const result = inventories.filter(
-        (a) => parseInt(a.warehouseId) === parseInt(warehouse?.warehouseId)
+        (a) => parseInt(a.storeId) === parseInt(warehouse?.storeId)
       );
 
       setInventoriesShowList(result);
@@ -178,6 +161,57 @@ export default function CreateOrderPage() {
 
         setProducts(result2?.data?.items);
       }
+      const result3 = await getWarehouses("", undefined, undefined, 0, 1000);
+      console.log("result3", result3);
+      if (result3?.status === 200) {
+        setFullWarehouses(result3?.data?.items);
+      }
+      const result4 = await getProvinces();
+      if (result4?.status === 200) {
+        setProvinces(result4?.data);
+      }
+      if (result?.status === 200 && result3?.status === 200) {
+        const warehouseMap = new Map();
+        result?.data?.products?.forEach((item) => {
+          if (!warehouseMap.has(item.storeId)) {
+            warehouseMap.set(item.storeId, {
+              storeId: item.storeId,
+              storeName: item.storeName,
+              productStock: item.stock || 0,
+              // isDisabled : true,
+            });
+          } else {
+            const currentWarehouse = warehouseMap.get(item.storeId);
+            warehouseMap.set(item.storeId, {
+              ...currentWarehouse,
+              productStock: currentWarehouse.productStock + (item.stock || 0),
+            });
+          }
+        });
+
+        const uniqueWarehouses = Array.from(warehouseMap.values());
+
+        const mergedData = result3?.data?.items.map((store) => {
+          const matchingWarehouse = uniqueWarehouses.find(
+            (warehouse) => warehouse.storeId === store.id
+          );
+
+          if (matchingWarehouse) {
+            return {
+              ...store,
+              ...matchingWarehouse, // Merge unique warehouse properties
+              isDisabled: false, // Set isDisabled to false if matched
+            };
+          } else {
+            return {
+              ...store,
+              isDisabled: true, // Set isDisabled to true if not matched
+            };
+          }
+        });
+
+        setWarehouses(mergedData);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -188,7 +222,7 @@ export default function CreateOrderPage() {
     try {
       setLoading(true);
       if (warehouse) {
-        const result = await getWarehouseById(warehouse?.warehouseId);
+        const result = await getWarehouseById(warehouse?.storeId);
         if (result?.status === 200) {
           console.log("detail", result);
           console.log("from the warehouse", warehouse);
@@ -204,6 +238,7 @@ export default function CreateOrderPage() {
       setLoading(false);
     }
   };
+  console.log("full", fullWarehouses);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -257,11 +292,7 @@ export default function CreateOrderPage() {
         deliveryZoneId: parseInt(deliveryZone?.id),
         distance: parseFloat(distance),
       };
-      const result = await createOrder(
-        submitForm,
-        warehouse?.warehouseId,
-        true
-      );
+      const result = await createOrder(submitForm, warehouse?.storeId, true);
       console.log(submitForm);
       setForm(baseForm);
     } catch (e) {
@@ -283,11 +314,7 @@ export default function CreateOrderPage() {
         deliveryZoneId: parseInt(deliveryZone?.id),
         distance: parseFloat(distance),
       };
-      const result = await createOrder(
-        submitForm,
-        warehouse?.warehouseId,
-        false
-      );
+      const result = await createOrder(submitForm, warehouse?.storeId, false);
       console.log(result);
       setForm(baseForm);
     } catch (e) {
@@ -297,7 +324,88 @@ export default function CreateOrderPage() {
     }
   };
 
-  console.log("location", location);
+  const mappingProps = useMemo(() => {
+    return {
+      showLocation: {
+        name: "Receiver Address",
+        location: receiverLocation,
+      },
+
+      defaultLocation: form?.provinceId?.subDivisionName,
+      data: fullWarehouses,
+      setLatLng: setLatLon,
+      toLocation: detailWarehouse,
+
+      setDistance: setDistance,
+    };
+  }, [receiverLocation, fullWarehouses, detailWarehouse]);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setReceiverLoaction(form?.receiverAddress);
+      const dataList = form?.receiverAddress
+        ?.split(",")
+        .map((item) => item.trim());
+      const provniceFouned = provinces?.find(
+        (item) => item.subDivisionName === dataList?.[dataList?.length - 2]
+      );
+      setForm((prev) => ({ ...prev, provinceId: provniceFouned }));
+    }, 500); // Adjust the debounce delay (300ms in this example)
+
+    return () => clearTimeout(handler); // Cleanup timeout on unmount or location change
+  }, [form?.receiverAddress]);
+
+  console.log("detailWarehouse", detailWarehouse);
+  console.log("warehouses", warehouses);
+  console.log("warehouse", warehouse);
+  console.log("form", form);
+
+  console.log("receiverLocation", receiverLocation);
+
+  const findNearestLocation = (userCoords) => {
+    let nearestStore = null;
+    let shortestDistance = Infinity;
+
+    fullWarehouses?.forEach((store) => {
+      if (store?.latitude && store?.longitude) {
+        const storeCoords = {
+          latitude: store?.latitude,
+          longitude: store?.longitude,
+        };
+        const distance = haversine(userCoords, storeCoords); // Distance in meters
+        if (distance < shortestDistance) {
+          shortestDistance = distance;
+          nearestStore = store;
+        }
+      }
+    });
+
+    return { nearestStore, distance: shortestDistance };
+  };
+
+  const nearestStore = useMemo(() => {
+    if (latLon) {
+      const result = findNearestLocation(latLon);
+      if (result) {
+        const addField = warehouses?.map((item) => {
+          if (item?.id === result?.nearestStore?.id) {
+            return {
+              ...item,
+              distance: result?.distance,
+              type: "Nearest",
+            };
+          }
+          return item;
+        });
+        console.log("addField", addField);
+        setWarehouses(addField);
+      }
+
+      return result;
+    }
+    return null;
+  }, [latLon]);
+
+  console.log("nearestStore", nearestStore);
 
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
@@ -308,7 +416,83 @@ export default function CreateOrderPage() {
             <h2 className="text-lg font-semibold">{t("OrderInformation")}</h2>
             <div>
               <label className="block  font-medium text-gray-700">
-                {t("Warehouse")}
+                {t("Receiver Address")}
+              </label>
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  name="receiverAddress"
+                  placeholder={t("receiverAddress")}
+                  value={form.receiverAddress}
+                  onChange={handleInputChange}
+                  className="mt-1 outline-none border-2 p-[0.35rem] flex-grow "
+                  required
+                />
+
+                <div className="w-fit">
+                  <Select
+                    styles={{
+                      menu: (provided) => ({
+                        ...provided,
+
+                        // Restrict the dropdown height
+                        overflowY: "hidden", // Enable scrolling for content
+                      }),
+                      menuList: (provided) => ({
+                        ...provided,
+                        padding: 0, // Ensure no extra padding
+                        maxHeight: "11.5rem",
+                        overflow: "auto",
+                      }),
+                      control: (baseStyles) => ({
+                        ...baseStyles,
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        boxShadow: "none",
+                        "&:hover": {
+                          border: "1px solid #888",
+                        },
+                      }),
+                      option: (baseStyles, { isFocused, isSelected }) => ({
+                        ...baseStyles,
+                        backgroundColor: isSelected
+                          ? "var(--Xanh-Base)"
+                          : isFocused
+                          ? "var(--Xanh-100)"
+                          : "white",
+                        color: isSelected ? "white !important" : "black",
+                        cursor: "pointer",
+                        padding: "0.5rem 1rem", // Option padding
+                        textAlign: "left", // Center-align text
+                      }),
+                    }}
+                    value={deliveryZone} // Map string to object
+                    onChange={(selectedOption) =>
+                      setDeliveryZone(selectedOption)
+                    }
+                    options={detailWarehouse?.deliveryZones}
+                    formatOptionLabel={(selectedOption) => (
+                      <div className="flex items-center gap-4">
+                        <p>{selectedOption?.name}</p>
+                      </div>
+                    )}
+                    getOptionValue={(option) => option.id}
+                    getOptionLabel={(option) => option.name}
+                  />
+                </div>
+                <div className="border p-[0.35rem] w-fit cursor-not-allowed">
+                  {detailWarehouse?.deliveryZones[0]?.provinceName}
+                </div>
+              </div>
+              {(errors.receiverAddress || errors?.deliveryZone) && (
+                <p className="text-red-500 text-base font-medium mt-2">
+                  {errors.receiverAddress}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="block  font-medium text-gray-700 ">
+                {t("Store")}
               </label>
               <Select
                 className="col-span-2"
@@ -333,14 +517,21 @@ export default function CreateOrderPage() {
                       border: "1px solid #888",
                     },
                   }),
-                  option: (baseStyles, { isFocused, isSelected }) => ({
+                  option: (
+                    baseStyles,
+                    { isFocused, isSelected, isDisabled }
+                  ) => ({
                     ...baseStyles,
                     backgroundColor: isSelected
                       ? "var(--Xanh-Base)"
                       : isFocused
                       ? "var(--Xanh-100)"
                       : "white",
-                    color: isSelected ? "white !important" : "black",
+                    color: isSelected
+                      ? "white !important"
+                      : isDisabled
+                      ? "#d1d5db"
+                      : "black",
                     cursor: "pointer",
                     padding: "0.5rem 1rem", // Option padding
                     textAlign: "left", // Center-align text
@@ -350,12 +541,19 @@ export default function CreateOrderPage() {
                 onChange={(selectedOption) => setWarehouse(selectedOption)}
                 options={warehouses}
                 formatOptionLabel={(selectedOption) => (
-                  <div className="flex items-center gap-4">
-                    <p>{selectedOption?.warehouseName}</p>
+                  <div className="flex items-center gap-4 justify-between">
+                    <p>{selectedOption?.name}</p>
+                    <p>
+                      {selectedOption?.type &&
+                        selectedOption?.type +
+                          " (" +
+                          selectedOption?.distance?.toFixed(2) +
+                          " km)"}
+                    </p>
                   </div>
                 )}
-                getOptionValue={(option) => option.warehouseId}
-                getOptionLabel={(option) => option.warehouseName}
+                getOptionValue={(option) => option.id}
+                getOptionLabel={(option) => option.name}
               />
               {errors.warehouse && (
                 <p className="text-red-500 text-base font-medium mt-2">
@@ -426,7 +624,7 @@ export default function CreateOrderPage() {
                       <div className="gap-4">
                         <p>{option.productName}</p>
                         <p className="text-gray-500">
-                          {option.stock + " stocks in " + option?.warehouseName}
+                          {option.stock + " stocks in " + option?.storeName}
                         </p>
                       </div>
                     ) : (
@@ -530,80 +728,6 @@ export default function CreateOrderPage() {
               </p>
             )}
           </div>
-          <div>
-            <label className="block  font-medium text-gray-700">
-              {t("Receiver Address")}
-            </label>
-            <div className="flex items-center gap-4">
-              <input
-                type="text"
-                name="receiverAddress"
-                placeholder={t("receiverAddress")}
-                value={form.receiverAddress}
-                onChange={handleInputChange}
-                className="mt-1 outline-none border-2 p-[0.35rem] flex-grow"
-                required
-              />
-
-              <div className="w-fit">
-                <Select
-                  styles={{
-                    menu: (provided) => ({
-                      ...provided,
-
-                      // Restrict the dropdown height
-                      overflowY: "hidden", // Enable scrolling for content
-                    }),
-                    menuList: (provided) => ({
-                      ...provided,
-                      padding: 0, // Ensure no extra padding
-                      maxHeight: "11.5rem",
-                      overflow: "auto",
-                    }),
-                    control: (baseStyles) => ({
-                      ...baseStyles,
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      boxShadow: "none",
-                      "&:hover": {
-                        border: "1px solid #888",
-                      },
-                    }),
-                    option: (baseStyles, { isFocused, isSelected }) => ({
-                      ...baseStyles,
-                      backgroundColor: isSelected
-                        ? "var(--Xanh-Base)"
-                        : isFocused
-                        ? "var(--Xanh-100)"
-                        : "white",
-                      color: isSelected ? "white !important" : "black",
-                      cursor: "pointer",
-                      padding: "0.5rem 1rem", // Option padding
-                      textAlign: "left", // Center-align text
-                    }),
-                  }}
-                  value={deliveryZone} // Map string to object
-                  onChange={(selectedOption) => setDeliveryZone(selectedOption)}
-                  options={detailWarehouse?.deliveryZones}
-                  formatOptionLabel={(selectedOption) => (
-                    <div className="flex items-center gap-4">
-                      <p>{selectedOption?.name}</p>
-                    </div>
-                  )}
-                  getOptionValue={(option) => option.id}
-                  getOptionLabel={(option) => option.name}
-                />
-              </div>
-              <div className="border p-[0.35rem] w-fit cursor-not-allowed">
-                {detailWarehouse?.deliveryZones[0]?.provinceName}
-              </div>
-            </div>
-            {(errors.receiverAddress || errors?.deliveryZone) && (
-              <p className="text-red-500 text-base font-medium mt-2">
-                {errors.receiverAddress}
-              </p>
-            )}
-          </div>
 
           <div className="flex justify-between space-x-4 mt-6 items-center">
             <div className="flex justify-between w-full gap-8">
@@ -641,10 +765,10 @@ export default function CreateOrderPage() {
         </form>
         <div className="max-w-[50%] w-[50%]  z-10 max-h-[20%]">
           <Mapping
-            showLocation={detailWarehouse}
-            toLocation={deliveryZone?.name + " " + deliveryZone?.provinceName}
-            defaultLocation={defaultLocation}
-            setDistance={setDistance}
+            // toLocation={deliveryZone?.name + " " + deliveryZone?.provinceName}
+
+            // setLatLng={() => {}}
+            {...mappingProps}
           />
           {/* <Mapping
               showLocation="123 Main St, New York, NY"

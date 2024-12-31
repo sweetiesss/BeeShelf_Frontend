@@ -40,9 +40,18 @@ export default function AddStorePage() {
       const dataList = newStore?.location
         ?.split(",")
         .map((item) => item.trim());
-      const provniceFouned = provinces?.find(
-        (item) => item.subDivisionName === dataList?.[dataList?.length - 2]
-      );
+      const provniceFouned = provinces?.find((item) => {
+        const subDivision = item.subDivisionName?.toLowerCase();
+        const foundedName = dataList?.[dataList?.length - 2]?.toLowerCase();
+        console.log("cherasda1", subDivision);
+        console.log("cherasda2", foundedName);
+        console.log("chcekLogin", subDivision?.includes(foundedName));
+        console.log("chcekLogin2", foundedName?.includes(subDivision));
+
+        return foundedName?.includes(subDivision);
+      });
+      console.log("provniceFouned", provniceFouned);
+
       setNewStore((prev) => ({ ...prev, provinceId: provniceFouned }));
     }, 500); // Adjust the debounce delay (300ms in this example)
 
