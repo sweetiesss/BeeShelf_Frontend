@@ -32,7 +32,7 @@ const DeliveryZone = () => {
       }
   
       const response = await fetchDataBearer({
-        url: `/warehouse/get-warehouse/${warehouseId}`,
+        url: `/store/get-store/${warehouseId}`,
         method: "GET",
       });
   
@@ -62,10 +62,10 @@ const DeliveryZone = () => {
       }
   
       const response = await fetchDataBearer({
-        url: "/warehouse/get-warehouse-shippers",
+        url: "/store/get-store-shippers",
         method: "GET",
         params: {
-          filterBy: "WarehouseId",
+          filterBy: "StoreId",
           filterQuery: warehouseId,
           pageIndex: 0,
           pageSize: 10,
@@ -100,11 +100,11 @@ const DeliveryZone = () => {
       }
   
       const response = await fetchDataBearer({
-        url: "/warehouse/get-warehouse-shippers",
+        url: "/store/get-store-shippers",
         method: "GET",
         params: {
           hasDeliveryZone: false,
-          filterBy: "WarehouseId",
+          filterBy: "StoreId",
           filterQuery: warehouseId,
           pageIndex: 0,
           pageSize: 10,
@@ -140,11 +140,11 @@ const fetchShippersOption2 = async () => {
     }
 
     const response = await fetchDataBearer({
-      url: "/warehouse/get-warehouse-shippers",
+      url: "/store/get-store-shippers",
       method: "GET",
       params: {
         hasDeliveryZone: true,
-        filterBy: "WarehouseId",
+        filterBy: "StoreId",
         filterQuery: warehouseId,
         pageIndex: 0,
         pageSize: 10,
@@ -203,7 +203,7 @@ const handleAssign = async (values) => {
 
   try {
     const response = await fetchDataBearer({
-      url: `/warehouse/assign-shipper-to-delivery-zone/${shipperId}/${deliveryZoneId}`,
+      url: `/store/assign-shipper-to-delivery-zone/${shipperId}/${deliveryZoneId}`,
       method: "POST",
     });
 

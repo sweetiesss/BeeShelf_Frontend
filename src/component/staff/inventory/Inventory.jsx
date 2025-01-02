@@ -91,19 +91,19 @@ const Inventory = () => {
   const fetchInventories = async () => {
     setLoading(true);
     try {
-      const warehouseId = userInfor?.workAtWarehouseId;
+      const StoreId = userInfor?.workAtWarehouseId;
 
-      if (!warehouseId) {
+      if (!StoreId) {
         console.error(t("Warehouse_ID_is_not_available"));
         setLoading(false);
         return;
       }
 
       const response = await fetchDataBearer({
-        url: `/inventory/get-inventories`,
+        url: `/room/get-rooms`,
         method: "GET",
         params: {
-          filterBy: "WarehouseId",
+          filterBy: "StoreId",
           filterQuery: userInfor.workAtWarehouseId,
           descending: false,
           pageIndex: 0,
@@ -137,7 +137,7 @@ const Inventory = () => {
     setButtonLoading((prev) => ({ ...prev, [id]: true }));
     try {
       const response = await fetchDataBearer({
-        url: `/inventory/get-inventory/${id}`,
+        url: `/room/get-room/${id}`,
         method: "GET",
       });
       if (response && response.data) {
