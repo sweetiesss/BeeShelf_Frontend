@@ -137,7 +137,7 @@ const Inventory = () => {
     setButtonLoading((prev) => ({ ...prev, [id]: true }));
     try {
       const response = await fetchDataBearer({
-        url: `/room/get-room/${id}`,
+        url: `/room/get-inventory/${id}`,
         method: "GET",
       });
       if (response && response.data) {
