@@ -9,11 +9,13 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 // import fromIcon from "../../assets/img/fromIcon.png";
 import fromIcon from "../../assets/img/fromIcon.svg";
+import toLocation from "../../assets/img/toLocation.svg";
+import nearestStoreLocation from "../../assets/img/nearestStoreLocation.svg";
 import { toast } from "react-toastify";
 import { t } from "i18next";
 
 // Define the custom icon globally
-const customIcon = L.icon({
+const blueIcon = L.icon({
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
   iconSize: [25, 41], // Default size
@@ -21,8 +23,24 @@ const customIcon = L.icon({
   popupAnchor: [1, -34], // Anchor point for popups
   shadowSize: [41, 41], // Shadow size
 });
-const showFromIcon = L.icon({
+const greenIcon = L.icon({
+  iconUrl: nearestStoreLocation,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41], // Default size
+  iconAnchor: [12, 41], // Anchor point of the icon
+  popupAnchor: [1, -34], // Anchor point for popups
+  shadowSize: [41, 41], // Shadow size
+});
+const whiteIcon = L.icon({
   iconUrl: fromIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41], // Default size
+  iconAnchor: [12, 41], // Anchor point of the icon
+  popupAnchor: [1, -34], // Anchor point for popups
+  shadowSize: [41, 41], // Shadow size
+});
+const redIcon = L.icon({
+  iconUrl: toLocation,
   shadowUrl: markerShadow,
   iconSize: [25, 41], // Default size
   iconAnchor: [12, 41], // Anchor point of the icon
@@ -35,10 +53,15 @@ export default function Mapping({
   toLocation,
   defaultLocation,
   setDistance,
+  setLatLng,
+  data,
 }) {
+  console.log("defaultLocation", defaultLocation);
+
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null); // Ref for the map container div
   const routingControlRef = useRef(null);
+  const lastCoordinatesRef = useRef(null);
   const fetchCoordinates = async (address, defaultAddress) => {
     try {
       const response = await axios.get(
@@ -46,13 +69,16 @@ export default function Mapping({
           address
         )}`
       );
+      console.log("responsehreeee", response);
+
       if (response.data && response.data.length > 0) {
         const { lat, lon } = response.data[0];
+
         return { lat, lon };
       } else if (defaultAddress) {
         const response2 = await axios.get(
           `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            address
+            defaultAddress
           )}`
         );
         if (response2.data && response2.data.length > 0) {
@@ -88,8 +114,22 @@ export default function Mapping({
         ? await fetchCoordinates(showLocation?.location, defaultLocation)
         : null;
 
-      const toCoordinates = toLocation
-        ? await fetchCoordinates(toLocation, defaultLocation)
+      if (fromCoordinates) {
+        // Check if coordinates have changed
+        if (
+          !lastCoordinatesRef.current ||
+          lastCoordinatesRef.current.lat !== fromCoordinates.lat ||
+          lastCoordinatesRef.current.lon !== fromCoordinates.lon
+        ) {
+          lastCoordinatesRef.current = fromCoordinates; // Update last known coordinates
+          setLatLng(fromCoordinates); // Update parent state
+        }
+      }
+
+      console.log("hereeee", fromCoordinates);
+
+      const toCoordinates = toLocation?.location
+        ? await fetchCoordinates(toLocation?.location, "")
         : null;
       // Ensure the map container is available
       if (!mapContainerRef.current) {
@@ -122,9 +162,21 @@ export default function Mapping({
         routingControlRef.current = null;
       }
 
+      if (data) {
+        data.forEach((item) => {
+          if (item.latitude && item.longitude) {
+            L.marker([item.latitude, item.longitude], { icon: blueIcon })
+              .addTo(mapRef.current)
+              .bindPopup(
+                `<b>${item.name}</b><br>${item.location || "No address"}`
+              );
+          }
+        });
+      }
+
       if (fromCoordinates && !toCoordinates) {
         L.marker([fromCoordinates.lat, fromCoordinates.lon], {
-          icon: showFromIcon,
+          icon: whiteIcon,
         })
           .addTo(mapRef.current)
           .bindPopup(
@@ -136,7 +188,7 @@ export default function Mapping({
 
       // if (toCoordinates) {
       //   L.marker([toCoordinates.lat, toCoordinates.lon], {
-      //     icon: showFromIcon,
+      //     icon: whiteIcon,
       //   })
       //     .addTo(mapRef.current)
       //     .bindPopup(
@@ -154,10 +206,13 @@ export default function Mapping({
           routeWhileDragging: true,
           show: false, // Hide the direction table
           addWaypoints: false,
+          lineOptions: {
+            styles: [{ color: "blue", weight: 5 }], // Set the line color to blue and adjust thickness
+          },
           createMarker: (i, waypoint) => {
             if (i === 0) {
               return L.marker(waypoint.latLng, {
-                icon: showFromIcon,
+                icon: whiteIcon,
               }).bindPopup(
                 `
                 <b>From Location:</b><br>
@@ -168,15 +223,15 @@ export default function Mapping({
             }
             if (i === 1) {
               return L.marker(waypoint.latLng, {
-                icon: customIcon,
+                icon: greenIcon,
               }).bindPopup(
                 `
                  <b>To Location:</b><br>
-                ${toLocation}<br>
+                ${toLocation?.name}<br>
               `
               );
             }
-            return L.marker(waypoint.latLng, { icon: customIcon });
+            return L.marker(waypoint.latLng, { icon: blueIcon });
           },
         })
           .on("routesfound", function (e) {
@@ -191,7 +246,7 @@ export default function Mapping({
               .setContent(
                 `
                 <b>To Location:</b><br>
-                ${toLocation}<br>
+                ${toLocation?.name}<br>
                 <b>Route Information:</b><br>
                 Distance: ${distance.toFixed(2)} km<br>
                 Duration: ${duration.toFixed(0)} minutes
@@ -225,7 +280,7 @@ export default function Mapping({
         mapRef.current = null;
       }
     };
-  }, [showLocation, toLocation]);
+  }, [showLocation, toLocation, setLatLng]);
 
   return <div ref={mapContainerRef} id="map" className="h-full w-full"></div>;
 }

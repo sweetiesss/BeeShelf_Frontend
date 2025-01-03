@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   InventoryCard,
   WarehouseCard,
@@ -29,6 +29,7 @@ import { WarehouseListSkeleton } from "../shared/SkeletonLoader";
 import { addMonths, format } from "date-fns";
 import SpinnerLoading from "../../component/shared/Loading";
 import { useLocation } from "react-router-dom";
+import RoomMapping from "./RoomMapping";
 
 export default function InventoryPage() {
   const location = useLocation();
@@ -51,7 +52,6 @@ export default function InventoryPage() {
   const [refetchingInventory, setRefetchingInventory] = useState(false);
 
   const [sortCriteria, setSortCriteria] = useState(null);
-
 
   const { userInfor, setRefrestAuthWallet, authWallet } = useAuth();
   const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
@@ -423,6 +423,16 @@ export default function InventoryPage() {
     setWareHouseShowList(combinedList);
   };
 
+  const mappingProps = useMemo(() => {
+    return {
+      showLocation: {
+        name: "Your Location",
+        location: warehouse?.location + ", " + warehouse?.provinceName,
+      },
+      setLatLng: () => {},
+    };
+  }, [warehouse?.location + ", " + warehouse?.provinceName]);
+
   const fetchingDataInventories = async () => {
     try {
       setLoading(true);
@@ -546,6 +556,8 @@ export default function InventoryPage() {
     await fetchingDataWarehouses();
     await fetchingDataWarehousesByUserId();
   };
+
+  console.log("warehouse", warehouse);
 
   return (
     <div>
@@ -869,14 +881,14 @@ export default function InventoryPage() {
             </div>
           </div>
         ) : (
-          <div className="h-[65vh] grid grid-cols-4 grid-rows-12 mt-10 gap-y-4 gap-x-10">
-            <p className="text-2xl font-semibold row-span-1">
+          <div className=" grid grid-cols-5 grid-rows-12 mt-10 gap-y-4 gap-x-10 py-10">
+            <p className="text-2xl font-semibold col-span-2 row-span-1">
               {t("WarehouseInformation")}
             </p>
             <p className="text-2xl font-semibold col-span-3 row-span-1">
               {t("InventoriesInTheWarehouse")}
             </p>
-            <div className="flex flex-col row-span-11">
+            <div className="flex flex-col col-span-2 row-span-11">
               <div className="w-full h-fit max-h-1/3">
                 {[
                   { label: t("Name") + ":", value: warehouse?.name },
@@ -920,17 +932,25 @@ export default function InventoryPage() {
                 ))}
               </div>
               <div className=" w-full h-1/2 flex items-center justify-start z-[10] ">
-                <Mapping showLocation={warehouse} />
+                <Mapping {...mappingProps} />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 col-span-3 overflow-auto row-span-11  items-start ">
-              {inventoriesShowList?.map((inventenry) => (
+
+            
+            <div className=" col-span-3 row-span-11  ">
+              <RoomMapping
+                data={inventoriesShowList}
+                storeInfor={warehouse}
+                handleBuyClick={handleBuyClick}
+                handleShowInventoryDetail={handleShowInventoryDetail}
+              />
+              {/* {inventoriesShowList?.map((inventenry) => (
                 <InventoryCard
                   inventory={inventenry}
                   handleBuyClick={handleBuyClick}
                   handleShowInventoryDetail={handleShowInventoryDetail}
                 />
-              ))}
+              ))} */}
             </div>
           </div>
         )}
@@ -952,9 +972,13 @@ export default function InventoryPage() {
               >
                 <XCircle fill="#ef4444" weight="fill" />
               </div>
-              <p className="text-2xl">{`${t("BuyingInventory")}: ${
-                inventory.name
-              }?`}</p>
+              <p className="text-2xl">
+                {`${t("BuyingRoom")}: ${inventory.roomCode}?`}{" "}
+                <span className="text-gray-400 font-normal">
+                  {inventory.isCold === 0 ? "(Normal room)" : "(Frozen room)"}
+                </span>
+              </p>
+
               <div className="flex items-center justify-between my-7">
                 <div
                   className={`flex items-center overflow-auto py-2 px-4 w-fit border border-gray-300 rounded-2xl  mt-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${

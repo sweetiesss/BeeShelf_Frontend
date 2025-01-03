@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import AxiosUser from "../../services/User";
 import { jwtDecode } from "jwt-decode";
+import { useTranslation } from "react-i18next";
 
 export default function ForgotPassword({ setAction }) {
   const [form, setForm] = useState({});
@@ -24,7 +25,7 @@ export default function ForgotPassword({ setAction }) {
   // Reconstruct the encoded URL
   const encodedUrl = `${params.toString().replace(/\+/g, "%2B")}`;
   const sentToken = encodedUrl.slice(6);
-
+  const { t } = useTranslation();
   const handleInput = (e) => {
     const value = e.target;
     setForm(() => ({ ...form, [value.name]: value.value }));
@@ -85,9 +86,9 @@ export default function ForgotPassword({ setAction }) {
       {!token ? (
         <>
           <header className="mb-4">
-            <h1 className="text-4xl font-semibold">Forgot your Password?</h1>
+            <h1 className="text-4xl font-semibold">{t("ForgotyourPassword")}?</h1>
             <p className="text-[var(--en-vu-600)] text-lg">
-              Enter your email get a new password
+              {t("Enteryouremailgetanewpassword")}
             </p>
           </header>
           <div className="flex flex-col space-y-4">
@@ -127,7 +128,7 @@ export default function ForgotPassword({ setAction }) {
                       type="email"
                       onChange={handleInput}
                       name="email"
-                      placeholder="Email"
+                      placeholder={t("Email")}
                       value={form?.email || ""}
                     />
                   </div>
@@ -145,7 +146,7 @@ export default function ForgotPassword({ setAction }) {
                       <div className="dot" />
                     </div>
                   ) : (
-                    "Get A New Password"
+                    t("GetANewPassword")
                   )}
                 </button>
                 <div
@@ -154,7 +155,7 @@ export default function ForgotPassword({ setAction }) {
                 ></div>
                 <div className="flex justify-center">
                   <p className="text-[#848a9f] mr-2">
-                    Already remember your password?
+                    {t("Alreadyrememberyourpassword")}?
                   </p>
                   <button
                     onClick={() => {
@@ -163,7 +164,7 @@ export default function ForgotPassword({ setAction }) {
                     }}
                     className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
                   >
-                    Login
+                    {t("Login")}
                   </button>
                 </div>
               </>
@@ -179,19 +180,19 @@ export default function ForgotPassword({ setAction }) {
                       />
                     </div>
                     <p className="mt-2">
-                      Your account has been create successfully.
+                      {t("Yourrequesthasbeensentsuccessfully")}.
                     </p>
                   </p>
                 </div>
                 <div className="flex flex-col items-center mt-8">
                   <p className="font-medium text-lg text-[var(--en-vu-base)] text-center">
-                    We have already
+                    {t("Wehavealready")}
                     <span className="text-[var(--Xanh-Base)] font-semibold mx-2">
-                      sent an email
+                      {t("sentanemail")}
                     </span>
-                    for your password.
+                    {t("foryournewpassword")}.
                   </p>
-                  <p>Check your email and change password again</p>
+                  <p>{t("Checkyouremailandchangethepassword")}.</p>
                 </div>
                 <button
                   className={`mt-8 w-full bg-[var(--Xanh-Base)] hover:bg-[var(--Xanh-700)] text-white font-semibold text-xl rounded-2xl p-4 transition duration-200 relative `}
@@ -203,7 +204,7 @@ export default function ForgotPassword({ setAction }) {
                     setAction("Login");
                   }}
                 >
-                  To Login
+                  {t("ToLogin")}
                 </button>
               </div>
             )}
@@ -212,9 +213,9 @@ export default function ForgotPassword({ setAction }) {
       ) : (
         <>
           <header className="mb-4">
-            <h1 className="text-4xl font-semibold">Reset Your Password</h1>
+            <h1 className="text-4xl font-semibold">{t("ResetYourPassword")}</h1>
             <p className="text-[var(--en-vu-600)] text-lg">
-              Enter your new password
+              {t("Enteryournewpassword")}
             </p>
           </header>
           <div className="flex flex-col space-y-4">
@@ -242,7 +243,7 @@ export default function ForgotPassword({ setAction }) {
                   type="password"
                   onChange={handleInput}
                   name="newPassword"
-                  placeholder="Your New Password"
+                  placeholder={t("YourNewPassword")}
                   value={form?.newPassword || ""}
                 />
               </div>
@@ -260,7 +261,7 @@ export default function ForgotPassword({ setAction }) {
                   <div className="dot" />
                 </div>
               ) : (
-                "Get A New Password"
+                t("ChangePassword")
               )}
             </button>
             <div
@@ -269,7 +270,7 @@ export default function ForgotPassword({ setAction }) {
             ></div>
             <div className="flex justify-center">
               <p className="text-[#848a9f] mr-2">
-                Already remember your password?
+                {t("Alreadyrememberyourpassword")}?
               </p>
               <button
                 onClick={() => {
@@ -278,7 +279,7 @@ export default function ForgotPassword({ setAction }) {
                 }}
                 className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
               >
-                Login
+                {t("Login")}
               </button>
             </div>
           </div>

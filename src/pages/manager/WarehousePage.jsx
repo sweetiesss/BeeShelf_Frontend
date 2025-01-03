@@ -17,6 +17,8 @@ import AxiosEmployee from "../../services/Employee";
 import AxiosInventory from "../../services/Inventory";
 import AxiosOthers from "../../services/Others";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 export default function WarehousesPage() {
   const [form] = Form.useForm();
@@ -56,6 +58,7 @@ export default function WarehousesPage() {
   const [selectedShippers, setSelectedShippers] = useState();
   const [warehouseListSelection, setWarehouseListSelection] = useState();
 
+  const { t } = useTranslation();
   const [isCreateInventoryModalVisible, setIsCreateInventoryModalVisible] =
     useState(false);
   const [newInventory, setNewInventory] = useState({
@@ -81,6 +84,7 @@ export default function WarehousesPage() {
     totalItems: 0,
     totalPages: 0,
   });
+  const nav = useNavigate();
 
   useEffect(() => {
     if (warehouses && warehouses.length > 0) fetchEmployeeList();
@@ -92,6 +96,7 @@ export default function WarehousesPage() {
 
   useEffect(() => {
     fetchBeginData();
+    fetchWarehousesList();
   }, []);
 
   const fetchBeginData = async () => {
@@ -138,7 +143,7 @@ export default function WarehousesPage() {
         }));
       }
     } catch (e) {
-      console.error("Failed to fetch warehouses:", e);
+      console.error("Failed to fetch stores:", e);
     } finally {
       setLoading(false);
     }
@@ -199,7 +204,7 @@ export default function WarehousesPage() {
         setWarehouseList(warehouseListSelection);
       }
     } catch (e) {
-      console.error("Failed to fetch warehouses:", e);
+      console.error("Failed to fetch stores:", e);
     } finally {
       setLoading(false);
     }
@@ -223,6 +228,7 @@ export default function WarehousesPage() {
   const handleAssignStaff = async () => {
     try {
       console.log("selectedWarehouse", selectedWarehouse);
+      console.log("assignWarehouseId", assignWarehouseId);
       console.log("selectedStaff", selectedStaff);
       console.log("selectedShippers", selectedShippers);
 
@@ -238,14 +244,14 @@ export default function WarehousesPage() {
       }
       const submitShipper = selectedShippers?.map((ship) => ({
         employeeId: ship,
-        warehouseId: assignWarehouseId,
+        storeId: assignWarehouseId,
       }));
 
       console.log("submitShipper", submitShipper);
       console.log(selectedStaff);
       const submitSelectStaff = selectedStaff?.map((item) => ({
         employeeId: item,
-        warehouseId: assignWarehouseId,
+        storeId: assignWarehouseId,
       }));
 
       let checkrefresh = false;
@@ -292,7 +298,7 @@ export default function WarehousesPage() {
       handleModalClose();
       fetchWarehousesList(); // Refresh list after creation
     } catch (error) {
-      console.error("Failed to create warehouse:", error);
+      console.error("Failed to create store:", error);
     }
   };
 
@@ -364,7 +370,7 @@ export default function WarehousesPage() {
         fetchWarehousesList();
       }
     } catch (error) {
-      console.error("Failed to create warehouse:", error);
+      console.error("Failed to create store:", error);
     }
   };
 
@@ -378,12 +384,8 @@ export default function WarehousesPage() {
     const updatedLocation = parts.join(",").trim();
 
     setNewWarehouse({
-      id: record?.id,
-      name: record?.name,
-      capacity: record?.capacity,
+      ...record,
       location: updatedLocation,
-      isCold: record?.isCold,
-      provinceId: record?.provinceId,
     });
   };
 
@@ -395,7 +397,7 @@ export default function WarehousesPage() {
         fetchWarehousesList();
       }
     } catch (error) {
-      console.error("Failed to create warehouse:", error);
+      console.error("Failed to create store:", error);
     }
   };
 
@@ -409,22 +411,28 @@ export default function WarehousesPage() {
     {
       title: "Capacity (kg)",
       dataIndex: "capacity",
-      editable: true,
     },
-    {
-      title: "Frozen",
-      dataIndex: "isCold",
-      editable: true,
-      render: (_, record) => (record?.isCold === 1 ? "Cold" : "Normal"),
-    },
+
     {
       title: "Location",
       dataIndex: "location",
     },
     {
+      title: "Width (m)",
+      dataIndex: "width",
+
+      render: (_, record) => <span>{record?.width || 0}</span>,
+    },
+    {
+      title: "Length (m)",
+      dataIndex: "length",
+
+      render: (_, record) => <span>{record?.length || 0}</span>,
+    },
+    {
       title: "Create Date",
       dataIndex: "createDate",
-      editable: true,
+
       render: (_, record) => format(record?.createDate, "dd/MM/yyyy"),
     },
     {
@@ -433,25 +441,23 @@ export default function WarehousesPage() {
       render: (_, record) => {
         return (
           <Space>
-            <Button
-              disabled={editingKey !== ""}
-              onClick={() => edit(record)}
-              type="link"
-            >
+            <Button disabled={editingKey !== ""} onClick={() => edit(record)}>
               Edit
             </Button>
 
-            <Button onClick={() => openDetailsDrawer(record.key)} type="link">
+            <Button onClick={() => nav("create-room", { state: record })}>
+              Add Rooms
+            </Button>
+
+            <Button onClick={() => openDetailsDrawer(record.key)}>
               View Details
             </Button>
 
             <Popconfirm
-              title="Are you sure to delete this warehouse?"
+              title="Are you sure to delete this store?"
               onConfirm={() => handleDelete(record.id)}
             >
-              <Button type="link" danger>
-                Delete
-              </Button>
+              <Button danger>Delete</Button>
             </Popconfirm>
           </Space>
         );
@@ -487,7 +493,7 @@ export default function WarehousesPage() {
         setIsDrawerVisible(true);
       }
     } catch (e) {
-      console.error("Failed to fetch warehouse details:", e);
+      console.error("Failed to fetch store details:", e);
     }
   };
 
@@ -499,22 +505,20 @@ export default function WarehousesPage() {
 
   return (
     <>
+      <h1 className="text-3xl font-bold mb-6">{t("Store Management")}</h1>
       <Form form={form} component={false}>
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginBottom: "16px" }} className="flex gap-4">
           <Input.Search
-            placeholder="Search warehouses"
+            placeholder="Search stores"
             allowClear
             onSearch={(value) => setSearch(value)}
-            style={{ width: "300px", marginRight: "16px" }}
+            style={{ width: "300px" }}
           />
-          <Button type="primary" onClick={handleModalOpen}>
-            Add Warehouse
+          <Button type="primary" onClick={() => nav("create-store")}>
+            Add Store
           </Button>
           <Button type="primary" onClick={openAssignModal}>
             Assign Employee
-          </Button>
-          <Button type="primary" onClick={openInventoryModal}>
-            Create Inventory
           </Button>
         </div>
         <Table
@@ -537,8 +541,8 @@ export default function WarehousesPage() {
           loading={loading}
         />
       </Form>
-      <Modal
-        title="Add Warehouse"
+      {/* <Modal
+        title="Add Store"
         visible={isModalVisible}
         onCancel={handleModalClose}
         onOk={handleCreateWarehouse}
@@ -546,12 +550,12 @@ export default function WarehousesPage() {
         cancelText="Cancel"
       >
         <Form layout="vertical">
-          <Form.Item label="Warehouse Name" required>
+          <Form.Item label="Store Name" required>
             <Input
               name="name"
               value={newWarehouse.name}
               onChange={handleInputChange}
-              placeholder="Enter warehouse name"
+              placeholder="Enter store name"
             />
           </Form.Item>
           <Form.Item label="Capacity (kg)" required>
@@ -563,6 +567,7 @@ export default function WarehousesPage() {
               type="number"
             />
           </Form.Item>
+
           <Form.Item label="Address">
             <Space.Compact style={{ width: "100%" }}>
               <Form.Item style={{ width: "60%" }} required>
@@ -597,68 +602,99 @@ export default function WarehousesPage() {
             </Checkbox>
           </Form.Item>
         </Form>
-      </Modal>
+      </Modal> */}
       <Modal
-        title="Update Warehouse"
+        title="Update Store"
         visible={isUpdateModalVisible}
         onCancel={handleModalClose}
         onOk={handleUpdateWarehouse}
-        okText="Create"
+        okText="Update"
         cancelText="Cancel"
       >
         <Form layout="vertical">
-          <Form.Item label="Warehouse Name" required>
+          <Form.Item label="Store Name" required>
             <Input
               name="name"
               value={newWarehouse.name}
               onChange={handleInputChange}
-              placeholder="Enter warehouse name"
+              placeholder="Enter Store Name"
             />
           </Form.Item>
-          <Form.Item label="Capacity (kg)" required>
-            <Input
-              name="capacity"
-              value={newWarehouse.capacity}
-              onChange={handleInputChange}
-              placeholder="Enter capacity (kg)"
-              type="number"
-            />
+          <Form.Item label="Capacity (kg)">
+            <div
+              className="py-1 px-3 rounded-md bg-gray-100 cursor-not-allowed"
+              style={{
+                borderWidth: "1px",
+                borderStyle: "solid",
+                borderColor: "#d9d9d9",
+              }}
+            >
+              {newWarehouse.capacity}
+            </div>
           </Form.Item>
-          <Form.Item label="Address">
+          <Form.Item>
             <Space.Compact style={{ width: "100%" }}>
-              <Form.Item style={{ width: "60%" }} required>
-                <Input
-                  name="location"
-                  value={newWarehouse.location}
-                  onChange={handleInputChange}
-                  placeholder="Enter location"
-                />
-              </Form.Item>
-              <Form.Item style={{ width: "40%" }} required>
-                <Select
-                  name="provinceId"
-                  onChange={handleProvinceChange}
-                  value={newWarehouse?.provinceId}
-                  placeholder="Select Province"
+              <Form.Item style={{ width: "50%" }} label="Width (m)">
+                <div
+                  className="py-1 px-3 rounded-md bg-gray-100 cursor-not-allowed"
+                  style={{
+                    borderWidth: "1px",
+                    borderStyle: "solid",
+                    borderColor: "#d9d9d9",
+                  }}
                 >
-                  {provinces?.map((item) => (
-                    <Option value={item?.id}>{item?.subDivisionName}</Option>
-                  ))}
-                </Select>
+                  {newWarehouse.width || 0}
+                </div>
+              </Form.Item>
+              <Form.Item style={{ width: "50%" }} label="Length (m)">
+                <div
+                  className="py-1 px-3 rounded-md bg-gray-100 cursor-not-allowed"
+                  style={{
+                    borderWidth: "1px",
+                    borderStyle: "solid",
+                    borderColor: "#d9d9d9",
+                  }}
+                >
+                  {newWarehouse.length || 0}
+                </div>
               </Form.Item>
             </Space.Compact>
           </Form.Item>
-          <Form.Item>
-            <span> Is Cold Storage? </span>
-            <Checkbox
-              checked={newWarehouse.isCold == 1}
-              onChange={handleIsColdChange}
-            >
-              Yes
-            </Checkbox>
+          <Form.Item label="Address">
+            <Space.Compact style={{ width: "100%" }}>
+              <Form.Item style={{ width: "50%" }}>
+                <div
+                  className="py-1 px-3 rounded-md bg-gray-100 cursor-not-allowed"
+                  style={{
+                    borderWidth: "1px",
+                    borderStyle: "solid",
+                    borderColor: "#d9d9d9",
+                  }}
+                >
+                  {newWarehouse.location}
+                </div>
+              </Form.Item>
+              <Form.Item style={{ width: "50%" }}>
+                <div
+                  className="py-1 px-3 rounded-md bg-gray-100 cursor-not-allowed"
+                  style={{
+                    borderWidth: "1px",
+                    borderStyle: "solid",
+                    borderColor: "#d9d9d9",
+                  }}
+                >
+                  {
+                    provinces?.find(
+                      (item) => item.id === newWarehouse?.provinceId
+                    )?.subDivisionName
+                  }
+                </div>
+              </Form.Item>
+            </Space.Compact>
           </Form.Item>
         </Form>
       </Modal>
+
       <Modal
         title="Assign Staff"
         visible={isAssignModalVisible}
@@ -668,7 +704,7 @@ export default function WarehousesPage() {
         cancelText="Cancel"
       >
         <Select
-          placeholder="Select warehouse to assign"
+          placeholder="Select store to assign"
           options={warehouseList}
           onChange={(value) => setAssignWarehouseId(value)}
           value={assignWarehouseId}
@@ -691,55 +727,9 @@ export default function WarehousesPage() {
           style={{ width: "100%" }}
         />
       </Modal>
-      <Modal
-        title="Create Inventory"
-        visible={isCreateInventoryModalVisible}
-        onOk={handleCreateInventory}
-        onCancel={closeInventoryModal}
-        okText="Create"
-        cancelText="Cancel"
-      >
-        <Form layout="vertical">
-          <Form.Item label="Warehouse" required>
-            <Select
-              placeholder="Select warehouse"
-              options={warehouseListSelection}
-              onChange={(value) => handleWarehouseSelection(value)}
-              value={newInventory.warehouseId}
-            />
-          </Form.Item>
-          <Form.Item label="Inventory Amount" required>
-            <Input
-              name="inventoryAmount"
-              value={newInventory.inventoryAmount}
-              type="number"
-              onChange={handleInventoryInputChange}
-              placeholder="Enter amount of inventory"
-            />
-          </Form.Item>
-          <Form.Item label="Price (vnd)" required>
-            <Input
-              name="price"
-              value={newInventory.price}
-              onChange={handleInventoryInputChange}
-              placeholder="Enter price"
-              type="number"
-            />
-          </Form.Item>
-          <Form.Item label="Max weight (kg)" required>
-            <Input
-              name="maxWeight"
-              value={newInventory.maxWeight}
-              onChange={handleInventoryInputChange}
-              placeholder="Enter max weight"
-              type="number"
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
 
       <Drawer
-        title="Warehouse Details"
+        title="Store Details"
         visible={isDrawerVisible}
         onClose={closeDetailsDrawer}
         width={400}

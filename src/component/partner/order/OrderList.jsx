@@ -95,7 +95,6 @@ export default function OrderList({
                       add(new Date(order?.createDate), { hours: 7 }),
                       "HH:mm - dd/MM/yyyy"
                     )}
-           
                   </td>
                   <td className=" px-1 py-2 ">
                     {new Intl.NumberFormat().format(order?.totalPriceAfterFee)}

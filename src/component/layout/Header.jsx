@@ -54,7 +54,10 @@ export function HeaderUnauthenticated() {
           className="text-[#0db977] text-[25px] font-bold cursor-pointer  relative"
           onClick={() => handleScroll("home")}
         >
-          <img src="../../../beeShelf.png" className="h-[5rem] w-fit absolute top-[-25px] left-[-85px]"/>
+          <img
+            src="../../../beeShelf.png"
+            className="h-[5rem] w-fit absolute top-[-25px] left-[-85px]"
+          />
           <p>BeeShelf</p>
         </div>
       </div>

@@ -43,7 +43,7 @@ const RequestManagement = () => {
         url: `/request/get-requests`,
         method: "GET",
         params: {
-          warehouseId: userInfor?.workAtWarehouseId,
+          StoreId: userInfor?.workAtWarehouseId,
           pageIndex,
           pageSize: pagination.pageSize,
           import: true,
@@ -125,7 +125,7 @@ const RequestManagement = () => {
         url: `/request/get-requests`,
         method: "GET",
         params: {
-          warehouseId: userInfor?.workAtWarehouseId,
+          StoreId: userInfor?.workAtWarehouseId,
           pageIndex,
           pageSize: pagination.pageSize,
           import: false,

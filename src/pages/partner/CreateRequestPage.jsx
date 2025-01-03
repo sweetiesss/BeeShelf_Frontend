@@ -66,6 +66,7 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
   }, []);
 
   console.log("ImportedProduts", productsImported);
+  console.log("inventories", inventories);
 
   // Render the form
   return (

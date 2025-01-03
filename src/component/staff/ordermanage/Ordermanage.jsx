@@ -550,7 +550,10 @@ const Ordermanage = () => {
                   <p className="font-bold">{t("Create_Date")}:</p>
                   <p>{formatDateTime(selectedOrder.createDate)}</p>
                 </div>
-
+                <div>
+                  <p className="font-bold">{t("Approve_Date")}:</p>
+                  <p>{formatDateTime(selectedOrder.approveDate)}</p>
+                </div>
                 <div>
                   <p className="font-bold">{t("Delivery_Start_Date")}:</p>
                   <p>{formatDateTime(selectedOrder.deliverStartDate)}</p>

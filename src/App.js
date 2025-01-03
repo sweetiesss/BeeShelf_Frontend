@@ -19,6 +19,10 @@ import OrderDashboard from "./component/partner/dashboard/OrderDashboard";
 import { DetailProvider } from "./context/DetailContext";
 import StaffRoutes from "./routes/StaffRoutes";
 import ManagerRoutes from "./routes/ManagerRoutes";
+import RoomMapping from "./pages/partner/RoomMapping";
+import SquareWithBoxes from "./pages/partner/SquareDrawing";
+import SquareWithResizableBoxes from "./pages/partner/SquareDrawing";
+import RectangleWithResizableBoxes from "./pages/partner/SquareDrawing";
 function App() {
   const { settingInfor, setSettingInfor } = useContext(SettingContext);
   const [theme, setTheme] = useState(settingInfor.theme);
@@ -80,8 +84,70 @@ function App() {
               }
             />
             <Route path="/*" element={<LayoutLogined />}>
-              <Route path="working" element={<InventoryPage />} />
-              <Route path="working2" element={<OrderPage />} />
+              <Route
+                path="working"
+                element={
+                  <RoomMapping
+                    storeData={{
+                      name: "storeA",
+                      width: 500,
+                      length: 900,
+                      rooms: [
+                        {
+                          name: "room1",
+                          width: "11.00",
+                          length: "3.00",
+                          x: "0.00",
+                          y: "0.00",
+                        },
+                        {
+                          name: "room2",
+                          width: "2.00",
+                          length: "2.00",
+                          x: "0.00",
+                          y: "3.00",
+                        },
+                        {
+                          name: "room3",
+                          width: "2.00",
+                          length: "4.00",
+                          x: "5.00",
+                          y: "3.00",
+                        },
+                        {
+                          name: "room4",
+                          width: "3.00",
+                          length: "2.00",
+                          x: "2.00",
+                          y: "3.00",
+                        },
+                        {
+                          name: "room5",
+                          width: "2.00",
+                          length: "2.00",
+                          x: "0.00",
+                          y: "5.00",
+                        },
+                        {
+                          name: "room6",
+                          width: "3.00",
+                          length: "2.00",
+                          x: "7.00",
+                          y: "3.00",
+                        },
+                        {
+                          name: "room7",
+                          width: "2.00",
+                          length: "2.00",
+                          x: "10.00",
+                          y: "3.00",
+                        },
+                      ],
+                    }}
+                  />
+                }
+              />
+              <Route path="working2" element={<SquareWithResizableBoxes />} />
               <Route path="working3" element={<HomePage />} />
               <Route path="working4" element={<OrderDashboard />} />
               <Route path="working5" element={<Dashboard />} />

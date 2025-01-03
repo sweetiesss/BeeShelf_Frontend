@@ -23,7 +23,7 @@ export default function ImportRequestSideUpdate({
     products.find((item) => item?.id === updateDataBased?.lot?.productId)
   );
   const [inventory, setInventory] = useState({
-    id: updateDataBased?.sendToInventoryId,
+    id: updateDataBased?.sendToRoomId,
   });
   useEffect(() => {
     if (products && updateDataBased) {
@@ -38,7 +38,7 @@ export default function ImportRequestSideUpdate({
         name: updateDataBased?.name || "",
         description: updateDataBased?.description || "",
         exportFromLotId: 0,
-        sendToInventoryId: updateDataBased?.sendToInventoryId || 0,
+        sendToRoomId: updateDataBased?.sendToRoomId || 0,
         lot: {
           lotNumber: updateDataBased?.lot?.lotNumber || "",
           name: updateDataBased?.lot?.name || "",
@@ -55,7 +55,7 @@ export default function ImportRequestSideUpdate({
     name: updateDataBased?.name || "",
     description: updateDataBased?.description || "",
     exportFromLotId: 0,
-    sendToInventoryId: updateDataBased?.sendToInventoryId || 0,
+    sendToRoomId: updateDataBased?.sendToRoomId || 0,
     lot: {
       lotNumber: updateDataBased?.lot?.lotNumber || "",
       name: updateDataBased?.lot?.name || "",
@@ -121,7 +121,7 @@ export default function ImportRequestSideUpdate({
       setSelectedProduct(
         products.find((item) => item?.id === updateDataBased?.lot?.productId)
       );
-      setInventory({ id: updateDataBased?.sendToInventoryId });
+      setInventory({ id: updateDataBased?.sendToRoomId });
     } else {
       setSelectedProduct();
       setInventory();
@@ -169,7 +169,7 @@ export default function ImportRequestSideUpdate({
         </div>
         <div className="form-group gap-2">
           <label className="text-[var(--en-vu-600)] font-normal">
-            {t("Inventory")}
+            {t("Room")}
           </label>
           <Select
             styles={{

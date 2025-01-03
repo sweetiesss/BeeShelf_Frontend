@@ -8,6 +8,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import ggIcon from "../../assets/img/googleIcon.png";
 import axios from "axios";
 import SpinnerLoading from "../shared/Loading";
+import { useTranslation } from "react-i18next";
 export default function SignIn({ action, setAction }) {
   const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({});
@@ -22,6 +23,7 @@ export default function SignIn({ action, setAction }) {
     const value = e.target;
     setForm(() => ({ ...form, [value.name]: value.value }));
   };
+  const { t } = useTranslation();
 
   const checkLogin = async () => {
     try {
@@ -247,9 +249,9 @@ export default function SignIn({ action, setAction }) {
       ) : (
         <>
           <header className="mb-4">
-            <h1 className="text-4xl font-semibold">Welcome back</h1>
+            <h1 className="text-4xl font-semibold">{t("WelcomeBack")}</h1>
             <p className="text-[var(--en-vu-600)] text-lg">
-              Enter your email and password to login
+              {t("Enteryouremailandpasswordtologin")}
             </p>
           </header>
           <div className="flex flex-col space-y-5 mt-[4rem]">
@@ -274,7 +276,7 @@ export default function SignIn({ action, setAction }) {
                   type="email"
                   onChange={handleInput}
                   name="email"
-                  placeholder="Email"
+                  placeholder={t("Email")}
                   value={form?.email || ""}
                 />
               </div>
@@ -300,7 +302,7 @@ export default function SignIn({ action, setAction }) {
                   type="password"
                   onChange={handleInput}
                   name="password"
-                  placeholder="Password"
+                  placeholder={t("Password")}
                   value={form?.password || ""}
                 />
               </div>
@@ -318,7 +320,7 @@ export default function SignIn({ action, setAction }) {
                   readOnly
                 />
                 <label className=" cursor-pointer text-black">
-                  Remember me
+                  {t("RememberMe")}
                 </label>
               </div>
               <button
@@ -328,7 +330,7 @@ export default function SignIn({ action, setAction }) {
                 }}
                 className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
               >
-                Forgot password?
+                {t("ForgotPassword")}?
               </button>
             </div>
             <button
@@ -344,13 +346,13 @@ export default function SignIn({ action, setAction }) {
                   <div className="dot" />
                 </div>
               ) : (
-                "Login"
+                t("Login")
               )}
             </button>
             <div className="h-[23px] justify-start items-center gap-4 inline-flex">
               <div className="grow shrink basis-0 h-[0px] border border-[#c6c9d8]"></div>
               <div className="text-[#848a9f] text-lg font-normal font-['Lexend']">
-                or
+                {t("or")}
               </div>
               <div className="grow shrink basis-0 h-[0px] border border-[#c6c9d8]"></div>
             </div>
@@ -381,13 +383,13 @@ export default function SignIn({ action, setAction }) {
                   />
                 </div>
                 <div className="text-[#091540] text-lg font-normal font-['Lexend'] hover:text-blue-500 transition-colors duration-200">
-                  Continue with Google
+                  {t("ContinuewithGoogle")}
                 </div>
               </div>
             </div>
 
             <div className="flex justify-center">
-              <p className="text-[#848a9f] mr-2">Don’t have an account?</p>{" "}
+              <p className="text-[#848a9f] mr-2">{t("Donthaveanaccount")}?</p>{" "}
               <button
                 onClick={() => {
                   nav("/authorize/signup");
@@ -395,7 +397,7 @@ export default function SignIn({ action, setAction }) {
                 }}
                 className="text-[var(--Xanh-Base)] font-semibold hover:text-[var(--Xanh-700)]"
               >
-                Create account
+                {t("Createaccount")}
               </button>
             </div>
           </div>

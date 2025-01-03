@@ -16,47 +16,68 @@ import { useDetail } from "../context/DetailContext";
 import { PaymentPage } from "../pages/partner/PaymentPage";
 import PaymentResult from "../pages/partner/PaymentResult";
 import CreateOrderPage from "../pages/partner/CreateOrder";
+import VerifyPage from "../pages/partner/VerifyPage";
 import CreateRequestPage from "../pages/partner/CreateRequestPage";
 import LotsPage from "../pages/partner/LotsPage";
 import UpdateOrderPage from "../pages/partner/UpdateOrder";
 import UpdateRequestPage from "../pages/partner/UpdateRequestPage";
+import { useAuth } from "../context/AuthContext";
+import VerificationListPage from "../pages/partner/VerificationListPage";
 export default function PartnerRoutes() {
   const { dataDetail, typeDetail } = useDetail();
+  const { userInfor } = useAuth();
 
   return (
     <div className="relative">
       {typeDetail && <DetailSlide />}
       <Routes>
         <Route path="/*" element={<LayoutLogined />}>
-          <Route index element={<OrderDashboard />} />
-          <Route path={"dashboard"} element={<OrderDashboard />} />
-          <Route path={"inventory"} element={<InventoryPage />} />
-          <Route path={"lots"} element={<LotsPage />} />
-          <Route path={"inventory/lots"} element={<LotsPage />} />
-          <Route path={"product"} element={<ProductPage />} />
-          <Route path={"order"} element={<OrderPage />} />
-          <Route path={"order/create-order"} element={<CreateOrderPage />} />
-          <Route path={"order/update-order"} element={<UpdateOrderPage />} />
+          {userInfor?.isVerified == 1 ? (
+            <>
+              <Route index element={<OrderDashboard />} />
+              <Route path={"dashboard"} element={<OrderDashboard />} />
+              <Route path={"inventory"} element={<InventoryPage />} />
+              <Route path={"lots"} element={<LotsPage />} />
+              <Route path={"inventory/lots"} element={<LotsPage />} />
+              <Route path={"product"} element={<ProductPage />} />
+              <Route path={"order"} element={<OrderPage />} />
+              <Route
+                path={"order/create-order"}
+                element={<CreateOrderPage />}
+              />
+              <Route
+                path={"order/update-order"}
+                element={<UpdateOrderPage />}
+              />
 
-          <Route path={"request"} element={<RequestPage />} />
-          <Route
-            path={"request/create-request"}
-            element={<CreateRequestPage />}
-          />
-          <Route
-            path={"request/update-request"}
-            element={<UpdateRequestPage />}
-          />
+              <Route path={"request"} element={<RequestPage />} />
+              <Route
+                path={"request/create-request"}
+                element={<CreateRequestPage />}
+              />
+              <Route
+                path={"request/update-request"}
+                element={<UpdateRequestPage />}
+              />
 
-          <Route
-            path="product/import_product"
-            element={<ImportProductExcel />}
-          />
-          <Route path="product/add_product" element={<AddProductPage />} />
-          {/* <Route path="profile" element={<ProfilePage />} /> */}
+              <Route
+                path="product/import_product"
+                element={<ImportProductExcel />}
+              />
+              <Route path="product/add_product" element={<AddProductPage />} />
+              {/* <Route path="profile" element={<ProfilePage />} /> */}
+              <Route path="payment" element={<PaymentPage />} />
+              <Route path="payment/result" element={<PaymentResult />} />
+            </>
+          ) : (
+            <>
+              <Route index element={<VerifyPage />} />
+              <Route path="verify" element={<VerifyPage />} />
+              <Route path="verify-list" element={<VerificationListPage />} />
+            </>
+          )}
+
           <Route path="editProfile" element={<EditProfilePage />} />
-          <Route path="payment" element={<PaymentPage />} />
-          <Route path="payment/result" element={<PaymentResult />} />
         </Route>
       </Routes>
     </div>
