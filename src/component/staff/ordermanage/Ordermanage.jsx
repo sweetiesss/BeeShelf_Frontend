@@ -38,10 +38,10 @@ const Ordermanage = () => {
     setLoading(true);
     try {
       const response = await fetchDataBearer({
-        url: "/order/get-warehouse-orders",
+        url: "/order/get-store-orders",
         method: "GET",
         params: {
-          warehouseId: userInfor?.workAtWarehouseId, // Lấy warehouseId từ thông tin người dùng
+          storeId: userInfor?.workAtWarehouseId, // Lấy warehouseId từ thông tin người dùng
           pageIndex: pageIndex,
           pageSize: pageSize,
         },
@@ -263,6 +263,11 @@ const Ordermanage = () => {
       render: (status) => renderStatusTag(status),
     },
     {
+      title: t("Receiver_Name"),
+      dataIndex: "receiverName",
+      key: "receiverName",
+    },
+    {
       title: t("Receiver_Phone"),
       dataIndex: "receiverPhone",
       key: "receiverPhone",
@@ -462,7 +467,7 @@ const Ordermanage = () => {
                       </Paragraph>
                       <Paragraph>
                         <strong>{t("Inventory_Name")}:</strong>{" "}
-                        {item.inventoryName}
+                        {item.roomCode}
                       </Paragraph>
                       <Paragraph>
                         <strong>{t("Lot_ID")}:</strong> {item.lotId}
@@ -540,6 +545,10 @@ const Ordermanage = () => {
                 <div>
                   <p className="font-bold">{t("Receiver_Phone")}:</p>
                   <p>{selectedOrder.receiverPhone}</p>
+                </div>
+                <div>
+                  <p className="font-bold">{t("Receiver_Name")}:</p>
+                  <p>{selectedOrder.receiverName}</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Receiver_Address")}:</p>

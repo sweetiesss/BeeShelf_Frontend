@@ -101,7 +101,7 @@ const BatchManage = () => {
         url: `/batch/get-batches`,
         method: "GET",
         params: {
-          filterBy: "WarehouseId",
+          filterBy: "StoreId",
           filterQuery: userInfor.workAtWarehouseId,
           descending: false,
           pageIndex: 0,
@@ -144,7 +144,7 @@ const BatchManage = () => {
     const fetchDeliveryZones = async () => {
       try {
         const response = await fetchDataBearer({
-          url: `/warehouse/get-warehouse/${userInfor?.workAtWarehouseId}`,
+          url: `/store/get-store/${userInfor?.workAtWarehouseId}`,
           method: "GET",
         });
 
@@ -168,10 +168,10 @@ const BatchManage = () => {
     const fetchOrders = async () => {
       try {
         const response = await fetchDataBearer({
-          url: `/order/get-warehouse-orders`,
+          url: `/order/get-store-orders`,
           method: "GET",
           params: {
-            warehouseId: userInfor?.workAtWarehouseId,
+            storeId: userInfor?.workAtWarehouseId,
             hasBatch: false,
             pageIndex: 0,
             pageSize: 100,
@@ -214,7 +214,7 @@ const BatchManage = () => {
         }
 
         const response = await fetchDataBearer({
-          url: `/warehouse/get-warehouse-shippers/${warehouseId}`,
+          url: `/store/get-store-shippers/${warehouseId}`,
           method: "GET",
           params: {
             hasVehicle: true,
@@ -550,15 +550,14 @@ const BatchManage = () => {
             <Select placeholder={t("Select_a_shipper")}>
               {shippers.map(
                 (shipper) =>
-                  shipper.employeeId &&
-                  shipper.warehouseId && (
+                  
                     <Option key={shipper.employeeId} value={shipper.employeeId}>
                       {/* {t("EmployeeId")}: {shipper.employeeId} -{" "} */}
                       {t("ShipperName")}: {shipper.shipperName} -{" "}
                       {/* {t("WarehouseId")}: {shipper.warehouseId} */}
                       {t("WarehouseName")}: {shipper.warehouseName}
                     </Option>
-                  )
+                 
               )}
             </Select>
           </Form.Item>
