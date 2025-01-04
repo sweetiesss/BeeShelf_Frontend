@@ -285,6 +285,7 @@ i18n
           Old_Inventory_Name: "Old Inventory Name",
           Old_Lot_ID: "Old Lot ID",
           //Inventory:
+          "Code_Lot_Number":"Lot Code",
           Warehouse_ID_is_not_available: "Warehouse ID is not available",
           Data_loaded_successfully: "Data loaded successfully!",
           No_data_returned_from_the_server: "No data returned from the server.",
@@ -295,7 +296,7 @@ i18n
           Failed_to_fetch_inventory_details_Please_try_again:
             "Failed to fetch inventory details. Please try again.",
           Inventory_Management: "Room Management",
-          Search_by_Inventory_Name: "Search by Inventory Name",
+          Search_by_Inventory_Name: "Search by Room Name",
           Bought_Date: "Bought Date",
           Expiration_Date: "Expiration Date",
           Loading: "Loading...",
@@ -308,7 +309,7 @@ i18n
           Total_Product: "Total Product",
           Warehouse_Name: "Store Name",
           View_Details: "View Details",
-          Inventory_Details: "Inventory Details",
+          Inventory_Details: "Room Details",
           Close: "Close",
           Lot_ID: "Lot ID",
           Lot_Number: "Lot Number",
@@ -365,6 +366,7 @@ i18n
           "Error_changing_Shipper:": "Error changing Shipper:",
           "Error_assigning_Shipper:": "Error assigning Shipper:",
           "An_unexpected_error_occurred.": "An unexpected error occurred.",
+          "RoomCode":"Room Code:",
           Delivery_Zone_Management: "Delivery Zone Management",
           Shipper_List: "Shipper List",
           Assign_Shipper_To_Delivery_Zone: "Assign Shipper To Delivery Zone",
@@ -956,6 +958,7 @@ i18n
           ItemsPerPage: "Số mục mỗi trang",
           //Staff
           //Request:
+          "RoomCode":"Mã phòng:",
           Data_loaded_successfully: "Dữ liệu được tải thành công!",
           No_data_returned_from_the_server:
             "Không có dữ liệu trả về từ máy chủ.",
@@ -1037,7 +1040,7 @@ i18n
           Cancel_Reason: "Lý Do Hủy",
           Warehouse_Name: "Tên Kho",
           Inventory_Name: "Tên Mã Phòng",
-          Lot_ID: "Mã Lô",
+          Lot_ID: "ID Lô",
           Null: "Không Có",
           Export_Request_Details: "Chi Tiết Yêu Cầu Xuất Kho",
           Close: "Đóng",
@@ -1080,12 +1083,13 @@ i18n
           Error_fetching_inventory_details: "Lỗi khi lấy chi tiết kho:",
           Failed_to_fetch_inventory_details_Please_try_again:
             "Không thể lấy chi tiết kho. Vui lòng thử lại.",
+            "Code_Lot_Number":"Mã Lô",
           Inventory_Management: "Quản lý phòng",
-          Search_by_Inventory_Name: "Tìm kiếm theo tên hàng tồn kho",
+          Search_by_Inventory_Name: "Tìm kiếm theo tên phòng chứa",
           Bought_Date: "Ngày mua",
           Expiration_Date: "Ngày hết hạn",
           Loading: "Đang tải...",
-          Inventory_ID: "Mã phòng",
+          Inventory_ID: "ID phòng",
           Overview_Inventory: "Tổng quan về phòng",
           Name: "Tên",
           Max_Weight: "Trọng lượng tối đa",
@@ -1094,9 +1098,9 @@ i18n
           Total_Product: "Tổng số sản phẩm",
           Warehouse_Name: "Tên kho",
           View_Details: "Xem chi tiết",
-          Inventory_Details: "Chi tiết hàng tồn kho",
+          Inventory_Details: "Chi tiết phòng",
           Close: "Đóng",
-          Lot_ID: "Mã lô",
+          Lot_ID: "ID lô",
           Lot_Number: "Số lô",
           Lot_Name: "Tên lô",
           Lot_Amount: "Số lượng lô",
@@ -1254,7 +1258,7 @@ i18n
           Amount: "Số lượng",
           Weight: "Trọng lượng",
           Unit: "Đơn vị",
-          Inventory_ID: "Mã phòng",
+          Inventory_ID: "ID phòng",
           Inventory_Name: "Tên Mã Phòng",
           Lot_ID: "ID Lô",
           Fee: "Phí",
@@ -1464,8 +1468,8 @@ i18n
           Order_Details: "Chi Tiết Đơn",
           Order_ID: "Mã Đơn Hàng",
           Product_Name: "Tên Sản Phẩm",
-          Lot_ID: "Mã Lô",
-          Inventory_ID: "Mã phòng",
+          Lot_ID: "ID Lô",
+          Inventory_ID: "ID phòng",
           Inventory_Name: "Tên Mã Phòng",
           Price: "Giá",
           Unit: "Đơn Vị",
@@ -1642,7 +1646,7 @@ i18n
             "最適なパッケージを手に入れましょうあなたのビジネス",
           servicesDesciption:
             "私たちは、コアビジネスに企業責任を体系的に統合し、私たちが活動する地域社会の利益のために専門知識を提供するよう努めています",
-
+"RoomCode":"ルームコード:",
           servicesBenefit01:
             "使いやすく、ユーザーにとってわかりやすいウェブサイトとアプリケーション",
           servicesBenefit02:
@@ -1678,7 +1682,7 @@ i18n
           PersonalDetails: "個人情報",
           PhoneNumber: "電話番号:",
           Email: "メールアドレス:",
-
+          "Code_Lot_Number":"ロットコード",
           BusinessDetails: "事業の詳細",
           BusinessName: "事業名:",
           CategoryName: "カテゴリー名:",
