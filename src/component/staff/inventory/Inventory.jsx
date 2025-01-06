@@ -91,19 +91,19 @@ const Inventory = () => {
   const fetchInventories = async () => {
     setLoading(true);
     try {
-      const warehouseId = userInfor?.workAtWarehouseId;
+      const StoreId = userInfor?.workAtWarehouseId;
 
-      if (!warehouseId) {
+      if (!StoreId) {
         console.error(t("Warehouse_ID_is_not_available"));
         setLoading(false);
         return;
       }
 
       const response = await fetchDataBearer({
-        url: `/inventory/get-inventories`,
+        url: `/room/get-rooms`,
         method: "GET",
         params: {
-          filterBy: "WarehouseId",
+          filterBy: "StoreId",
           filterQuery: userInfor.workAtWarehouseId,
           descending: false,
           pageIndex: 0,
@@ -137,7 +137,7 @@ const Inventory = () => {
     setButtonLoading((prev) => ({ ...prev, [id]: true }));
     try {
       const response = await fetchDataBearer({
-        url: `/inventory/get-inventory/${id}`,
+        url: `/room/get-room/${id}`,
         method: "GET",
       });
       if (response && response.data) {
@@ -289,7 +289,7 @@ const Inventory = () => {
                       {t("Overview_Inventory")}
                     </Title>
                     <Paragraph>
-                      <strong>{t("Name")}:</strong> {item.name}
+                      <strong>{t("RoomCode")}</strong> {item.roomCode}
                     </Paragraph>
                     <Paragraph>
                       <strong>{t("Max_Weight")}:</strong> {item.maxWeight} kg
@@ -391,7 +391,7 @@ const Inventory = () => {
                   <p className="text-gray-800">{item.id}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="font-bold text-gray-600">{t("Lot_Number")}:</p>
+                  <p className="font-bold text-gray-600">{t("Code_Lot_Number")}:</p>
                   <p className="text-gray-800">{item.lotNumber}</p>
                 </div>
                 <div className="flex justify-between items-center">
