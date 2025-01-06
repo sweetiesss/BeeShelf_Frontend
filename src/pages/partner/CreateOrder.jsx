@@ -20,7 +20,7 @@ export default function CreateOrderPage() {
   const { getProductByUserId } = AxiosProduct();
   const { createOrder } = AxiosOrder();
   const { getWarehouseById, getWarehouses } = AxiosWarehouse();
-  const { getProvinces } = AxiosOthers();
+  const { getProvincesWithDeliveryZone } = AxiosOthers();
 
   const [inventories, setInventories] = useState();
   const [products, setProducts] = useState();
@@ -43,6 +43,7 @@ export default function CreateOrderPage() {
   const [errors, setErrors] = useState({});
   const [provinces, setProvinces] = useState();
   const [latLon, setLatLon] = useState();
+  const [supportedDeliveryZone, setSupportedDeliveryZone] = useState([]);
 
   const [defaultLocation, setDefaultLocation] = useState("");
 
@@ -139,7 +140,7 @@ export default function CreateOrderPage() {
   const getProductsInWareHouse = async () => {
     try {
       setLoading(true);
-      const result = await getAllProduct(userInfor?.id, warehouseFilter);
+      const result = await getAllProduct(userInfor?.id);
       console.log("All product", result);
 
       if (result?.status === 200) {
@@ -166,9 +167,9 @@ export default function CreateOrderPage() {
       if (result3?.status === 200) {
         setFullWarehouses(result3?.data?.items);
       }
-      const result4 = await getProvinces();
+      const result4 = await getProvincesWithDeliveryZone();
       if (result4?.status === 200) {
-        setProvinces(result4?.data);
+        setProvinces(result4?.data?.items);
       }
       if (result?.status === 200 && result3?.status === 200) {
         const warehouseMap = new Map();
@@ -330,24 +331,37 @@ export default function CreateOrderPage() {
         name: "Receiver Address",
         location: receiverLocation,
       },
-
       defaultLocation: form?.provinceId?.subDivisionName,
       data: fullWarehouses,
       setLatLng: setLatLon,
       toLocation: detailWarehouse,
-
       setDistance: setDistance,
     };
   }, [receiverLocation, fullWarehouses, detailWarehouse]);
+ 
   useEffect(() => {
     const handler = setTimeout(() => {
       setReceiverLoaction(form?.receiverAddress);
       const dataList = form?.receiverAddress
         ?.split(",")
         .map((item) => item.trim());
-      const provniceFouned = provinces?.find(
-        (item) => item.subDivisionName === dataList?.[dataList?.length - 2]
+      const provniceFouned = provinces?.find((item) =>
+        dataList?.some((dataList) => dataList?.includes(item?.subDivisionName))
       );
+      if (provniceFouned) {
+        const findDeliveryZone = provniceFouned?.deliveryZones?.find((item) =>
+          dataList?.some((dataList) => dataList?.includes(item?.name))
+        );
+        if (findDeliveryZone)
+          setForm((prev) => ({
+            ...prev,
+            deliveryZoneId: findDeliveryZone?.id,
+          }));
+        else setSupportedDeliveryZone(provniceFouned);
+        console.log("findDeliveryZone", findDeliveryZone);
+      }
+      console.log("provinceF", provniceFouned);
+
       setForm((prev) => ({ ...prev, provinceId: provniceFouned }));
     }, 500); // Adjust the debounce delay (300ms in this example)
 
@@ -413,8 +427,28 @@ export default function CreateOrderPage() {
         <form className="space-y-6 w-[40%]">
           <p className="text-2xl font-semibold mb-4">{t("Create Order")}</p>
           <div className="space-y-6 w-full">
-            <h2 className="text-lg font-semibold">{t("OrderInformation")}</h2>
             <div>
+              <p className="text-xl font-semibold mb-4">
+                {t("CustomerInformation")}
+              </p>
+              <div>
+                <label className="block  font-medium text-gray-700">
+                  {t("Receiver Phone")}
+                </label>
+                <input
+                  type="text"
+                  name="receiverPhone"
+                  value={form.receiverPhone}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border-gray-300 border-2  px-2 py-1"
+                  required
+                />
+                {errors.receiverPhone && (
+                  <p className="text-red-500 text-base font-medium mt-2">
+                    {errors.receiverPhone}
+                  </p>
+                )}
+              </div>
               <label className="block  font-medium text-gray-700">
                 {t("Receiver Address")}
               </label>
@@ -429,7 +463,7 @@ export default function CreateOrderPage() {
                   required
                 />
 
-                <div className="w-fit">
+                {/* <div className="w-fit">
                   <Select
                     styles={{
                       menu: (provided) => ({
@@ -482,9 +516,9 @@ export default function CreateOrderPage() {
                 </div>
                 <div className="border p-[0.35rem] w-fit cursor-not-allowed">
                   {detailWarehouse?.deliveryZones[0]?.provinceName}
-                </div>
+                </div> */}
               </div>
-              {(errors.receiverAddress || errors?.deliveryZone) && (
+              {errors.receiverAddress && (
                 <p className="text-red-500 text-base font-medium mt-2">
                   {errors.receiverAddress}
                 </p>
@@ -706,27 +740,6 @@ export default function CreateOrderPage() {
                   );
                 })}
             </ul>
-          </div>
-          <p className="text-xl font-semibold mb-4">
-            {t("CustomerInformation")}
-          </p>
-          <div>
-            <label className="block  font-medium text-gray-700">
-              {t("Receiver Phone")}
-            </label>
-            <input
-              type="text"
-              name="receiverPhone"
-              value={form.receiverPhone}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 border-b-2  px-2 py-1"
-              required
-            />
-            {errors.receiverPhone && (
-              <p className="text-red-500 text-base font-medium mt-2">
-                {errors.receiverPhone}
-              </p>
-            )}
           </div>
 
           <div className="flex justify-between space-x-4 mt-6 items-center">

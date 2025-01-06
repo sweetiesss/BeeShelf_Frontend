@@ -44,11 +44,6 @@ export default function AxiosUser() {
       });
       await toast.promise(fetching, {
         pending: "Request in progress...",
-        success: {
-          render() {
-            return "Correct email and password!";
-          },
-        },
         error: {
           render({ data }) {
             return `${

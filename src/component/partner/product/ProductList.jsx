@@ -285,7 +285,7 @@ export default function ProductList({
                     >
                       {editAble ? (
                         <input
-                          placeholder="Input barcode"
+                          placeholder={t("Inputbarcode")}
                           value={editForm?.barcode}
                           name="barcode"
                           className="w-[80%] px-2 py-1"
@@ -316,7 +316,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                        placeholder="Input name"
+                        placeholder={t("InputName")}
                         value={editForm?.name}
                         name="name"
                         className="w-[80%] px-2 py-1"
@@ -392,7 +392,7 @@ export default function ProductList({
                           value: category.id,
                           label: category.typeName,
                         }))}
-                        placeholder="Select category"
+                        placeholder={t("Selectcategory")}
                       />
                     ) : (
                       <div
@@ -450,7 +450,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                        placeholder="Input origin"
+                        placeholder={t("Inputorigin")}
                         value={editForm?.origin}
                         name="origin"
                         className="w-[80%] px-2 py-1"
@@ -476,7 +476,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                        placeholder="Price"
+                        placeholder={t("Price")}
                         type="number"
                         value={editForm?.price}
                         name="price"
@@ -518,6 +518,7 @@ export default function ProductList({
                             },
                           })
                         }
+                        placeholder={t("Unit")}
                         name="unit"
                         className="react-select-container"
                         classNamePrefix="react-select"

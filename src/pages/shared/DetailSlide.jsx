@@ -847,7 +847,7 @@ export default function DetailSlide() {
                     : "Not Yet",
                 },
 
-                { label: "To Warehouse:", value: dataDetail?.warehouseName },
+                { label: "To Store:", value: dataDetail?.storeName },
               ]?.map((item, index) => (
                 <div key={index} className="grid grid-cols-2 gap-4  text-lg">
                   <div className="text-gray-600">{item.label}</div>
@@ -1138,12 +1138,12 @@ export default function DetailSlide() {
                     dataDetail?.deliveryZoneName,
                 },
                 {
-                  label: t("FromWarehouse") + ":",
+                  label: t("FromWStore") + ":",
                   value: (
                     <div className="flex flex-col items-end">
-                      <p>{dataDetail?.warehouseName}</p>
+                      <p>{dataDetail?.storeName}</p>
                       <p className="text-gray-400">
-                        {"(" + dataDetail?.warehouseLocation + ")"}
+                        {"(" + dataDetail?.storeLocation + ")"}
                       </p>
                     </div>
                   ),
@@ -1651,8 +1651,8 @@ export default function DetailSlide() {
                 value: dataDetail?.name,
               },
               {
-                label: t("Warehouse") + ":",
-                value: dataDetail?.warehouseName,
+                label: t("Store") + ":",
+                value: dataDetail?.storeName,
               },
               {
                 label: t("Price") + ":",
@@ -2122,7 +2122,7 @@ export default function DetailSlide() {
               { label: "Import date:", value: dataDetail?.importDate },
               // { label: "Export date:", value: dataDetail },
               { label: "Expiration date:", value: dataDetail?.expirationDate },
-              { label: "Warehouse:", value: dataDetail?.warehouseName },
+              { label: "Store:", value: dataDetail?.storeName },
             ]?.map((item, index) => (
               <div key={index} className="flex justify-between text-lg">
                 <span className="text-gray-600">{item.label}</span>

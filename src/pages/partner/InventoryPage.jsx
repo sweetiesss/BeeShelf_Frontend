@@ -658,8 +658,8 @@ export default function InventoryPage() {
                     disabled={loading}
                   >
                     <option value={-1}>{t("All")}</option>
-                    <option value={0}>{t("NormalWarehouse")}</option>
-                    <option value={1}>{t("ColdWarehouse")}</option>
+                    <option value={0}>{t("NormalStore")}</option>
+                    <option value={1}>{t("ColdStore")}</option>
                   </select>
                 </div>
               </div>
@@ -728,7 +728,7 @@ export default function InventoryPage() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-10 mt-6">
+            <div className="flex items-center gap-6 mt-6">
               <div className="flex items-center">
                 <p className="text-lg font-medium mr-4">{t("Status")}</p>
                 <div
@@ -742,7 +742,7 @@ export default function InventoryPage() {
                     <LockKeyOpen weight="fill" />
                   </label>
                   <select
-                    className="w-[7rem] outline-none"
+                    className="w-[5rem] outline-none"
                     name="status"
                     value={inventoryFilters.status}
                     onChange={handleInventoryFilterChange}
@@ -765,7 +765,7 @@ export default function InventoryPage() {
                   }`}
                 >
                   <input
-                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    className=" w-[5rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     name="weightFrom"
                     min={1}
@@ -775,7 +775,7 @@ export default function InventoryPage() {
                   ></input>
                   <label className="mx-2">-</label>
                   <input
-                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    className=" w-[5rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     min={10000}
                     name="weightTo"
@@ -797,7 +797,7 @@ export default function InventoryPage() {
                   }`}
                 >
                   <input
-                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    className=" w-[5rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     name="maxWeightFrom"
                     min={0}
@@ -807,7 +807,7 @@ export default function InventoryPage() {
                   ></input>
                   <label className="mx-2">-</label>
                   <input
-                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    className=" w-[5rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     min={10000}
                     name="maxWeightTo"
@@ -829,7 +829,7 @@ export default function InventoryPage() {
                   }`}
                 >
                   <input
-                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    className=" w-[5rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     name="priceFrom"
                     min={1}
@@ -839,7 +839,7 @@ export default function InventoryPage() {
                   ></input>
                   <label className="mx-2">-</label>
                   <input
-                    className=" w-[7rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
+                    className=" w-[5rem] outline-none focus-within:rounded-lg focus-within:outline-none  focus-within:text-black "
                     type="number"
                     min={10000}
                     name="priceTo"
@@ -896,13 +896,6 @@ export default function InventoryPage() {
                     label: t("Location") + ":",
                     value: warehouse?.location,
                     onClick: () => handleOpenGoogleMaps(warehouse?.location),
-                  },
-                  {
-                    label: t("Inventories") + ":",
-                    value:
-                      warehouse?.isCold === 0
-                        ? t("OnlyNormalInventories")
-                        : t("OnlyFrozenInventories"),
                   },
                   {
                     label: t("Capacity") + ":",

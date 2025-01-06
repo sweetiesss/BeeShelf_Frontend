@@ -167,7 +167,7 @@ export default function ProductHeader({
                 <X weight="bold" className="mr-4" />{" "}
               </button>
               {selectedProducts?.length}/{products?.totalItemsCount}{" "}
-              {t("Totalproducts")}
+              {t("Totalselectedproducts")}
             </div>
             {inInventory ? (
               <>

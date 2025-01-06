@@ -51,10 +51,16 @@ const OrderDashboard = () => {
   const [thisYear, setThisYear] = useState(new Date().getFullYear());
   const { t } = useTranslation();
   const salesOverviewData = {
-    labels: ["Canceled", "Completed", "Failed", "Pending", "Shipping"],
+    labels: [
+      t("Canceled"),
+      t("Completed"),
+      t("Failed"),
+      t("Pending"),
+      t("Shipping"),
+    ],
     datasets: [
       {
-        label: "Sales Overview",
+        label: t("SalesOverview"),
         data: [
           totalStatusCount?.orderStatus?.Canceled,
           totalStatusCount?.orderStatus?.Completed,
@@ -123,7 +129,7 @@ const OrderDashboard = () => {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (tooltipItem) => `${tooltipItem.raw.toLocaleString()} orders`,
+          label: (tooltipItem) => `${tooltipItem.raw.toLocaleString()} ${t("orders")}`,
         },
       },
     },
@@ -265,7 +271,7 @@ const OrderDashboard = () => {
       {!loading ? (
         <div>
           <div className="flex gap-4 mb-8 items-center">
-            <p className="font-medium text-xl">{t("Select Year")}</p>
+            <p className="font-medium text-xl">{t("SelectYear")}</p>
             <DatePicker
               size="large"
               onChange={onChange}
@@ -303,7 +309,7 @@ const OrderDashboard = () => {
                             {" (" + percentage + ")%"}
                           </span>
                         </p>
-                        <p className="text-gray-500">{t("Total Sales")}</p>
+                        <p className="text-gray-500">{t("TotalSales")}</p>
                       </div>
                     </div>
                   );
@@ -334,7 +340,7 @@ const OrderDashboard = () => {
                             {" (-" + percentage + ")%"}
                           </span>
                         </p>
-                        <p className="text-gray-500">{t("Total Sales")}</p>
+                        <p className="text-gray-500">{t("TotalSales")}</p>
                       </div>
                     </div>
                   );
@@ -362,7 +368,7 @@ const OrderDashboard = () => {
                           {" (0%)"}
                         </span>
                       </p>
-                      <p className="text-gray-500">{t("Total Sales")}</p>
+                      <p className="text-gray-500">{t("TotalSales")}</p>
                     </div>
                   </div>
                 );
@@ -375,9 +381,7 @@ const OrderDashboard = () => {
                   <p className="text-xl font-bold">
                     {allProducts?.totalProductAmount}
                   </p>
-                  <p className="text-gray-500">
-                    {t("Total Imported Products")}
-                  </p>
+                  <p className="text-gray-500">{t("TotalImportedProducts")}</p>
                 </div>
               </div>
               <div className="p-5 items-center h-[7rem] border-[1px] bg-white rounded-lg shadow-lg flex gap-4">
@@ -388,16 +392,14 @@ const OrderDashboard = () => {
                   <p className="text-xl font-bold">
                     {allIventories?.totalItemsCount}
                   </p>
-                  <p className="text-gray-500">
-                    {t("Total Bought Inventories")}
-                  </p>
+                  <p className="text-gray-500">{t("TotalBoughtInventories")}</p>
                 </div>
               </div>
             </div>
 
             <div className="p-4 bg-white rounded-lg shadow-lg col-span-2 border-[1px]">
               <h2 className="text-lg font-bold mb-4">
-                {t("Revenue Sales")}
+                {t("RevenueSales")}
                 {" (vnd)"}
               </h2>
               <Bar data={revenueUpdateData} options={revenueUpdateOptions} />
@@ -405,7 +407,7 @@ const OrderDashboard = () => {
             <div className="grid col-span-2 row-span-2 ">
               <div className="p-4 bg-white rounded-lg shadow-xl border-[1px]  overflow-auto max-h-[74.7vh] h-fit">
                 <h2 className="text-lg font-bold mb-4">
-                  {t("Imported Product Overview")}
+                  {t("ImportedProductOverview")}
                 </h2>
                 <div className="flex flex-col gap-4  ">
                   {allProducts?.products?.map((item) => (
@@ -417,7 +419,7 @@ const OrderDashboard = () => {
                           <p>{item?.stock}</p>
                         </div>
                         <div className="flex gap-4">
-                          <p>{t("Stored At")}:</p>
+                          <p>{t("StoredAt")}:</p>
                           <p>{item?.warehouseName}</p>
                         </div>
                       </div>
@@ -428,7 +430,7 @@ const OrderDashboard = () => {
             </div>
 
             <div className="p-4 bg-white rounded-lg shadow-lg border-[1px]">
-              <h2 className="text-lg font-bold mb-4">Orders Overview</h2>
+              <h2 className="text-lg font-bold mb-4">{t("OrdersOverview")}</h2>
               <Doughnut
                 data={salesOverviewData}
                 options={salesOverviewOptions}
@@ -437,7 +439,7 @@ const OrderDashboard = () => {
 
             <div className="p-4 bg-white rounded-lg shadow-lg col-span-2 border-[1px]">
               <h2 className="text-lg font-bold mb-4">
-                {t("Yearly Sales")}
+                {t("YearlySales")}
                 {" (vnd)"}
               </h2>
               <Line data={yearlySalesData} options={yearlySalesOptions} />

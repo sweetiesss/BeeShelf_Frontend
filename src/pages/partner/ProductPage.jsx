@@ -331,6 +331,8 @@ export default function ProductPage() {
       setSortBy(value);
     }
   };
+  console.log("productsItem",products);
+  
 
   return (
     <div className="w-full h-full gap-10 pb-10">

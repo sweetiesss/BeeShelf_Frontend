@@ -69,7 +69,7 @@ const RoomMapping = ({
             }}
           >
             <div className="absolute w-[30%]  max-w-[82px]  overflow-hidden border-2 border-black bg-white flex items-center justify-center bottom-0 left-[50%] text-center -translate-x-[50%] translate-y-[60%]">
-              <p>Exist</p>
+              <p>{t("Entrance")}</p>
             </div>
             <GridLayout
               className="layout"

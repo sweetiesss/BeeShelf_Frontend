@@ -246,7 +246,7 @@ export default function ImportRequestSide({ inventories, products }) {
                 textAlign: "left", // Center-align text
               }),
             }}
-            getOptionLabel={(option) => option.name}
+            getOptionLabel={(option) => option.roomCode}
             getOptionValue={(option) => option.id}
             value={
               inventories.find((item) => item.id === inventory?.id) || null
@@ -258,8 +258,8 @@ export default function ImportRequestSide({ inventories, products }) {
             formatOptionLabel={(selectedOption) => (
               <div className="">
                 <div className="flex gap-4 ">
-                  <p>{selectedOption?.name}</p>
-                  <p className="text-sm text-gray-500">{"(" + selectedOption?.warehouseName + ")"}</p>
+                  <p>{selectedOption?.roomCode}</p>
+                  <p className="text-sm text-gray-500">{"(" + selectedOption?.storeName + ")"}</p>
                 </div>
                 <div
                   className={`flex items-center justify-between text-sm text-gray-500`}

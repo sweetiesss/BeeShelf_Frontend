@@ -180,11 +180,11 @@ export default function CreateRequestImport({
               options={inventories?.data?.items.filter(
                 (item) => item.isCold === product.isCold
               )}
-              getOptionLabel={(option) => option.name}
+              getOptionLabel={(option) => option.storeName}
               getOptionValue={(option) => option.id}
               formatOptionLabel={(selectedOption) => (
                 <div className="">
-                  <p>{selectedOption?.name}</p>
+                  <p>{selectedOption?.storeName}</p>
                   <div
                     className={`flex items-center justify-between text-sm text-gray-500`}
                   >

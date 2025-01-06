@@ -211,7 +211,7 @@ export default function AddProductPage() {
                     value={product.name}
                     onChange={handleChange}
                     className="input-field"
-                    placeholder="Enter product name"
+                    placeholder={t("Enterproductname")}
                   />
                   {errors.name && (
                     <p className="text-red-500 text-sm absolute -bottom-[22px]">
@@ -234,7 +234,7 @@ export default function AddProductPage() {
                       value={product.price}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="Enter product price"
+                      placeholder={t("Enterproductprice")}
                     />
                     <label className="absolute bottom-[0.625rem] right-10">
                       vnd
@@ -317,7 +317,7 @@ export default function AddProductPage() {
                     value={product.origin}
                     onChange={handleChange}
                     className="input-field"
-                    placeholder="Enter product origin"
+                    placeholder={t("Enterproductorigin")}
                   />
                   {errors.origin && (
                     <p className="text-red-500 text-sm absolute -bottom-[22px]">
@@ -339,7 +339,7 @@ export default function AddProductPage() {
                       value={product.weight}
                       onChange={handleChange}
                       className="input-field relative"
-                      placeholder="Enter weight"
+                      placeholder={t("Enterweight")}
                       max={999999}
                     />
                     <label className="absolute bottom-[0.625rem] right-10">
@@ -353,7 +353,7 @@ export default function AddProductPage() {
                   </div>
                   <div className="form-group mt-4 w-full">
                     <label className="font-medium text-lg" htmlFor="isCold">
-                      {t("Cold Storage")}
+                      {t("Frozen")}
                     </label>
                     <Select
                       value={
@@ -362,8 +362,8 @@ export default function AddProductPage() {
                               value: product.isCold,
                               label:
                                 product.isCold === 1
-                                  ? "Frozen Product"
-                                  : "Normal Product",
+                                  ? t("FrozenProduct")
+                                  : t("NormalProduct"),
                             }
                           : null
                       }
@@ -509,7 +509,7 @@ export default function AddProductPage() {
                     value={product.barcode}
                     onChange={handleChange}
                     className="input-field"
-                    placeholder="Enter barcode"
+                    placeholder={t("EnterBarcode")}
                   />
                   {errors.barcode && (
                     <p className="text-red-500 text-sm absolute -bottom-[22px]">
@@ -580,7 +580,7 @@ export default function AddProductPage() {
                   disabled={loading}
                   className="w-full bg-[var(--Xanh-Base)] text-white py-4 rounded-lg hover:bg-[var(--Xanh-700)] font-semibold text-lg transition"
                 >
-                  {t("Add Product")}
+                  {t("AddProduct")}
                 </button>
               </div>
             </form>

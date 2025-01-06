@@ -722,7 +722,7 @@ export default function ImportProductExcel({ result, setResult }) {
                 onClick={() => confirmDelete(showDeleteConfirmation)}
                 className="bg-red-500 text-white px-4 py-2 rounded-md"
               >
-                {t("Confirm ")}
+                {t("Confirm")}
               </button>
             </div>
           </div>

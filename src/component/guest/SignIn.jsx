@@ -9,6 +9,7 @@ import ggIcon from "../../assets/img/googleIcon.png";
 import axios from "axios";
 import SpinnerLoading from "../shared/Loading";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 export default function SignIn({ action, setAction }) {
   const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({});
@@ -35,6 +36,7 @@ export default function SignIn({ action, setAction }) {
         if (findData) {
           if (findData?.status === 200) {
             console.log("userInfor", findData?.data);
+            toast.success("Welcome:" + findData?.data?.firstName);
             handleLogin(findData?.data, rememberMe);
             nav("/" + findData?.data?.roleName);
             // } else {
@@ -133,15 +135,21 @@ export default function SignIn({ action, setAction }) {
                       headers: { Authorization: `Bearer ${successDataToken}` },
                     }
                   );
-                  console.log(getAccount);
+                  console.log("hereeeeeeeee", getAccount);
                   if (
                     getAccount &&
                     getAccount?.status === 200 &&
                     getAccount?.data
                   ) {
-                    handleLogin(getAccount?.data);
+                    console.log("here");
+                    toast.success("Welcome:" + getAccount?.data?.firstName);
+                    handleLogin(getAccount?.data, false);
                     nav("/" + getAccount?.data?.roleName);
                   }
+                } else {
+                  toast.warning(
+                    "You don't have perrmission to access this google Login"
+                  );
                 }
               }
             }
