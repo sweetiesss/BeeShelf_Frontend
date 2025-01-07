@@ -54,13 +54,11 @@ export default function ProductHeader({
                   menu: (provided) => ({
                     ...provided,
                     borderRadius: "0.75rem",
-                    // Restrict the dropdown height
-                    overflowY: "hidden", // Enable scrolling for content
+                    overflowY: "hidden", 
                   }),
                   menuList: (provided) => ({
                     ...provided,
                     padding: 0,
-                    // Ensure no extra padding
                     borderRadius: "0.75rem",
                     maxHeight: "7.5rem",
                     overflowY: "auto",
@@ -82,8 +80,8 @@ export default function ProductHeader({
                       : "white",
                     color: isSelected ? "white" : "black",
                     cursor: "pointer",
-                    padding: "0.5rem 1rem", // Option padding
-                    textAlign: "left", // Center-align text
+                    padding: "0.5rem 1rem", 
+                    textAlign: "left", 
                   }),
                 }}
                 onChange={(selectedOption) =>
@@ -156,10 +154,6 @@ export default function ProductHeader({
           selectedProducts?.length > 0 && "bg-[var(--en-vu-200)] rounded-lg"
         }  px-4 py-2 min-h-[1rem]`}
       >
-        {/* <select className="pr-1 bg-inherit text-[var(--text-main-color)] font-bold text-xl rounded-xl outline-none">
-          <option> {t("INSTOCK")}</option>
-          <option>{t("OUTSTOCK")}</option>
-        </select> */}
         {selectedProducts?.length > 0 && (
           <>
             <div className="font-semibold flex items-center">
@@ -186,12 +180,7 @@ export default function ProductHeader({
               </>
             ) : (
               <>
-                {/* <button
-                  className={`text-2xl`}
-                  disabled={selectedProducts?.length === 0}
-                >
-                  <Trash weight="bold" />
-                </button> */}
+               
                 <button
                   className={`text-2xl`}
                   disabled={selectedProducts?.length === 0}

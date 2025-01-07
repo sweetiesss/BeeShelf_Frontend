@@ -1,4 +1,3 @@
-// components/partner/product/DetailProduct.js
 
 import { ArrowLeft, ArrowRight, Plus } from "@phosphor-icons/react";
 import defaultImg from "../../../assets/img/defaultImg.jpg";

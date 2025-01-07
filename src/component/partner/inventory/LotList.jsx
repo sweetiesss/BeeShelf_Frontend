@@ -15,8 +15,8 @@ export default function LotList({
   handleShowDetailOrder,
 }) {
   const { t } = useTranslation();
-  const [openAction, setOpenAction] = useState();
   const actionComponent = useRef();
+  const [openAction, setOpenAction] = useState();
 
   useEffect(() => {
     const handleClickOutSide = (event) => {
@@ -45,7 +45,7 @@ export default function LotList({
     setOpenAction();
   };
   const handleDeleteClick = (e, order) => {
-    // setOpenAction();
+
   };
 
   return (
@@ -70,8 +70,6 @@ export default function LotList({
           {lots &&
             lots?.items?.map((order, index) => {
               let check = selectedOrder === order;
-              // console.log(selectedOrder);
-
               return (
                 <tr
                   key={order?.id}

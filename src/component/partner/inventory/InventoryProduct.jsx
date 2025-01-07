@@ -37,6 +37,8 @@ export default function InventoryProduct({
   errorList,
 }) {
   const { t } = useTranslation();
+  const actionComponent = useRef();
+
   const [openAction, setOpenAction] = useState();
   const [thisIsTheLastItem, IsThisIsTheLastItem] = useState(false);
   const handleOpenActionTab = async (e, product) => {
@@ -52,7 +54,6 @@ export default function InventoryProduct({
       IsThisIsTheLastItem(true);
     }
   };
-  const actionComponent = useRef();
   const handleCloseAction = () => {
     setOpenAction();
   };
@@ -214,7 +215,6 @@ export default function InventoryProduct({
             products?.map((product) => {
               let chooice = selectedProducts?.some((p) => p.id === product.id);
               let checkError = errorList?.find((p) => p.item.id === product.id);
-              console.log(checkError);
               let editAble = editProduct === product;
               return (
                 <tr
@@ -235,7 +235,6 @@ export default function InventoryProduct({
                           ? "bg-[var(--Xanh-Base)]"
                           : "bg-[var(--en-vu-300)]"
                       }`}
-                      // checked={isProductSelected(product)}
                       onChange={() => toggleProductSelection(product)}
                       onClick={(e) => e.stopPropagation()}
                     />

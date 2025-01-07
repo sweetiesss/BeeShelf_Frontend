@@ -19,28 +19,20 @@ export function WarehouseHeader({
   filtersVisible,
 }) {
   const { t } = useTranslation();
-
-  // Filter state
   const [filters, setFilters] = useState({
     location: "",
     sizeRange: [0, 5000],
     status: "INSTOCK",
   });
-
-  // Update filters
   const updateFilter = (field, value) => {
     setFilters({
       ...filters,
       [field]: value,
     });
   };
-
-  // Handle filter submission
   const handleFilterSubmit = () => {
-    applyFilters(filters); // This function should filter the warehouses based on the filters
+    applyFilters(filters);
   };
-
-  // Toggle filter visibility
   const toggleFilters = () => {
     setFiltersVisible(!filtersVisible);
   };
@@ -49,7 +41,7 @@ export function WarehouseHeader({
     <div className="relative space-y-10">
       <div className="flex items-center justify-between">
         <p className="text-3xl font-bold">{t("Warehouses")}</p>
-        {/* Toggle button, positioned fixed and above the slider */}
+      
         <button
           className="bg-[var(--main-project-color)] px-4 py-2 rounded-full text-white shadow-lg focus:outline-none fixed right-4 top-[5.5rem] z-50"
           onClick={toggleFilters}
@@ -57,8 +49,6 @@ export function WarehouseHeader({
           {filtersVisible ? <CaretRight size={24} /> : <CaretLeft size={24} />}
         </button>
       </div>
-
-      {/* Filter section with sliding effect */}
       <div
         className={`fixed top-16 right-0 h-full w-80 bg-white shadow-2xl border-l-2 border-gray-300 z-40 p-6 transition-all duration-500 ease-in-out transform ${
           filtersVisible
@@ -68,7 +58,6 @@ export function WarehouseHeader({
       >
         <h2 className="text-2xl font-semibold mb-4">{t("Filters")}</h2>
         <div className="space-y-6">
-          {/* Quick Search */}
           <div className="flex items-center border border-gray-300 rounded-lg p-2">
             <MagnifyingGlass size={20} weight="bold" />
             <input
@@ -76,8 +65,6 @@ export function WarehouseHeader({
               placeholder={t("QuickSearch")}
             />
           </div>
-
-          {/* Filter by Location */}
           <div className="border border-gray-300 rounded-lg p-4">
             <label className="text-gray-600 font-medium">
               {t("Location")}:
@@ -94,8 +81,6 @@ export function WarehouseHeader({
               <option value="Da Nang">Da Nang</option>
             </select>
           </div>
-
-          {/* Filter by Warehouse Size */}
           <div className="border border-gray-300 rounded-lg p-4">
             <label className="text-gray-600 font-medium">
               {t("WarehouseSize")}:
@@ -115,8 +100,6 @@ export function WarehouseHeader({
               {filters.sizeRange[1]} sqm
             </span>
           </div>
-
-          {/* Filter by Inventory Status */}
           <div className="border border-gray-300 rounded-lg p-4">
             <label className="text-gray-600 font-medium">{t("Status")}:</label>
             <select
@@ -129,8 +112,6 @@ export function WarehouseHeader({
               <option value="OUTSTOCK">{t("OUTSTOCK")}</option>
             </select>
           </div>
-
-          {/* Apply and Reset Buttons */}
           <div className="flex space-x-4 mt-6">
             <button
               className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md w-full"
@@ -158,31 +139,23 @@ export function InventoryHeader({
 }) {
   const { t } = useTranslation();
   const [filtersVisible, setFiltersVisible] = useState(false);
-
-  // Filter state
   const [filters, setFilters] = useState({
     location: "",
-    maxWeight: [0, 5000], // Example: max weight range (0 to 5000)
-    weight: [0, 5000], // Example: max weight range (0 to 5000)
+    maxWeight: [0, 5000], 
+    weight: [0, 5000], 
     status: "INSTOCK",
-    startDate: "", // Start date for the range
-    endDate: "", // End date for the range
+    startDate: "", 
+    endDate: "", 
   });
-
-  // Update filter values
   const updateFilter = (field, value) => {
     setFilters({
       ...filters,
       [field]: value,
     });
   };
-
-  // Handle filter submission
   const handleFilterSubmit = () => {
-    applyInventoryFilters(filters); // Pass the filters back to the parent component
+    applyInventoryFilters(filters);
   };
-
-  // Toggle filter visibility
   const toggleFilters = () => {
     setFiltersVisible(!filtersVisible);
   };
@@ -191,7 +164,6 @@ export function InventoryHeader({
     <div className="relative space-y-10">
       <div className="flex items-center justify-between">
         <p className="text-3xl font-bold">{t("Inventories")}</p>
-        {/* Toggle button, positioned fixed and above the slider */}
         <button
           className="bg-[var(--main-project-color)] px-4 py-2 rounded-full text-white shadow-lg focus:outline-none fixed right-4 top-[5.5rem] z-50"
           onClick={toggleFilters}
@@ -199,8 +171,6 @@ export function InventoryHeader({
           {filtersVisible ? <CaretRight size={24} /> : <CaretLeft size={24} />}
         </button>
       </div>
-
-      {/* Filter section with sliding effect */}
       <div
         className={`fixed text-left top-10 right-0 h-full w-80 bg-white shadow-2xl border-l-2 border-gray-300 z-40 p-6 transition-all duration-500 ease-in-out transform ${
           filtersVisible
@@ -210,7 +180,6 @@ export function InventoryHeader({
       >
         <h2 className="text-xl font-semibold mb-4 ">{t("Filters")}</h2>
         <div className="space-y-6">
-          {/* Quick Search */}
           <div className="flex items-center border border-gray-300 rounded-lg p-2">
             <MagnifyingGlass size={20} weight="bold" />
             <input
@@ -218,8 +187,6 @@ export function InventoryHeader({
               placeholder={t("QuickSearch")}
             />
           </div>
-
-          {/* Filter by Location */}
           <div className="border border-gray-300 rounded-lg p-4">
             <label className="text-gray-600 font-medium">
               {t("Location")}:
@@ -236,8 +203,6 @@ export function InventoryHeader({
               <option value="Da Nang">Da Nang</option>
             </select>
           </div>
-
-          {/* Filter by Inventory Weight */}
           <div className="border border-gray-300 rounded-lg p-4">
             <label className="text-gray-600 font-medium">{t("Weight")}:</label>
             <input
@@ -255,8 +220,6 @@ export function InventoryHeader({
               {filters.weight[1]} kg
             </span>
           </div>
-
-          {/* Filter by Max Weight */}
           <div className="border border-gray-300 rounded-lg p-4">
             <label className="text-gray-600 font-medium">
               {t("MaxWeight")}:
@@ -276,8 +239,6 @@ export function InventoryHeader({
               {filters.maxWeight[1]} kg
             </span>
           </div>
-
-          {/* Date Range Filter */}
           <div className="border border-gray-300 rounded-lg p-4">
             <div>
               <label className="text-gray-600 font-medium">{t("Date")}:</label>
@@ -300,8 +261,6 @@ export function InventoryHeader({
               />
             </div>
           </div>
-
-          {/* Filter by Inventory Stock Status */}
           <div className="border border-gray-300 rounded-lg p-4">
             <label className="text-gray-600 font-medium">{t("Status")}:</label>
             <select
@@ -314,8 +273,6 @@ export function InventoryHeader({
               <option value="OUTSTOCK">{t("OUTSTOCK")}</option>
             </select>
           </div>
-
-          {/* Apply and Reset Buttons */}
           <div className="flex space-x-4 mt-6">
             <button
               className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md w-full"

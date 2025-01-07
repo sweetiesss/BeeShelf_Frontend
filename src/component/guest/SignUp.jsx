@@ -25,7 +25,6 @@ export default function SignUp({ setAction, baseForm }) {
   const nav = useNavigate();
   const { requestSignUp } = AxiosUser();
   const { t } = useTranslation();
-  const [form, setForm] = useState(defaulform);
   const [agree, setAgree] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -55,6 +54,8 @@ export default function SignUp({ setAction, baseForm }) {
       baseForm?.pictureLink ||
       "https://th.bing.com/th/id/R.8e2c571ff125b3531705198a15d3103c?rik=muXZvm3dsoQqwg&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fpng-user-icon-person-icon-png-people-person-user-icon-2240.png&ehk=MfHYkGonqy7I%2fGTKUAzUFpbYm9DhfXA9Q70oeFxWmH8%3d&risl=&pid=ImgRaw&r=0",
   };
+  const [form, setForm] = useState(defaulform);
+
   const contentStyle = {
     padding: 10,
     color: "var(--Xanh-Base)",

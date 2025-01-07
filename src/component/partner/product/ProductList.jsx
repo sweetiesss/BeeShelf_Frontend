@@ -40,9 +40,9 @@ export default function ProductList({
   productCategories,
 }) {
   const { t } = useTranslation();
+  const { setCreateRequest, updateDataDetail } = useDetail();
   const [openAction, setOpenAction] = useState();
   const [thisIsTheLastItem, IsThisIsTheLastItem] = useState(false);
-  const { setCreateRequest, updateDataDetail } = useDetail();
   const unitOptions = [
     { value: "", label: "ChooseUnit" },
     { value: "Liter", label: "Liter" },
@@ -244,7 +244,6 @@ export default function ProductList({
               let chooice = selectedProducts?.some((p) => p.id === product.id);
               let checkError = errorList?.find((p) => p.item.id === product.id);
               let editAble = editProduct === product;
-              // let category=cate
               return (
                 <tr
                   key={product.id}
@@ -264,7 +263,6 @@ export default function ProductList({
                           ? "bg-[var(--Xanh-Base)]"
                           : "bg-[var(--en-vu-300)]"
                       }`}
-                      // checked={isProductSelected(product)}
                       onChange={() => toggleProductSelection(product)}
                       onClick={(e) => e.stopPropagation()}
                     />
@@ -347,13 +345,11 @@ export default function ProductList({
                         styles={{
                           menu: (provided) => ({
                             ...provided,
-
-                            // Restrict the dropdown height
-                            overflowY: "hidden", // Enable scrolling for content
+                            overflowY: "hidden", 
                           }),
                           menuList: (provided) => ({
                             ...provided,
-                            padding: 0, // Ensure no extra padding
+                            padding: 0, 
                             maxHeight: "7.5rem",
                             overflow: "auto",
                           }),
@@ -376,8 +372,8 @@ export default function ProductList({
                               : "white",
                             color: isSelected ? "white" : "black",
                             cursor: "pointer",
-                            padding: "0.5rem 1rem", // Option padding
-                            textAlign: "left", // Center-align text
+                            padding: "0.5rem 1rem", 
+                            textAlign: "left",
                           }),
                         }}
                         onChange={(selectedOption) =>
@@ -538,10 +534,10 @@ export default function ProductList({
                             ...provided,
                             paddingTop: "4px",
                             paddingBottom: "4px",
-                            // width:"100%",
-                            borderColor: "#ccc", // Custom border color
-                            boxShadow: "none", // Remove default focus outline
-                            "&:hover": { borderColor: "#aaa" }, // Border on hover
+                          
+                            borderColor: "#ccc", 
+                            boxShadow: "none", 
+                            "&:hover": { borderColor: "#aaa" },
                           }),
                           option: (provided, state) => ({
                             ...provided,
@@ -612,15 +608,6 @@ export default function ProductList({
                   </td>
                   {!notInDataBase ? (
                     <td className="text-center">
-                      {/* <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          updateDataDetail(product);
-                          setCreateRequest(true);
-                        }}
-                      >
-                        Send request
-                      </button> */}
                       {product?.isInInv ? (
                         <span className="bg-green-200 px-2 py-1 rounded-lg text-sm ">
                           {t("Yes")}

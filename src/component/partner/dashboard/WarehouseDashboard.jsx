@@ -76,9 +76,9 @@ const WarehouseDashboard = () => {
   };
   const generateColorsForChart = (length, offset = 0) => {
     const colors = [];
-    const step = 360 / length; 
+    const step = 360 / length;
     for (let i = 0; i < length; i++) {
-      const hue = (i * step + offset) % 360; 
+      const hue = (i * step + offset) % 360;
       const color = `hsl(${hue}, 70%, 70%)`;
       colors.push(color);
     }
@@ -202,7 +202,7 @@ const WarehouseDashboard = () => {
   const calculateOrderStatuses = (data) => {
     let totalBoughtInventory = 0;
     let totalUnboughtInventory = 0;
-  
+
     data?.data?.forEach((warehouse) => {
       totalBoughtInventory += warehouse.totalBoughtInventory || 0;
       totalUnboughtInventory += warehouse.totalUnboughtInventory || 0;
@@ -284,7 +284,6 @@ const WarehouseDashboard = () => {
     },
   };
   const onChange = (date, dateString) => {
-   
     if (dateString) {
       setThisYear(dateString);
       return;
@@ -456,7 +455,6 @@ const WarehouseDashboard = () => {
                         <p>{t("OrdersRevenue")}:</p>
                         <p>
                           {(() => {
-                          
                             const totalSales = item?.totalRevenue || 0;
                             const formattedSales =
                               totalSales > 1000000
@@ -472,7 +470,6 @@ const WarehouseDashboard = () => {
                         <p>{t("InventoriesRevenue")}:</p>
                         <p>
                           {(() => {
-                 
                             const totalSales = item?.totalInventoryRevenue || 0;
                             const formattedSales =
                               totalSales > 1000000

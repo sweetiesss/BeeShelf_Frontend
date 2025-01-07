@@ -9,7 +9,6 @@ export default function ProductCreation() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add product creation logic
   };
 
   return (
@@ -34,7 +33,6 @@ export default function ProductCreation() {
             className="w-full px-4 py-2 border rounded-lg"
           >
             <option value="">Select Inventory</option>
-            {/* Map over inventory options here */}
           </select>
         </div>
         <div className="mb-4">
