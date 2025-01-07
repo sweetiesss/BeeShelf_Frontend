@@ -483,6 +483,7 @@ const BatchManage = () => {
         open={createBatchModalVisible}
         onCancel={() => setCreateBatchModalVisible(false)}
         onOk={() => form.submit()}
+        confirmLoading={loading}
       >
         <Form
           form={form}
