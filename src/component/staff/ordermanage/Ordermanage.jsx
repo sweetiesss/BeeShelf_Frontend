@@ -549,7 +549,7 @@ const Ordermanage = () => {
                 </div>
                 <div>
                   <p className="font-bold">{t("ReceiverName")}:</p>
-                  <p>{selectedOrder.receiverName}</p>
+                 
                   <p>{selectedOrder.receiverName || "Null"}</p>
                 </div>
                 <div>
