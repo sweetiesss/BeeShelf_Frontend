@@ -9,8 +9,6 @@ export const LanguageSelector = ({ className }) => {
   const onChangeLang = (e) => {
     const selectedLanguage = e.target.value;
     i18n.changeLanguage(selectedLanguage);
-
-    console.log(selectedLanguage);
   };
 
   return (

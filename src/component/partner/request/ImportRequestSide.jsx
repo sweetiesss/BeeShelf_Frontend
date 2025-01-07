@@ -13,6 +13,8 @@ import { differenceInDays, format } from "date-fns";
 
 export default function ImportRequestSide({ inventories, products }) {
   const { userInfor } = useContext(AuthContext);
+  const { createRequest } = AxiosRequest();
+  const { t } = useTranslation();
   const [product, setProduct] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -46,10 +48,6 @@ export default function ImportRequestSide({ inventories, products }) {
 
   const [form, setForm] = useState(baseForm);
   const [loading, setLoading] = useState(false);
-  const { createRequest } = AxiosRequest();
-  const { t } = useTranslation();
-
-  // Handle input changes
   const handleInput = (e) => {
     const { name, value } = e.target;
     setForm((prev) => {
@@ -66,18 +64,16 @@ export default function ImportRequestSide({ inventories, products }) {
       return { ...prev, [name]: value };
     });
   };
-
-  // Handle confirm
   const handleConfirm = async (send) => {
-    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Generate unique timestamp
+    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, "");
     const updatedForm = {
       ...form,
       sendToRoomId: parseInt(inventory?.id),
       lot: {
         ...form.lot,
         productId: parseInt(selectedProduct?.id),
-        lotNumber: `${form.lot.productId}-${currentDateTime}`, // Lot number format
-        name: `${product?.name || "Unnamed"}-${userInfor?.name || "User"}`, // Lot name format
+        lotNumber: `${form.lot.productId}-${currentDateTime}`,
+        name: `${product?.name || "Unnamed"}-${userInfor?.name || "User"}`,
       },
     };
     try {
@@ -113,8 +109,6 @@ export default function ImportRequestSide({ inventories, products }) {
     setInventory();
     setSelectedProductImported();
   };
-
-  console.log("products", selectedProductImported);
   return (
     <div className="flex gap-10 justify-start items-start">
       <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[48rem]">
@@ -213,13 +207,11 @@ export default function ImportRequestSide({ inventories, products }) {
             styles={{
               menu: (provided) => ({
                 ...provided,
-
-                // Restrict the dropdown height
-                overflowY: "hidden", // Enable scrolling for content
+                overflowY: "hidden",
               }),
               menuList: (provided) => ({
                 ...provided,
-                padding: 0, // Ensure no extra padding
+                padding: 0,
                 maxHeight: "11.5rem",
                 overflow: "auto",
               }),
@@ -242,8 +234,8 @@ export default function ImportRequestSide({ inventories, products }) {
                   : "white",
                 color: isSelected ? "white !important" : "black",
                 cursor: "pointer",
-                padding: "0.5rem 1rem", // Option padding
-                textAlign: "left", // Center-align text
+                padding: "0.5rem 1rem",
+                textAlign: "left",
               }),
             }}
             getOptionLabel={(option) => option.roomCode}

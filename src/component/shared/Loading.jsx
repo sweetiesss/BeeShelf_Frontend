@@ -13,7 +13,7 @@ export default function SpinnerLoading() {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: "green", // Set the primary color to green
+          colorPrimary: "green",
         },
       }}
     >

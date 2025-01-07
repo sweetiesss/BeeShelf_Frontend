@@ -17,6 +17,8 @@ export default function ExportRequestSide({
   products,
 }) {
   const { userInfor } = useContext(AuthContext);
+  const { createRequest } = AxiosRequest();
+  const { t } = useTranslation();
   const [typeRequest, setTypeRequest] = useState("Import");
   const [product, setProduct] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -39,10 +41,6 @@ export default function ExportRequestSide({
   };
   const [form, setForm] = useState(baseForm);
   const [loading, setLoading] = useState(false);
-  const { createRequest } = AxiosRequest();
-  const { t } = useTranslation();
-
-  // Handle input changes
   const handleInput = (e) => {
     const { name, value } = e.target;
     setForm((prev) => {
@@ -59,8 +57,6 @@ export default function ExportRequestSide({
       return { ...prev, [name]: value };
     });
   };
-
-  // Handle confirm
   const handleConfirm = async (send) => {
     const updatedForm = {
       ...form,
@@ -70,8 +66,6 @@ export default function ExportRequestSide({
         ...form.lot,
       },
     };
-    console.log(updatedForm);
-
     try {
       const result = await createRequest(updatedForm, "Export", send);
     } catch (error) {
@@ -101,11 +95,6 @@ export default function ExportRequestSide({
     setInventory();
     setSelectedProductImported();
   };
-
-  console.log("products", productsImported);
-  console.log("invents", inventories);
-
-  // Render the form
   return (
     <div className="flex gap-10 justify-start items-start">
       <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[48rem]">
@@ -204,13 +193,11 @@ export default function ExportRequestSide({
               styles={{
                 menu: (provided) => ({
                   ...provided,
-
-                  // Restrict the dropdown height
-                  overflowY: "hidden", // Enable scrolling for content
+                  overflowY: "hidden",
                 }),
                 menuList: (provided) => ({
                   ...provided,
-                  padding: 0, // Ensure no extra padding
+                  padding: 0,
                   maxHeight: "11.5rem",
                   overflow: "auto",
                 }),
@@ -233,8 +220,8 @@ export default function ExportRequestSide({
                     : "white",
                   color: isSelected ? "white !important" : "black",
                   cursor: "pointer",
-                  padding: "0.5rem 1rem", // Option padding
-                  textAlign: "left", // Center-align text
+                  padding: "0.5rem 1rem",
+                  textAlign: "left",
                 }),
               }}
               getOptionLabel={(option) => option.storeName}
@@ -500,50 +487,7 @@ export default function ExportRequestSide({
               </div>
             );
           })}
-          {/* <>
-            {" "}
-            {productsImported?.items?.map((pro) => {
-              return (
-                <div
-                  className={`  relative text-base h-fit gap-4 flex flex-col border-2 rounded-3xl my-4 p-4 px-6 shadow-lg cursor-pointer 
-                      ${
-                        selectedProduct === pro
-                          ? "bg-[var(--Xanh-100)] hover:bg-[var(--Xanh-200)]"
-                          : "hover:bg-gray-100 "
-                      }
-                      `}
-                  onClick={() => handleSlectImportedProduct(pro)}
-                >
-                  <div className="flex gap-10">
-                    <p>
-                      <span className="font-medium">{t("Lot")}: </span>
-                      {pro?.name}
-                    </p>
-                  </div>
-                  <div className="flex justify-between text-gray-400">
-                    
-                    <p>
-                      <span className="font-medium">
-                        {t("WarehouseName") + ": "}
-                      </span>
-                      {pro?.warehouseName}
-                    </p>
-                    <p>
-                      {pro?.expirationDate
-                        ? `${differenceInDays(
-                            new Date(pro.expirationDate),
-                            new Date()
-                          )} ${t("days")} ( ${format(
-                            pro?.expirationDate,
-                            "dd/MM/yyyy"
-                          )} )`
-                        : "N/A"}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </> */}
+         
         </div>
       </div>
     </div>

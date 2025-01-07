@@ -4,48 +4,46 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine";
 
-// Fix default marker icon issue
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-// import fromIcon from "../../assets/img/fromIcon.png";
+
 import fromIcon from "../../assets/img/fromIcon.svg";
 import toLocation from "../../assets/img/toLocation.svg";
 import nearestStoreLocation from "../../assets/img/nearestStoreLocation.svg";
 import { toast } from "react-toastify";
 import { t } from "i18next";
 
-// Define the custom icon globally
 const blueIcon = L.icon({
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
-  iconSize: [25, 41], // Default size
-  iconAnchor: [12, 41], // Anchor point of the icon
-  popupAnchor: [1, -34], // Anchor point for popups
-  shadowSize: [41, 41], // Shadow size
+  iconSize: [25, 41], 
+  iconAnchor: [12, 41], 
+  popupAnchor: [1, -34], 
+  shadowSize: [41, 41], 
 });
 const greenIcon = L.icon({
   iconUrl: nearestStoreLocation,
   shadowUrl: markerShadow,
-  iconSize: [25, 41], // Default size
-  iconAnchor: [12, 41], // Anchor point of the icon
-  popupAnchor: [1, -34], // Anchor point for popups
-  shadowSize: [41, 41], // Shadow size
+  iconSize: [25, 41],
+  iconAnchor: [12, 41], 
+  popupAnchor: [1, -34], 
+  shadowSize: [41, 41], 
 });
 const whiteIcon = L.icon({
   iconUrl: fromIcon,
   shadowUrl: markerShadow,
-  iconSize: [25, 41], // Default size
-  iconAnchor: [12, 41], // Anchor point of the icon
-  popupAnchor: [1, -34], // Anchor point for popups
-  shadowSize: [41, 41], // Shadow size
+  iconSize: [25, 41], 
+  iconAnchor: [12, 41], 
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41], 
 });
 const redIcon = L.icon({
   iconUrl: toLocation,
   shadowUrl: markerShadow,
-  iconSize: [25, 41], // Default size
-  iconAnchor: [12, 41], // Anchor point of the icon
-  popupAnchor: [1, -34], // Anchor point for popups
-  shadowSize: [41, 41], // Shadow size
+  iconSize: [25, 41],
+  iconAnchor: [12, 41], 
+  popupAnchor: [1, -34], 
+  shadowSize: [41, 41],
 });
 
 export default function Mapping({
@@ -56,10 +54,8 @@ export default function Mapping({
   setLatLng,
   data,
 }) {
-  console.log("defaultLocation", defaultLocation);
-
   const mapRef = useRef(null);
-  const mapContainerRef = useRef(null); // Ref for the map container div
+  const mapContainerRef = useRef(null);
   const routingControlRef = useRef(null);
   const lastCoordinatesRef = useRef(null);
   const fetchCoordinates = async (address, defaultAddress) => {
@@ -69,8 +65,6 @@ export default function Mapping({
           address
         )}`
       );
-      console.log("responsehreeee", response);
-
       if (response.data && response.data.length > 0) {
         const { lat, lon } = response.data[0];
 
@@ -86,11 +80,8 @@ export default function Mapping({
           return { lat, lon };
         }
       }
-      console.error("Location not found: ${address}");
-
       return null;
     } catch (error) {
-      console.error("Error fetching location data for ${address}:, error");
       return null;
     }
   };
@@ -115,33 +106,26 @@ export default function Mapping({
         : null;
 
       if (fromCoordinates) {
-        // Check if coordinates have changed
         if (
           !lastCoordinatesRef.current ||
           lastCoordinatesRef.current.lat !== fromCoordinates.lat ||
           lastCoordinatesRef.current.lon !== fromCoordinates.lon
         ) {
-          lastCoordinatesRef.current = fromCoordinates; // Update last known coordinates
-          setLatLng(fromCoordinates); // Update parent state
+          lastCoordinatesRef.current = fromCoordinates; 
+          setLatLng(fromCoordinates); 
         }
       }
-
-      console.log("hereeee", fromCoordinates);
-
       const toCoordinates = toLocation?.location
         ? await fetchCoordinates(toLocation?.location, "")
         : null;
-      // Ensure the map container is available
       if (!mapContainerRef.current) {
         console.error("Map container is not ready yet.");
         return;
       }
-
-      // Initialize the map if not already initialized
       if (!mapRef.current) {
         const initialCoordinates = fromCoordinates ||
           toCoordinates || {
-            lat: 21.028511, // Default to Hanoi's coordinates
+            lat: 21.028511,
             lon: 105.804817,
           };
         mapRef.current = L.map(mapContainerRef.current).setView(
@@ -154,8 +138,6 @@ export default function Mapping({
             '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         }).addTo(mapRef.current);
       }
-
-      // Clear existing routing control if any
       if (routingControlRef.current) {
         routingControlRef.current.getPlan().setWaypoints([]);
         mapRef.current.removeControl(routingControlRef.current);
@@ -185,18 +167,6 @@ export default function Mapping({
           .openPopup();
         return;
       }
-
-      // if (toCoordinates) {
-      //   L.marker([toCoordinates.lat, toCoordinates.lon], {
-      //     icon: whiteIcon,
-      //   })
-      //     .addTo(mapRef.current)
-      //     .bindPopup(
-      //       `<b style="text-align:center">Your address</b><br>${toLocation}`
-      //     )
-      //     .openPopup();
-      // }
-
       if (fromCoordinates && toCoordinates) {
         routingControlRef.current = L.Routing.control({
           waypoints: [
@@ -204,10 +174,10 @@ export default function Mapping({
             L.latLng(toCoordinates.lat, toCoordinates.lon),
           ],
           routeWhileDragging: true,
-          show: false, // Hide the direction table
+          show: false,
           addWaypoints: false,
           lineOptions: {
-            styles: [{ color: "blue", weight: 5 }], // Set the line color to blue and adjust thickness
+            styles: [{ color: "blue", weight: 5 }],
           },
           createMarker: (i, waypoint) => {
             if (i === 0) {
@@ -236,10 +206,10 @@ export default function Mapping({
         })
           .on("routesfound", function (e) {
             const routes = e.routes;
-            const distance = routes[0].summary.totalDistance / 1000; // Convert to kilometers
+            const distance = routes[0].summary.totalDistance / 1000;
             setDistance(distance);
 
-            const duration = routes[0].summary.totalTime / 60; // Convert to minutes
+            const duration = routes[0].summary.totalTime / 60;
 
             L.popup()
               .setLatLng([toCoordinates.lat, toCoordinates.lon])
@@ -267,8 +237,6 @@ export default function Mapping({
     };
 
     initializeMap();
-
-    // Cleanup function to safely remove the map and routing control
     return () => {
       if (routingControlRef.current) {
         routingControlRef.current.getPlan().setWaypoints([]);

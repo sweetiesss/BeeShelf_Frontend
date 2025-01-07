@@ -17,6 +17,8 @@ export default function ImportRequestSideUpdate({
   updateDataBased,
 }) {
   const { userInfor } = useContext(AuthContext);
+  const { createRequest, updateRequest } = AxiosRequest();
+  const { t } = useTranslation();
   const [product, setProduct] = useState();
 
   const [selectedProduct, setSelectedProduct] = useState(
@@ -67,10 +69,8 @@ export default function ImportRequestSideUpdate({
 
   const [form, setForm] = useState(baseForm);
   const [loading, setLoading] = useState(false);
-  const { createRequest, updateRequest } = AxiosRequest();
-  const { t } = useTranslation();
 
-  // Handle input changes
+
   const handleInput = (e) => {
     const { name, value } = e.target;
     setForm((prev) => {
@@ -87,8 +87,6 @@ export default function ImportRequestSideUpdate({
       return { ...prev, [name]: value };
     });
   };
-
-  // Handle confirm
   const handleConfirm = async () => {
     try {
       const result = await updateRequest(form, updateDataBased?.id);
@@ -127,9 +125,6 @@ export default function ImportRequestSideUpdate({
       setInventory();
     }
   };
-
-  console.log("form", form);
-
   return (
     <div className="flex gap-10 justify-start items-start">
       <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[48rem]">
@@ -175,13 +170,11 @@ export default function ImportRequestSideUpdate({
             styles={{
               menu: (provided) => ({
                 ...provided,
-
-                // Restrict the dropdown height
-                overflowY: "hidden", // Enable scrolling for content
+                overflowY: "hidden",
               }),
               menuList: (provided) => ({
                 ...provided,
-                padding: 0, // Ensure no extra padding
+                padding: 0,
                 maxHeight: "11.5rem",
                 overflow: "auto",
               }),
@@ -204,8 +197,8 @@ export default function ImportRequestSideUpdate({
                   : "white",
                 color: isSelected ? "white !important" : "black",
                 cursor: "pointer",
-                padding: "0.5rem 1rem", // Option padding
-                textAlign: "left", // Center-align text
+                padding: "0.5rem 1rem",
+                textAlign: "left",
               }),
             }}
             getOptionLabel={(option) => option.name}

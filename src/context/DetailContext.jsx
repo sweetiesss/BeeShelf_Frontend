@@ -1,13 +1,10 @@
-// DetailContext.js
+
 import React, { createContext, useState, useContext } from "react";
 
-// Create the context
 const DetailContext = createContext();
 
-// Custom hook for consuming context
 export const useDetail = () => useContext(DetailContext);
 
-// Provider component
 export const DetailProvider = ({ children }) => {
   const [dataDetail, setDataDetail] = useState();
   const [typeDetail, setTypeDetail] = useState("");

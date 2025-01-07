@@ -1,4 +1,4 @@
-import { CaretLeft, CaretRight } from "@phosphor-icons/react"; // Replace with your actual icons
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 export default function Pagination({
@@ -8,8 +8,6 @@ export default function Pagination({
   handleRight,
   handleChoose,
 }) {
-  console.log(response);
-  
   function createPaginationArray(currentPage, totalPagesCount) {
     const paginationArray = [];
     const maxVisiblePages = 5;

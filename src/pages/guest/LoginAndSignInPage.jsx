@@ -12,17 +12,12 @@ export default function LoginAndSignInPage({ toAction }) {
   const [action, setAction] = useState(toAction);
   return (
     <div className="flex h-screen w-screen justify-between items-center  bg-gray-100">
-      {/* Sidebar or background */}
-
       <img
         src={SignInAndLoginGif}
         className="h-full w-[60%] object-fill object-center"
       />
-
-      {/* Animated Content */}
       <div className="relative w-[40%] h-full overflow-hidden bg-white">
         <LanguageSelector className={"absolute top-4 left-2 z-10"} />
-        {/* ForgotPassword */}
         <div
           className={`p-20 absolute w-full h-full transform transition-transform duration-500 flex flex-col items-center justify-center ${
             action === "Forgotpassword"
@@ -34,8 +29,6 @@ export default function LoginAndSignInPage({ toAction }) {
         >
           <ForgotPassword setAction={setAction} />
         </div>
-
-        {/* SignIn */}
         <div
           className={`p-20 absolute w-full h-full transform transition-transform duration-500 flex flex-col items-center justify-center ${
             action === "Login"
@@ -47,8 +40,6 @@ export default function LoginAndSignInPage({ toAction }) {
         >
           <SignIn setAction={setAction} action={action} />
         </div>
-
-        {/* SignUp */}
         <div
           className={`p-20 absolute w-full h-full transform transition-transform duration-500 flex flex-col items-center justify-center ${
             action === "SignUp"
