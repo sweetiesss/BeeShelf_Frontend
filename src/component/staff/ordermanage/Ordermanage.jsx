@@ -263,9 +263,10 @@ const Ordermanage = () => {
       render: (status) => renderStatusTag(status),
     },
     {
-      title: t("Receiver_Name"),
+      title: t("ReceiverName"),
       dataIndex: "receiverName",
       key: "receiverName",
+      render: (text) => text || "Null",
     },
     {
       title: t("Receiver_Phone"),
@@ -463,7 +464,7 @@ const Ordermanage = () => {
                         <strong>{t("Unit")}:</strong> {item.unit}
                       </Paragraph>
                       <Paragraph>
-                        <strong>{t("Inventory_ID")}:</strong> {item.inventoryId}
+                        <strong>{t("Inventory_ID")}:</strong> {item.roomId}
                       </Paragraph>
                       <Paragraph>
                         <strong>{t("Inventory_Name")}:</strong>{" "}
@@ -547,8 +548,9 @@ const Ordermanage = () => {
                   <p>{selectedOrder.receiverPhone}</p>
                 </div>
                 <div>
-                  <p className="font-bold">{t("Receiver_Name")}:</p>
+                  <p className="font-bold">{t("ReceiverName")}:</p>
                   <p>{selectedOrder.receiverName}</p>
+                  <p>{selectedOrder.receiverName || "Null"}</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Receiver_Address")}:</p>

@@ -167,12 +167,12 @@ i18n
           No_data_returned_from_the_server: "No data returned from the server.",
           Error_fetching_requests: "Error fetching requests:",
           Failed_to_fetch_requests_Please_check_the_Warehouse_ID:
-            "Failed to fetch requests. Please check the Warehouse ID.",
+            "Failed to fetch requests. Please check the Store ID.",
           Data_loaded_successfully: "Data loaded successfully!",
           No_data_returned_from_the_server: "No data returned from the server.",
           Error_fetching_requests: "Error fetching requests:",
           Failed_to_fetch_requests_Please_check_the_Warehouse_ID:
-            "Failed to fetch requests. Please check the Warehouse ID.",
+            "Failed to fetch requests. Please check the Store ID.",
           Processing: "Processing",
           Delivered: "Delivered",
           Completed: "Completed",
@@ -251,7 +251,7 @@ i18n
           Cancel_Date: "Cancel Date",
           Cancel_Reason: "Cancel Reason",
           Warehouse_Name: "Store Name",
-          Inventory_Name: "Room Code",
+          Inventory_Name: "Room Name",
           Lot_ID: "Lot ID",
           Null: "Null",
           Export_Request_Details: "Export Request Details",
@@ -278,23 +278,23 @@ i18n
           Cancel_Date: "Cancel Date",
           Cancel_Reason: "Cancel Reason",
           Null: "Null",
-          New_Warehouse_Name: "New Warehouse Name",
-          New_Inventory_Name: "New Inventory Name",
+          New_Warehouse_Name: "New Store Name",
+          New_Inventory_Name: "New Room Name",
           New_Lot_ID: "New Lot ID",
-          Old_Warehouse_Name: "Old Warehouse Name",
-          Old_Inventory_Name: "Old Inventory Name",
+          Old_Warehouse_Name: "Old Store Name",
+          Old_Inventory_Name: "Old Room Name",
           Old_Lot_ID: "Old Lot ID",
           //Inventory:
           "Code_Lot_Number":"Lot Code",
-          Warehouse_ID_is_not_available: "Warehouse ID is not available",
+          Warehouse_ID_is_not_available: "Store ID is not available",
           Data_loaded_successfully: "Data loaded successfully!",
           No_data_returned_from_the_server: "No data returned from the server.",
-          Error_fetching_inventories: "Error fetching inventories:",
+          Error_fetching_inventories: "Error fetching room:",
           Failed_to_fetch_inventories_Please_try_again:
-            "Failed to fetch inventories. Please try again.",
-          Error_fetching_inventory_details: "Error fetching inventory details:",
+            "Failed to fetch room. Please try again.",
+          Error_fetching_inventory_details: "Error fetching room details:",
           Failed_to_fetch_inventory_details_Please_try_again:
-            "Failed to fetch inventory details. Please try again.",
+            "Failed to fetch room details. Please try again.",
           Inventory_Management: "Room Management",
           Search_by_Inventory_Name: "Search by Room Name",
           Bought_Date: "Bought Date",
@@ -321,7 +321,7 @@ i18n
 
           //DeliveryZone:
           "Warehouse_ID_is_not_available._Please_log_in_again.":
-            "Warehouse ID is not available. Please log in again.",
+            "Store ID is not available. Please log in again.",
           "Delivery_Zones_loaded_successfully!":
             "Delivery Zones loaded successfully!",
           "No_delivery_zones_returned_from_the_server.":
@@ -344,7 +344,7 @@ i18n
           "Error_fetching_the_shipper_list_for_selection.":
             "Error fetching the shipper list for selection.",
           "Warehouse_ID_is_not_available._Please_log_in_again.":
-            "Warehouse ID is not available. Please log in again.",
+            "Store ID is not available. Please log in again.",
           "Shippers_loaded_successfully_for_changing!":
             "Shippers loaded successfully for changing!",
           "No_shippers_available_for_changing.":
@@ -457,7 +457,7 @@ i18n
           Weight: "Weight",
           Unit: "Unit",
           Inventory_ID: "Room ID",
-          Inventory_Name: "Room Code",
+          Inventory_Name: "Room Name",
           Lot_ID: "Lot ID",
           Fee: "Fee",
           Storage_Fee: "Storage Fee",
@@ -496,13 +496,13 @@ i18n
           Failed_to_unassign_vehicle: "Failed to unassign vehicle.",
           Vehicle_assigned_successfully: "Vehicle assigned successfully!",
           Failed_to_confirm_money_transfer: "Failed to confirm money transfer.",
-          Warehouse_ID_is_not_available: "Warehouse ID is not available",
+          Warehouse_ID_is_not_available: "Store ID is not available",
           Shippers_data: "Shippers data:",
           Failed_to_fetch_shippers_data: "Failed to fetch shippers data",
           Error_fetching_shippers_data: "Error fetching shippers data:",
           Failed_to_fetch_vehicle_data: "Failed to fetch vehicle data",
           Something_went_wrong: "Something went wrong!",
-          Warehouse_ID_is_not_available: "Warehouse ID is not available",
+          Warehouse_ID_is_not_available: "Store ID is not available",
           Shippers_data: "Shippers data:",
           Failed_to_fetch_shippers_data: "Failed to fetch shippers data",
           Error_fetching_shippers_data: "Error fetching shippers data:",
@@ -560,7 +560,7 @@ i18n
             "Are you sure you want to delete this batch?",
           "Yes,Delete?": "Yes, Delete",
           Cancel: "Cancel",
-
+"Assign_Vehicle_To_Shipper1":"Assign",
           "Batch_deleted_successfully.": "Batch deleted successfully.",
           "Failed_to_delete_batch._Please_try_again.":
             "Failed to delete batch. Please try again.",
@@ -576,7 +576,7 @@ i18n
           Failed_to_fetch_orders_data: "Failed to fetch orders data",
           "Formatted_orders:": "Formatted orders:",
           "Error_fetching_orders:": "Error fetching orders:",
-          Warehouse_ID_is_not_available: "Warehouse ID is not available",
+          Warehouse_ID_is_not_available: "Store ID is not available",
           "Shippers_data:": "Shippers data:",
           Failed_to_fetch_shippers_data: "Failed to fetch shippers data",
           "Error_fetching_shippers_data:": "Error fetching shippers data:",
@@ -612,6 +612,7 @@ i18n
           Batch_List: "Batch List",
           Create_Batch: "Create Batch",
           Create_Batch: "Create Batch",
+          "SelectImage":"Select Image",
           Batch_Name: "Batch Name",
           Please_enter_a_batch_name: "Please enter a batch name",
           Batch_name_must_be_250_characters_or_fewer:
@@ -631,6 +632,8 @@ i18n
           WarehouseId: "WarehouseId",
           id: "id",
           email: "email",
+          "Warehouse1":"Store Name",
+
           Batch_Details_Name: "Batch Details Name",
           Shipper_Name: "Shipper Name",
           Shipper_Email: "Shipper Email",
@@ -661,7 +664,7 @@ i18n
           Product_Name: "Product Name",
           Lot_ID: "Lot ID",
           Inventory_ID: "Room ID",
-          Inventory_Name: "Room Code",
+          Inventory_Name: "Room Name",
           Price: "Price",
           Unit: "Unit",
           Weight: "Weight",
@@ -687,6 +690,7 @@ i18n
           "Errorfetchingpayments:": "Error fetching payments:",
           "Erroruploadingimage:": "Error uploading image:",
           "Errorconfirmingpayment:": "Error confirming payment:",
+          "Capacity":"Capacity",
           TransferMoneyRequestList: "Withdarw Money Request List",
           UploadPicture: "Upload Picture",
           SelectPaymentID: "Select Payment ID",
@@ -715,7 +719,7 @@ i18n
           "Failedtofetchpayments.": "Failed to fetch payments.",
           "Nodatareturnedfromtheserver.": "No data returned from the server.",
           "Dataloadedsuccessfully!": "Data loaded successfully!",
-          "Receiver_Name:": "Receiver_Name",
+          "ReceiverName": "Receiver Name",
           "WarehouseIDisnotavailable.Pleaseloginagain.":
             "Warehouse ID is not available. Please log in again.",
           EasyManagement: "Easy Management",
@@ -762,6 +766,7 @@ i18n
           RememberMe: "Remember Me",
           ForgotPassword: "Forgot Password",
           Login: "Login",
+          "Store_Name":"Store Name",
           or: "or",
           ContinuewithGoogle: "Continue with Google",
           Donthaveanaccount: "Don’t have an account",
@@ -881,11 +886,13 @@ i18n
           Agiledeliveryteam: "Đội ngũ shipper nhanh nhẹn",
           Happycustomer: "Khách hàng hài lòng",
           Overallrating: "Đánh giá tổng thể",
+          "Warehouse1":"Tên Kho",
           Ourservice: "Our service",
           Ourservice: "Dịch vụ của chúng tôi",
           Whychooseus: "Tại sao chọn chúng tôi",
           Getthebestpackageforyourbusiness:
             "Nhận gói tốt nhất cho doanh nghiệp của bạn",
+            "ReceiverName": "Tên người nhận",
           servicesDesciption:
             "Chúng tôi làm việc có hệ thống để tích hợp trách nhiệm doanh nghiệp vào hoạt động kinh doanh cốt lõi và chia sẻ chuyên môn của mình nhằm mang lại lợi ích cho các cộng đồng nơi chúng tôi hoạt động",
 
@@ -969,6 +976,7 @@ i18n
           Barcode: "Mã vạch",
           Image: "Hình ảnh",
           AddProduct: "Thêm sản phẩm",
+          "Store_Name":"Tên Kho",
           UploadAFilePNGJPGGIFUpTo10MB:
             "Tải lên tệp (PNG, JPG, GIF) tối đa 10MB",
           AreYouSureWantToDelete: "Bạn có chắc chắn muốn xóa",
@@ -1025,6 +1033,8 @@ i18n
           Processing: "Đang xử lý",
           Delivered: "Đã giao hàng",
           Completed: "Hoàn thành",
+          "Capacity":"Dung Tích",
+        
           Failed: "Thất bại",
           Canceled: "Đã hủy",
           Draft: "Bản nháp",
@@ -1067,6 +1077,7 @@ i18n
           Product_Name: "Tên Sản Phẩm",
           Request_Type: "Loại Yêu Cầu",
           Warehouse_Name: "Tên Kho",
+          "SelectImage":"Chọn Ảnh",
           Status: "Trạng Thái",
           Pending: "Chờ Xử Lý",
           Processing: "Đang Xử Lý",
@@ -1118,22 +1129,22 @@ i18n
           Cancel_Reason: "Lý Do Hủy",
           Null: "Trống",
           New_Warehouse_Name: "Tên Kho Mới",
-          New_Inventory_Name: "Tên Hàng Tồn Kho Mới",
+          New_Inventory_Name: "Tên Phòng Mới",
           New_Lot_ID: "Mã Lô Mới",
           Old_Warehouse_Name: "Tên Kho Cũ",
-          Old_Inventory_Name: "Tên Hàng Tồn Kho Cũ",
+          Old_Inventory_Name: "Tên Phòng Cũ",
           Old_Lot_ID: "Mã Lô Cũ",
           //Inventory:
           Warehouse_ID_is_not_available: "ID kho không có sẵn",
           Data_loaded_successfully: "Dữ liệu đã được tải thành công!",
           No_data_returned_from_the_server:
             "Không có dữ liệu trả về từ máy chủ.",
-          Error_fetching_inventories: "Lỗi khi lấy danh sách kho:",
+          Error_fetching_inventories: "Lỗi khi lấy danh sách phòng:",
           Failed_to_fetch_inventories_Please_try_again:
-            "Không thể lấy danh sách kho. Vui lòng thử lại.",
-          Error_fetching_inventory_details: "Lỗi khi lấy chi tiết kho:",
+            "Không thể lấy danh sách phòng. Vui lòng thử lại.",
+          Error_fetching_inventory_details: "Lỗi khi lấy chi tiết phòng:",
           Failed_to_fetch_inventory_details_Please_try_again:
-            "Không thể lấy chi tiết kho. Vui lòng thử lại.",
+            "Không thể lấy chi tiết phòng. Vui lòng thử lại.",
             "Code_Lot_Number":"Mã Lô",
           Inventory_Management: "Quản lý phòng",
           Search_by_Inventory_Name: "Tìm kiếm theo tên phòng chứa",
@@ -1168,6 +1179,9 @@ i18n
           Delivered: "Đã Giao",
           Canceled: "Đã Hủy",
           Completed: "Hoàn Thành",
+          "Assign_Vehicle_To_Shipper1":"Giao Phó",
+          
+          
           //DeliveryZone:
           "Warehouse_ID_is_not_available._Please_log_in_again.":
             "ID Kho không khả dụng. Vui lòng đăng nhập lại.",
@@ -1742,6 +1756,7 @@ i18n
           Overallrating: "総合評価",
           Ourservice: "私たちのサービス",
           Whychooseus: "なぜ私たちを選ぶのか",
+          "SelectImage":"チョンン",
           Getthebestpackageforyourbusiness:
             "最適なパッケージを手に入れましょうあなたのビジネス",
           servicesDesciption:
@@ -1755,6 +1770,7 @@ i18n
             "多くの顧客、倉庫、在庫、製品を管理する大規模なサイトや代理店に最適です",
           Warehouses: "倉庫",
           Filters: "フィルター",
+          "Assign_Vehicle_To_Shipper1":"割り当てる",
           Name: "名前",
           Province: "都道府県",
           Status: "ステータス",
@@ -1765,11 +1781,13 @@ i18n
           Price: "価格",
           Expiredon: "有効期限",
           days: "日数",
+          
           WarehouseInformation: "倉庫情報",
           InventoriesInTheWarehouse: "倉庫内の在庫",
           Dashboard: "周囲",
           Inventory: "部屋",
           Product: "製品",
+          "Warehouse1":"店名",
           Order: "注文",
           Request: "リクエスト",
           Warehouse: "倉庫",
@@ -1778,6 +1796,7 @@ i18n
           AssignOrder: "注文割り当て",
           OrderManage: "注文管理",
           RequestManageRequest: "リクエスト管理",
+          "ReceiverName": "受信者名",
           UserProfile: "ユーザープロファイル",
           PersonalDetails: "個人情報",
           PhoneNumber: "電話番号:",
@@ -1787,6 +1806,7 @@ i18n
           BusinessName: "事業名:",
           CategoryName: "カテゴリー名:",
           OcopCategoryName: "OCOPカテゴリー名:",
+          "Store_Name":"店名",
           Logout: "ログアウト",
           Partner: "パートナー",
           Staff: "スタッフ",
@@ -1853,6 +1873,7 @@ i18n
           Pot: "鍋",
           Tablet: "錠剤",
           Can: "缶",
+          "Capacity":"容量",
           ImportProductsByExcel: "Excelで製品をインポート",
           DownloadExcelTemplate: "Excelテンプレートをダウンロード",
           UploadFileExcel: "ファイルをアップロード (Excel)",
