@@ -465,13 +465,24 @@ export default function InventoryPage() {
 
   const getInventoriesList = () => {
     const inventoriesOwnedList = inventoriesOwned?.data?.items || [];
+    console.log("inventoriesOwnedList", inventoriesOwnedList);
+    console.log("inventories", inventories);
+
     const result =
-      inventories?.data?.items?.filter(
-        (inventory) =>
-          !inventoriesOwnedList.some((owned) => owned.id === inventory.id) &&
-          (inventory.ocopPartnerId === userInfor.id ||
-            inventory.ocopPartnerId === null)
+      inventories?.data?.items?.map(
+        (inventory) => {
+          if (inventory.ocopPartnerId === null) {
+            return inventory; // Retain null values
+          }
+          if (inventory.ocopPartnerId !== userInfor?.id)
+            return { ...inventory, ocopPartnerId: -1 };
+          return inventory;
+        }
+        // &&
+        //   (inventory.ocopPartnerId === userInfor.id ||
+        //     inventory.ocopPartnerId === null)
       ) || [];
+    console.log("result",result);
 
     const combinedList = [...inventoriesOwnedList, ...result];
     setInventoriesBased(combinedList);
@@ -929,7 +940,6 @@ export default function InventoryPage() {
               </div>
             </div>
 
-            
             <div className=" col-span-3 row-span-11  ">
               <RoomMapping
                 data={inventoriesShowList}

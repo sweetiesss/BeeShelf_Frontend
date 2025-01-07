@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import AxiosPartner from "../../services/Partner";
 import axios from "axios";
-import Mapping from "../../component/shared/Mapping";
 import AxiosOrder from "../../services/Order";
 import AxiosWarehouse from "../../services/Warehouse";
 import { toast } from "react-toastify";
@@ -12,11 +11,14 @@ import Select from "react-select";
 import { useLocation } from "react-router-dom";
 import AxiosProduct from "../../services/Product";
 import haversine from "haversine-distance";
+import MappingOrder from "../../component/shared/MappingOrder";
+import SpinnerLoading from "../../component/shared/Loading";
 
 export default function CreateOrderPage() {
   const { t } = useTranslation();
   const { userInfor } = useAuth();
-  const { getAllProduct } = AxiosPartner();
+  const { getAllProduct, getProductByUserIdProvinceIdProductId } =
+    AxiosPartner();
   const { getProductByUserId } = AxiosProduct();
   const { createOrder } = AxiosOrder();
   const { getWarehouseById, getWarehouses } = AxiosWarehouse();
@@ -30,7 +32,11 @@ export default function CreateOrderPage() {
 
   const [receiverLocation, setReceiverLoaction] = useState("");
   const [distance, setDistance] = useState(null); // State for storing calculated distance
-  const [item, setItem] = useState({ productId: null, productAmount: null });
+  const [item, setItem] = useState({
+    productId: null,
+    productAmount: null,
+    provinceId: null,
+  });
 
   const [deliveryZone, setDeliveryZone] = useState();
 
@@ -44,6 +50,7 @@ export default function CreateOrderPage() {
   const [provinces, setProvinces] = useState();
   const [latLon, setLatLon] = useState();
   const [supportedDeliveryZone, setSupportedDeliveryZone] = useState([]);
+  const [dataStored, setDataStored] = useState();
 
   const [defaultLocation, setDefaultLocation] = useState("");
 
@@ -70,14 +77,11 @@ export default function CreateOrderPage() {
     getProductsInWareHouse();
   }, []);
 
-  useEffect(() => {
-    filterWarehouse();
-    getDetailWarehouse();
-  }, [warehouse]);
+  // useEffect(() => {
+  //   filterWarehouse();
+  //   getDetailWarehouse();
+  // }, [warehouse]);
 
-  useEffect(() => {
-    console.log("inventories", inventories);
-  }, [inventories]);
   const validateForm = () => {
     const newErrors = {};
 
@@ -117,7 +121,9 @@ export default function CreateOrderPage() {
     if (!item.productAmount || item.productAmount <= 0) {
       newErrors.productAmount = t("Invalid product amount");
     } else {
-      const product = inventoriesShowList.find((p) => p.id === item.productId);
+      console.log("products", products);
+
+      const product = products.find((p) => p.id === item.productId);
       if (product && product.stock < item.productAmount) {
         newErrors.productAmount = t(`Only ${product.stock} available in stock`);
       }
@@ -244,9 +250,9 @@ export default function CreateOrderPage() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "receiverAdress") {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
+      // if (debounceTimeoutRef.current) {
+      //   clearTimeout(debounceTimeoutRef.current);
+      // }
 
       debounceTimeoutRef.current = setTimeout(() => {
         setForm((prev) => ({ ...prev, [name]: value }));
@@ -263,11 +269,39 @@ export default function CreateOrderPage() {
 
   const handleItemAdd = () => {
     if (validateProduct()) {
-      setForm((prev) => ({
-        ...prev,
-        products: [...prev.products, item],
-      }));
-      setItem({ productId: null, productAmount: null });
+      const itemForm = {
+        productId: item?.productId,
+        productAmount: item?.productAmount,
+        productStore: dataStored,
+      };
+      const foundProductIt = form?.products.find(
+        (item) => item.productId === itemForm.productId
+      );
+      console.log("foundProductIt", foundProductIt);
+
+      if (foundProductIt) {
+        const productsFiltered = form?.products.filter(
+          (item) =>
+            parseInt(item.productId) != parseInt(foundProductIt.productId)
+        );
+        console.log("productsFiltered", productsFiltered);
+        const newAddProduct = {
+          productId: foundProductIt.productId,
+          productAmount: foundProductIt.productAmount + itemForm.productAmount,
+          productStore: itemForm?.productStore,
+        };
+        console.log("newAddProduct", newAddProduct);
+
+        setForm((prev) => ({
+          ...prev,
+          products: [...productsFiltered, newAddProduct],
+        }));
+      } else {
+        setForm((prev) => ({
+          ...prev,
+          products: [...prev?.products, itemForm],
+        }));
+      }
     }
   };
 
@@ -282,20 +316,35 @@ export default function CreateOrderPage() {
 
   const handleSubmit = async (e) => {
     try {
-      setLoading(true);
+      // setLoading(true);
       e.preventDefault();
-      if (!validateForm()) {
-        return;
-      }
-      console.log("Order Created:", form);
+      // if (!validateForm()) {
+      //   return;
+      // }
+      // console.log("Order Created:", form);
+
+      const submitProducts = form.products.map((item) => ({
+        ...item,
+        productStore: item.productStore.map((item2) => ({
+          storeId: item2.id,
+          distance: parseFloat(item2.distance || 0),
+        })),
+      }));
+      console.log("submitProducts", submitProducts);
+
       const submitForm = {
         ...form,
-        deliveryZoneId: parseInt(deliveryZone?.id),
         distance: parseFloat(distance),
+        products: submitProducts,
       };
-      const result = await createOrder(submitForm, warehouse?.storeId, true);
-      console.log(submitForm);
+      console.log("submitForm", submitForm);
+      const result = await createOrder(submitForm, undefined, true);
+      console.log("result", result);
       setForm(baseForm);
+
+      console.log("here", form);
+      console.log("here", item);
+      console.log("here", dataStored);
     } catch (e) {
       console.log(e);
     } finally {
@@ -326,28 +375,54 @@ export default function CreateOrderPage() {
   };
 
   const mappingProps = useMemo(() => {
+    const updatedWarehouses = fullWarehouses?.map((warehouse) => {
+      if (warehouse.location) {
+        const locationParts = warehouse.location
+          .split(",")
+          .map((part) => part.trim());
+        const lastPart = locationParts[locationParts.length - 1];
+        if (lastPart === warehouse.provinceName) {
+          locationParts.pop(); // Remove the last part if it matches the province name
+        }
+        return {
+          ...warehouse,
+          location: locationParts.join(", "), // Reconstruct the location
+        };
+      }
+      return warehouse;
+    });
+    console.log("datastored",dataStored);
+    
     return {
       showLocation: {
         name: "Receiver Address",
         location: receiverLocation,
       },
       defaultLocation: form?.provinceId?.subDivisionName,
-      data: fullWarehouses,
+      data: updatedWarehouses,
+      data2: dataStored,
       setLatLng: setLatLon,
       toLocation: detailWarehouse,
       setDistance: setDistance,
     };
-  }, [receiverLocation, fullWarehouses, detailWarehouse]);
- 
+  }, [receiverLocation, dataStored]);
+
   useEffect(() => {
     const handler = setTimeout(() => {
-      setReceiverLoaction(form?.receiverAddress);
-      const dataList = form?.receiverAddress
-        ?.split(",")
-        .map((item) => item.trim());
+      const dataList = receiverLocation?.split(",").map((item) => item.trim());
       const provniceFouned = provinces?.find((item) =>
-        dataList?.some((dataList) => dataList?.includes(item?.subDivisionName))
+        dataList?.some((dataList) =>
+          dataList
+            ?.trim()
+            ?.toLowerCase()
+            ?.includes(item?.subDivisionName?.trim()?.toLowerCase())
+        )
       );
+
+      setItem((prev) => ({ ...prev, provinceId: provniceFouned?.id }));
+      console.log("provinceF", provniceFouned);
+      setForm((prev) => ({ ...prev, provinceId: provniceFouned }));
+      setReceiverLoaction(form?.receiverAddress);
       if (provniceFouned) {
         const findDeliveryZone = provniceFouned?.deliveryZones?.find((item) =>
           dataList?.some((dataList) => dataList?.includes(item?.name))
@@ -358,15 +433,39 @@ export default function CreateOrderPage() {
             deliveryZoneId: findDeliveryZone?.id,
           }));
         else setSupportedDeliveryZone(provniceFouned);
-        console.log("findDeliveryZone", findDeliveryZone);
       }
-      console.log("provinceF", provniceFouned);
-
-      setForm((prev) => ({ ...prev, provinceId: provniceFouned }));
+      // console.log("findDeliveryZone", findDeliveryZone);
     }, 500); // Adjust the debounce delay (300ms in this example)
 
     return () => clearTimeout(handler); // Cleanup timeout on unmount or location change
   }, [form?.receiverAddress]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        setDataStored();
+        if (item.productId && item.provinceId) {
+          const result = await getProductByUserIdProvinceIdProductId(
+            item?.productId,
+            item?.provinceId,
+            userInfor?.id
+          );
+          console.log("result here", result?.data?.data);
+
+          if (result?.status === 200) {
+            setDataStored(result?.data?.data);
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [item?.productId, item?.provinceId]);
 
   console.log("detailWarehouse", detailWarehouse);
   console.log("warehouses", warehouses);
@@ -374,96 +473,143 @@ export default function CreateOrderPage() {
   console.log("form", form);
 
   console.log("receiverLocation", receiverLocation);
+  console.log("item", item);
 
-  const findNearestLocation = (userCoords) => {
-    let nearestStore = null;
-    let shortestDistance = Infinity;
+  // const findNearestLocation = (userCoords) => {
+  //   let nearestStore = null;
+  //   let shortestDistance = Infinity;
 
-    fullWarehouses?.forEach((store) => {
-      if (store?.latitude && store?.longitude) {
-        const storeCoords = {
-          latitude: store?.latitude,
-          longitude: store?.longitude,
-        };
-        const distance = haversine(userCoords, storeCoords); // Distance in meters
-        if (distance < shortestDistance) {
-          shortestDistance = distance;
-          nearestStore = store;
+  //   fullWarehouses?.forEach((store) => {
+  //     if (store?.latitude && store?.longitude) {
+  //       const storeCoords = {
+  //         latitude: store?.latitude,
+  //         longitude: store?.longitude,
+  //       };
+  //       const distance = haversine(userCoords, storeCoords); // Distance in meters
+  //       if (distance < shortestDistance) {
+  //         shortestDistance = distance;
+  //         nearestStore = store;
+  //       }
+  //     }
+  //   });
+
+  //   return { nearestStore, distance: shortestDistance };
+  // };
+
+  // const nearestStore = useMemo(() => {
+  //   if (latLon) {
+  //     const result = findNearestLocation(latLon);
+  //     if (result) {
+  //       const addField = warehouses?.map((item) => {
+  //         if (item?.id === result?.nearestStore?.id) {
+  //           return {
+  //             ...item,
+  //             distance: result?.distance,
+  //             type: "Nearest",
+  //           };
+  //         }
+  //         return item;
+  //       });
+  //       console.log("addField", addField);
+  //       setWarehouses(addField);
+  //     }
+
+  //     return result;
+  //   }
+  //   return null;
+  // }, [latLon]);
+
+  useEffect(() => {
+    if (latLon && dataStored) {
+      const updatedWarehouses = dataStored.map((store) => {
+        if (store?.latitude && store?.longitude) {
+          const storeCoords = {
+            latitude: store.latitude,
+            longitude: store.longitude,
+          };
+          const distance = haversine(latLon, storeCoords); // Calculate distance
+          return {
+            ...store,
+            distance: (distance / 1000).toFixed(2),
+          };
         }
-      }
-    });
+        return {
+          ...store,
+          distance: null, // Set distance to null if coordinates are missing
+        };
+      });
 
-    return { nearestStore, distance: shortestDistance };
-  };
-
-  const nearestStore = useMemo(() => {
-    if (latLon) {
-      const result = findNearestLocation(latLon);
-      if (result) {
-        const addField = warehouses?.map((item) => {
-          if (item?.id === result?.nearestStore?.id) {
-            return {
-              ...item,
-              distance: result?.distance,
-              type: "Nearest",
-            };
-          }
-          return item;
-        });
-        console.log("addField", addField);
-        setWarehouses(addField);
-      }
-
-      return result;
+      // Update the warehouses state with the new distances
+      setDataStored(updatedWarehouses);
     }
-    return null;
   }, [latLon]);
 
-  console.log("nearestStore", nearestStore);
+  // console.log("nearestStore", nearestStore);
 
   return (
     <div className="p-8 mx-auto bg-white shadow-lg rounded-lg h-full">
-      <div className="flex gap-40 h-full text-lg">
-        <form className="space-y-6 w-[40%]">
-          <p className="text-2xl font-semibold mb-4">{t("Create Order")}</p>
-          <div className="space-y-6 w-full">
-            <div>
-              <p className="text-xl font-semibold mb-4">
-                {t("CustomerInformation")}
-              </p>
+      {loading ? (
+        <SpinnerLoading />
+      ) : (
+        <div className="flex gap-40 h-full text-lg">
+          <form className="space-y-6 w-[40%]">
+            <p className="text-2xl font-semibold mb-4">{t("Create Order")}</p>
+            <div className="space-y-6 w-full">
               <div>
+                <p className="text-xl font-semibold mb-4">
+                  {t("CustomerInformation")}
+                </p>
+                <div>
+                  <label className="block  font-medium text-gray-700">
+                    {t("Receiver Name")}
+                  </label>
+                  <input
+                    type="text"
+                    name="receiverName"
+                    value={form.receiverName}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full border-gray-300 border-2  px-2 py-1"
+                    required
+                  />
+                  {errors.receiverName && (
+                    <p className="text-red-500 text-base font-medium mt-2">
+                      {errors.receiverName}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block  font-medium text-gray-700">
+                    {t("Receiver Phone")}
+                  </label>
+                  <input
+                    type="text"
+                    name="receiverPhone"
+                    value={form.receiverPhone}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full border-gray-300 border-2  px-2 py-1"
+                    required
+                  />
+                  {errors.receiverPhone && (
+                    <p className="text-red-500 text-base font-medium mt-2">
+                      {errors.receiverPhone}
+                    </p>
+                  )}
+                </div>
                 <label className="block  font-medium text-gray-700">
-                  {t("Receiver Phone")}
+                  {t("Receiver Address")}
                 </label>
-                <input
-                  type="text"
-                  name="receiverPhone"
-                  value={form.receiverPhone}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border-gray-300 border-2  px-2 py-1"
-                  required
-                />
-                {errors.receiverPhone && (
-                  <p className="text-red-500 text-base font-medium mt-2">
-                    {errors.receiverPhone}
-                  </p>
-                )}
-              </div>
-              <label className="block  font-medium text-gray-700">
-                {t("Receiver Address")}
-              </label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="text"
-                  name="receiverAddress"
-                  placeholder={t("receiverAddress")}
-                  value={form.receiverAddress}
-                  onChange={handleInputChange}
-                  className="mt-1 outline-none border-2 p-[0.35rem] flex-grow "
-                  required
-                />
+                <div className="flex items-center gap-4">
+                  <input
+                    type="text"
+                    name="receiverAddress"
+                    placeholder={t("receiverAddress")}
+                    value={form.receiverAddress}
+                    onChange={handleInputChange}
+                    className="mt-1 outline-none border-2 p-[0.35rem] flex-grow "
+                    required
+                  />
 
-                {/* <div className="w-fit">
+                  {/* <div className="w-fit">
                   <Select
                     styles={{
                       menu: (provided) => ({
@@ -517,14 +663,14 @@ export default function CreateOrderPage() {
                 <div className="border p-[0.35rem] w-fit cursor-not-allowed">
                   {detailWarehouse?.deliveryZones[0]?.provinceName}
                 </div> */}
+                </div>
+                {errors.receiverAddress && (
+                  <p className="text-red-500 text-base font-medium mt-2">
+                    {errors.receiverAddress}
+                  </p>
+                )}
               </div>
-              {errors.receiverAddress && (
-                <p className="text-red-500 text-base font-medium mt-2">
-                  {errors.receiverAddress}
-                </p>
-              )}
-            </div>
-            <div>
+              {/* <div>
               <label className="block  font-medium text-gray-700 ">
                 {t("Store")}
               </label>
@@ -594,12 +740,12 @@ export default function CreateOrderPage() {
                   {errors.warehouse}
                 </p>
               )}
-            </div>
-            <div>
-              <label className="block  font-medium text-gray-700">
-                {t("Products")}
-              </label>
-              <div className="grid grid-cols-8 gap-4 items-center">
+            </div> */}
+              <div>
+                <label className="block  font-medium text-gray-700">
+                  {t("Products")}
+                </label>
+
                 <Select
                   className="col-span-5"
                   styles={{
@@ -637,7 +783,7 @@ export default function CreateOrderPage() {
                   }}
                   value={
                     item.productId
-                      ? inventoriesShowList?.find(
+                      ? products?.find(
                           (product) =>
                             parseInt(product.id) === parseInt(item.productId)
                         )
@@ -649,148 +795,181 @@ export default function CreateOrderPage() {
                       productId: selectedOption.id,
                     }));
                   }}
-                  options={inventoriesShowList?.map((product) => ({
+                  options={products?.map((product) => ({
                     ...product,
                     value: product.id,
                   }))} // Map options with stock info
                   formatOptionLabel={(option, { context }) =>
                     context === "menu" ? (
-                      <div className="gap-4">
-                        <p>{option.productName}</p>
-                        <p className="text-gray-500">
-                          {option.stock + " stocks in " + option?.storeName}
-                        </p>
+                      <div className="gap-4 flex items-center">
+                        <img
+                          src={option.pictureLink}
+                          alt={option.name}
+                          className="w-[5rem] h-[5rem] object-cover object-center rounded-lg border-2 border-gray-500"
+                        />
+                        <div>
+                          <p className="text-black">{option?.name}</p>
+                          <p className="text-gray-500 text-sm">
+                            {(option?.price).toFixed(0) +
+                              " vnd/" +
+                              option?.unit}
+                          </p>
+                        </div>
                       </div>
                     ) : (
-                      <div className="gap-4">
-                        <p>
-                          {option.productName}
-                          <span className="text-gray-500 text-sm">
-                            {" (" + option.stock + " stocks available)"}
-                          </span>
-                        </p>
+                      <div className="gap-4 flex items-center">
+                        <img
+                          src={option.pictureLink}
+                          alt={option.name}
+                          className="w-[5rem] h-[5rem] object-cover object-center rounded-lg border-2 border-gray-500"
+                        />
+                        <div>
+                          <p className="text-black">{option?.name}</p>
+                          <p className="text-gray-500 text-sm">
+                            {(option?.price).toFixed(0) +
+                              " vnd/" +
+                              option?.unit}
+                          </p>
+                        </div>
                       </div>
                     )
                   }
                   placeholder={t("Select Product")}
                 />
 
-                <input
-                  type="number"
-                  name="productAmount"
-                  placeholder={t("productAmount")}
-                  value={item.productAmount || 0}
-                  onChange={handleItemChange}
-                  className="col-span-2 mt-1 block w-full border-[1px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
-                  required
-                />
+                <div className="flex gap-10 items-center">
+                  <div className="flex w-fit text-nowrap gap-4">
+                    <p>Max amount:</p>
+                    <p>
+                      {dataStored?.reduce(
+                        (accurate, item) =>
+                          accurate + (item.productInStorage || 0),
+                        0
+                      ) +
+                        " " +
+                        products?.find(
+                          (product) =>
+                            parseInt(product.id) === parseInt(item.productId)
+                        )?.unit}
+                    </p>
+                  </div>
+                  <input
+                    type="number"
+                    name="productAmount"
+                    placeholder={t("productAmount")}
+                    value={item.productAmount || 0}
+                    onChange={handleItemChange}
+                    className="col-span-2 mt-1 block w-full border-[1px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500  px-2 py-1"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={handleItemAdd}
+                    className="bg-[var(--Xanh-Base)] text-white px-4 py-2 rounded-md shadow hover:bg-green-700 transition"
+                  >
+                    {t("+")}
+                  </button>
+                </div>
+                {errors.products && (
+                  <p className="text-red-500 text-base font-medium mt-2">
+                    {errors.products}
+                  </p>
+                )}
+              </div>
+              <ul className="mt-10 space-y-2 overflow-auto h-fit max-h-[10rem]">
+                {form?.products &&
+                  form?.products?.map((item) => {
+                    console.log(item);
+                    const product = products.find((pro) => {
+                      console.log("pro", pro);
+                      return parseInt(pro.id) === parseInt(item.productId);
+                    });
+                    const detailProduct = products.find((pro) => {
+                      console.log("pro2", pro);
+                      return parseInt(pro.id) === parseInt(item.productId);
+                    });
+                    return (
+                      <>
+                        <li
+                          key={item.productId}
+                          className="flex justify-between items-center border-b pb-2"
+                        >
+                          <span>{product?.name}</span>
+                          <div className="flex gap-6">
+                            <p>
+                              {item.productAmount} {product.unit}
+                            </p>
+                            <span>
+                              {new Intl.NumberFormat().format(
+                                detailProduct?.price * item.productAmount
+                              )}{" "}
+                              vnd
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeItem(item.productId)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              {t("Remove")}
+                            </button>
+                          </div>
+                        </li>
+                      </>
+                    );
+                  })}
+              </ul>
+            </div>
+
+            <div className="flex justify-between space-x-4 mt-6 items-center">
+              <div className="flex justify-between w-full gap-8">
                 <button
                   type="button"
-                  onClick={handleItemAdd}
-                  className="bg-[var(--Xanh-Base)] text-white px-4 py-2 rounded-md shadow hover:bg-green-700 transition"
+                  onClick={() => {
+                    setForm(baseForm);
+                    setItem({ productId: 0, productAmount: 0 });
+                    setWarehouse(0);
+                  }} // Reset form
+                  className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md shadow hover:bg-gray-300 transition"
                 >
-                  {t("+")}
+                  {t("Reset")}
                 </button>
-              </div>
-              {errors.products && (
-                <p className="text-red-500 text-base font-medium mt-2">
-                  {errors.products}
-                </p>
-              )}
-            </div>
-            <ul className="mt-10 space-y-2 overflow-auto h-fit max-h-[10rem]">
-              {form?.products &&
-                form?.products?.map((item) => {
-                  console.log(item);
-                  const product = inventoriesShowList.find((pro) => {
-                    console.log("pro", pro);
-                    return parseInt(pro.id) === parseInt(item.productId);
-                  });
-                  const detailProduct = products.find((pro) => {
-                    console.log("pro2", pro);
-                    return parseInt(pro.id) === parseInt(item.productId);
-                  });
-                  return (
-                    <>
-                      <li
-                        key={item.productId}
-                        className="flex justify-between items-center border-b pb-2"
-                      >
-                        <span>
-                          {product?.productName} - {item.productAmount}/
-                          {product?.stock} stock
-                        </span>
-                        <div className="flex gap-6">
-                          <span>
-                            {new Intl.NumberFormat().format(
-                              detailProduct?.price * item.productAmount
-                            )}{" "}
-                            vnd
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removeItem(item.productId)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            {t("Remove")}
-                          </button>
-                        </div>
-                      </li>
-                    </>
-                  );
-                })}
-            </ul>
-          </div>
-
-          <div className="flex justify-between space-x-4 mt-6 items-center">
-            <div className="flex justify-between w-full gap-8">
-              <button
-                type="button"
-                onClick={() => {
-                  setForm(baseForm);
-                  setItem({ productId: 0, productAmount: 0 });
-                  setWarehouse(0);
-                }} // Reset form
-                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md shadow hover:bg-gray-300 transition"
-              >
-                {t("Reset")}
-              </button>
-              <div className="flex gap-8">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md shadow hover:bg-gray-600 transition"
-                  onClick={handeSaveAsDraft}
-                >
-                  {t("SaveAsDraft")}
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-[var(--Xanh-Base)] text-white px-4 py-2 rounded-md shadow hover:bg-green-700 transition"
-                  onClick={handleSubmit}
-                >
-                  {t("CreateOrder")}
-                </button>
+                <div className="flex gap-8">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-gray-500 text-white px-4 py-2 rounded-md shadow hover:bg-gray-600 transition"
+                    onClick={handeSaveAsDraft}
+                  >
+                    {t("SaveAsDraft")}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-[var(--Xanh-Base)] text-white px-4 py-2 rounded-md shadow hover:bg-green-700 transition"
+                    onClick={handleSubmit}
+                  >
+                    {t("CreateOrder")}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </form>
-        <div className="max-w-[50%] w-[50%]  z-10 max-h-[20%]">
-          <Mapping
-            // toLocation={deliveryZone?.name + " " + deliveryZone?.provinceName}
+          </form>
+          <div className="max-w-[50%] w-[50%]  z-10 max-h-[20%]">
+            <MappingOrder
+              // toLocation={deliveryZone?.name + " " + deliveryZone?.provinceName}
 
-            // setLatLng={() => {}}
-            {...mappingProps}
-          />
-          {/* <Mapping
+              // setLatLng={() => {}}
+              {...mappingProps}
+            />
+            {/* <Mapping
               showLocation="123 Main St, New York, NY"
   startLocation="456 Elm St, Boston, MA"
             height="90%"
           /> */}
-          {/* <Mapping showLocation="Xã Phước Tỉnh, Huyện Long Điền, Tỉnh Bà Rịa Vũng Tàu" /> */}
+            {/* <Mapping showLocation="Xã Phước Tỉnh, Huyện Long Điền, Tỉnh Bà Rịa Vũng Tàu" /> */}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

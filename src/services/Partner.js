@@ -53,6 +53,25 @@ export default function AxiosPartner() {
       return error;
     }
   };
+  const getProductByUserIdProvinceIdProductId = async (
+    productId,
+    provinceId,
+    userId
+  ) => {
+    try {
+      const url = `partner/get-store-with-products/${productId}/${provinceId}/${userId}`;
+
+      const fetching = await fetchDataBearer({
+        url: url,
+        method: "GET",
+      });
+
+      return fetching;
+    } catch (e) {
+      console.error(e);
+      return e;
+    }
+  };
   const getOrderRevunue = async (userId, showYear) => {
     try {
       const url =
@@ -130,5 +149,6 @@ export default function AxiosPartner() {
     getVerificationPaper,
     verifyVerificationPaper,
     rejectVerificationPaper,
+    getProductByUserIdProvinceIdProductId
   };
 }

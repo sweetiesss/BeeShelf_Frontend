@@ -38,8 +38,8 @@ export default function AxiosOrder() {
     try {
       const fetching = fetchDataBearer({
         url: `order/create-order?${
-          warehouseId && "warehouseId=" + warehouseId + "&send=" + send
-        }`,
+          warehouseId && "warehouseId=" + warehouseId + "&"
+        } ${"send=" + send}`,
         method: "POST",
         data: data,
       });
@@ -198,5 +198,12 @@ export default function AxiosOrder() {
     }
   };
 
-  return { getOrderByUserId, createOrder, sendOrderById, deleteOrderById ,updateOrder,cancelOrderById};
+  return {
+    getOrderByUserId,
+    createOrder,
+    sendOrderById,
+    deleteOrderById,
+    updateOrder,
+    cancelOrderById,
+  };
 }
