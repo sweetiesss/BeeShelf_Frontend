@@ -375,7 +375,7 @@ const Payment = () => {
             loading={loading}
             onClick={createPayment}
           >
-            {t("ConfirmMoneyTransferRequest")} 
+            {t("ConfirmMoneyTransferRequest1")} 
           </Button>,
         ]}
       >
