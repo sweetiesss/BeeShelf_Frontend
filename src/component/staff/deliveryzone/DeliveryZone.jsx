@@ -312,7 +312,7 @@ return (
       render: (text) => text || t("N/A"),
     },
     {
-      title: t("Warehouse"),
+      title: t("Warehouse1"),
       dataIndex: "warehouseName",
       key: "warehouseName",
       align: "center",
