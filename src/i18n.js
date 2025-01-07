@@ -560,7 +560,7 @@ i18n
             "Are you sure you want to delete this batch?",
           "Yes,Delete?": "Yes, Delete",
           Cancel: "Cancel",
-
+"Assign_Vehicle_To_Shipper1":"Assign",
           "Batch_deleted_successfully.": "Batch deleted successfully.",
           "Failed_to_delete_batch._Please_try_again.":
             "Failed to delete batch. Please try again.",
@@ -612,6 +612,7 @@ i18n
           Batch_List: "Batch List",
           Create_Batch: "Create Batch",
           Create_Batch: "Create Batch",
+          "SelectImage":"Select Image",
           Batch_Name: "Batch Name",
           Please_enter_a_batch_name: "Please enter a batch name",
           Batch_name_must_be_250_characters_or_fewer:
@@ -715,7 +716,7 @@ i18n
           "Failedtofetchpayments.": "Failed to fetch payments.",
           "Nodatareturnedfromtheserver.": "No data returned from the server.",
           "Dataloadedsuccessfully!": "Data loaded successfully!",
-          "Receiver_Name:": "Receiver_Name",
+          "ReceiverName": "Receiver Name",
           "WarehouseIDisnotavailable.Pleaseloginagain.":
             "Warehouse ID is not available. Please log in again.",
           EasyManagement: "Easy Management",
@@ -886,6 +887,7 @@ i18n
           Whychooseus: "Tại sao chọn chúng tôi",
           Getthebestpackageforyourbusiness:
             "Nhận gói tốt nhất cho doanh nghiệp của bạn",
+            "ReceiverName": "Tên người nhận",
           servicesDesciption:
             "Chúng tôi làm việc có hệ thống để tích hợp trách nhiệm doanh nghiệp vào hoạt động kinh doanh cốt lõi và chia sẻ chuyên môn của mình nhằm mang lại lợi ích cho các cộng đồng nơi chúng tôi hoạt động",
 
@@ -1067,6 +1069,7 @@ i18n
           Product_Name: "Tên Sản Phẩm",
           Request_Type: "Loại Yêu Cầu",
           Warehouse_Name: "Tên Kho",
+          "SelectImage":"Chọn Ảnh",
           Status: "Trạng Thái",
           Pending: "Chờ Xử Lý",
           Processing: "Đang Xử Lý",
@@ -1168,6 +1171,9 @@ i18n
           Delivered: "Đã Giao",
           Canceled: "Đã Hủy",
           Completed: "Hoàn Thành",
+          "Assign_Vehicle_To_Shipper1":"Giao Phó",
+          
+          
           //DeliveryZone:
           "Warehouse_ID_is_not_available._Please_log_in_again.":
             "ID Kho không khả dụng. Vui lòng đăng nhập lại.",
@@ -1742,6 +1748,7 @@ i18n
           Overallrating: "総合評価",
           Ourservice: "私たちのサービス",
           Whychooseus: "なぜ私たちを選ぶのか",
+          "SelectImage":"チョンン",
           Getthebestpackageforyourbusiness:
             "最適なパッケージを手に入れましょうあなたのビジネス",
           servicesDesciption:
@@ -1755,6 +1762,7 @@ i18n
             "多くの顧客、倉庫、在庫、製品を管理する大規模なサイトや代理店に最適です",
           Warehouses: "倉庫",
           Filters: "フィルター",
+          "Assign_Vehicle_To_Shipper1":"割り当てる",
           Name: "名前",
           Province: "都道府県",
           Status: "ステータス",
@@ -1778,6 +1786,7 @@ i18n
           AssignOrder: "注文割り当て",
           OrderManage: "注文管理",
           RequestManageRequest: "リクエスト管理",
+          "ReceiverName": "受信者名",
           UserProfile: "ユーザープロファイル",
           PersonalDetails: "個人情報",
           PhoneNumber: "電話番号:",

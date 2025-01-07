@@ -263,7 +263,7 @@ const Ordermanage = () => {
       render: (status) => renderStatusTag(status),
     },
     {
-      title: t("Receiver_Name"),
+      title: t("ReceiverName"),
       dataIndex: "receiverName",
       key: "receiverName",
     },
@@ -547,7 +547,7 @@ const Ordermanage = () => {
                   <p>{selectedOrder.receiverPhone}</p>
                 </div>
                 <div>
-                  <p className="font-bold">{t("Receiver_Name")}:</p>
+                  <p className="font-bold">{t("ReceiverName")}:</p>
                   <p>{selectedOrder.receiverName}</p>
                 </div>
                 <div>

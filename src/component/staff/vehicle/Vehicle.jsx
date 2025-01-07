@@ -401,7 +401,7 @@ console.log("Shipper options set to:", response.data.items);
             loading={loading}
             onClick={() => assignVehicleToShipper(vehicleId, shipperId)}
           >
-            {t("Assign_Vehicle_To_Shipper")}
+            {t("Assign_Vehicle_To_Shipper1")}
           </Button>,
         ]}
       >
