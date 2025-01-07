@@ -1,30 +1,28 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../../context/AuthContext";
 import AxiosUser from "../../services/User";
 import { EnvelopeSimple, LockKeyOpen } from "@phosphor-icons/react";
 import { useGoogleLogin } from "@react-oauth/google";
-import ggIcon from "../../assets/img/googleIcon.png";
 import axios from "axios";
 import SpinnerLoading from "../shared/Loading";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 export default function SignIn({ action, setAction }) {
+  const nav = useNavigate();
+  const { t } = useTranslation();
+  const { handleLogin, setIsAuthenticated } = useContext(AuthContext);
+  const { loginByEmailPassword } = AxiosUser();
   const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({});
   const [errors, setErrors] = useState();
   const [loading, setLoading] = useState(false);
-  const nav = useNavigate();
-
-  const { handleLogin, setIsAuthenticated } = useContext(AuthContext);
-  const { loginByEmailPassword } = AxiosUser();
 
   const handleInput = (e) => {
     const value = e.target;
     setForm(() => ({ ...form, [value.name]: value.value }));
   };
-  const { t } = useTranslation();
 
   const checkLogin = async () => {
     try {
@@ -32,25 +30,14 @@ export default function SignIn({ action, setAction }) {
       const checkValidate = validateForm();
       if (checkValidate) {
         const findData = await loginByEmailPassword(form);
-        console.log("here", findData);
+
         if (findData) {
           if (findData?.status === 200) {
-            console.log("userInfor", findData?.data);
             toast.success("Welcome:" + findData?.data?.firstName);
             handleLogin(findData?.data, rememberMe);
             nav("/" + findData?.data?.roleName);
-            // } else {
-            //   console.log(rememberMe);
-            //   console.log("sign in", findData);
-            //   setErrors((prev) => ({ ...prev, others: "not found" }));
-            // }
           } else {
-            console.log("here2");
-
-            console.log(findData?.response?.data?.message);
-
             const resultError = findData?.response?.data?.message;
-            console.log(resultError);
             if (
               resultError.replace(/\s+/g, "").toLowerCase().includes("password")
             ) {
@@ -101,9 +88,7 @@ export default function SignIn({ action, setAction }) {
         );
         if (userInfoResponse?.status === 200) {
           const userInfo = userInfoResponse.data;
-          console.log("User response:", userInfoResponse);
-          console.log("User Info:", userInfo);
-          console.log("User Email:", userInfo.email);
+
           try {
             const checkLogin = await axios.post(
               "https://beeshelfgateway.azurewebsites.net/gateway/auth/login",
@@ -113,13 +98,11 @@ export default function SignIn({ action, setAction }) {
                   "p7$G3@L9k#2N1%yZxT!m8&jQ4bV6*rW$H2eD^fK9@xYzP3$cR&1b*",
               }
             );
-            console.log(checkLogin);
 
             if (checkLogin && checkLogin?.status === 200) {
               if (checkLogin?.data && checkLogin?.data.length > 0) {
                 const successDataToken = checkLogin?.data;
                 const objectCheck = jwtDecode(successDataToken);
-                console.log("check", successDataToken);
 
                 setIsAuthenticated(successDataToken);
                 if (
@@ -135,13 +118,12 @@ export default function SignIn({ action, setAction }) {
                       headers: { Authorization: `Bearer ${successDataToken}` },
                     }
                   );
-                  console.log("hereeeeeeeee", getAccount);
+
                   if (
                     getAccount &&
                     getAccount?.status === 200 &&
                     getAccount?.data
                   ) {
-                    console.log("here");
                     toast.success("Welcome:" + getAccount?.data?.firstName);
                     handleLogin(getAccount?.data, false);
                     nav("/" + getAccount?.data?.roleName);
@@ -173,67 +155,11 @@ export default function SignIn({ action, setAction }) {
                 provinceId: 1,
                 pictureLink: userInfo?.picture,
               };
-              console.log("hereeeeeee");
 
               nav("../authorize/signup", {
                 state: { action: "SignUp", ...submitForm },
               });
-              // const createAccount = await axios.post(
-              //   "https://beeshelfgateway.azurewebsites.net/gateway/auth/sign-up",
-
-              //   submitForm
-              // );
-              // console.log("createAccount", createAccount);
-              // try {
-              //   const checkLogin = await axios.post(
-              //     "https://beeshelfgateway.azurewebsites.net/gateway/auth/login",
-              //     {
-              //       email: userInfo.email,
-              //       password:
-              //         "p7$G3@L9k#2N1%yZxT!m8&jQ4bV6*rW$H2eD^fK9@xYzP3$cR&1b*",
-              //     }
-              //   );
-              //   console.log(checkLogin);
-
-              //   if (checkLogin && checkLogin?.status === 200) {
-              //     if (checkLogin?.data && checkLogin?.data.length > 0) {
-              //       const successDataToken = checkLogin?.data;
-              //       const objectCheck = jwtDecode(successDataToken);
-              //       console.log("check", successDataToken);
-
-              //       setIsAuthenticated(successDataToken);
-              //       if (
-              //         objectCheck &&
-              //         objectCheck?.[
-              //           "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-              //         ] === "Partner"
-              //       ) {
-              //         const getAccount = await axios.get(
-              //           "https://beeshelfgateway.azurewebsites.net/gateway/partner/get-partner/" +
-              //             userInfo.email,
-              //           {
-              //             headers: {
-              //               Authorization: `Bearer ${successDataToken}`,
-              //             },
-              //           }
-              //         );
-              //         console.log(getAccount);
-              //         if (
-              //           getAccount &&
-              //           getAccount?.status === 200 &&
-              //           getAccount?.data
-              //         ) {
-              //           handleLogin(getAccount?.data);
-              //           nav("/" + getAccount?.data?.roleName);
-              //         }
-              //       }
-              //     }
-              //   }
-              // } catch (e) {
-              //   console.log(e);
-              // }
             }
-            console.log("checkLogin", checkLogin);
           }
         }
 
@@ -244,9 +170,7 @@ export default function SignIn({ action, setAction }) {
         setLoading(false);
       }
     },
-    onError: () => {
-      console.log("Google Login Failed");
-    },
+    onError: () => {},
   });
   return (
     <div className="w-full p-4  overflow-hidden relative bg-white h-full">
@@ -364,20 +288,6 @@ export default function SignIn({ action, setAction }) {
               </div>
               <div className="grow shrink basis-0 h-[0px] border border-[#c6c9d8]"></div>
             </div>
-            {/* <div id="buttonDiv" className="bg-black w-full h-fit"></div> */}
-            {/* <GoogleLogin
-          onSuccess={(token) => {
-            const decode=jwtDecode(token?.credential)
-            console.log(decode);
-          }}
-          onError={() => {
-            console.log("Login Failed");
-          }}
-          useOneTap
-          size="large"
-          text="continue_with"
-          auto_select={false}
-        /> */}
             <div
               className="h-16 px-[15px] py-5 rounded-[15px] border border-[#848a9f] justify-center items-center gap-4 inline-flex cursor-pointer hover:border-blue-500 hover:bg-blue-100 transition-all duration-200"
               onClick={loginByGoogle}

@@ -1,11 +1,9 @@
 import { useContext, useEffect, useRef, useState } from "react";
-
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/img/defaultAvatar.jpg";
-import { Bell, CreditCard } from "@phosphor-icons/react";
+import { CreditCard } from "@phosphor-icons/react";
 import { SettingContext } from "../../context/SettingContext";
-
 import { LanguageSelector } from "../shared/ChangeLanguages";
 import { useTranslation } from "react-i18next";
 import { useDetail } from "../../context/DetailContext";
@@ -13,8 +11,8 @@ import axios from "axios";
 
 export function HeaderUnauthenticated() {
   const nav = useNavigate();
-  const [activeSection, setActiveSection] = useState("about");
   const { t } = useTranslation();
+  const [activeSection, setActiveSection] = useState("about");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,7 +46,6 @@ export function HeaderUnauthenticated() {
 
   return (
     <div className="w-full px-[300px] py-[23px] fixed bg-white shadow flex justify-between items-center z-10">
-      {/* Logo */}
       <div className="flex items-center gap-[20px]">
         <div
           className="text-[#0db977] text-[25px] font-bold cursor-pointer  relative"
@@ -61,8 +58,6 @@ export function HeaderUnauthenticated() {
           <p>BeeShelf</p>
         </div>
       </div>
-
-      {/* Navigation Links */}
       <div className="flex gap-[20px] pl-[40px]">
         <button
           className={`menu-item px-[15px] h-[40px] text-lg text-[#848a9f] hover:text-[#0db977] ${
@@ -95,8 +90,6 @@ export function HeaderUnauthenticated() {
           {t("Contact")}
         </button>
       </div>
-
-      {/* Sign In and Sign Up Buttons */}
       <div className="flex items-center gap-[20px]">
         <LanguageSelector />
         <button
@@ -117,23 +110,18 @@ export function HeaderUnauthenticated() {
 }
 
 export function HeaderAuthenticated() {
-  const [openNotification, setOpenNotification] = useState(false);
+  const { t } = useTranslation();
   const {
     userInfor,
-    setUserInfor,
-    setIsAuthenticated,
     handleLogout,
     authWallet,
     setAuthWallet,
     isAuthenticated,
     refrestAuthWallet,
-    setRefrestAuthWallet,
   } = useContext(AuthContext);
-  const { typeDetail, updateTypeDetail } = useDetail();
+  const { updateTypeDetail } = useDetail();
 
-  const { settingInfor, setSettingInfor } = useContext(SettingContext);
-  const [theme, setTheme] = useState(settingInfor.theme);
-  const { t } = useTranslation();
+  const [openNotification, setOpenNotification] = useState(false);
 
   useEffect(() => {
     document.addEventListener("mousedown", mouseDownEvent);
@@ -145,15 +133,6 @@ export function HeaderAuthenticated() {
   useEffect(() => {
     getAuthWalletMoney();
   }, [refrestAuthWallet]);
-
-  const changeTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    setSettingInfor((prev) => ({
-      ...prev,
-      theme: newTheme,
-    }));
-  };
   const nav = useNavigate();
 
   const logout = () => {
@@ -175,7 +154,6 @@ export function HeaderAuthenticated() {
 
   const handleProfileDetail = () => {
     updateTypeDetail("profile");
-    console.log(typeDetail);
   };
 
   const handleAddingCoinsButton = () => {
@@ -186,8 +164,6 @@ export function HeaderAuthenticated() {
     try {
       if (userInfor?.roleName === "Partner" && userInfor?.roleId == 2) {
         if (userInfor && isAuthenticated) {
-          console.log("check tokeen", isAuthenticated);
-
           const response = await axios.get(
             `${process.env.REACT_APP_BASE_URL_API}partner/get-wallet/${userInfor?.id}`,
             {
@@ -196,8 +172,6 @@ export function HeaderAuthenticated() {
               },
             }
           );
-          console.log(response);
-
           setAuthWallet(response.data);
         }
       } else {
@@ -216,28 +190,6 @@ export function HeaderAuthenticated() {
     <div className="flex items-center justify-end w-full bg-[var(--main-color)] text-[var(--text-main-color)] px-4 border-0 border-b-2 header">
       <div className="flex gap-10 items-center">
         <LanguageSelector />
-        {/* <div className="p-4 relative">
-          <input
-            type="checkbox"
-            className="theme-input"
-            id="toggle_checkbox"
-            checked={theme === "dark"}
-            onChange={changeTheme}
-          />
-
-          <label for="toggle_checkbox" className="background-theme">
-            <div id="star">
-              <div class="star" id="star-1">
-                ★
-              </div>
-              <div class="star" id="star-2">
-                ★
-              </div>
-            </div>
-            <div id="moon"></div>
-          </label>
-        </div> */}
-
         {authWallet && userInfor?.roleName === "Partner" && (
           <div
             className="w-fit cursor-pointer flex gap-4 items-center"

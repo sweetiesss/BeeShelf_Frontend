@@ -1,31 +1,22 @@
 import { CheckCircle, EnvelopeSimple, Password } from "@phosphor-icons/react";
 import { useState } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import AxiosUser from "../../services/User";
-import { jwtDecode } from "jwt-decode";
+
 import { useTranslation } from "react-i18next";
 
 export default function ForgotPassword({ setAction }) {
+  const nav = useNavigate();
+  const location = useLocation();
+  const { t } = useTranslation();
+  const { requestResetPassword, sendRequestResetPassword } = AxiosUser();
   const [form, setForm] = useState({});
   const [error, setError] = useState({});
   const [loading, setLoading] = useState("");
   const [success, setSuccess] = useState(false);
-  const nav = useNavigate();
-  const location = useLocation();
-  const { requestResetPassword, sendRequestResetPassword } = AxiosUser();
-
-  // const token = new URLSearchParams(location.search).get("token");
 
   const params = new URLSearchParams(location.search);
-
-  // Encode the token parameter
   const token = params.get("token");
-  // params.set("token", encodeURIComponent(token));
-
-  // Reconstruct the encoded URL
-  const encodedUrl = `${params.toString().replace(/\+/g, "%2B")}`;
-  const sentToken = encodedUrl.slice(6);
-  const { t } = useTranslation();
   const handleInput = (e) => {
     const value = e.target;
     setForm(() => ({ ...form, [value.name]: value.value }));
@@ -35,7 +26,6 @@ export default function ForgotPassword({ setAction }) {
     try {
       setError({});
       setLoading(true);
-      console.log({ sentToken, Password: form.newPassword });
       const submitForm = {
         token: token.replaceAll(" ", "+"),
         newPassword: form.newPassword,
@@ -59,7 +49,6 @@ export default function ForgotPassword({ setAction }) {
         setForm({});
         setAction("Login");
       }
-      console.log(result);
     } catch (e) {
       console.log(e);
     } finally {
@@ -70,7 +59,6 @@ export default function ForgotPassword({ setAction }) {
     try {
       setLoading(true);
       const result = await sendRequestResetPassword(form.email);
-      console.log(result);
       if (result.status === 200) {
         setSuccess(true);
       }
@@ -91,17 +79,7 @@ export default function ForgotPassword({ setAction }) {
               {t("Enteryouremailgetanewpassword")}
             </p>
           </header>
-          <div className="flex flex-col space-y-4">
-            {/* <div>
-          <input
-            className="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-            type="text"
-            onChange={handleInput}
-            name="Email"
-            placeholder="Email"
-            value={form?.Email || ""}
-          />
-        </div> */}
+          <div className="flex flex-col space-y-4">       
             {!success ? (
               <>
                 <div>
