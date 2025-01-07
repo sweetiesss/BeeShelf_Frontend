@@ -503,7 +503,7 @@ const BatchManage = () => {
               { required: true, message: t("Please_enter_a_batch_name") },
               {
                 max: 50,
-                message: t("Batch_name_must_be_250_characters_or_fewer"),
+                message: t("Batch_name_must_be_50_characters_or_fewer"),
               },
               {
                 validator: (_, value) => {
