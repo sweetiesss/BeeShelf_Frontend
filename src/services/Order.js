@@ -34,12 +34,11 @@ export default function AxiosOrder() {
       return e;
     }
   };
-  const createOrder = async (data, warehouseId, send) => {
+  const createOrder = async (data, send) => {
     try {
+      // ${warehouseId && "warehouseId=" + warehouseId + "&"}
       const fetching = fetchDataBearer({
-        url: `order/create-order?${
-          warehouseId && "warehouseId=" + warehouseId + "&"
-        } ${"send=" + send}`,
+        url: `order/create-order?send=${send}`,
         method: "POST",
         data: data,
       });
