@@ -286,15 +286,15 @@ i18n
           Old_Lot_ID: "Old Lot ID",
           //Inventory:
           "Code_Lot_Number":"Lot Code",
-          Warehouse_ID_is_not_available: "Warehouse ID is not available",
+          Warehouse_ID_is_not_available: "Store ID is not available",
           Data_loaded_successfully: "Data loaded successfully!",
           No_data_returned_from_the_server: "No data returned from the server.",
-          Error_fetching_inventories: "Error fetching inventories:",
+          Error_fetching_inventories: "Error fetching room:",
           Failed_to_fetch_inventories_Please_try_again:
-            "Failed to fetch inventories. Please try again.",
-          Error_fetching_inventory_details: "Error fetching inventory details:",
+            "Failed to fetch room. Please try again.",
+          Error_fetching_inventory_details: "Error fetching room details:",
           Failed_to_fetch_inventory_details_Please_try_again:
-            "Failed to fetch inventory details. Please try again.",
+            "Failed to fetch room details. Please try again.",
           Inventory_Management: "Room Management",
           Search_by_Inventory_Name: "Search by Room Name",
           Bought_Date: "Bought Date",
@@ -321,7 +321,7 @@ i18n
 
           //DeliveryZone:
           "Warehouse_ID_is_not_available._Please_log_in_again.":
-            "Warehouse ID is not available. Please log in again.",
+            "Store ID is not available. Please log in again.",
           "Delivery_Zones_loaded_successfully!":
             "Delivery Zones loaded successfully!",
           "No_delivery_zones_returned_from_the_server.":
@@ -344,7 +344,7 @@ i18n
           "Error_fetching_the_shipper_list_for_selection.":
             "Error fetching the shipper list for selection.",
           "Warehouse_ID_is_not_available._Please_log_in_again.":
-            "Warehouse ID is not available. Please log in again.",
+            "Store ID is not available. Please log in again.",
           "Shippers_loaded_successfully_for_changing!":
             "Shippers loaded successfully for changing!",
           "No_shippers_available_for_changing.":
@@ -496,13 +496,13 @@ i18n
           Failed_to_unassign_vehicle: "Failed to unassign vehicle.",
           Vehicle_assigned_successfully: "Vehicle assigned successfully!",
           Failed_to_confirm_money_transfer: "Failed to confirm money transfer.",
-          Warehouse_ID_is_not_available: "Warehouse ID is not available",
+          Warehouse_ID_is_not_available: "Store ID is not available",
           Shippers_data: "Shippers data:",
           Failed_to_fetch_shippers_data: "Failed to fetch shippers data",
           Error_fetching_shippers_data: "Error fetching shippers data:",
           Failed_to_fetch_vehicle_data: "Failed to fetch vehicle data",
           Something_went_wrong: "Something went wrong!",
-          Warehouse_ID_is_not_available: "Warehouse ID is not available",
+          Warehouse_ID_is_not_available: "Store ID is not available",
           Shippers_data: "Shippers data:",
           Failed_to_fetch_shippers_data: "Failed to fetch shippers data",
           Error_fetching_shippers_data: "Error fetching shippers data:",
@@ -576,7 +576,7 @@ i18n
           Failed_to_fetch_orders_data: "Failed to fetch orders data",
           "Formatted_orders:": "Formatted orders:",
           "Error_fetching_orders:": "Error fetching orders:",
-          Warehouse_ID_is_not_available: "Warehouse ID is not available",
+          Warehouse_ID_is_not_available: "Store ID is not available",
           "Shippers_data:": "Shippers data:",
           Failed_to_fetch_shippers_data: "Failed to fetch shippers data",
           "Error_fetching_shippers_data:": "Error fetching shippers data:",
@@ -1139,12 +1139,12 @@ i18n
           Data_loaded_successfully: "Dữ liệu đã được tải thành công!",
           No_data_returned_from_the_server:
             "Không có dữ liệu trả về từ máy chủ.",
-          Error_fetching_inventories: "Lỗi khi lấy danh sách kho:",
+          Error_fetching_inventories: "Lỗi khi lấy danh sách phòng:",
           Failed_to_fetch_inventories_Please_try_again:
-            "Không thể lấy danh sách kho. Vui lòng thử lại.",
-          Error_fetching_inventory_details: "Lỗi khi lấy chi tiết kho:",
+            "Không thể lấy danh sách phòng. Vui lòng thử lại.",
+          Error_fetching_inventory_details: "Lỗi khi lấy chi tiết phòng:",
           Failed_to_fetch_inventory_details_Please_try_again:
-            "Không thể lấy chi tiết kho. Vui lòng thử lại.",
+            "Không thể lấy chi tiết phòng. Vui lòng thử lại.",
             "Code_Lot_Number":"Mã Lô",
           Inventory_Management: "Quản lý phòng",
           Search_by_Inventory_Name: "Tìm kiếm theo tên phòng chứa",
