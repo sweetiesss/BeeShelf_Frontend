@@ -3,10 +3,7 @@ import Pagination from "../../shared/Paggination";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowDown,
-  ArrowsDownUp,
   ArrowUp,
-  CaretDown,
-  CaretUp,
   DotsThreeVertical,
   ExclamationMark,
   X,
@@ -37,6 +34,7 @@ export default function ProductList({
   errorList,
 }) {
   const { t } = useTranslation();
+  const actionComponent = useRef();
   const [openAction, setOpenAction] = useState();
   const [thisIsTheLastItem, IsThisIsTheLastItem] = useState(false);
   const handleOpenActionTab = async (e, product) => {
@@ -52,7 +50,6 @@ export default function ProductList({
       IsThisIsTheLastItem(true);
     }
   };
-  const actionComponent = useRef();
   const handleCloseAction = () => {
     setOpenAction();
   };
@@ -79,7 +76,6 @@ export default function ProductList({
             <th className="border-b-2 py-4 w-10 text-center px-2 ">
               {selectedProducts?.length > 0 ? (
                 <input
-
                   type="checkbox"
                   checked={overall?.checked}
                   onChange={handleClickOverall}
@@ -214,7 +210,6 @@ export default function ProductList({
             products?.map((product) => {
               let chooice = selectedProducts?.some((p) => p.id === product.id);
               let checkError = errorList?.find((p) => p.item.id === product.id);
-              console.log(checkError);
               let editAble = editProduct === product;
               return (
                 <tr
@@ -235,7 +230,6 @@ export default function ProductList({
                           ? "bg-[var(--Xanh-Base)]"
                           : "bg-[var(--en-vu-300)]"
                       }`}
-                      // checked={isProductSelected(product)}
                       onChange={() => toggleProductSelection(product)}
                       onClick={(e) => e.stopPropagation()}
                     />
@@ -285,7 +279,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                      placeholder="Input name"
+                        placeholder="Input name"
                         value={editForm?.name}
                         name="name"
                         className="w-[80%] px-2 py-1"
@@ -327,7 +321,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                      placeholder="Input origin"
+                        placeholder="Input origin"
                         value={editForm?.origin}
                         name="origin"
                         className="w-[80%] px-2 py-1"
@@ -353,7 +347,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                      placeholder="Price"
+                        placeholder="Price"
                         type="number"
                         value={editForm?.price}
                         name="price"
@@ -399,7 +393,7 @@ export default function ProductList({
                   >
                     {editAble ? (
                       <input
-                      placeholder="Weight"
+                        placeholder="Weight"
                         type="number"
                         value={editForm?.weight}
                         name="weight"

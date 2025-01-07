@@ -149,6 +149,6 @@ export default function AxiosPartner() {
     getVerificationPaper,
     verifyVerificationPaper,
     rejectVerificationPaper,
-    getProductByUserIdProvinceIdProductId
+    getProductByUserIdProvinceIdProductId,
   };
 }

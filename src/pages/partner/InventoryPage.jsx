@@ -482,7 +482,7 @@ export default function InventoryPage() {
         //   (inventory.ocopPartnerId === userInfor.id ||
         //     inventory.ocopPartnerId === null)
       ) || [];
-    console.log("result",result);
+    console.log("result", result);
 
     const combinedList = [...inventoriesOwnedList, ...result];
     setInventoriesBased(combinedList);

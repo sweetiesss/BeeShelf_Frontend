@@ -44,11 +44,13 @@ ChartJS.register(
 );
 
 const WarehouseDashboard = () => {
-  // Dummy data for sales overview
-  const [orders, setOrders] = useState();
-  const [ordersPrevious, setOrdersPrevious] = useState();
   const { userInfor } = useAuth();
   const { getWarehouseDashboardData } = AxiosEmployee();
+  const { t } = useTranslation();
+
+  const [orders, setOrders] = useState();
+  const [ordersPrevious, setOrdersPrevious] = useState();
+
   const [revenueUpdate, setRevenueUpdate] = useState();
   const [revenueUpdate2, setRevenueUpdate2] = useState();
   const [revenueInventoryUpdate, setRevenueInventoryUpdate] = useState();
@@ -57,7 +59,6 @@ const WarehouseDashboard = () => {
   const [totalStatusCount2, setTotalStatusCount2] = useState();
   const [loading, setLoading] = useState(false);
   const [thisYear, setThisYear] = useState(new Date().getFullYear());
-  const { t } = useTranslation();
 
   const salesOverviewData = {
     labels: [t("Bought"), t("Notbought")],
@@ -75,9 +76,9 @@ const WarehouseDashboard = () => {
   };
   const generateColorsForChart = (length, offset = 0) => {
     const colors = [];
-    const step = 360 / length; // Divide the hue spectrum evenly
+    const step = 360 / length; 
     for (let i = 0; i < length; i++) {
-      const hue = (i * step + offset) % 360; // Add offset to differentiate charts
+      const hue = (i * step + offset) % 360; 
       const color = `hsl(${hue}, 70%, 70%)`;
       colors.push(color);
     }
@@ -90,7 +91,7 @@ const WarehouseDashboard = () => {
       {
         label: "OrdersSalesOverview",
         data: revenueUpdate?.map((item) => item?.totalRevenue || 100000),
-        backgroundColor: generateColorsForChart(revenueUpdate?.length,0),
+        backgroundColor: generateColorsForChart(revenueUpdate?.length, 0),
         hoverOffset: 10,
       },
     ],
@@ -103,7 +104,10 @@ const WarehouseDashboard = () => {
         data: revenueInventoryUpdate?.map(
           (item) => item?.totalInventoryRevenue || 100000
         ),
-        backgroundColor: generateColorsForChart(revenueInventoryUpdate?.length,0),
+        backgroundColor: generateColorsForChart(
+          revenueInventoryUpdate?.length,
+          0
+        ),
         hoverOffset: 10,
       },
     ],
@@ -151,15 +155,6 @@ const WarehouseDashboard = () => {
     };
     fetchBeginData();
   }, [thisYear]);
-
-  console.log(orders);
-  console.log(ordersPrevious);
-  console.log("revenueUpdate", revenueUpdate);
-  console.log("revenueInventoryUpdate", revenueInventoryUpdate);
-  console.log("revenueUpdate2", revenueUpdate2);
-  console.log("revenueInventoryUpdate2", revenueInventoryUpdate2);
-
-
   const salesOverviewOptions = {
     plugins: {
       legend: { display: false },
@@ -181,7 +176,6 @@ const WarehouseDashboard = () => {
     },
   };
 
-  // Dummy data for revenue updates
   const revenueUpdateData = {
     labels: [
       t("Jan"),
@@ -208,9 +202,7 @@ const WarehouseDashboard = () => {
   const calculateOrderStatuses = (data) => {
     let totalBoughtInventory = 0;
     let totalUnboughtInventory = 0;
-    console.log("here", data);
-
-    // Loop through each warehouse
+  
     data?.data?.forEach((warehouse) => {
       totalBoughtInventory += warehouse.totalBoughtInventory || 0;
       totalUnboughtInventory += warehouse.totalUnboughtInventory || 0;
@@ -232,8 +224,6 @@ const WarehouseDashboard = () => {
       y: { beginAtZero: true },
     },
   };
-
-  // Dummy data for yearly sales
   const yearlySalesData = {
     labels: revenueUpdate
       ? revenueUpdate.map((item) => item?.warehouseName)
@@ -294,7 +284,7 @@ const WarehouseDashboard = () => {
     },
   };
   const onChange = (date, dateString) => {
-    console.log("dateString", dateString);
+   
     if (dateString) {
       setThisYear(dateString);
       return;
@@ -409,10 +399,7 @@ const WarehouseDashboard = () => {
               </div>
             </div>
           </div>
-
-          {/* Bottom Row for Charts */}
           <div className="grid grid-cols-4 gap-6">
-            {/* Sales Overview */}
             <div className="p-4 bg-white rounded-lg shadow-xl border-[1px] col-span-1 ">
               <h2 className="text-lg font-bold mb-4">
                 {t("InventoriesOverview")}
@@ -469,8 +456,7 @@ const WarehouseDashboard = () => {
                         <p>{t("OrdersRevenue")}:</p>
                         <p>
                           {(() => {
-                            console.log("check item", item?.totalRevenue);
-
+                          
                             const totalSales = item?.totalRevenue || 0;
                             const formattedSales =
                               totalSales > 1000000
@@ -486,11 +472,7 @@ const WarehouseDashboard = () => {
                         <p>{t("InventoriesRevenue")}:</p>
                         <p>
                           {(() => {
-                            console.log(
-                              "check item",
-                              item?.totalInventoryRevenue
-                            );
-
+                 
                             const totalSales = item?.totalInventoryRevenue || 0;
                             const formattedSales =
                               totalSales > 1000000

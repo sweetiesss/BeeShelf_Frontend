@@ -34,22 +34,20 @@ ChartJS.register(
 );
 
 const OrderDashboard = () => {
-  // Dummy data for sales overview
+  const { userInfor } = useAuth();
+  const { t } = useTranslation();
+  const { getOrderRevunue, getAllProduct } = AxiosPartner();
+  const { getInventory1000ByUserId } = AxiosInventory();
   const [allProducts, setAllProduct] = useState();
   const [allIventories, setAllIventory] = useState();
   const [orders, setOrders] = useState();
   const [ordersPrevious, setOrdersPrevious] = useState();
-  const { userInfor } = useAuth();
-  const { getOrderRevunue, getAllProduct } = AxiosPartner();
-  const { getInventory1000ByUserId } = AxiosInventory();
-
   const [revenueUpdate, setRevenueUpdate] = useState();
   const [revenueUpdate2, setRevenueUpdate2] = useState();
   const [totalStatusCount, setTotalStatusCount] = useState();
   const [totalStatusCount2, setTotalStatusCount2] = useState();
   const [loading, setLoading] = useState(false);
   const [thisYear, setThisYear] = useState(new Date().getFullYear());
-  const { t } = useTranslation();
   const salesOverviewData = {
     labels: [
       t("Canceled"),
@@ -94,13 +92,11 @@ const OrderDashboard = () => {
           setOrdersPrevious(getData2);
 
           const completedOrderTotals = getData?.map((entry) => {
-            // Filter for Completed orders and sum their orderAmount
             return entry.data
               .filter((order) => order.orderStatus === "Completed")
               .reduce((sum, order) => sum + order.amount, 0);
           });
           const completedOrderTotals2 = getData2?.map((entry) => {
-            // Filter for Completed orders and sum their orderAmount
             return entry.data
               .filter((order) => order.orderStatus === "Completed")
               .reduce((sum, order) => sum + order.amount, 0);
@@ -134,8 +130,6 @@ const OrderDashboard = () => {
       },
     },
   };
-
-  // Dummy data for revenue updates
   const revenueUpdateData = {
     labels: [
       t("Jan"),
@@ -177,15 +171,10 @@ const OrderDashboard = () => {
 
     let totalOrder = 0;
     let totalSales = 0;
-
-    // Loop through months
     data.forEach((month) => {
       month.data.forEach((order) => {
-        // Add up order statuses
         statusCount[order.orderStatus] += order?.orderAmount || 0;
         statusSales[order.orderStatus] += order?.amount || 0;
-
-        // Sum total orders and sales for Completed status
         if (order.orderStatus === "Completed") {
           totalOrder += order.orderAmount || 0;
           totalSales += order.amount || 0;
@@ -200,7 +189,7 @@ const OrderDashboard = () => {
       totalSales,
     };
 
-    return result; // Set the state
+    return result;
   };
 
   const revenueUpdateOptions = {
@@ -211,8 +200,6 @@ const OrderDashboard = () => {
       y: { beginAtZero: true },
     },
   };
-
-  // Dummy data for yearly sales
   const yearlySalesData = {
     labels: [
       t("Jan"),
@@ -257,7 +244,6 @@ const OrderDashboard = () => {
     },
   };
   const onChange = (date, dateString) => {
-    console.log("dateString", dateString);
     if (dateString) {
       setThisYear(dateString);
       return;
