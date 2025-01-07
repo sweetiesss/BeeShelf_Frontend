@@ -308,7 +308,7 @@ const Inventory = () => {
                     </Paragraph>
                     <Paragraph>
                       <strong>{t("Warehouse_Name")}:</strong>{" "}
-                      {item.warehouseName}
+                      {item.storeName}
                     </Paragraph>
                     <Paragraph>
                       <strong>{t("Bought_Date")}:</strong>{" "}
