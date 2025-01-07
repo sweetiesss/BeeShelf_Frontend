@@ -63,9 +63,10 @@ const Vehicle = () => {
           ?.filter((item) => !item.assignedDriverId)
           .map((vehicle) => ({
             value: vehicle.id,
-            label: `${t("VehicleId")}: ${vehicle.id} - ${t("Name_Vehicle")}: ${
-              vehicle.name
-            } - ${t("License_Plate")}: ${vehicle.licensePlate}`,
+            label: `
+
+            ${t("Name_Vehicle")}: ${vehicle.name} - 
+            ${t("License_Plate")}: ${vehicle.licensePlate}`,
           }));
         setVehicleIdOptions(options);
       } else {
@@ -143,8 +144,8 @@ const Vehicle = () => {
           },
         });
         setShipperIdOptions(response.data.items);
-console.log("Shipper options set to:", response.data.items);
-        console.log("sss", shippperIdOptions)
+        console.log("Shipper options set to:", response.data.items);
+        console.log("sss", shippperIdOptions);
       } catch (error) {
         console.error(t("Error_fetching_shippers_data"), error);
       }
@@ -153,14 +154,12 @@ console.log("Shipper options set to:", response.data.items);
     // if (userInfor?.workAtWarehouseId) {
     //   fetchShippers();
     // }
-    fetchShippers()
+    fetchShippers();
   }, []);
 
   useEffect(() => {
     console.log("Updated shipperIdOptions (state):", shippperIdOptions);
   }, [shippperIdOptions]);
-
- 
 
   const handleModalClose = () => {
     setIsModalVisible(false);
@@ -413,18 +412,15 @@ console.log("Shipper options set to:", response.data.items);
               onChange={(value) => setShipperId(value)}
               placeholder={t("Select_Shipper_ID")}
             >
-              {shippperIdOptions.map(
-                (shipper) =>
-                   (
-                    <Select.Option
-                      key={shipper.employeeId}
-                      value={shipper.employeeId}
-                    >
-                      {t("Employee_Name")}: {shipper.shipperName} -{" "}
-                      {t("Warehouse_ID")}: {shipper.warehouseId}
-                    </Select.Option>
-                  )
-              )}
+              {shippperIdOptions.map((shipper) => (
+                <Select.Option
+                  key={shipper.employeeId}
+                  value={shipper.employeeId}
+                >
+                  {t("Employee_Name")}: {shipper.shipperName} -{" "}
+                  {t("Store_Name")}: {shipper.warehouseName}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -532,6 +528,17 @@ console.log("Shipper options set to:", response.data.items);
                   {t("Vehicle_Name")}:
                 </span>
                 <span className="text-gray-900">{selectedVehicle.name}</span>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-700">
+                  {t("Capacity")}:
+                </span>
+                <span className="text-gray-900">
+                  {selectedVehicle.capacity
+                    ? `${selectedVehicle.capacity} kg`
+                    : "N/A"}
+                </span>
               </div>
 
               <div className="flex justify-between items-center">
