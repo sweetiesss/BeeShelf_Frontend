@@ -45,12 +45,13 @@ const SquareWithResizableBoxes = () => {
     const newItem = {
       i: `${layout.length + 1}`,
       x: 0,
-      y: maxRows + 1, // Places it at the bottom
+      y: maxRows, // Places it at the bottom
       w: 1, // Default width (in grid units)
       h: 1, // Default height (in grid units)
       isCold: 0,
       roomCode: `A${layout.length + 1}`,
-      maxWeight: storeInfor?.capacity * (1 / Number(maxRows * gridCols)),
+      maxWeight:
+        storeInfor?.capacity * (1 / Number(maxRows * gridCols)).toFixed(2),
       price: 10000,
     };
     setError((prev) => [...prev, newItem]);
@@ -64,7 +65,7 @@ const SquareWithResizableBoxes = () => {
       const rooms = layout.map((box) => ({
         roomCode: box.roomCode,
         isCold: box.isCold,
-        maxWeight: box.maxWeight,
+        maxWeight: box.maxWeight.toFixed(2),
         price: box.price,
         width: (box.w * pixelToMeterRatio).toFixed(2),
         length: (box.h * pixelToMeterRatio).toFixed(2),
@@ -102,7 +103,7 @@ const SquareWithResizableBoxes = () => {
       h: newItem.h,
       maxWeight:
         storeInfor?.capacity *
-        ((newItem?.w * newItem.h) / Number(maxRows * gridCols)),
+        ((newItem?.w * newItem.h) / Number(maxRows * gridCols)).toFixed(2),
     };
     if (newRoom.y + newRoom.h > maxRows) {
       console.log("newRoom", newRoom);
@@ -209,11 +210,12 @@ const SquareWithResizableBoxes = () => {
               width: `${gridWidth * scaleSize}px`,
               height: `${gridHeight * scaleSize}px`,
               margin: "auto",
+              boxSizing:"content-box",
               border: "5px double black",
             }}
           >
-            <div className="absolute w-[30%]  max-w-[82px]  overflow-hidden border-2 border-black bg-white flex items-center justify-center bottom-0 left-[50%] text-center -translate-x-[50%] translate-y-[60%]">
-              <p>Exist</p>
+            <div className="absolute w-[30%]  max-w-[82px] z-[100]  overflow-hidden border-2 border-black bg-white flex items-center justify-center bottom-0 left-[50%] text-center -translate-x-[50%] translate-y-[60%]">
+              <p>Entrance</p>
             </div>
             <GridLayout
               className="layout"

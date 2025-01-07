@@ -81,18 +81,24 @@ const RoomMapping = ({
             >
               {layout.map((box) => (
                 <div
-                  className="relative cursor-pointer bg-white hover:bg-[var(--en-vu-200)] flex justify-center items-center overflow-hidden"
+                  className={`relative ${
+                    box?.ocopPartnerId === -1
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-white hover:bg-[var(--en-vu-200)] cursor-pointer"
+                  } flex justify-center items-center overflow-hidden`}
                   key={box.i}
                   onClick={(e) =>
                     !box.ocopPartnerId
                       ? handleBuyClick(box)
+                      : box.ocopPartnerId === -1
+                      ? {}
                       : handleShowInventoryDetail(e, box)
                   }
                   style={{
                     border: "1px solid black",
                   }}
                 >
-                  {box.ocopPartnerId && (
+                  {box.ocopPartnerId && box.ocopPartnerId !== -1 && (
                     <div className="absolute flex justify-center items-end bg-green-500 w-32 text-white h-10 -top-[1rem] -right-[3.5rem] rotate-45 z-30">
                       <p>{t("H")}</p>
                     </div>
