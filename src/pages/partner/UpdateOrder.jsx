@@ -20,14 +20,12 @@ export default function UpdateOrderPage() {
   const location = useLocation();
 
   const baseDate = location?.state || {};
-  console.log("baseDate", baseDate);
-
   const [inventories, setInventories] = useState();
   const [inventoriesShowList, setInventoriesShowList] = useState();
   const [loading, setLoading] = useState();
   const [warehouseFilter, setWareHouseFilter] = useState();
   const [step, setStep] = useState(1);
-  const [distance, setDistance] = useState(null); // State for storing calculated distance
+  const [distance, setDistance] = useState(null);
   const [item, setItem] = useState({ productId: null, productAmount: null });
 
   const [deliveryZone, setDeliveryZone] = useState(baseDate?.deliveryZoneId);
@@ -45,15 +43,12 @@ export default function UpdateOrderPage() {
     receiverPhone: baseDate?.receiverPhone,
     receiverAddress: baseDate?.receiverAddress,
     deliveryZoneId: baseDate?.deliveryZoneId,
-    // receiverWard: "",
-    // receiverStrict: "",
-    // receiverProvince: "",
     distance: baseDate?.distance,
     products:
       baseDate?.orderDetails?.map((item) => ({
-        productId: item?.productId ?? "", // Fallback to an empty string if undefined
-        productAmount: item?.productAmount ?? 0, // Fallback to 0 if undefined
-      })) || [], // Fallback to an empty array if orderDetails is null/undefined,
+        productId: item?.productId ?? "", 
+        productAmount: item?.productAmount ?? 0,
+      })) || [], 
   };
   const defaultForm = {
     ocopPartnerId: userInfor?.id,
@@ -65,78 +60,10 @@ export default function UpdateOrderPage() {
   };
   const [form, setForm] = useState(baseForm);
   console.log("form", form);
-
-  // useEffect(() => {
-  //   const validateAndFormatLocation = async () => {
-  //     const {
-  //       receiverAddress,
-  //       receiverWard,
-  //       receiverStrict,
-  //       receiverProvince,
-  //     } = form;
-  //     if (
-  //       receiverProvince.length > 0 &&
-  //       receiverStrict.length > 0 &&
-  //       receiverWard.length > 0
-  //     ) {
-  //       setValidLocation(
-  //         `${
-  //           receiverAddress && receiverAddress + ", "
-  //         } ${receiverWard}, ${receiverStrict}, ${receiverProvince}`
-  //       );
-
-  //       setDefaultLocation(
-  //         `${receiverWard}, ${receiverStrict}, ${receiverProvince}`
-  //       );
-  //     } else setValidLocation();
-  //   };
-
-  //   validateAndFormatLocation();
-  // }, [
-  //   form.receiverAddress,
-  //   form.receiverWard,
-  //   form.receiverStrict,
-  //   form.receiverProvince,
-  // ]);
-
   useEffect(() => {
     getProductsInWareHouse();
-    // getProvinces();
+   
   }, []);
-
-  // useEffect(() => {
-  //   getDistricts();
-  // }, [province]);
-  // useEffect(() => {
-  //   getWard();
-  // }, [strict]);
-
-  // const getProvinces = async () => {
-  //   const result = await getAddressProvincesStressWard(1, 0);
-  //   setProvinencesList(result?.data?.data);
-  //   console.log(result);
-  // };
-  // const getDistricts = async () => {
-  //   setForm((prev) => ({ ...prev, receiverStrict: "" }));
-  //   setForm((prev) => ({ ...prev, receiverWard: "" }));
-
-  //   if (province !== 0 && province) {
-  //     const result = await getAddressProvincesStressWard(2, province);
-  //     setStrictList(result?.data?.data);
-  //     console.log("district", result);
-  //   }
-  // };
-  // const getWard = async () => {
-  //   setForm((prev) => ({ ...prev, receiverWard: "" }));
-
-  //   if (strict !== 0 && strict) {
-  //     const result = await getAddressProvincesStressWard(3, strict);
-  //     setWardList(result?.data?.data);
-  //     console.log("ward", result);
-  //   }
-  // };
-  console.log("inventoriesShowList", inventoriesShowList);
-
   useEffect(() => {
     filterWarehouse();
     getDetailWarehouse();
@@ -153,7 +80,7 @@ export default function UpdateOrderPage() {
           warehouseMap.set(item.warehouseId, {
             warehouseId: item.warehouseId,
             warehouseName: item.warehouseName,
-            productStock: item.stock || 0, // Use initial stock value or 0 if undefined
+            productStock: item.stock || 0,
           });
         } else {
           const currentWarehouse = warehouseMap.get(item.warehouseId);
@@ -176,15 +103,9 @@ export default function UpdateOrderPage() {
 
   const filterWarehouse = () => {
     if (inventories) {
-      console.log("here0", inventories);
-      console.log("here1/2", warehouse);
-      console.log("here2", warehouses);
-
       const result = inventories.filter(
         (a) => parseInt(a.warehouseId) === parseInt(warehouse?.warehouseId)
       );
-      console.log("here", result);
-
       setInventoriesShowList(result);
     }
   };
@@ -193,8 +114,6 @@ export default function UpdateOrderPage() {
     try {
       setLoading(true);
       const result = await getAllProduct(userInfor?.id, warehouseFilter);
-      console.log("All product", result);
-
       if (result?.status === 200) {
         setInventories(result?.data?.products);
       }
@@ -210,11 +129,9 @@ export default function UpdateOrderPage() {
       if (warehouse) {
         const result = await getWarehouseById(warehouse?.warehouseId);
         if (result?.status === 200) {
-          console.log("detail", result);
           setRecevierDeliveryAddress(
             baseDate?.deliveryZoneName + " " + result?.data?.provinceName
           );
-          console.log("from the warehouse", warehouse);
           setDetailWarehouse(result?.data);
           return;
         }
@@ -249,19 +166,15 @@ export default function UpdateOrderPage() {
   };
 
   const addItem = () => {
-    console.log("item", item);
-    console.log("invnt", inventories);
     const checkFoundDataStock = inventories.find(
       (a) => parseInt(a.id) === parseInt(item.productId)
     );
-    console.log("checkFoundDataStock", checkFoundDataStock);
 
     if (item.productId && item.productAmount > 0) {
       if (checkFoundDataStock?.stock >= item.productAmount) {
         const productFounded = form?.products?.find(
           (pro) => parseInt(pro.productId) === parseInt(item.productId)
         );
-        console.log("founded", productFounded);
         if (productFounded) {
           const newProducts = form?.products?.filter(
             (pro) => parseInt(pro.productId) !== parseInt(item.productId)
@@ -300,7 +213,6 @@ export default function UpdateOrderPage() {
     try {
       setLoading(true);
       e.preventDefault();
-      console.log("Order Created:", form);
       const submitForm = {
         ...form,
         deliveryZoneId: parseInt(deliveryZone),
@@ -312,12 +224,10 @@ export default function UpdateOrderPage() {
         warehouse?.warehouseId,
         true
       );
-      console.log(result);
       if (result?.status === 200) {
         setForm();
       }
     } catch (e) {
-      console.log(e);
     } finally {
       setLoading(false);
     }
@@ -326,7 +236,6 @@ export default function UpdateOrderPage() {
     try {
       setLoading(true);
       e.preventDefault();
-      console.log("Order Created:", form);
       const submitForm = {
         ...form,
         deliveryZoneId: parseInt(deliveryZone),
@@ -338,12 +247,11 @@ export default function UpdateOrderPage() {
         warehouse?.warehouseId,
         false
       );
-      console.log(result);
       if (result?.status === 200) {
         setForm();
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -365,13 +273,11 @@ export default function UpdateOrderPage() {
                 styles={{
                   menu: (provided) => ({
                     ...provided,
-
-                    // Restrict the dropdown height
-                    overflowY: "hidden", // Enable scrolling for content
+                    overflowY: "hidden", 
                   }),
                   menuList: (provided) => ({
                     ...provided,
-                    padding: 0, // Ensure no extra padding
+                    padding: 0, 
                     maxHeight: "11.5rem",
                     overflow: "auto",
                   }),
@@ -393,11 +299,11 @@ export default function UpdateOrderPage() {
                       : "white",
                     color: isSelected ? "white !important" : "black",
                     cursor: "pointer",
-                    padding: "0.5rem 1rem", // Option padding
-                    textAlign: "left", // Center-align text
+                    padding: "0.5rem 1rem", 
+                    textAlign: "left", 
                   }),
                 }}
-                value={warehouse} // Map string to object
+                value={warehouse} 
                 onChange={(selectedOption) => setWarehouse(selectedOption)}
                 options={warehouses}
                 formatOptionLabel={(selectedOption) => (
@@ -450,12 +356,9 @@ export default function UpdateOrderPage() {
             <ul className="mt-10 space-y-2 overflow-auto h-fit max-h-[10rem]">
               {form?.products &&
                 form?.products?.map((item) => {
-                  console.log(item);
                   const product = inventoriesShowList?.find(
                     (pro) => parseInt(pro.id) === parseInt(item.productId)
                   );
-                  console.log("Product", product);
-
                   return (
                     <>
                       <li
@@ -499,78 +402,6 @@ export default function UpdateOrderPage() {
             <label className="block  font-medium text-gray-700">
               {t("Receiver Address")}
             </label>
-
-            {/* <div className="flex justify-between mt-4 items-center">
-              <div>
-                <select
-                  className="border-b-2 border-[var(--en-vu-500-disable)]"
-                  value={province}
-                  onChange={(e) => {
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverProvince: "",
-                      receiverStrict: "",
-                      receiverWard: "",
-                    }));
-                    setProvinences(e.target.value);
-                    const provinceName = provinceList.find(
-                      (item) => item?.id == e.target.value
-                    );
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverProvince: provinceName?.full_name,
-                    }));
-                  }}
-                >
-                  <option value={0}>Select Province</option>
-                  {provinceList?.map((pro) => (
-                    <option value={pro?.id}>{pro?.full_name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <select
-                  className="border-b-2 border-[var(--en-vu-500-disable)]"
-                  value={strict}
-                  onChange={(e) => {
-                    setStrict(e.target.value);
-                    const stirctName = strictList.find(
-                      (item) => item?.id == e.target.value
-                    );
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverStrict: stirctName?.full_name,
-                    }));
-                  }}
-                >
-                  <option value={0}>Select Districts</option>
-                  {strictList?.map((pro) => (
-                    <option value={pro?.id}>{pro?.full_name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <select
-                  className="border-b-2 border-[var(--en-vu-500-disable)]"
-                  value={ward}
-                  onChange={(e) => {
-                    setWard(e.target.value);
-                    const wardName = wardList.find(
-                      (item) => item?.id == e.target.value
-                    );
-                    setForm((prev) => ({
-                      ...prev,
-                      receiverWard: wardName?.full_name,
-                    }));
-                  }}
-                >
-                  <option value={0}>Select Ward</option>
-                  {wardList?.map((pro) => (
-                    <option value={pro?.id}>{pro?.full_name}</option>
-                  ))}
-                </select>
-              </div>
-            </div> */}
             <div className="flex items-center gap-4">
               <input
                 type="text"
@@ -588,12 +419,12 @@ export default function UpdateOrderPage() {
                     menu: (provided) => ({
                       ...provided,
 
-                      // Restrict the dropdown height
-                      overflowY: "hidden", // Enable scrolling for content
+                    
+                      overflowY: "hidden",
                     }),
                     menuList: (provided) => ({
                       ...provided,
-                      padding: 0, // Ensure no extra padding
+                      padding: 0, 
                       maxHeight: "11.5rem",
                       overflow: "auto",
                     }),
@@ -615,13 +446,13 @@ export default function UpdateOrderPage() {
                         : "white",
                       color: isSelected ? "white !important" : "black",
                       cursor: "pointer",
-                      padding: "0.5rem 1rem", // Option padding
-                      textAlign: "left", // Center-align text
+                      padding: "0.5rem 1rem", 
+                      textAlign: "left", 
                     }),
                   }}
                   value={detailWarehouse?.deliveryZones.find(
                     (item) => item.id === deliveryZone
-                  )} // Map string to object
+                  )} 
                   onChange={(selectedOption) => {
                     setDeliveryZone(selectedOption.id);
                     setRecevierDeliveryAddress(
@@ -657,7 +488,7 @@ export default function UpdateOrderPage() {
                   setForm(baseForm);
                   setItem({ productId: 0, productAmount: 0 });
                   setWarehouse(0);
-                }} // Reset form
+                }}
                 className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md shadow hover:bg-gray-300 transition"
               >
                 {t("Reset")}
@@ -688,14 +519,7 @@ export default function UpdateOrderPage() {
             defaultLocation={defaultLocation}
             setDistance={setDistance}
 
-            // cloneWarehouseData={cloneWarehouseData}
           />
-          {/* <Mapping
-              showLocation="123 Main St, New York, NY"
-  startLocation="456 Elm St, Boston, MA"
-            height="90%"
-          /> */}
-          {/* <Mapping showLocation="Xã Phước Tỉnh, Huyện Long Điền, Tỉnh Bà Rịa Vũng Tàu" /> */}
         </div>
       </div>
     </div>

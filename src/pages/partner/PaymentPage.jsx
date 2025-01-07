@@ -15,34 +15,10 @@ import { useTranslation } from "react-i18next";
 import defaultImg from "../../assets/img/defaultImg.jpg";
 
 export function PaymentPage() {
-  const { userInfor, isAuthenticated, authWallet } = useAuth();
-  const [option, setOption] = useState("Custom_Amount");
-  const [customeAmount, setCustomAmount] = useState();
-  const [error, setError] = useState();
-  // const [authWallet, setAuthWallet] = useState();
-  const [hiddenNumber, setHiddenNumber] = useState(true);
-  const [exhangePage, openExhangePage] = useState(false);
-  const [withdrawnPage, openWithdrawnPage] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [loadingButton, setLoadingButton] = useState(false);
-  const [refresh, setRefresh] = useState(false);
   const { t } = useTranslation();
-
-  const [typePayment, setTypePayment] = useState("Exchange");
-  const [payments, setPayment] = useState();
-  const [withdrawPayments, setWithdrawPayment] = useState();
-  const [ordersSale, setOrdersSalePayment] = useState();
-  const [openAction, handleOpenActionTab] = useState();
-  const [selectedPayment, setSelectedPaymet] = useState();
+  const { userInfor, isAuthenticated, authWallet } = useAuth();
   const moneyExchange = useRef();
   const moneyWithdrawn = useRef();
-
-  const [form, setForm] = useState({
-    buyerEmail: userInfor?.email || "",
-    cancelUrl: "https://www.beeshelf.com/partner/payment/result",
-    returnUrl: "https://www.beeshelf.com/partner/payment/result",
-    description: userInfor?.firstName + " exchange money.",
-  });
   const {
     createWithdrawnRequest,
     createQrCode,
@@ -50,6 +26,30 @@ export function PaymentPage() {
     getPaymentWithDrawByUserId,
     getOrdersSaleByUserId,
   } = AxiosPayment();
+
+  const [option, setOption] = useState("Custom_Amount");
+  const [customeAmount, setCustomAmount] = useState();
+  const [error, setError] = useState();
+  const [hiddenNumber, setHiddenNumber] = useState(true);
+  const [exhangePage, openExhangePage] = useState(false);
+  const [withdrawnPage, openWithdrawnPage] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingButton, setLoadingButton] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+
+  const [typePayment, setTypePayment] = useState("Exchange");
+  const [payments, setPayment] = useState();
+  const [withdrawPayments, setWithdrawPayment] = useState();
+  const [ordersSale, setOrdersSalePayment] = useState();
+  const [openAction, handleOpenActionTab] = useState();
+  const [selectedPayment, setSelectedPaymet] = useState();
+
+  const [form, setForm] = useState({
+    buyerEmail: userInfor?.email || "",
+    cancelUrl: "https://www.beeshelf.com/partner/payment/result",
+    returnUrl: "https://www.beeshelf.com/partner/payment/result",
+    description: userInfor?.firstName + " exchange money.",
+  });
 
   useEffect(() => {
     fetchBeginData();
@@ -84,33 +84,25 @@ export function PaymentPage() {
       setLoading(true);
       const result = await getPaymentTransactionByUserId(userInfor?.id);
       if (result?.status === 200) {
-        console.log("payment", result);
         setPayment(result?.data);
       }
       const result2 = await getPaymentWithDrawByUserId(userInfor?.id);
       if (result2?.status === 200) {
-        console.log("withDrawnPayment", result2);
         setWithdrawPayment(result2?.data);
       }
       const result3 = await getOrdersSaleByUserId(userInfor?.id);
       if (result3?.status === 200) {
-        console.log("withDrawnPayment", result3);
         setOrdersSalePayment(result3?.data);
       }
 
-      // await getAuthWalletMoney();
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSubmitPayment = async () => {
-    console.log(option);
-    console.log(customeAmount);
-    console.log(form);
-
     try {
       setLoadingButton(true);
       let thisError = error;
@@ -122,10 +114,9 @@ export function PaymentPage() {
         const result = await createQrCode(option, customeAmount, form);
 
         if (result.status !== 400 && result.status !== 500) {
-          // Navigate directly to the checkout URL
           const checkoutUrl = result?.data?.data?.checkoutUrl;
           if (checkoutUrl) {
-            window.location.href = checkoutUrl; // Navigate the current tab
+            window.location.href = checkoutUrl;
           } else {
             console.error("Checkout URL not found in response");
           }
@@ -133,7 +124,6 @@ export function PaymentPage() {
           console.error("Invalid response status:", result.status);
         }
 
-        console.log(result);
       }
     } catch (e) {
       console.error("Error during payment creation:", e);
@@ -141,7 +131,6 @@ export function PaymentPage() {
     }
   };
   const handleSubmitWithdrawnPayment = async () => {
-    console.log(customeAmount);
     try {
       let thisError = error;
       if (customeAmount > authWallet?.totalAmount) {
@@ -160,13 +149,11 @@ export function PaymentPage() {
         setTypePayment("Withdrawn");
       }
 
-      console.log(result);
     } catch (e) {
       console.error("Error during payment creation:", e);
     }
   };
 
-  console.log("authWallet", authWallet);
 
   return (
     <div className="h-full relative">
@@ -406,10 +393,8 @@ export function PaymentPage() {
                             {payment?.partner_bank_account}
                           </td>
                           <td className=" px-1 py-2 ">
-                            {/* {format(payment?.createDate, "hh:mm - dd/MM/yyyy")} */}
                           </td>
                           <td className=" px-1 py-2 ">
-                            {/* {format(payment?.confirmDate, "hh:mm - dd/MM/yyyy")} */}
                           </td>
                           <td className=" px-1 py-2 text-green-500 font-medium">
                             {new Intl.NumberFormat().format(
@@ -464,7 +449,6 @@ export function PaymentPage() {
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-10">
-              {/* Predefined Amount Options */}
               {[30000, 50000, 100000, 200000].map((amount) => (
                 <div
                   key={amount}
@@ -495,7 +479,6 @@ export function PaymentPage() {
               </div>
             </div>
             <div className="flex items-center justify-between gap-4 relative">
-              {/* Custom Amount Input */}
               <div
                 className={`flex items-center bg-[var(--en-vu-200)] rounded-2xl w-[25rem] overflow-hidden   px-4 py-4  focus-within:text-black `}
               >
@@ -546,7 +529,6 @@ export function PaymentPage() {
               </div>
             )}
             <div className="mt-8 text-center w-full">
-              {/* Submit Button */}
               <button
                 onClick={!loadingButton ? handleSubmitPayment : undefined}
                 className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-lg transition-all"
@@ -579,7 +561,6 @@ export function PaymentPage() {
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-10">
-              {/* Predefined Amount Options */}
               {[30000, 50000, 100000, 200000].map((amount) => (
                 <div
                   key={amount}
@@ -614,7 +595,6 @@ export function PaymentPage() {
               </div>
             </div>
             <div className="flex items-center justify-between gap-4 relative">
-              {/* Custom Amount Input */}
               <div
                 className={`flex items-center bg-[var(--en-vu-200)] rounded-2xl w-[25rem] overflow-hidden   px-4 py-4  focus-within:text-black `}
               >
@@ -669,7 +649,6 @@ export function PaymentPage() {
               </div>
             )}
             <div className="mt-8 text-center w-full">
-              {/* Submit Button */}
               <button
                 onClick={handleSubmitWithdrawnPayment}
                 className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-lg transition-all"

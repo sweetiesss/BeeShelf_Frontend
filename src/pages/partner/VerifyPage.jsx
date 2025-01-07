@@ -7,20 +7,16 @@ import { Bounce, toast } from "react-toastify";
 import { ConfigProvider, Spin } from "antd";
 
 export default function VerifyPage() {
-  const [imageLink, setImageLink] = useState();
-  const [imagePreview, setImagePreview] = useState("");
-
-  const [imageLink2, setImageLink2] = useState();
-  const [imagePreview2, setImagePreview2] = useState("");
-
-  const [error, setError] = useState();
-
-  const [loading, setLoading] = useState(false);
-
   const { verrifyAccount } = AxiosImg();
   const { userInfor } = useAuth();
   const { t } = useTranslation();
 
+  const [imageLink, setImageLink] = useState();
+  const [imagePreview, setImagePreview] = useState("");
+  const [imageLink2, setImageLink2] = useState();
+  const [imagePreview2, setImagePreview2] = useState("");
+  const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
   const contentStyle = {
     padding: 70,
     color: "var(--Xanh-Base)",
@@ -47,10 +43,9 @@ export default function VerifyPage() {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        console.log("FileReader Loaded for Image 2:", reader.result);
-        setImagePreview2(reader.result); // Update state
+        setImagePreview2(reader.result); 
       };
-      reader.readAsDataURL(file); // Read the file
+      reader.readAsDataURL(file); 
     }
   };
   const handleUploadLincese = async () => {
@@ -80,10 +75,9 @@ export default function VerifyPage() {
           setImagePreview();
           setImagePreview2();
         }
-        console.log(result);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setError(e?.response?.data?.message);
       toast.warning(e?.response?.data?.message, {
         position: "top-right",
@@ -100,7 +94,6 @@ export default function VerifyPage() {
       setLoading(false);
     }
   };
-
   return (
     <>
       <div className="flex justify-between gap-10">
@@ -121,10 +114,6 @@ export default function VerifyPage() {
                   } mt-2 flex justify-center items-center rounded-lg border  border-dashed border-gray-400 max-h-[70vh] min-h-[70vh] max-w-[28vw] min-w-[28vw] border-hover py-5`}
                 >
                   <div className={`text-center ${imagePreview && "hidden"} `}>
-                    {/* <PiFileArrowDownLight
-                  className="mx-auto h-12 w-12  span-hover"
-                  aria-hidden="true"
-                /> */}
                     <div className="mt-4 flex text-sm leading-6 ">
                       <p className="relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 ">
                         <div className="flex gap-4 items-center">
@@ -178,10 +167,6 @@ export default function VerifyPage() {
                   } mt-2 flex justify-center items-center rounded-lg border  border-dashed border-gray-400 max-h-[70vh] min-h-[70vh] max-w-[28vw] min-w-[28vw] border-hover py-5`}
                 >
                   <div className={`text-center ${imagePreview2 && "hidden"} `}>
-                    {/* <PiFileArrowDownLight
-                  className="mx-auto h-12 w-12  span-hover"
-                  aria-hidden="true"
-                /> */}
                     <div className="mt-4 flex text-sm leading-6 ">
                       <p className="relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 ">
                         <div className="flex gap-4 items-center">
@@ -253,7 +238,7 @@ export default function VerifyPage() {
             <ConfigProvider
               theme={{
                 token: {
-                  colorPrimary: "green", // Set the primary color to green
+                  colorPrimary: "green", 
                 },
               }}
             >

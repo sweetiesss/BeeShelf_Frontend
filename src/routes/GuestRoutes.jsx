@@ -15,7 +15,6 @@ export default function GuestRoutes() {
         <Route path="/authorize/forgot-password" element={<LoginAndSignInPage toAction="Forgotpassword"/>} />
         <Route path="/reset-password" element={<LoginAndSignInPage toAction="Forgotpassword"/>} />
         <Route path="/authorize/signup" element={<LoginAndSignInPage toAction="SignUp"/>} />
-        {/* <Route path="/signin" element={<SignIn/>}/> */}
       </Routes>
   )
 }

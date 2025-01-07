@@ -28,7 +28,7 @@ export default function AxiosWarehouse() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -54,7 +54,7 @@ export default function AxiosWarehouse() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -97,7 +97,7 @@ export default function AxiosWarehouse() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -109,7 +109,7 @@ export default function AxiosWarehouse() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -121,7 +121,7 @@ export default function AxiosWarehouse() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -130,7 +130,7 @@ export default function AxiosWarehouse() {
       const fetching = fetchDataBearer({
         url: `store/add-staffs-to-store`,
         method: "POST",
-        data: data, // Array of staff IDs to assign
+        data: data, 
       });
       await toast.promise(fetching, {
         pending: "Request in progress...",
@@ -156,7 +156,7 @@ export default function AxiosWarehouse() {
       const fetching = fetchDataBearer({
         url: `store/add-shippers-to-store`,
         method: "POST",
-        data: shipperIds, // Array of staff IDs to assign
+        data: shipperIds, 
       });
       await toast.promise(fetching, {
         pending: "Request in progress...",

@@ -12,6 +12,11 @@ import ExportRequestSide from "../../component/partner/request/ExportRequestSide
 
 export default function CreateRequestPage({ handleCancel, handleClose }) {
   const { userInfor } = useContext(AuthContext);
+  const { t } = useTranslation();
+  const { getInventory1000ByUserId } = AxiosInventory();
+  const { getProductByUserId } = AxiosProduct();
+  const { getLotByUserId } = AxiosLot();
+
   const [typeRequest, setTypeRequest] = useState("Import");
 
   const [products, setProducts] = useState([]);
@@ -19,11 +24,6 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
 
   const [inventories, setInventories] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const { t } = useTranslation();
-  const { getInventory1000ByUserId } = AxiosInventory();
-  const { getProductByUserId } = AxiosProduct();
-  const { getLotByUserId } = AxiosLot();
 
   useEffect(() => {
     const fetchingBeginData = async () => {
@@ -65,10 +65,7 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
     fetchingBeginData();
   }, []);
 
-  console.log("ImportedProduts", productsImported);
-  console.log("inventories", inventories);
 
-  // Render the form
   return (
     <div>
       <p className="font-semibold text-3xl mb-4">{t("CreateRequest")}</p>
@@ -83,12 +80,11 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
             menu: (provided) => ({
               ...provided,
 
-              // Restrict the dropdown height
-              overflowY: "hidden", // Enable scrolling for content
+              overflowY: "hidden",
             }),
             menuList: (provided) => ({
               ...provided,
-              padding: 0, // Ensure no extra padding
+              padding: 0, 
               maxHeight: "11.5rem",
               overflow: "auto",
             }),
@@ -110,14 +106,14 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
                 : "white",
               color: isSelected ? "white !important" : "black",
               cursor: "pointer",
-              padding: "0.5rem 1rem", // Option padding
-              textAlign: "left", // Center-align text
+              padding: "0.5rem 1rem",
+              textAlign: "left",
             }),
           }}
           value={{
             value: typeRequest,
             label: typeRequest,
-          }} // Map string to object
+          }} 
           onChange={(selectedOption) => setTypeRequest(selectedOption.value)}
           options={[
             { value: "Import", label: "Import" },

@@ -11,7 +11,7 @@ export default function AxiosLot() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -23,7 +23,7 @@ export default function AxiosLot() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -42,7 +42,7 @@ export default function AxiosLot() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -76,7 +76,7 @@ export default function AxiosLot() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };

@@ -28,7 +28,7 @@ export default function AxiosRequest() {
       });
       return result;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return {
         error: true,
         message: e.response?.data?.message || "Something went wrong!",
@@ -57,7 +57,7 @@ export default function AxiosRequest() {
       });
       return result;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return {
         error: true,
         message: e.response?.data?.message || "Something went wrong!",
@@ -93,7 +93,7 @@ export default function AxiosRequest() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -112,7 +112,6 @@ export default function AxiosRequest() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
@@ -137,7 +136,6 @@ export default function AxiosRequest() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
@@ -164,7 +162,6 @@ export default function AxiosRequest() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
@@ -189,7 +186,6 @@ export default function AxiosRequest() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },

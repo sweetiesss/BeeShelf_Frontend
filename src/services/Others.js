@@ -8,7 +8,7 @@ export default function AxiosOthers() {
       const fetching = await axios.get("https://api.vietqr.io/v2/banks");
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -20,7 +20,7 @@ export default function AxiosOthers() {
       });
       return fetching; 
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -32,7 +32,7 @@ export default function AxiosOthers() {
       });
       return fetching; 
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -43,7 +43,7 @@ export default function AxiosOthers() {
       );
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -61,7 +61,7 @@ export default function AxiosOthers() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };

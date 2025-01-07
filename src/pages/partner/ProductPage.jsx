@@ -16,27 +16,7 @@ import AxiosCategory from "../../services/Category";
 import SpinnerLoading from "../../component/shared/Loading";
 
 export default function ProductPage() {
-  const [fetching, setFetching] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState();
-  const [inventories, setInventory] = useState(null);
-  const [index, setIndex] = useState(6);
-  const [page, setPage] = useState(0);
-  const [isShowDetailProduct, setShowDetailProduct] = useState(null);
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [selectedProductsBased, setSelectedProductsBased] = useState([]);
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
-  const [productCategories, setProductCategories] = useState(null);
-  const [productCate, setProductCate] = useState(0);
   const deleteBox = useRef();
-  const [overall, setOverall] = useState({
-    checked: false,
-    indeterminate: false,
-  });
-  const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("CreateDate");
-  const [descending, setDescending] = useState(true);
-
   const { userInfor } = useContext(AuthContext);
   const { getProductByUserId, deleteProductById } = AxiosProduct();
   const { getProductCategoryBy1000 } = AxiosCategory();
@@ -52,6 +32,28 @@ export default function ProductPage() {
   const { getInventory1000ByUserId } = AxiosInventory();
 
   const { t } = useTranslation();
+
+  const [fetching, setFetching] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState();
+  const [inventories, setInventory] = useState(null);
+  const [index, setIndex] = useState(6);
+  const [page, setPage] = useState(0);
+  const [isShowDetailProduct, setShowDetailProduct] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedProductsBased, setSelectedProductsBased] = useState([]);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+  const [productCategories, setProductCategories] = useState(null);
+  const [productCate, setProductCate] = useState(0);
+  const [overall, setOverall] = useState({
+    checked: false,
+    indeterminate: false,
+  });
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("CreateDate");
+  const [descending, setDescending] = useState(true);
+
+ 
   const debounce = (func, delay) => {
     let timeout;
     return (...args) => {
@@ -95,7 +97,7 @@ export default function ProductPage() {
           setProducts(response?.data);
         }
       } catch (e) {
-        console.log(e);
+        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -182,7 +184,7 @@ export default function ProductPage() {
         setInventory(result);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -196,10 +198,7 @@ export default function ProductPage() {
   };
 
   const toggleProductSelection = (product) => {
-    // Check if the product is already selected
     const isAlreadySelected = selectedProducts.some((p) => p.id === product.id);
-
-    // If already selected, remove it; otherwise, add it
     if (isAlreadySelected) {
       setSelectedProducts((prevSelected) =>
         prevSelected.filter((p) => p.id !== product.id)
@@ -267,7 +266,7 @@ export default function ProductPage() {
     const formatDate = () => {
       const date = new Date();
       const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+      const month = String(date.getMonth() + 1).padStart(2, "0");
       const year = date.getFullYear();
       const hours = String(date.getHours()).padStart(2, "0");
       const minutes = String(date.getMinutes()).padStart(2, "0");
@@ -321,7 +320,7 @@ export default function ProductPage() {
     setFetching((prev) => !prev);
   };
   const handleSearchChange = (e) => {
-    setSearch(e.target.value); // Update search term
+    setSearch(e.target.value); 
   };
 
   const handleSortChange = (value) => {
@@ -331,8 +330,6 @@ export default function ProductPage() {
       setSortBy(value);
     }
   };
-  console.log("productsItem", products);
-
   return (
     <div className="w-full h-full gap-10 pb-10">
       <div className="w-full">
@@ -373,7 +370,6 @@ export default function ProductPage() {
           </div>
         )}
       </div>
-      {/* <ProductOverview /> */}
       {showDeleteConfirmation && (
         <>
           <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>

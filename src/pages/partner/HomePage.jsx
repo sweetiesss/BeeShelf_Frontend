@@ -9,18 +9,18 @@ import {
   OrderChart,
   ProductChart,
 } from "../../component/partner/dashboard/DashboardChart";
-import SliderTabs from "../../component/shared/SliderTabs"; // Custom tab/slider component for charts
+import SliderTabs from "../../component/shared/SliderTabs"; 
 import OrderDashboard from "../../component/partner/dashboard/OrderDashboard";
 import AxiosPartner from "../../services/Partner";
 import { useAuth } from "../../context/AuthContext";
 
 export function HomePage() {
+  const { userInfor } = useAuth();
+  const { getOrderRevunue } = AxiosPartner();
   const [inventories, setInventories] = useState([]);
   const [requests, setRequests] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [activeChart, setActiveChart] = useState("InventoryChart"); // For chart selection
-  const { userInfor } = useAuth();
-  const { getOrderRevunue } = AxiosPartner();
+  const [activeChart, setActiveChart] = useState("InventoryChart");
 
   const [chartData, setChartData] = useState({
     labels: [],
@@ -36,8 +36,6 @@ export function HomePage() {
     labels: [],
     data: [],
   });
-
-  // Simulate API fetching using useEffect
   useEffect(() => {
     loadDashboardData();
   }, []);
@@ -46,18 +44,13 @@ export function HomePage() {
     const fetchedInventories = await fetchInventories();
     const fetchedRequests = await fetchAccountRequests();
     const fetchedOrders = await getOrderRevunue(userInfor?.id);
-
     setInventories(fetchedInventories);
     setRequests(fetchedRequests);
     setOrders(fetchedOrders?.data?.items);
-
-    // Update chart data based on mock inventory or order data
     updateChartData(fetchedInventories);
     updateOrderData(fetchedOrders?.data?.items);
     updateProductData(fetchedInventories);
   };
-
-  // Mock function to simulate fetching inventories
   const fetchInventories = async () => {
     return [
       {
@@ -78,16 +71,12 @@ export function HomePage() {
       },
     ];
   };
-
-  // Mock function to simulate fetching account requests
   const fetchAccountRequests = async () => {
     return [
       { id: 1, partnerName: "Partner A", status: "Pending" },
       { id: 2, partnerName: "Partner B", status: "Accepted" },
     ];
   };
-
-  // Mock function to simulate fetching orders
   const fetchOrders = async () => {
     return [
       { id: 1, customerName: "Customer A", status: "Shipped" },
@@ -109,7 +98,7 @@ export function HomePage() {
 
   const updateOrderData = (orders) => {
     const labels = orders.map((order) => order.orderStatus);
-    const data = orders.map((order) => order.orderAmount); // Example data logic
+    const data = orders.map((order) => order.orderAmount); 
 
     setOrderData({
       labels,
@@ -130,9 +119,6 @@ export function HomePage() {
       data,
     });
   };
-  console.log("orderData", orderData);
-
-  // Function to render the selected chart
   const renderChart = () => {
     switch (activeChart) {
       case "InventoryChart":
@@ -178,7 +164,7 @@ export function Dashboard() {
   const [inventories, setInventories] = useState([]);
   const [requests, setRequests] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [activeChart, setActiveChart] = useState("InventoryChart"); // For chart selection
+  const [activeChart, setActiveChart] = useState("InventoryChart"); 
   const { userInfor } = useAuth();
   const { getOrderRevunue } = AxiosPartner();
 
@@ -196,8 +182,6 @@ export function Dashboard() {
     labels: [],
     data: [],
   });
-
-  // Simulate API fetching using useEffect
   useEffect(() => {
     loadDashboardData();
   }, []);
@@ -206,18 +190,13 @@ export function Dashboard() {
     const fetchedInventories = await fetchInventories();
     const fetchedRequests = await fetchAccountRequests();
     const fetchedOrders = await getOrderRevunue(userInfor?.id);
-
     setInventories(fetchedInventories);
     setRequests(fetchedRequests);
     setOrders(fetchedOrders?.data?.items);
-
-    // Update chart data based on mock inventory or order data
     updateChartData(fetchedInventories);
     updateOrderData(fetchedOrders?.data?.items);
     updateProductData(fetchedInventories);
   };
-
-  // Mock function to simulate fetching inventories
   const fetchInventories = async () => {
     return [
       {
@@ -238,16 +217,12 @@ export function Dashboard() {
       },
     ];
   };
-
-  // Mock function to simulate fetching account requests
   const fetchAccountRequests = async () => {
     return [
       { id: 1, partnerName: "Partner A", status: "Pending" },
       { id: 2, partnerName: "Partner B", status: "Accepted" },
     ];
   };
-
-  // Mock function to simulate fetching orders
   const fetchOrders = async () => {
     return [
       { id: 1, customerName: "Customer A", status: "Shipped" },
@@ -269,7 +244,7 @@ export function Dashboard() {
 
   const updateOrderData = (orders) => {
     const labels = orders.map((order) => order.orderStatus);
-    const data = orders.map((order) => order.orderAmount); // Example data logic
+    const data = orders.map((order) => order.orderAmount);
 
     setOrderData({
       labels,
@@ -290,9 +265,7 @@ export function Dashboard() {
       data,
     });
   };
-  console.log("orderData", orderData);
 
-  // Function to render the selected chart
   const renderChart = () => {
     switch (activeChart) {
       case "InventoryChart":

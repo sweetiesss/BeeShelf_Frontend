@@ -92,8 +92,6 @@ export default function CreateOrderPage() {
       const productAmmountInForm = form?.products.find(
         (pro) => pro.productId == item.productId
       );
-      console.log("productAmmountInForm", productAmmountInForm);
-
       if (
         maxAmount &&
         maxAmount <
@@ -212,8 +210,6 @@ export default function CreateOrderPage() {
     try {
       setLoading(true);
       e.preventDefault();
-      console.log("errrors", errors);
-
       if (!validateForm()) {
         return;
       }
@@ -235,7 +231,7 @@ export default function CreateOrderPage() {
         setForm(baseForm);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -262,7 +258,7 @@ export default function CreateOrderPage() {
         setForm(baseForm);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -347,7 +343,7 @@ export default function CreateOrderPage() {
           }
         }
       } catch (e) {
-        console.log(e);
+        console.error(e);
       } finally {
         setLoading(false);
       }

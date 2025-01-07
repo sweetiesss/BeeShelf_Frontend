@@ -43,19 +43,12 @@ export default function AddStorePage() {
       const provniceFouned = provinces?.find((item) => {
         const subDivision = item.subDivisionName?.toLowerCase();
         const foundedName = dataList?.[dataList?.length - 2]?.toLowerCase();
-        console.log("cherasda1", subDivision);
-        console.log("cherasda2", foundedName);
-        console.log("chcekLogin", subDivision?.includes(foundedName));
-        console.log("chcekLogin2", foundedName?.includes(subDivision));
-
         return foundedName?.includes(subDivision);
       });
-      console.log("provniceFouned", provniceFouned);
-
       setNewStore((prev) => ({ ...prev, provinceId: provniceFouned }));
-    }, 500); // Adjust the debounce delay (300ms in this example)
+    }, 500);
 
-    return () => clearTimeout(handler); // Cleanup timeout on unmount or location change
+    return () => clearTimeout(handler); 
   }, [newStore?.location]);
 
   const fetchBeginData = async () => {
@@ -75,9 +68,7 @@ export default function AddStorePage() {
         longitude: latLng?.lon,
         latitude: latLng?.lat,
       };
-      console.log(submitForm);
       const result = await createWarehouse(submitForm);
-      console.log(result);
       if (result?.status === 200) {
         setLatLng();
         setNewStore({
@@ -110,10 +101,7 @@ export default function AddStorePage() {
   const calculatePercentage = (number1, number2) => {
     const total = Number(number1) + Number(number2);
     const firstStep = Number(number1) / Number(total);
-    console.log("firstStep", firstStep);
     const result = firstStep * 100;
-    console.log("result", result);
-
     return result;
   };
 
@@ -259,8 +247,8 @@ export default function AddStorePage() {
                 <div
                   key={index}
                   style={{
-                    backgroundColor: "#fff", // Cell background color
-                    border: "1px solid #ccc", // Optional: Add borders to each cell
+                    backgroundColor: "#fff", 
+                    border: "1px solid #ccc",
                     height: "100%",
                   }}
                 ></div>

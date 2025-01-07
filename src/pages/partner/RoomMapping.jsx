@@ -14,11 +14,8 @@ const RoomMapping = ({
   handleBuyClick,
   handleShowInventoryDetail,
 }) => {
-  console.log("data", data);
-  console.log("store Infor", storeInfor);
-
-  const [layout, setLayout] = useState(data);
   const { t } = useTranslation();
+  const [layout, setLayout] = useState(data);
 
   const gridWidth = storeInfor?.width; // Width of the grid in pixels
   const gridHeight = storeInfor?.length; // Width of the grid in pixels
@@ -42,13 +39,10 @@ const RoomMapping = ({
       y: Number(room.y),
       w: Math.round(room.width / pixelToMeterRatio),
       h: Math.round(room.length / pixelToMeterRatio),
-      static: true, // Read-only
+      static: true, 
     }));
     setLayout(takeingData);
   }, [data]);
-
-  console.log("layout", layout);
-
   return (
     <div className="flex gap-10 overflow-hidden">
       <div className="px-10 border-2 rounded-lg shadow-xl">
@@ -75,7 +69,7 @@ const RoomMapping = ({
               className="layout"
               layout={layout}
               cols={gridCols}
-              rowHeight={(gridWidth / gridCols) * scaleSize} // Square cells
+              rowHeight={(gridWidth / gridCols) * scaleSize}
               width={gridWidth * scaleSize}
               margin={[0, 0]}
             >

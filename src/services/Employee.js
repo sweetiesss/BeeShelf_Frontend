@@ -26,7 +26,7 @@ export default function AxiosEmployee() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -39,7 +39,7 @@ export default function AxiosEmployee() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -59,14 +59,13 @@ export default function AxiosEmployee() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -78,9 +77,6 @@ export default function AxiosEmployee() {
         url,
         method: "GET",
       });
-
-      console.log(fetching);
-
       return fetching;
     } catch (error) {
       console.error("Error fetching products:", error);

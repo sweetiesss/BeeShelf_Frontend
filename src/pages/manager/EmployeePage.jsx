@@ -13,21 +13,19 @@ import AxiosEmployee from "../../services/Employee";
 import { useAuth } from "../../context/AuthContext";
 
 export default function EmployeePage() {
+  const { userInfor } = useAuth();
+  const { getEmployees, updateEmployee, createEmployee } = AxiosEmployee(); 
   const [form] = Form.useForm();
-  const [employees, setEmployees] = useState([]); // Employee data
-  const [loading, setLoading] = useState(false); // Loading state
-  const [editingKey, setEditingKey] = useState(""); // Track the editing key
-  const { getEmployees, updateEmployee, createEmployee } = AxiosEmployee(); // Fetch employees and update API calls
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [editingKey, setEditingKey] = useState("");
   const [search, setSearch] = useState();
   const [sortBy, setSortBy] = useState("CreateDate");
   const [filterByRole, setFilterByRole] = useState();
   const [descending, setDescending] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const { userInfor } = useAuth();
-
   const [newEmployee, setNewEmployee] = useState({
     email: "",
-
     firstName: "",
     lastName: "",
     phone: "",
@@ -35,13 +33,11 @@ export default function EmployeePage() {
   });
   const defaultNewEmployee = {
     email: "",
-
     firstName: "",
     lastName: "",
     phone: "",
     roleId: 0,
   };
-  // Pagination state
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -53,7 +49,6 @@ export default function EmployeePage() {
     fetchEmployeeList();
   }, [pagination.pageIndex, pagination.pageSize]);
 
-  // Fetch employee list
   const fetchEmployeeList = async () => {
     try {
       setLoading(true);
@@ -68,7 +63,7 @@ export default function EmployeePage() {
 
       if (result?.status === 200) {
         const { items, totalItemsCount, totalPagesCount } = result.data;
-        setEmployees(items.map((item) => ({ ...item, key: item.id }))); // Add key for table rows
+        setEmployees(items.map((item) => ({ ...item, key: item.id })));
         setPagination((prev) => ({
           ...prev,
           totalItems: totalItemsCount,
@@ -92,7 +87,7 @@ export default function EmployeePage() {
     try {
       const result = await createEmployee(newEmployee);
       if (result?.status === 200) {
-        fetchEmployeeList(); // Refresh employee list
+        fetchEmployeeList();
         setIsModalVisible(false);
         setNewEmployee(defaultNewEmployee);
       }
@@ -100,28 +95,19 @@ export default function EmployeePage() {
       console.error("Failed to create employee:", e);
     }
   };
-
-  // Determine if a row is being edited
   const isEditing = (record) => record.key === editingKey;
-
-  // Cancel editing
   const cancel = () => {
     setEditingKey("");
   };
-
-  // Save updated data via API
   const save = async (key) => {
     try {
-      const row = await form.validateFields(); // Validate fields and get updated values
+      const row = await form.validateFields();
       const newData = [...employees];
       const index = newData.findIndex((item) => key === item.key);
 
       if (index > -1) {
         const item = newData[index];
         const updatedData = { ...item, ...row };
-        console.log(updatedData);
-
-        // Call API to save the updated data
         const response = await updateEmployee({
           confirmPassword: process.env.REACT_APP_GLOBAL_PASSWORD,
           email: updatedData.email,
@@ -133,7 +119,7 @@ export default function EmployeePage() {
         });
 
         if (response?.status === 200) {
-          newData.splice(index, 1, updatedData); // Update the table data locally
+          newData.splice(index, 1, updatedData);
           setEmployees(newData);
           setEditingKey("");
         } else {
@@ -152,13 +138,9 @@ export default function EmployeePage() {
       ? [{ label: "Manager", value: 5 }]
       : []),
   ];
-
-  // Edit row
   const edit = (key) => {
     setEditingKey(key);
   };
-
-  // Table columns
   const columns = [
     {
       title: "First Name",
@@ -223,8 +205,6 @@ export default function EmployeePage() {
       },
     },
   ];
-
-  // Merge columns with editable behavior
   const mergedColumns = columns.map((col) => {
     if (!col.editable) {
       return col;
@@ -240,8 +220,6 @@ export default function EmployeePage() {
       }),
     };
   });
-
-  // Editable cell component
   const EditableCell = ({
     editing,
     dataIndex,
@@ -258,7 +236,7 @@ export default function EmployeePage() {
           <Form.Item
             name={dataIndex}
             style={{ margin: 0 }}
-            initialValue={record[dataIndex]} // Ensure the initial value matches the record
+            initialValue={record[dataIndex]}
             rules={[
               {
                 required: true,

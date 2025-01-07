@@ -20,14 +20,13 @@ export default function AxiosProduct() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
       });
       return await fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -51,7 +50,6 @@ export default function AxiosProduct() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
           theme: "colored",
@@ -61,7 +59,7 @@ export default function AxiosProduct() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -116,14 +114,13 @@ export default function AxiosProduct() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
       });
       return await fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -143,14 +140,13 @@ export default function AxiosProduct() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
       });
       return await fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };

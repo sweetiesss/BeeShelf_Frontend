@@ -9,20 +9,18 @@ import AxiosInventory from "../../services/Inventory";
 
 const SquareWithResizableBoxes = () => {
   const location = useLocation();
-  console.log("location", location);
-  const storeInfor = location?.state;
-  console.log("store Infor", storeInfor);
   const { createInventory } = AxiosInventory();
   const nav = useNavigate();
-
+  
   const [layout, setLayout] = useState([]);
   const [error, setError] = useState([]);
   const [fieldError, setFieldError] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const gridWidth = storeInfor?.width; // Width of the grid in pixels
-  const gridHeight = storeInfor?.length; // Width of the grid in pixels
-  const gridCols = storeInfor?.cols; // Number of columns in the grid
+  
+  const storeInfor = location?.state;
+  const gridWidth = storeInfor?.width; 
+  const gridHeight = storeInfor?.length; 
+  const gridCols = storeInfor?.cols; 
 
   const pixelToMeterRatio = gridWidth / gridCols;
 
@@ -34,9 +32,6 @@ const SquareWithResizableBoxes = () => {
     (30 * aRemStyle) / gridWidth
   );
   const maxRows = Math.floor(gridHeight / (gridWidth / gridCols));
-
-  console.log("cal", 0.5 * gridCols - 2.4);
-
   const addRectangle = () => {
     if (error?.length > 0) {
       toast.warning("Please fix or remove the error room first.");
@@ -45,9 +40,9 @@ const SquareWithResizableBoxes = () => {
     const newItem = {
       i: `${layout.length + 1}`,
       x: 0,
-      y: maxRows, // Places it at the bottom
-      w: 1, // Default width (in grid units)
-      h: 1, // Default height (in grid units)
+      y: maxRows, 
+      w: 1, 
+      h: 1, 
       isCold: 0,
       roomCode: `A${layout.length + 1}`,
       maxWeight:
@@ -60,8 +55,6 @@ const SquareWithResizableBoxes = () => {
 
   const saveData = async () => {
     try {
-      console.log(layout);
-
       const rooms = layout.map((box) => ({
         roomCode: box.roomCode,
         isCold: box.isCold,
@@ -77,15 +70,12 @@ const SquareWithResizableBoxes = () => {
         storeId: storeInfor?.id,
         data: rooms,
       };
-
-      console.log("Saved Data:", storeData);
-
       const result = await createInventory(storeData);
       if (result?.status === 200) {
         nav("../store");
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -106,8 +96,6 @@ const SquareWithResizableBoxes = () => {
         ((newItem?.w * newItem.h) / Number(maxRows * gridCols)).toFixed(2),
     };
     if (newRoom.y + newRoom.h > maxRows) {
-      console.log("newRoom", newRoom);
-
       setError((prev) => [...prev, newRoom]);
     }
     newLayout = [...newLayout.filter((item) => item.i != newRoom.i), newRoom];
@@ -117,7 +105,6 @@ const SquareWithResizableBoxes = () => {
   const handleDragStop = (currentLayout, oldItem, newItem) => {
     let newLayout = layout;
     setError((prev) => prev.filter((errorItem) => errorItem?.i !== newItem?.i));
-
     const realOldRoom = layout.find((item) => item.i === newItem.i);
     let newRoom = {
       ...realOldRoom,
@@ -129,8 +116,6 @@ const SquareWithResizableBoxes = () => {
     newLayout = [...newLayout.filter((item) => item.i != newRoom.i), newRoom];
 
     if (newRoom.y + newRoom.h > maxRows) {
-      console.log("newRoom", newRoom);
-
       setError((prev) => [...prev, newRoom]);
     }
     setLayout(newLayout);
@@ -139,8 +124,6 @@ const SquareWithResizableBoxes = () => {
   const handleChange = (e, item) => {
     const { name, value } = e.target;
     let validationErrors = [];
-
-    // Validate the field
     if (name === "roomCode") {
       if (!value || value.trim() === "") {
         validationErrors.push({
@@ -170,30 +153,20 @@ const SquareWithResizableBoxes = () => {
         });
       }
     }
-
-    // Update layout state
     setLayout((prev) =>
       prev.map((layoutItem) =>
         layoutItem.i === item.i ? { ...layoutItem, [name]: value } : layoutItem
       )
     );
 
-    // Update errors
     setFieldError((prevErrors) => {
-      // Remove existing errors for the current field of the current item
       const filteredErrors = prevErrors.filter(
         (errorItem) =>
           !(errorItem.i === item.i && errorItem.errorField === name)
       );
-
-      // Add new errors if any validation issues exist
       return [...filteredErrors, ...validationErrors];
     });
   };
-
-  console.log("error", error);
-  console.log("layout", layout);
-
   return (
     <div className="flex gap-10 overflow-hidden">
       <div className="px-10 border-2 rounded-lg shadow-xl">
@@ -221,16 +194,15 @@ const SquareWithResizableBoxes = () => {
               className="layout"
               layout={layout}
               cols={gridCols}
-              rowHeight={(gridWidth / gridCols) * scaleSize} // Square cells
+              rowHeight={(gridWidth / gridCols) * scaleSize}
               width={gridWidth * scaleSize}
               isResizable
               isDraggable
               margin={[0, 0]}
-              onResize={handleResizeStop} // Restrict resizing
-              onDrag={handleDragStop} // Restrict dragging
-              // onLayoutChange={handleOnChangeItem}
-              compactType={null} // Prevents items from auto-moving up
-              preventCollision={true} // Avoids unwanted overlapping
+              onResize={handleResizeStop} 
+              onDrag={handleDragStop}
+              compactType={null}
+              preventCollision={true} 
             >
               {layout.map((box) => (
                 <div
@@ -265,8 +237,6 @@ const SquareWithResizableBoxes = () => {
                 ...error?.filter((errorI) => errorI.i === item.i),
                 ...fieldError?.filter((errorI) => errorI.i === item.i),
               ];
-              console.log("isError", isError);
-
               return (
                 <div
                   className="grid grid-cols-2 gap-1  border-2 rounded-lg px-4 py-6 relative "
@@ -339,14 +309,7 @@ const SquareWithResizableBoxes = () => {
                       }
                     </p>
                   )}
-                  <p className="w-full text-nowrap">Room Type:</p>
-                  {/* <input
-                value={item.price}
-                onChange={(e) => handleChange(e, item)}
-                name="price"
-                className="w-full px-1 border-2"
-              /> */}
-                  <select
+                  <p className="w-full text-nowrap">Room Type:</p>                  <select
                     value={item?.isCold}
                     onChange={(e) => handleChange(e, item)}
                     name="isCold"

@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import useAxiosBearer from "./CustomizeAxios";
 
 export default function AxiosOrder() {
-  // Simulate fetching data from API
   const { fetchDataBearer } = useAxiosBearer();
 
   const getOrderByUserId = async (
@@ -30,13 +29,12 @@ export default function AxiosOrder() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
   const createOrder = async (data, send) => {
     try {
-      // ${warehouseId && "warehouseId=" + warehouseId + "&"}
       const fetching = fetchDataBearer({
         url: `order/create-order?send=${send}`,
         method: "POST",
@@ -57,7 +55,7 @@ export default function AxiosOrder() {
       });
       return result;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return {
         error: true,
         message: e.response?.data?.message || "Something went wrong!",
@@ -88,7 +86,7 @@ export default function AxiosOrder() {
       });
       return result;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return {
         error: true,
         message: e.response?.data?.message || "Something went wrong!",
@@ -111,7 +109,6 @@ export default function AxiosOrder() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
@@ -121,31 +118,6 @@ export default function AxiosOrder() {
       return e;
     }
   };
-  // const updateRequestStatus = async (id,status) => {
-  //   try {
-  //     const fetching = fetchDataBearer({
-  //       url: `request/update-request-status/` + id+"?status="+status,
-  //       method: "PUT",
-  //     });
-  //     await toast.promise(fetching, {
-  //       pending: "Request in progress...",
-  //       success: {
-  //         render() {
-  //           return `${status} request successfully`;
-  //         },
-  //       },
-  //       error: {
-  //         render({ data }) {
-  //           console.log("data Error", data.response.data.message);
-  //           return `${data.response.data.message || "Something went wrong!"}`;
-  //         },
-  //       },
-  //     });
-  //     return await fetching;
-  //   } catch (e) {
-  //     return e;
-  //   }
-  // };
   const deleteOrderById = async (id) => {
     try {
       const fetching = fetchDataBearer({
@@ -161,7 +133,6 @@ export default function AxiosOrder() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
@@ -186,7 +157,6 @@ export default function AxiosOrder() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },

@@ -33,6 +33,12 @@ import RoomMapping from "./RoomMapping";
 
 export default function InventoryPage() {
   const location = useLocation();
+  const { userInfor, setRefrestAuthWallet, authWallet } = useAuth();
+  const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
+  const { updateDataDetail, updateTypeDetail, refresh, setRefresh } =
+    useDetail();
+  const { getProvinces } = AxiosOthers();
+
   const [warehouses, setWareHouses] = useState();
   const [warehousesOwned, setWareHousesOwned] = useState();
   const [warehousesShowList, setWareHouseShowList] = useState();
@@ -53,11 +59,7 @@ export default function InventoryPage() {
 
   const [sortCriteria, setSortCriteria] = useState(null);
 
-  const { userInfor, setRefrestAuthWallet, authWallet } = useAuth();
-  const { getWarehouseByUserId, getWarehouses } = AxiosWarehouse();
-  const { updateDataDetail, updateTypeDetail, refresh, setRefresh } =
-    useDetail();
-  const { getProvinces } = AxiosOthers();
+ 
 
   const [provinceList, setProvinencesList] = useState([]);
   const [provinceAvailableList, setProvinencesAvailableList] = useState([]);
@@ -196,25 +198,19 @@ export default function InventoryPage() {
 
       setProvinencesList(result?.data);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 
   const handleSetMonthToBuy = (price, data) => {
-    console.log("data", data);
-
     const dataPrice = Math.round(parseFloat(price) * parseFloat(data));
     setErrors("");
     if (data < 0 || data === null || data === undefined || data === "") {
-      console.log("here");
-
       setErrors("YouNeedAtLeast1MonthToBuyInventory");
       setMonthToBuyInventory("");
       return;
     }
     setMonthToBuyInventory(Math.floor(data));
-    console.log(dataPrice > authWallet?.totalAmount);
-
     if (dataPrice > authWallet?.totalAmount) {
       setErrors("NotEnoughtMoneyToDoThis");
       return;
@@ -374,7 +370,7 @@ export default function InventoryPage() {
         setWareHouses(res);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -387,7 +383,7 @@ export default function InventoryPage() {
         setWareHousesOwned(res);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -411,7 +407,7 @@ export default function InventoryPage() {
     const filterProvinces = provinceList.map((province) => ({
       ...province,
       haveWarehouse: warehouses?.data?.items.some(
-        (data) => parseInt(data.provinceId) === parseInt(province.id) // Match provinceId with province.id
+        (data) => parseInt(data.provinceId) === parseInt(province.id)
       ),
     }));
 
@@ -441,7 +437,7 @@ export default function InventoryPage() {
         setInventories(res);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -457,7 +453,7 @@ export default function InventoryPage() {
         setInventoriesOwned(res);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -465,25 +461,17 @@ export default function InventoryPage() {
 
   const getInventoriesList = () => {
     const inventoriesOwnedList = inventoriesOwned?.data?.items || [];
-    console.log("inventoriesOwnedList", inventoriesOwnedList);
-    console.log("inventories", inventories);
-
     const result =
       inventories?.data?.items?.map(
         (inventory) => {
           if (inventory.ocopPartnerId === null) {
-            return inventory; // Retain null values
+            return inventory;
           }
           if (inventory.ocopPartnerId !== userInfor?.id)
             return { ...inventory, ocopPartnerId: -1 };
           return inventory;
         }
-        // &&
-        //   (inventory.ocopPartnerId === userInfor.id ||
-        //     inventory.ocopPartnerId === null)
       ) || [];
-    console.log("result", result);
-
     const combinedList = [...inventoriesOwnedList, ...result];
     setInventoriesBased(combinedList);
     setInventoriesShowList(combinedList);
@@ -513,7 +501,7 @@ export default function InventoryPage() {
         setRefrestAuthWallet((prev) => !prev);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -527,18 +515,12 @@ export default function InventoryPage() {
   const handleOpenGoogleMaps = (location) => {
     const encodedLocation = encodeURIComponent(location);
     const googleMapsUrl = `https://www.google.com/maps?q=${encodedLocation}`;
-    window.open(googleMapsUrl, "_blank"); // Opens in a new tab
+    window.open(googleMapsUrl, "_blank");
   };
 
   const handleShowInventoryDetail = async (e, inventory) => {
     try {
       e.stopPropagation();
-      // const result = await getInventoryById(inventoryId);
-      // console.log(result);
-      // if (result?.status === 200) {
-      //   updateDataDetail(result?.data);
-      //   updateTypeDetail("inventory");
-      // }
       updateDataDetail(inventory);
       updateTypeDetail("inventory");
     } catch (e) {
@@ -567,13 +549,9 @@ export default function InventoryPage() {
     await fetchingDataWarehouses();
     await fetchingDataWarehousesByUserId();
   };
-
-  console.log("warehouse", warehouse);
-
   return (
     <div>
       <div className="text-left">
-        {/* Responsive grid for the inventory cards */}
         <div>
           <p className="text-3xl font-bold">
             <span
@@ -596,7 +574,6 @@ export default function InventoryPage() {
           </p>
         </div>
         <div className="my-10 ">
-          {/* <p className="text-2xl font-semibold">{t("Filters")}</p> */}
           {!warehouse ? (
             <div className="flex items-center gap-10 mt-6">
               <div className="flex items-center">
@@ -871,13 +848,6 @@ export default function InventoryPage() {
           )}
         </div>
         {loading ? (
-          // <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-[37rem] items-start">
-          //   {Array(100)
-          //     .fill(0)
-          //     .map((_, index) => (
-          //       <WarehouseListSkeleton key={index} />
-          //     ))}
-          // </div>
           <SpinnerLoading />
         ) : !warehouse ? (
           <div>
@@ -947,13 +917,6 @@ export default function InventoryPage() {
                 handleBuyClick={handleBuyClick}
                 handleShowInventoryDetail={handleShowInventoryDetail}
               />
-              {/* {inventoriesShowList?.map((inventenry) => (
-                <InventoryCard
-                  inventory={inventenry}
-                  handleBuyClick={handleBuyClick}
-                  handleShowInventoryDetail={handleShowInventoryDetail}
-                />
-              ))} */}
             </div>
           </div>
         )}
@@ -1041,7 +1004,6 @@ export default function InventoryPage() {
                 </div>
 
                 <div className="col-span-2">
-                  {/* {parseInt(cal( inventory?.price*monthBuyInvrentory)) + "VND"} */}
                   {`${new Intl.NumberFormat().format(
                     Math.round(
                       parseFloat(inventory?.price) *
@@ -1080,8 +1042,6 @@ export default function InventoryPage() {
             </div>
           </>
         )}
-
-        {/* <Mapping showLocation="Hồ Chí Minh"></Mapping> */}
       </div>
     </div>
   );

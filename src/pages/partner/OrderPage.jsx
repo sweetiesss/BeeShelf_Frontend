@@ -16,14 +16,6 @@ export default function OrderPage() {
   const { userInfor } = useContext(AuthContext);
   const { getOrderByUserId, deleteOrderById } = AxiosOrder();
   const { getInventory1000ByUserId } = AxiosInventory();
-  const [orders, setOrders] = useState();
-
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [isShowDetailOrder, setShowDetailOrder] = useState(null);
-
-  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-  const [orderHolder, setOrderHolder] = useState(false);
   const nav = useNavigate();
   const {
     dataDetail,
@@ -35,6 +27,12 @@ export default function OrderPage() {
     setCreateOrder,
   } = useDetail();
 
+  const [orders, setOrders] = useState();
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [isShowDetailOrder, setShowDetailOrder] = useState(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+  const [orderHolder, setOrderHolder] = useState(false);
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
     filterByStatus: "",
@@ -49,17 +47,6 @@ export default function OrderPage() {
   useEffect(() => {
     debouncedFetchOrders();
   }, [refresh, filterField]);
-  // useEffect(() => {
-  //   try {
-  //     debouncedFetchOrders();
-  //     setLoading(true);
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [filterField]);
-
   const debounce = (func, delay) => {
     let timeout;
     return (...args) => {
@@ -84,7 +71,7 @@ export default function OrderPage() {
         );
         setOrders(response?.data);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -92,17 +79,10 @@ export default function OrderPage() {
     [filterField]
   );
 
-  console.log(filterField);
-
   const handleAddOrder = async (order) => {
-    // const newOrder = await addOrder(order);
-    // setOrders([...orders, newOrder]);
   };
 
   const handleUpdateOrder = async (order) => {
-    // const updatedOrder = await updateOrder(order);
-    // setOrders(orders.map((o) => (o.id === updatedOrder.id ? updatedOrder : o)));
-    // setSelectedOrder(null);
   };
 
   const handleDeleteOrder = (order) => {
@@ -125,14 +105,7 @@ export default function OrderPage() {
   };
 
   const handleSearch = (event) => {
-    // setSearchQuery(event.target.value);
   };
-
-  // const filteredOrders = orders.filter((order) =>
-  //   order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
-  console.log("here", orders);
-
   const handleShowDetailOrder = (e, order) => {
     e.stopPropagation();
     setShowDetailOrder(isShowDetailOrder === order ? null : order);
@@ -148,20 +121,6 @@ export default function OrderPage() {
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">{t("Orders Management")}</h1>
 
-      {/* <select
-        name="filterByStatus"
-        value={filterField.filterByStatus}
-        onChange={handleFiltered}
-      >
-        <option value={""}>Select Request Status</option>
-        <option value={"Draft"}>Draft</option>
-        <option value={"Pending"}>Pending</option>
-        <option value={"Canceled"}>Canceled</option>
-        <option value={"Processing"}>Processing</option>
-        <option value={"Delivered"}>Delivered</option>
-        <option value={"Failed"}>Failed</option>
-        <option value={"Completed"}>Completed</option>
-      </select> */}
       <div className="flex gap-10">
         <div
           className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-fit  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${

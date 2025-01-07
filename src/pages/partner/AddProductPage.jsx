@@ -14,8 +14,10 @@ import SpinnerLoading from "../../component/shared/Loading";
 export default function AddProductPage() {
   const { userInfor } = useContext(AuthContext);
   const { createProductWithUserId } = AxiosProduct();
-  const [productCategories, setProductCategories] = useState();
   const { uploadImage } = AxiosImg();
+  const { getProductCategoryBy1000 } = AxiosCategory();
+  const { t } = useTranslation();
+  const [productCategories, setProductCategories] = useState();
   const defaultForm = {
     ocopPartnerId: userInfor.id,
     barcode: "",
@@ -56,8 +58,7 @@ export default function AddProductPage() {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { t } = useTranslation();
-  const { getProductCategoryBy1000 } = AxiosCategory();
+
 
   useEffect(() => {
     fetchingBeginData();
@@ -71,7 +72,7 @@ export default function AddProductPage() {
         setProductCategories(productCategoriesResult?.data?.items);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -114,7 +115,7 @@ export default function AddProductPage() {
       [name]: value,
     }));
     if (errors[name]) {
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" })); // Clear error on input change
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     }
   };
   const validateForm = () => {
@@ -136,7 +137,7 @@ export default function AddProductPage() {
     if (!imageLink) newErrors.pictureLink = t("Product image is required.");
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Returns true if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
@@ -193,13 +194,11 @@ export default function AddProductPage() {
             </NavLink>
           </div>
           <div className="bg-white rounded-lg shadow-lg p-8">
-            {/* <h1 className="text-2xl font-semibold mb-6">{t("Add New Product")}</h1> */}
             <form
               onSubmit={handleSubmit}
               className="grid grid-cols-1 lg:grid-cols-2 gap-10"
             >
               <div className="space-y-[14px]">
-                {/* Product Name */}
                 <div className="form-group relative">
                   <label className="font-medium text-lg" htmlFor="name">
                     <span className="text-red-500 text-xl">*</span> {t("Name")}
@@ -220,7 +219,6 @@ export default function AddProductPage() {
                   )}
                 </div>
 
-                {/* Price */}
                 <div className="flex justify-between items-center gap-10">
                   <div className="form-group mt-4 relative w-1/2 ">
                     <label className="font-medium text-lg" htmlFor="price">
@@ -281,10 +279,9 @@ export default function AddProductPage() {
                           ...provided,
                           paddingTop: "4px",
                           paddingBottom: "4px",
-                          // width:"100%",
-                          borderColor: "#ccc", // Custom border color
-                          boxShadow: "none", // Remove default focus outline
-                          "&:hover": { borderColor: "#aaa" }, // Border on hover
+                          borderColor: "#ccc", 
+                          boxShadow: "none",
+                          "&:hover": { borderColor: "#aaa" },
                         }),
                         option: (provided, state) => ({
                           ...provided,
@@ -395,10 +392,9 @@ export default function AddProductPage() {
                           ...provided,
                           paddingTop: "4px",
                           paddingBottom: "4px",
-                          // width:"100%",
-                          borderColor: "#ccc", // Custom border color
-                          boxShadow: "none", // Remove default focus outline
-                          "&:hover": { borderColor: "#aaa" }, // Border on hover
+                          borderColor: "#ccc", 
+                          boxShadow: "none",
+                          "&:hover": { borderColor: "#aaa" },
                         }),
                         option: (provided, state) => ({
                           ...provided,
@@ -411,27 +407,8 @@ export default function AddProductPage() {
                         }),
                       }}
                     />
-
-                    {/* <input
-                  type="checkbox"
-                  id="isCold"
-                  name="isCold"
-                  checked={product.isCold === 1}
-                  onChange={(e) =>
-                    setProduct((prevProduct) => ({
-                      ...prevProduct,
-                      isCold: e.target.checked ? 1 : 0,
-                    }))
-                  }
-                  className="ml-2"
-                /> */}
                   </div>
                 </div>
-                {/* Is Cold */}
-
-                {/* Weight */}
-
-                {/* Product Category */}
                 <div className="form-group relative">
                   <label
                     className="font-medium text-lg mt-4"
@@ -444,13 +421,11 @@ export default function AddProductPage() {
                     styles={{
                       menu: (provided) => ({
                         ...provided,
-
-                        // Restrict the dropdown height
-                        overflowY: "hidden", // Enable scrolling for content
+                        overflowY: "hidden",
                       }),
                       menuList: (provided) => ({
                         ...provided,
-                        padding: 0, // Ensure no extra padding
+                        padding: 0, 
                         maxHeight: "7.5rem",
                         overflow: "auto",
                       }),
@@ -473,8 +448,8 @@ export default function AddProductPage() {
                           : "white",
                         color: isSelected ? "white" : "black",
                         cursor: "pointer",
-                        padding: "0.5rem 1rem", // Option padding
-                        textAlign: "left", // Center-align text
+                        padding: "0.5rem 1rem",
+                        textAlign: "left",
                       }),
                     }}
                     onChange={(selectedOption) =>
@@ -495,8 +470,6 @@ export default function AddProductPage() {
                     </p>
                   )}
                 </div>
-
-                {/* Barcode */}
                 <div className="form-group relative">
                   <label className="font-medium text-lg mt-4" htmlFor="barcode">
                     <span className="text-red-500 text-xl">*</span>{" "}
@@ -537,10 +510,6 @@ export default function AddProductPage() {
                       <div
                         className={`text-center ${imagePreview && "hidden"} `}
                       >
-                        {/* <PiFileArrowDownLight
-                      className="mx-auto h-12 w-12  span-hover"
-                      aria-hidden="true"
-                    /> */}
                         <div className="mt-4 flex text-sm leading-6 ">
                           <p className="relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 ">
                             <div className="flex gap-4 items-center">
