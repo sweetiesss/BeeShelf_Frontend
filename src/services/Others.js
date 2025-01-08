@@ -8,7 +8,7 @@ export default function AxiosOthers() {
       const fetching = await axios.get("https://api.vietqr.io/v2/banks");
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -20,7 +20,19 @@ export default function AxiosOthers() {
       });
       return fetching; 
     } catch (e) {
-      console.log(e);
+      console.error(e);
+      return e;
+    }
+  };
+  const getProvincesWithDeliveryZone = async () => {
+    try {
+      const fetching = await fetchData({
+        url: "user/get-provinces?pageIndex=0&pageSize=1000",
+        method: "GET",
+      });
+      return fetching; 
+    } catch (e) {
+      console.error(e);
       return e;
     }
   };
@@ -31,7 +43,7 @@ export default function AxiosOthers() {
       );
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -49,10 +61,10 @@ export default function AxiosOthers() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
 
-  return { getBanks, getOcopCategoryBy100, getProvinces,getAddressProvincesStressWard };
+  return { getBanks, getOcopCategoryBy100, getProvinces,getAddressProvincesStressWard,getProvincesWithDeliveryZone };
 }

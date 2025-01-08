@@ -8,7 +8,6 @@ export function WarehouseCard({ warehouse, setWareHouse }) {
     (total, item) => total + (item?.maxWeight || 0),
     0
   );
-
   return (
     <div
       className={` shadow-xl border-2 relative rounded-lg p-6 mb-4 w-full max-w-lg mx-auto overflow-hidden text-black cursor-pointer bg-white hover:bg-[var(--en-vu-200)]`}
@@ -79,7 +78,6 @@ export function InventoryCard({
       <div className=" justify-start">
         <div className="text-gray-700 mb-1 flex gap-x-4">
           <p className="font-medium">{t("MaxWeight")}:</p>
-          {/* <p>{new Intl.NumberFormat().format(inventory?.maxWeight)} kg</p> */}
           {inventory.ocopPartnerId
             ? new Intl.NumberFormat().format(inventory?.weight) +
                 "/" +
@@ -94,8 +92,6 @@ export function InventoryCard({
           <div className="text-gray-700 mb-1 flex gap-x-4">
             <p className="font-semibold">{t("ExpiredIn")}:</p>
             <p>
-              {/* {format(inventory?.boughtDate, "dd/MM/yyyy")} -{" "}
-              {format(inventory?.expirationDate, "dd/MM/yyyy")} */}
               {inventory?.expirationDate
                 ? `${differenceInDays(
                     new Date(inventory.expirationDate),
@@ -109,13 +105,6 @@ export function InventoryCard({
           </div>
         )}
       </div>
-
-      {/* <div className="text-gray-500 text-left">
-        Date:
-        <span className="text-black">
-          {inventory?.boughtDate} to {inventory?.expirationDate}
-        </span>
-      </div> */}
     </div>
   );
 }

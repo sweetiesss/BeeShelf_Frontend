@@ -6,8 +6,6 @@ import {
   Package,
   Bag,
   AddressBook,
-  Archive,
-  Aperture,
   CreditCard,
   CarProfile,
   TreasureChest,
@@ -22,7 +20,7 @@ import {
 } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { AuthContext } from "../../context/AuthContext";
-import { use } from "i18next";
+
 export function Sidebar() {
   const [isSlideOut, setSlideOut] = useState(false);
   const { t } = useTranslation();
@@ -228,13 +226,6 @@ export function Sidebar() {
 
         {userInfor?.roleName === "Staff" && (
           <>
-            {/* <NavLink to="dashboardstaff" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <House className="icon" weight="fill" />
-                <p className="label">{t("Dashboard")}</p>
-              </div>
-            </NavLink> */}
-
             <NavLink to="payment" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <CreditCard className="icon" weight="fill" />
@@ -285,13 +276,6 @@ export function Sidebar() {
 
         {userInfor?.roleName === "Admin" && (
           <>
-            {/* <NavLink to="dashboardstaff" className="flex navigate-menu">
-              <div className="sidebar-menu-container">
-                <House className="icon" weight="fill" />
-                <p className="label">{t("Dashboard")}</p>
-              </div>
-            </NavLink> */}
-
             <NavLink to="payment" className="flex navigate-menu">
               <div className="sidebar-menu-container">
                 <CreditCard className="icon" weight="fill" />

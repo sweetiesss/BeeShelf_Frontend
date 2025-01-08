@@ -36,8 +36,6 @@ export default function OrderCard({ order, onClickEdit, onClickDelete }) {
         <div>From: Warehouse A.</div>
         <div>To: {order.receiverAddress}</div>
       </div>
-
-      {/* Order Details Section */}
       <div className="text-sm text-gray-700">
         <p className="mb-2">
           Product Name:{" "}
@@ -57,13 +55,9 @@ export default function OrderCard({ order, onClickEdit, onClickDelete }) {
           Delivery By: <span className="font-medium">{order.deliver_by}</span>
         </p>
       </div>
-
-      {/* Receiver Information */}
       <div className="mt-4">
         <h3 className="text-sm font-bold mb-2">Receiver Information:</h3>
       </div>
-
-      {/* Picture Section */}
       <div className="mt-4">
         <img
           src={order.picture_link}
@@ -71,8 +65,6 @@ export default function OrderCard({ order, onClickEdit, onClickDelete }) {
           className="w-20 h-20 object-cover rounded-lg mb-4"
         />
       </div>
-
-      {/* Actions: Edit and Delete */}
       <div className="flex mt-4 space-x-4">
         <button className="text-blue-600 hover:underline" onClick={onClickEdit}>
           Edit
@@ -135,8 +127,6 @@ export function OrderDetailCard({ order, onClickEdit, onClickDelete }) {
         </div>
       </div>
       <hr></hr>
-
-      {/* Order Details Section */}
       <div className="text-sm text-gray-700 ">
         <div className="flex">
           <img
@@ -159,7 +149,6 @@ export function OrderDetailCard({ order, onClickEdit, onClickDelete }) {
           Delivery By: <span className="font-medium">{order.deliver_by}</span>
         </p>
       </div>
-      {/* Actions: Edit and Delete */}
       <div className="flex mt-4 space-x-4">
         <button className="text-blue-600 hover:underline" onClick={onClickEdit}>
           Edit

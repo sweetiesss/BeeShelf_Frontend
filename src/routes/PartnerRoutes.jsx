@@ -65,7 +65,6 @@ export default function PartnerRoutes() {
                 element={<ImportProductExcel />}
               />
               <Route path="product/add_product" element={<AddProductPage />} />
-              {/* <Route path="profile" element={<ProfilePage />} /> */}
               <Route path="payment" element={<PaymentPage />} />
               <Route path="payment/result" element={<PaymentResult />} />
             </>

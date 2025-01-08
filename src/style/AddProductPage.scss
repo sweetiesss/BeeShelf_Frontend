@@ -1,4 +1,4 @@
-/* Container */
+
 .container {
   max-width: 600px;
   margin: 50px auto;
@@ -16,7 +16,6 @@
   }
 }
 
-/* Title and Subtitle */
 .title {
   font-size: 24px;
   font-weight: bold;
@@ -32,7 +31,6 @@
   margin-bottom: 10px;
 }
 
-/* Form */
 .product-form {
   display: flex;
   flex-direction: column;
@@ -60,7 +58,6 @@
   }
 }
 
-/* Button */
 .submit-button {
   background-color: #007bff;
   color: white;
@@ -75,7 +72,6 @@
   }
 }
 
-/* Product List */
 .product-list {
   list-style-type: none;
   padding: 0;

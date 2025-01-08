@@ -16,8 +16,10 @@ const Vehicle = () => {
   const [visible, setVisible] = useState(false); // Trạng thái hiển thị modal
   const [vehicles, setVehicles] = useState([]);
   const [vehicleIdOptions, setVehicleIdOptions] = useState([]); // Trạng thái cho danh sách paymentId options
-  const [shippperIdOptions, setShipperIdOptions] = useState([]); // Trạng thái cho danh sách paymentId options
+  const [shippperIdOptions, setShipperIdOptions] = useState(["anh", "ss"]); // Trạng thái cho danh sách paymentId options
   const [loading, setLoading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [pagination, setPagination] = useState({
     totalItemsCount: 0,
     pageSize: 8,
@@ -61,9 +63,10 @@ const Vehicle = () => {
           ?.filter((item) => !item.assignedDriverId)
           .map((vehicle) => ({
             value: vehicle.id,
-            label: `${t("VehicleId")}: ${vehicle.id} - ${t("Name_Vehicle")}: ${
-              vehicle.name
-            } - ${t("License_Plate")}: ${vehicle.licensePlate}`,
+            label: `
+
+            ${t("Name_Vehicle")}: ${vehicle.name} - 
+            ${t("License_Plate")}: ${vehicle.licensePlate}`,
           }));
         setVehicleIdOptions(options);
       } else {
@@ -127,47 +130,36 @@ const Vehicle = () => {
   useEffect(() => {
     const fetchShippers = async () => {
       try {
-        const warehouseId = userInfor?.workAtWarehouseId;
-
-        if (!warehouseId) {
-          console.error(t("Warehouse_ID_is_not_available"));
-          return;
-        }
-
+        const storeId = userInfor?.workAtWarehouseId;
         const response = await fetchDataBearer({
-          url: `/warehouse/get-warehouse-shippers/${warehouseId}`,
+          url: "/store/get-store-shippers",
+          // url: `/store/get-store-shippers/${storeId}`,
           method: "GET",
           params: {
             hasVehicle: false,
             pageIndex: 0,
             pageSize: 100,
-            filterBy: "WarehouseId",
-            filterQuery: warehouseId,
+            filterBy: "StoreId",
+            filterQuery: storeId,
           },
         });
-
-        if (response.status === 200 && response.data) {
-          console.log(t("Shippers_data"), response.data);
-          // Lọc shipper chưa có xe
-          setShipperIdOptions(
-            response.data.items.filter((item) => item.vehicles.length <= 0) ||
-              []
-          );
-        } else {
-          console.error(t("Failed_to_fetch_shippers_data"));
-        }
+        setShipperIdOptions(response.data.items);
+        console.log("Shipper options set to:", response.data.items);
+        console.log("sss", shippperIdOptions);
       } catch (error) {
         console.error(t("Error_fetching_shippers_data"), error);
       }
     };
 
-    if (userInfor?.workAtWarehouseId) {
-      fetchShippers();
-    }
-  }, [userInfor]);
+    // if (userInfor?.workAtWarehouseId) {
+    //   fetchShippers();
+    // }
+    fetchShippers();
+  }, []);
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  useEffect(() => {
+    console.log("Updated shipperIdOptions (state):", shippperIdOptions);
+  }, [shippperIdOptions]);
 
   const handleModalClose = () => {
     setIsModalVisible(false);
@@ -408,7 +400,7 @@ const Vehicle = () => {
             loading={loading}
             onClick={() => assignVehicleToShipper(vehicleId, shipperId)}
           >
-            {t("Assign_Vehicle_To_Shipper")}
+            {t("Assign_Vehicle_To_Shipper1")}
           </Button>,
         ]}
       >
@@ -420,19 +412,15 @@ const Vehicle = () => {
               onChange={(value) => setShipperId(value)}
               placeholder={t("Select_Shipper_ID")}
             >
-              {shippperIdOptions.map(
-                (shipper) =>
-                  shipper.employeeId &&
-                  shipper.warehouseId && (
-                    <Select.Option
-                      key={shipper.employeeId}
-                      value={shipper.employeeId}
-                    >
-                      {t("Employee_Name")}: {shipper.shipperName} -{" "}
-                      {t("Warehouse_ID")}: {shipper.warehouseId}
-                    </Select.Option>
-                  )
-              )}
+              {shippperIdOptions.map((shipper) => (
+                <Select.Option
+                  key={shipper.employeeId}
+                  value={shipper.employeeId}
+                >
+                  {t("Employee_Name")}: {shipper.shipperName} -{" "}
+                  {t("Store_Name")}: {shipper.warehouseName}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -540,6 +528,17 @@ const Vehicle = () => {
                   {t("Vehicle_Name")}:
                 </span>
                 <span className="text-gray-900">{selectedVehicle.name}</span>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-700">
+                  {t("Capacity")}:
+                </span>
+                <span className="text-gray-900">
+                  {selectedVehicle.capacity
+                    ? `${selectedVehicle.capacity} kg`
+                    : "N/A"}
+                </span>
               </div>
 
               <div className="flex justify-between items-center">

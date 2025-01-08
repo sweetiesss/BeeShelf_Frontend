@@ -44,11 +44,6 @@ export default function AxiosUser() {
       });
       await toast.promise(fetching, {
         pending: "Request in progress...",
-        success: {
-          render() {
-            return "Correct email and password!";
-          },
-        },
         error: {
           render({ data }) {
             return `${
@@ -86,7 +81,6 @@ export default function AxiosUser() {
               data.email,
               successDataToken
             );
-            console.log(getAccount);
             if (getAccount && getAccount?.status === 200 && getAccount?.data) {
               name = getAccount.data?.lastName;
               return getAccount;
@@ -133,7 +127,6 @@ export default function AxiosUser() {
         method: "POST",
         data,
       });
-      console.log(fetching);
 
       await toast.promise(fetching, {
         pending: "Request in progress...",
@@ -162,7 +155,6 @@ export default function AxiosUser() {
         method: "POST",
         data,
       });
-      console.log(fetching);
 
       await toast.promise(fetching, {
         pending: "Request in progress...",
@@ -194,7 +186,6 @@ export default function AxiosUser() {
         url: "auth/forgot-password?email=" + email,
         method: "POST",
       });
-      console.log(fetching);
 
       await toast.promise(fetching, {
         pending: "Request in progress...",

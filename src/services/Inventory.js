@@ -12,7 +12,7 @@ export default function AxiosInventory() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -27,7 +27,7 @@ export default function AxiosInventory() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -39,7 +39,7 @@ export default function AxiosInventory() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -51,7 +51,7 @@ export default function AxiosInventory() {
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -70,14 +70,13 @@ export default function AxiosInventory() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -96,14 +95,13 @@ export default function AxiosInventory() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -123,14 +121,13 @@ export default function AxiosInventory() {
         },
         error: {
           render({ data }) {
-            console.log("data Error", data.response.data.message);
             return `${data.response.data.message || "Something went wrong!"}`;
           },
         },
       });
       return fetching;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };

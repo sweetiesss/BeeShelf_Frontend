@@ -113,7 +113,6 @@ export default function DetailSlide() {
             dataDetail?.id,
             false
           );
-          console.log("lotResut", lotResut);
           setLotsList(lotResut);
         }
       };
@@ -135,8 +134,6 @@ export default function DetailSlide() {
     };
     const handleInput = (e) => {
       const { name, value } = e.target;
-      console.log("name", name);
-      console.log("value", value);
       if (name === "price") {
         if (value > 999999999) {
           setForm(() => ({ ...form, [name]: 999999999 }));
@@ -160,7 +157,6 @@ export default function DetailSlide() {
     const confirmUpdate = async () => {
       try {
         const res = await updateProductById(dataDetail?.id, form);
-        console.log(res);
         if (res.status === 200) {
           setRefresh(dataDetail?.id);
         }
@@ -169,13 +165,10 @@ export default function DetailSlide() {
         setShowUpdateConfirm(false);
       }
     };
-    console.log("datadetail", dataDetail);
-    console.log("form ", form);
 
     return (
       <>
         <div className="w-[455px] h-full bg-white p-6 flex flex-col gap-8 text-black">
-          {/* Header */}
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold text-black">
@@ -228,7 +221,6 @@ export default function DetailSlide() {
             </div>
           </div>
 
-          {/* Product Info Table */}
           <div className="w-full grid grid-cols-2 gap-4">
             <span className="text-black text-lg font-semibold col-span-1">
               {t("Origin")}:
@@ -253,7 +245,6 @@ export default function DetailSlide() {
             </span>
             {inputField?.productCategoryId ? (
               <Select
-                // value={form?.productCategoryId}
 
                 value={
                   productCategories?.find(
@@ -270,18 +261,16 @@ export default function DetailSlide() {
                   })
                 }
                 options={productCategories}
-                getOptionValue={(e) => e.id} // Use `id` as the value
-                getOptionLabel={(e) => e.typeName} // Display `typeName` as the label
+                getOptionValue={(e) => e.id}
+                getOptionLabel={(e) => e.typeName} 
                 styles={{
                   menu: (provided) => ({
                     ...provided,
-
-                    // Restrict the dropdown height
-                    overflowY: "hidden", // Enable scrolling for content
+                    overflowY: "hidden", 
                   }),
                   menuList: (provided) => ({
                     ...provided,
-                    padding: 0, // Ensure no extra padding
+                    padding: 0,
                     maxHeight: "7.5rem",
                     overflow: "auto",
                   }),
@@ -304,8 +293,8 @@ export default function DetailSlide() {
                       : "white",
                     color: isSelected ? "white" : "black",
                     cursor: "pointer",
-                    padding: "0.5rem 1rem", // Option padding
-                    textAlign: "left", // Center-align text
+                    padding: "0.5rem 1rem", 
+                    textAlign: "left",
                   }),
                 }}
               />
@@ -345,15 +334,6 @@ export default function DetailSlide() {
               {t("Unit")}:
             </span>
             {inputField?.unit ? (
-              // <input
-              //   name="unit"
-              //   type="number"
-              //   value={form?.unit}
-              //   onChange={handleInput}
-              //   className={`input-field text-left w-full col-span-1 font-semibold text-lg${
-              //     errors?.unit ? "input-error" : ""
-              //   }`}
-              // />
               <Select
                 value={unitOptions.find(
                   (option) => option.value === form?.unit
@@ -385,10 +365,9 @@ export default function DetailSlide() {
                     ...provided,
                     paddingTop: "4px",
                     paddingBottom: "4px",
-                    // width:"100%",
-                    borderColor: "#ccc", // Custom border color
-                    boxShadow: "none", // Remove default focus outline
-                    "&:hover": { borderColor: "#aaa" }, // Border on hover
+                    borderColor: "#ccc",
+                    boxShadow: "none",
+                    "&:hover": { borderColor: "#aaa" },
                   }),
                   option: (provided, state) => ({
                     ...provided,
@@ -410,15 +389,6 @@ export default function DetailSlide() {
               {t("Frozen")}:
             </span>
             {inputField?.isCold ? (
-              // <input
-              //   name="isCold"
-              //   type="number"
-              //   value={form?.isCold}
-              //   onChange={handleInput}
-              //   className={`input-field text-left w-full col-span-1 font-semibold text-lg${
-              //     errors?.isCold ? "input-error" : ""
-              //   }`}
-              // />
               <Select
                 value={[
                   { value: 0, label: t("NormalProduct") },
@@ -454,10 +424,9 @@ export default function DetailSlide() {
                     ...provided,
                     paddingTop: "4px",
                     paddingBottom: "4px",
-                    // width:"100%",
-                    borderColor: "#ccc", // Custom border color
-                    boxShadow: "none", // Remove default focus outline
-                    "&:hover": { borderColor: "#aaa" }, // Border on hover
+                    borderColor: "#ccc", 
+                    boxShadow: "none",
+                    "&:hover": { borderColor: "#aaa" }, 
                   }),
                   option: (provided, state) => ({
                     ...provided,
@@ -636,7 +605,6 @@ export default function DetailSlide() {
       try {
         setRefresh(0);
         const res = await deleteRequestById(showDeleteConfirmation?.id);
-        console.log(res);
       } catch (e) {
       } finally {
         setRefresh(-1);
@@ -742,7 +710,6 @@ export default function DetailSlide() {
     const confirmUpdate = async () => {
       try {
         const res = await updateProductById(dataDetail?.id, form);
-        console.log(res);
         if (res.status === 200) {
           setRefresh(dataDetail?.id);
         }
@@ -755,7 +722,6 @@ export default function DetailSlide() {
     return (
       <>
         <div className="w-[600px] h-full bg-white p-6 flex flex-col gap-8 text-black">
-          {/* Header */}
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -811,7 +777,6 @@ export default function DetailSlide() {
               </div>
             </div>
 
-            {/* Product Info Table */}
             <div className="w-full flex flex-col gap-4">
               {[
                 { label: "Lot Num:", value: dataDetail?.lotId },
@@ -826,7 +791,6 @@ export default function DetailSlide() {
                 { label: "Description:", value: dataDetail?.description },
                 { label: "Amount:", value: lotData?.lotAmount + " lots" },
                 { label: "Product Per Lot:", value: lotData?.productPerLot },
-                // { label: "Product ID:", value: "#ID394812" },
                 {
                   label: "Total Product Amount:",
                   value: lotData?.totalProductAmount,
@@ -847,7 +811,7 @@ export default function DetailSlide() {
                     : "Not Yet",
                 },
 
-                { label: "To Warehouse:", value: dataDetail?.warehouseName },
+                { label: "To Store:", value: dataDetail?.storeName },
               ]?.map((item, index) => (
                 <div key={index} className="grid grid-cols-2 gap-4  text-lg">
                   <div className="text-gray-600">{item.label}</div>
@@ -994,8 +958,6 @@ export default function DetailSlide() {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
     const [showCancelConfirmation, setShowCancelConfirmation] = useState(null);
 
-    console.log("dataDetail", dataDetail);
-
     useEffect(() => {
       const handleClickOutSide = (event) => {
         if (
@@ -1026,7 +988,6 @@ export default function DetailSlide() {
       try {
         setRefresh(0);
         const res = await deleteOrderById(showDeleteConfirmation?.id);
-        console.log(res);
       } catch (e) {
       } finally {
         setRefresh(-1);
@@ -1047,7 +1008,6 @@ export default function DetailSlide() {
       try {
         setRefresh(0);
         const res = await cancelOrderById(showCancelConfirmation?.id);
-        console.log(res);
       } catch (e) {
       } finally {
         setRefresh(-1);
@@ -1059,33 +1019,9 @@ export default function DetailSlide() {
     const cancelCancel = () => {
       setShowCancelConfirmation(null);
     };
-
-    // const handleUpdateStatusClick = (e, request, status) => {
-    //   e.stopPropagation();
-    //   setShowUpdateConfirmation([request, status]);
-    // };
-
-    // const confirmUpdateStatus = async () => {
-    //   try {
-    //     const res = await updateRequestStatus(
-    //       showUpdateConfirmation[0]?.id,
-    //       showUpdateConfirmation[1]
-    //     );
-    //     console.log(res);
-    //   } catch (e) {
-    //   } finally {
-    //     setRefresh(showUpdateConfirmation[0]?.id);
-    //     cancelDelete();
-    //   }
-    // };
-    // const exitUpdateStatus = () => {
-    //   setShowUpdateConfirmation(null);
-    // };
-
     return (
       <>
         <div className="w-[800px] h-full bg-white p-6 flex flex-col gap-8 text-black max-h-[100vh] overflow-auto">
-          {/* Header */}
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -1122,8 +1058,6 @@ export default function DetailSlide() {
                 </p>
               </div>
             </div>
-
-            {/* Product Info Table */}
             <div className="w-full flex flex-col gap-4">
               {[
                 {
@@ -1138,12 +1072,12 @@ export default function DetailSlide() {
                     dataDetail?.deliveryZoneName,
                 },
                 {
-                  label: t("FromWarehouse") + ":",
+                  label: t("FromWStore") + ":",
                   value: (
                     <div className="flex flex-col items-end">
-                      <p>{dataDetail?.warehouseName}</p>
+                      <p>{dataDetail?.storeName}</p>
                       <p className="text-gray-400">
-                        {"(" + dataDetail?.warehouseLocation + ")"}
+                        {"(" + dataDetail?.storeLocation + ")"}
                       </p>
                     </div>
                   ),
@@ -1321,12 +1255,6 @@ export default function DetailSlide() {
               </>
             ) : dataDetail?.status === "Pending" ? (
               <>
-                {/* <button
-                  className="bg-red-500 text-white px-4 py-2 rounded-md w-full"
-                  onClick={(e) => handleDeleteClick(e, dataDetail)}
-                >
-                  {t("Delete")}
-                </button> */}
                 <button
                   className="bg-gray-500 text-white px-4 py-2 rounded-md w-full"
                   onClick={(e) => handleCancelClick(e, dataDetail)}
@@ -1413,54 +1341,18 @@ export default function DetailSlide() {
             </div>
           </>
         )}
-
-        {/*
-        {showUpdateConfirmation && (
-          <>
-            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
-            <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
-              style={{
-                top: "50%",
-                left: "-100%",
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <p>{`Are you sure you want to ${
-                showUpdateConfirmation[1] === "Canceled" ? "cancel:" : ""
-              } ${dataDetail?.name}?`}</p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={confirmUpdateStatus}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={exitUpdateStatus}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
-                >
-                  Exist
-                </button>
-              </div>
-            </div>
-          </>
-        )} */}
       </>
     );
   };
 
   const InventoryDetail = () => {
-    // const { sendOrderById, deleteOrderById } = AxiosOrder();
-    // const [lotData, setLotData] = useState();
-    // const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
+    const { extendInventory } = AxiosInventory();
+
     const [showExtendConfirmation, setShowExtendConfirmation] = useState(null);
     const [lotsCleanData, setLotsCleanData] = useState();
     const [monthBuyInvrentory, setMonthToBuyInventory] = useState(1);
     const [errors, setErrors] = useState("");
     const [loading, setLoading] = useState(false);
-
-    const { extendInventory } = AxiosInventory();
 
     const handleCancelExtendInventory = () => {
       setShowExtendConfirmation(false);
@@ -1470,15 +1362,11 @@ export default function DetailSlide() {
       const dataPrice = Math.round(parseFloat(price) * parseFloat(data));
       setErrors("");
       if (data < 0 || data === null || data === undefined || data === "") {
-        console.log("here");
-
         setErrors("YouNeedAtLeast1MonthToBuyRoom.");
         setMonthToBuyInventory("");
         return;
       }
       setMonthToBuyInventory(Math.floor(data));
-      console.log(dataPrice > authWallet?.totalAmount);
-
       if (dataPrice > authWallet?.totalAmount) {
         setErrors("NotEnoughtMoneyToDoThis.");
         return;
@@ -1498,7 +1386,7 @@ export default function DetailSlide() {
           setRefresh(dataDetail?.id);
         }
       } catch (e) {
-        console.log(e);
+        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -1506,7 +1394,6 @@ export default function DetailSlide() {
 
     const cleanLotsData = () => {
       if (dataDetail?.lots) {
-        // Aggregate product data and initialize lot information
         const arrayOfProduct = Array.from(
           new Map(
             dataDetail?.lots.map((item) => [
@@ -1514,17 +1401,13 @@ export default function DetailSlide() {
               {
                 productId: item.productId,
                 productName: item.productName,
-                totalLot: item.amount, // Initialize totalLot with item's amount
-                productAmount: item.productAmount, // Initialize productAmount with item's productAmount
-                lots: [], // Initialize lots as an empty array
+                totalLot: item.amount,
+                productAmount: item.productAmount, 
+                lots: [], 
               },
             ])
           ).values()
         );
-
-        console.log("arrayOfProduct", arrayOfProduct);
-
-        // Map through aggregated products and associate detailed lot information
         const cleanLots = arrayOfProduct.map((pro) => {
           const data = dataDetail?.lots.filter(
             (lot) => lot.productId === pro.productId
@@ -1533,11 +1416,11 @@ export default function DetailSlide() {
           return {
             productId: pro.productId,
             productName: pro.productName,
-            totalLot: data.reduce((sum, lot) => sum + lot.amount, 0), // Calculate totalLot
+            totalLot: data.reduce((sum, lot) => sum + lot.amount, 0), 
             productAmount: data.reduce(
               (sum, lot) => sum + lot.productAmount,
               0
-            ), // Calculate total productAmount
+            ), 
             lots: data.map((lot) => ({
               name: lot.name,
               lotNumber: lot.lotNumber,
@@ -1548,16 +1431,10 @@ export default function DetailSlide() {
             })),
           };
         });
-
-        console.log("cleanLots", cleanLots);
-        return cleanLots; // Return the cleaned lot data
+        return cleanLots; 
       }
       return [];
     };
-
-    console.log("dataDetail", dataDetail);
-    console.log("lotsCleanData", lotsCleanData);
-
     useEffect(() => {
       const handleClickOutSide = (event) => {
         if (
@@ -1572,60 +1449,9 @@ export default function DetailSlide() {
         document.removeEventListener("mousedown", handleClickOutSide);
       };
     }, []);
-
-    // const handleSendRequest = async () => {
-    //   await sendOrderById(dataDetail?.id);
-    //   setRefresh(dataDetail?.id);
-    // };
-
-    // const handleDeleteClick = (e, request) => {
-    //   e.stopPropagation();
-    //   setShowDeleteConfirmation(request);
-    // };
-
-    // const confirmDelete = async () => {
-    //   try {
-    //     setRefresh(0);
-    //     const res = await deleteOrderById(showDeleteConfirmation?.id);
-    //     console.log(res);
-    //   } catch (e) {
-    //   } finally {
-    //     setRefresh(-1);
-    //     updateDataDetail();
-    //     updateTypeDetail();
-    //     cancelDelete();
-    //   }
-    // };
-    // const cancelDelete = () => {
-    //   setShowDeleteConfirmation(null);
-    // };
-
-    // const handleUpdateStatusClick = (e, request, status) => {
-    //   e.stopPropagation();
-    //   setShowUpdateConfirmation([request, status]);
-    // };
-
-    // const confirmUpdateStatus = async () => {
-    //   try {
-    //     const res = await updateRequestStatus(
-    //       showUpdateConfirmation[0]?.id,
-    //       showUpdateConfirmation[1]
-    //     );
-    //     console.log(res);
-    //   } catch (e) {
-    //   } finally {
-    //     setRefresh(showUpdateConfirmation[0]?.id);
-    //     cancelDelete();
-    //   }
-    // };
-    // const exitUpdateStatus = () => {
-    //   setShowUpdateConfirmation(null);
-    // };
-
     return (
       <>
         <div className="w-[32rem] h-full bg-white p-6 flex flex-col gap-8 text-black">
-          {/* Header */}
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -1642,8 +1468,6 @@ export default function DetailSlide() {
             </div>
             <div className="w-full h-px bg-gray-300"></div>
           </div>
-
-          {/* Product Info Table */}
           <div className="w-full flex flex-col gap-4">
             {[
               {
@@ -1651,8 +1475,8 @@ export default function DetailSlide() {
                 value: dataDetail?.name,
               },
               {
-                label: t("Warehouse") + ":",
-                value: dataDetail?.warehouseName,
+                label: t("Store") + ":",
+                value: dataDetail?.storeName,
               },
               {
                 label: t("Price") + ":",
@@ -1747,36 +1571,6 @@ export default function DetailSlide() {
             </button>
           </div>
         </div>
-        {/* {showDeleteConfirmation && (
-          <>
-            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
-            <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
-              style={{
-                top: "50%",
-                left: "-100%",
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <p>{`Are you sure you want to delete order ${dataDetail?.id} ?`}</p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => confirmDelete(showDeleteConfirmation)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                >
-                  Delete
-                </button>
-                <button
-                  onClick={cancelDelete}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </>
-        )} */}
-
         {showExtendConfirmation && (
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50 z-[20] left-0 right-0"></div>
@@ -1854,7 +1648,6 @@ export default function DetailSlide() {
                 </div>
                 <div className="col-span-1">{t("Month")}</div>
                 <div className="col-span-2">
-                  {/* {parseInt(cal( inventory?.price*monthBuyInvrentory)) + "VND"} */}
                   {`${new Intl.NumberFormat().format(
                     Math.round(
                       parseFloat(dataDetail?.price) *
@@ -2009,9 +1802,6 @@ export default function DetailSlide() {
     const [lotData, setLotData] = useState();
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
     const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(null);
-
-    console.log("dataDetail", dataDetail);
-
     useEffect(() => {
       const handleClickOutSide = (event) => {
         if (
@@ -2027,59 +1817,9 @@ export default function DetailSlide() {
       };
     }, []);
 
-    // const handleSendRequest = async () => {
-    //   await sendOrderById(dataDetail?.id);
-    //   setRefresh(dataDetail?.id);
-    // };
-
-    // const handleDeleteClick = (e, request) => {
-    //   e.stopPropagation();
-    //   setShowDeleteConfirmation(request);
-    // };
-
-    // const confirmDelete = async () => {
-    //   try {
-    //     setRefresh(0);
-    //     const res = await deleteOrderById(showDeleteConfirmation?.id);
-    //     console.log(res);
-    //   } catch (e) {
-    //   } finally {
-    //     setRefresh(-1);
-    //     updateDataDetail();
-    //     updateTypeDetail();
-    //     cancelDelete();
-    //   }
-    // };
-    // const cancelDelete = () => {
-    //   setShowDeleteConfirmation(null);
-    // };
-
-    // const handleUpdateStatusClick = (e, request, status) => {
-    //   e.stopPropagation();
-    //   setShowUpdateConfirmation([request, status]);
-    // };
-
-    // const confirmUpdateStatus = async () => {
-    //   try {
-    //     const res = await updateRequestStatus(
-    //       showUpdateConfirmation[0]?.id,
-    //       showUpdateConfirmation[1]
-    //     );
-    //     console.log(res);
-    //   } catch (e) {
-    //   } finally {
-    //     setRefresh(showUpdateConfirmation[0]?.id);
-    //     cancelDelete();
-    //   }
-    // };
-    // const exitUpdateStatus = () => {
-    //   setShowUpdateConfirmation(null);
-    // };
-
     return (
       <>
         <div className="w-[500px] h-full bg-white p-6 flex flex-col gap-8 text-black max-h-[100vh] overflow-auto">
-          {/* Header */}
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -2112,17 +1852,14 @@ export default function DetailSlide() {
               { label: "Lot Num:", value: dataDetail?.lotNumber },
               { label: "Product Name:", value: dataDetail?.productName },
               { label: "Create date:", value: dataDetail?.createDate },
-              // { label: "Description:", value: dataDetail?.description },
               { label: "Amount:", value: dataDetail?.lotAmount },
-              // { label: "Product ID:", value: "#ID394812" },
               {
                 label: "Product amount:",
                 value: dataDetail?.totalProductAmount,
               },
               { label: "Import date:", value: dataDetail?.importDate },
-              // { label: "Export date:", value: dataDetail },
               { label: "Expiration date:", value: dataDetail?.expirationDate },
-              { label: "Warehouse:", value: dataDetail?.warehouseName },
+              { label: "Store:", value: dataDetail?.storeName },
             ]?.map((item, index) => (
               <div key={index} className="flex justify-between text-lg">
                 <span className="text-gray-600">{item.label}</span>
@@ -2130,97 +1867,10 @@ export default function DetailSlide() {
               </div>
             ))}
           </div>
-          {/* <div className="flex justify-between items-center w-full px-20">
-            {dataDetail?.status === "Draft" ? (
-              <>
-                <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
-                  Delete
-                </button>
-                <button>Edit</button>
-                <button onClick={handleSendRequest}>Send</button>
-              </>
-            ) : dataDetail?.status === "Pending" ? (
-              <>
-                <button onClick={(e) => handleDeleteClick(e, dataDetail)}>
-                  Delete
-                </button>
-                <button
-                // onClick={(e) =>handleUpdateStatusClick(e, dataDetail, "Canceled")}
-                >
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <></>
-            )}
-          </div> */}
         </div>
-        {/* {showDeleteConfirmation && (
-          <>
-            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
-            <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
-              style={{
-                top: "50%",
-                left: "-100%",
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <p>{`Are you sure you want to delete order ${dataDetail?.id} ?`}</p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => confirmDelete(showDeleteConfirmation)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                >
-                  Delete
-                </button>
-                <button
-                  onClick={cancelDelete}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </>
-        )} */}
-
-        {/*
-        {showUpdateConfirmation && (
-          <>
-            <div className="fixed inset-0 bg-black bg-opacity-50"></div>
-            <div
-              className="absolute bg-white border border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit text-black"
-              style={{
-                top: "50%",
-                left: "-100%",
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <p>{`Are you sure you want to ${
-                showUpdateConfirmation[1] === "Canceled" ? "cancel:" : ""
-              } ${dataDetail?.name}?`}</p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={confirmUpdateStatus}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={exitUpdateStatus}
-                  className="bg-gray-300 text-black px-4 py-2 rounded-md"
-                >
-                  Exist
-                </button>
-              </div>
-            </div>
-          </>
-        )} */}
       </>
     );
   };
-
   return (
     <div className="detail-slider">
       <div ref={detailComponent} className="h-full">

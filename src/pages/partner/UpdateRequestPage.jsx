@@ -15,9 +15,14 @@ import ExportRequestSideUpdate from "../../component/partner/request/ExportReque
 
 export default function UpdateRequestPage() {
   const location = useLocation();
+  const { userInfor } = useContext(AuthContext);
+  const { t } = useTranslation();
+  const { getInventory1000ByUserId } = AxiosInventory();
+  const { getProductByUserId } = AxiosProduct();
+  const { getLotByUserId, getLotById } = AxiosLot();
+
   const [updateDataBased, setUpdateDataBased] = useState(location?.state || {});
 
-  const { userInfor } = useContext(AuthContext);
   const [typeRequest, setTypeRequest] = useState(updateDataBased?.requestType);
 
   const [products, setProducts] = useState([]);
@@ -26,10 +31,7 @@ export default function UpdateRequestPage() {
   const [inventories, setInventories] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const { t } = useTranslation();
-  const { getInventory1000ByUserId } = AxiosInventory();
-  const { getProductByUserId } = AxiosProduct();
-  const { getLotByUserId, getLotById } = AxiosLot();
+ 
 
   useEffect(() => {
     const fetchingBeginData = async () => {
@@ -74,7 +76,6 @@ export default function UpdateRequestPage() {
     const fetchingData = async () => {
       if (updateDataBased && updateDataBased?.lotId > 0) {
         const result = await getLotById(updateDataBased?.lotId);
-        console.log("resultghere", result);
         if (result?.status === 200) {
           setUpdateDataBased((prev) => ({ ...prev, lot: result?.data }));
         }
@@ -82,7 +83,6 @@ export default function UpdateRequestPage() {
     };
     fetchingData();
   }, []);
-  // Render the form
   return (
     <div>
       <p className="font-semibold text-3xl mb-10">{t("CreateRequest")}</p>

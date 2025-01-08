@@ -1,4 +1,3 @@
-// components/partner/product/ProductOverview.js
 
 import { useTranslation } from "react-i18next";
 

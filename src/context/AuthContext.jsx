@@ -14,6 +14,8 @@ export const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
+  const { getOcopCategoryBy100, getProvinces,getBanks } = AxiosOthers();
+
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const storedAuth = localStorage.getItem("Authenticated");
     return storedAuth ? JSON.parse(storedAuth) : null;
@@ -33,8 +35,6 @@ export function AuthProvider({ children }) {
   const [provinces, setProvinences] = useState();
   const [ocopCategoriesList, setOcopCategoriesList] = useState();
 
-  const { getBanks } = AxiosOthers();
-  const { getOcopCategoryBy100, getProvinces } = AxiosOthers();
 
   const [refrestAuthWallet, setRefrestAuthWallet] = useState(false);
 
@@ -62,26 +62,11 @@ export function AuthProvider({ children }) {
       setExpiryDate(null);
     }
   }, [isAuthenticated]);
-  useLayoutEffect(() => {
-    const checkTokenExpiration = () => {
-      console.log("freshing");
-
-      const now = new Date().getTime();
-      if (expiryDate && now > expiryDate) {
-        console.log("freshing 2");
-
-        // refreshAccessToken();
-      }
-    };
-    const interval = setInterval(checkTokenExpiration, 10000);
-    return () => clearInterval(interval);
-  }, [expiryDate, isAuthenticated]);
-
   const fetchOcopCategoriesList = async () => {
     try {
       const ocopCategories = await getOcopCategoryBy100(0);
       setOcopCategoriesList(ocopCategories);
-      console.log("ocopCategories", ocopCategories);
+     
     } catch (e) {
       console.log(e);
     }
@@ -90,7 +75,7 @@ export function AuthProvider({ children }) {
     try {
       const provinces = await getProvinces();
       setProvinences(provinces);
-      console.log("provinces", provinces);
+     
     } catch (e) {
       console.log(e);
     }
@@ -99,7 +84,6 @@ export function AuthProvider({ children }) {
     try {
       const banks = await getBanks();
       setBanksList(banks);
-      console.log("banks", banks);
     } catch (e) {
       console.log(e);
     }

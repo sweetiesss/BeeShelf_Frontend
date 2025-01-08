@@ -13,8 +13,10 @@ export default function RequestList({
   setFilterField,
   handleShowDetail,
 }) {
-  const [openAction, setOpenAction] = useState();
   const { t } = useTranslation();
+  const actionComponent = useRef();
+
+  const [openAction, setOpenAction] = useState();
 
   const handleOpenActionTab = (request) => {
     if (request === openAction) {
@@ -23,7 +25,6 @@ export default function RequestList({
       setOpenAction(request);
     }
   };
-  const actionComponent = useRef();
   const handleCloseAction = () => {
     setOpenAction();
   };
@@ -42,7 +43,6 @@ export default function RequestList({
       document.removeEventListener("mousedown", handleClickOutSide);
     };
   }, []);
-  console.log(requests);
 
   return (
     <div className="shadow-lg bg-white rounded-lg p-4  mb-3 overflow-y-scroll max-h-[70vh] w-full relative">

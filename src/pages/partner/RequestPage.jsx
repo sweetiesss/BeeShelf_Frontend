@@ -14,14 +14,12 @@ import { ArrowCounterClockwise, Warning } from "@phosphor-icons/react";
 export default function RequestPage() {
   const { userInfor } = useContext(AuthContext);
   const { getRequestByUserId, deleteRequestById } = AxiosRequest();
+  const { updateDataDetail, updateTypeDetail, refresh } = useDetail();
   const [fetchAgain, setFetchingAgain] = useState(false);
   const [loading, setLoading] = useState(false);
   const [requests, setRequests] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(null);
-  const { updateDataDetail, updateTypeDetail, refresh } = useDetail();
-
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
     isImport: "",
@@ -58,8 +56,6 @@ export default function RequestPage() {
             filterField.pageIndex,
             filterField.pageSize
           );
-          console.log(response);
-
           setRequests(response?.data);
           updateDataDetail(
             response?.data?.items.find((item) => item.id === refresh)
@@ -74,11 +70,10 @@ export default function RequestPage() {
             filterField.pageIndex,
             filterField.pageSize
           );
-          console.log(response);
           setRequests(response?.data);
         }
       } catch (e) {
-        console.log(e);
+        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -113,7 +108,7 @@ export default function RequestPage() {
       );
       setRequests(response?.data);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -134,7 +129,7 @@ export default function RequestPage() {
         );
         setRequests(response?.data);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -172,9 +167,7 @@ export default function RequestPage() {
   const handleShowDetail = (request) => {
     updateDataDetail(request);
     updateTypeDetail("request");
-    console.log(request);
   };
-  console.log(filterField);
 
   return (
     <div className="p-4">

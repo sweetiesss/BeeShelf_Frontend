@@ -46,13 +46,12 @@ export default function ProfileEdit() {
     try {
       setLoading(true);
       const result = await sendRequestResetPassword(userInfor?.email);
-      console.log(result);
       if (result.status === 200) {
         handleLogout();
         nav("/authorize/signin");
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -62,7 +61,7 @@ export default function ProfileEdit() {
     const { name, value } = e.target;
     setErrors({});
     if (name === "pictureLink") {
-      setFile(null); // Reset the file if a link is provided
+      setFile(null);
     }
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -75,7 +74,7 @@ export default function ProfileEdit() {
       setFile(selectedFile);
       setForm((prev) => ({
         ...prev,
-        pictureLink: URL.createObjectURL(selectedFile), // Temporarily show the selected file as a preview
+        pictureLink: URL.createObjectURL(selectedFile),
       }));
     }
   };
@@ -83,16 +82,11 @@ export default function ProfileEdit() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (file) {
-      console.log("Upload this file:", file);
     }
-    console.log("Form data to save:", form);
   };
-
-  console.log(ocopCategory);
 
   return (
     <div className="grid grid-cols-3 grid-rows-2 gap-4 w-[80vw] h-[80vh] mx-auto">
-      {/* Profile Picture Section */}
       <div className="flex flex-col col-span-1 row-span-2 items-center p-4 bg-white rounded-lg border-2 shadow-lg">
         <div className="overflow-hidden my-10 w-52 h-52 rounded-full border-2 border-gray-700">
           <img
@@ -101,7 +95,7 @@ export default function ProfileEdit() {
             className="object-cover w-full h-full"
             onError={(e) => {
               setErrors((prev) => ({ ...prev, pictureLink: "Invalid link." }));
-              e.target.src = userInfor?.pictureLink; // Fallback to userInfor picture
+              e.target.src = userInfor?.pictureLink;
             }}
           />
         </div>
@@ -324,7 +318,6 @@ export default function ProfileEdit() {
           </button>
         </div>
       </div>
-      {/* Edit Profile Form Section */}
       <div className="col-span-2 row-span-1 p-4 bg-white rounded-lg border-2 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold">Edit Others</h2>
         <div className="mt-4 w-full">

@@ -25,14 +25,10 @@ const { Option } = Select;
 
 const VehiclePage = () => {
   const { fetchDataBearer } = useAxios();
-
-  // State cho danh sách vehicles
   const [vehicles, setVehicles] = useState([]);
   const [showVehicles, setShowVehicles] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // State cho modal tạo vehicle
   const [visible, setVisible] = useState(false);
   const [warehouseOptions, setWarehouseOptions] = useState([]);
 
@@ -46,17 +42,12 @@ const VehiclePage = () => {
     pageSize: 10,
   });
 
-  const [isColdSelected, setIsColdSelected] = useState(null); // State lưu trữ giá trị isCold được chọn
-
-  // Hàm lọc warehouseOptions dựa trên isColdSelected
+  const [isColdSelected, setIsColdSelected] = useState(null);
   const filteredWarehouses = warehouseOptions.filter(
     (warehouse) =>
       isColdSelected === null || warehouse.isCold === isColdSelected
   );
-  // Form instance
   const [form] = Form.useForm();
-
-  // Hàm fetch danh sách vehicles từ API
   const fetchVehicles = async () => {
     setLoading(true);
     try {
@@ -73,7 +64,6 @@ const VehiclePage = () => {
           pageSize: filter?.pageSize,
         },
       });
-      console.log("vehicles", response);
       setVehicles(response?.data);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
@@ -83,8 +73,6 @@ const VehiclePage = () => {
       setLoading(false);
     }
   };
-
-  // Hàm fetch danh sách warehouses từ API
   const fetchWarehouses = async () => {
     try {
       const response = await fetchDataBearer({
@@ -116,8 +104,6 @@ const VehiclePage = () => {
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [updateVisible, setUpdateVisible] = useState(false);
-
-  // const [selectedStatus, setSelectedStatus] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState({});
   const [showDropdownId, setShowDropdownId] = useState(null);
 
@@ -150,8 +136,8 @@ const VehiclePage = () => {
         message.success(
           `Vehicle ID: ${record.id} has been approved with status: ${status}`
         );
-        fetchVehicles(); // Refresh danh sách sau khi approve thành công
-        setShowDropdownId(null); // Ẩn dropdown
+        fetchVehicles();
+        setShowDropdownId(null); 
       } else {
         const errorData = await response?.data;
         message.error(
@@ -163,8 +149,6 @@ const VehiclePage = () => {
       message.error("Something went wrong!");
     }
   };
-
-  // Hàm mở modal và gán dữ liệu vehicle cần update
   const openUpdateModal = (record) => {
     setSelectedVehicle(record);
     form.setFieldsValue({
@@ -176,21 +160,15 @@ const VehiclePage = () => {
     });
     setUpdateVisible(true);
   };
-  //Hàm xử lí detail:
+
   const [detailVisible, setDetailVisible] = useState(false);
   const [vehicleDetail, setVehicleDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingDetailId, setLoadingDetailId] = useState(null);
-  //Hàm xử lí cho Approve Status
-  // const [showDropdownId, setShowDropdownId] = useState(null);
-  // const handleStatusChange = (id, status) => {
-  //   setSelectedStatus((prev) => ({ ...prev, [id]: status }));
-  // };
-
-  // Hàm mở modal và fetch chi tiết vehicle
+ 
   const handleVehicleDetail = async (record) => {
-    // setLoadingDetail(record.id);
-    setLoadingDetailId(record.id); // Set loading cho dòng cụ thể
+
+    setLoadingDetailId(record.id); 
     try {
       const response = await fetchDataBearer({
         url: `/vehicle/get-vehicle/${record.id}`,
@@ -209,23 +187,19 @@ const VehiclePage = () => {
       console.error("Error fetching vehicle details:", error);
       message.error("Something went wrong while fetching vehicle details!");
     } finally {
-      //   setLoadingDetail(null);
+      
       setLoadingDetailId(null);
     }
   };
 
-  // Hàm đóng modal
   const handleCloseDetailModal = () => {
     setDetailVisible(false);
     setVehicleDetail(null);
   };
 
-  // Hàm cập nhật vehicle
   const handleUpdateVehicle = async () => {
     try {
       const values = await form.validateFields();
-      console.log("Form values:", values);
-      console.log("Selected Vehicle:", selectedVehicle);
       const response = await fetchDataBearer({
         url: `/vehicle/update-vehicle/${selectedVehicle.id}`,
         method: "PUT",
@@ -244,7 +218,7 @@ const VehiclePage = () => {
       if (response && response.status === 200) {
         message.success("Vehicle updated successfully!");
         setUpdateVisible(false);
-        fetchVehicles(); // Refresh the vehicle list
+        fetchVehicles(); 
         form.resetFields();
       } else {
         message.error(response?.data?.message || "Failed to update vehicle.");
@@ -254,7 +228,6 @@ const VehiclePage = () => {
       message.error("duplicate license plates");
     }
   };
-  // Hàm Delete vehicle:
   const handleDeleteVehicle = async (record) => {
     try {
       const response = await fetchDataBearer({
@@ -264,7 +237,7 @@ const VehiclePage = () => {
 
       if (response && response.status === 200) {
         message.success("Vehicle deleted successfully!");
-        fetchVehicles(); // Refresh the vehicle list
+        fetchVehicles(); 
       } else {
         message.error(response?.data?.message || "Failed to delete vehicle.");
       }
@@ -273,11 +246,9 @@ const VehiclePage = () => {
       message.error("Something went wrong!");
     }
   };
-
-  // Hàm tạo vehicle
   const createVehicle = async () => {
     try {
-      const values = await form.validateFields(); // Lấy dữ liệu từ form sau khi validate
+      const values = await form.validateFields(); 
 
       setLoading(true);
 
@@ -297,7 +268,7 @@ const VehiclePage = () => {
         message.success("Vehicle created successfully!");
         fetchVehicles();
         setVisible(false);
-        form.resetFields(); // Reset form sau khi tạo thành công
+        form.resetFields(); 
       } else {
         const errorMessage =
           response?.data?.message || "Failed to create vehicle.";
@@ -310,8 +281,6 @@ const VehiclePage = () => {
       setLoading(false);
     }
   };
-
-  // Fetch dữ liệu khi component mount
   useEffect(() => {
     fetchVehicles();
     fetchWarehouses();
@@ -330,12 +299,6 @@ const VehiclePage = () => {
   useEffect(() => {
     fetchVehicles();
   }, [filter]);
-
-  console.log("vehicles", vehicles);
-  console.log("showVehicles", showVehicles);
-  console.log("warehouses", warehouses);
-  console.log(form.getFieldValue());
-
   return (
     <div className="">
       <div className="flex gap-8 items-end mb-10">
@@ -359,14 +322,10 @@ const VehiclePage = () => {
                 : []),
             ]}
             onChange={(selectOption) => {
-              console.log("selectedOption", selectOption);
-
               form.setFieldValue({
                 type: 0,
                 warehouseId: parseInt(selectOption),
               });
-
-              console.log("Form Values After Setting:", form.getFieldsValue());
               setFilter((prev) => ({
                 ...prev,
                 warehouseId: selectOption,
@@ -459,7 +418,6 @@ const VehiclePage = () => {
         <Button
           type="primary"
           onClick={() => {
-            // Set các giá trị cho form một cách bình thường từ filter
             form.setFieldsValue({
               type: filter.type || null,
               warehouseId: filter.warehouseId || null,
@@ -469,21 +427,19 @@ const VehiclePage = () => {
                 )?.isCold || 0,
             });
 
-            setVisible(true); // Hiển thị modal
+            setVisible(true);
           }}
         >
           Create Vehicle
         </Button>
       </div>
-
-      {/* Modal tạo vehicle */}
       <Modal
         title="Create Vehicle"
         open={visible}
         onCancel={() => {
           setVisible(false);
-          form.resetFields(); // Reset form khi đóng modal
-          setIsColdSelected(null); // Reset giá trị isCold khi đóng modal
+          form.resetFields(); 
+          setIsColdSelected(null); 
         }}
         footer={[
           <Button key="back" onClick={() => setVisible(false)}>
@@ -500,7 +456,6 @@ const VehiclePage = () => {
         ]}
       >
         <Form form={form} layout="vertical" onFinish={createVehicle}>
-          {/* Vehicle Type */}
           <Form.Item
             label="Vehicle Type"
             name="type"
@@ -512,8 +467,6 @@ const VehiclePage = () => {
               <Option value="Motorcycle">Motorcycle</Option>
             </Select>
           </Form.Item>
-
-          {/* Vehicle Name */}
           <Form.Item
             label="Vehicle Name"
             name="name"
@@ -538,8 +491,6 @@ const VehiclePage = () => {
           >
             <Input placeholder="Enter Vehicle Name" maxLength={50} />
           </Form.Item>
-
-          {/* License Plate */}
           <Form.Item
             label="License Plate"
             name="licensePlate"
@@ -598,8 +549,6 @@ const VehiclePage = () => {
               style={{ width: "100%" }}
             />
           </Form.Item>
-
-          {/* Is Cold Storage? */}
           <Form.Item
             label="Is Cold Storage?"
             name="isCold"
@@ -615,8 +564,6 @@ const VehiclePage = () => {
               <Option value={0}>No</Option>
             </Select>
           </Form.Item>
-
-          {/* Warehouse ID */}
           <Form.Item
             label="Warehouse ID"
             name="warehouseId"
@@ -647,7 +594,7 @@ const VehiclePage = () => {
         onCancel={() => {
           setUpdateVisible(false);
           form.resetFields();
-          setIsColdSelected(null); // Reset giá trị isCold khi đóng modal
+          setIsColdSelected(null);
         }}
         footer={[
           <Button key="back" onClick={() => setUpdateVisible(false)}>
@@ -664,7 +611,6 @@ const VehiclePage = () => {
         ]}
       >
         <Form form={form} layout="vertical" onFinish={handleUpdateVehicle}>
-          {/* Vehicle Type */}
           <Form.Item
             label="Vehicle Type"
             name="type"
@@ -676,8 +622,6 @@ const VehiclePage = () => {
               <Option value="Motorcycle">Motorcycle</Option>
             </Select>
           </Form.Item>
-
-          {/* Vehicle Name */}
           <Form.Item
             label="Vehicle Name"
             name="name"
@@ -716,8 +660,6 @@ const VehiclePage = () => {
           >
             <Input placeholder="Enter Vehicle Name" maxLength={50} />
           </Form.Item>
-
-          {/* License Plate */}
           <Form.Item
             label="License Plate"
             name="licensePlate"
@@ -776,8 +718,6 @@ const VehiclePage = () => {
               style={{ width: "100%" }}
             />
           </Form.Item>
-
-          {/* Is Cold Storage */}
           <Form.Item
             label="Is Cold Storage?"
             name="isCold"
@@ -787,14 +727,12 @@ const VehiclePage = () => {
           >
             <Select
               placeholder="Select Option"
-              onChange={(value) => setIsColdSelected(value)} // Cập nhật isColdSelected khi thay đổi
+              onChange={(value) => setIsColdSelected(value)}
             >
               <Option value={1}>Yes</Option>
               <Option value={0}>No</Option>
             </Select>
           </Form.Item>
-
-          {/* Warehouse ID */}
           <Form.Item
             label="Warehouse ID"
             name="warehouseId"
@@ -826,6 +764,12 @@ const VehiclePage = () => {
         footer={[
           <Button key="close" onClick={handleCloseDetailModal}>
             Close
+          </Button>,
+          <Button key="close" danger onClick={handleCloseDetailModal}>
+            Delete
+          </Button>,
+          <Button key="close" type="primary" onClick={handleCloseDetailModal}>
+            Asign
           </Button>,
         ]}
       >
@@ -867,8 +811,6 @@ const VehiclePage = () => {
           <p>Loading vehicle details...</p>
         )}
       </Modal>
-
-      {/* Bảng hiển thị vehicles */}
       <Table
         dataSource={showVehicles?.items}
         size="large"
@@ -958,9 +900,6 @@ const VehiclePage = () => {
                   flexWrap: "wrap",
                 }}
               >
-                {/* Nút Vehicle Detail */}
-
-                {/* Dropdown và Button Approve */}
                 <div
                   style={{ display: "flex", gap: "6px", alignItems: "start" }}
                 >

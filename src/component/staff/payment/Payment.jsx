@@ -22,6 +22,7 @@ const Payment = () => {
   });
   const { fetchDataBearer } = useAxios();
   const { t } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Hàm gọi API để lấy danh sách thanh toán
   const fetchPayments = async () => {
@@ -129,24 +130,21 @@ const Payment = () => {
       const pictureLinkParam = encodeURIComponent(
         pictureLink.name || pictureLink
       );
-
+      
       const response = await fetchDataBearer({
+        
         url: `/payment/confirm-money-transfer-request/${userInfor?.id}/${moneyTransferId}?picture_link=${pictureLinkParam}`,
         method: "POST",
         data: formData,
       });
 
-      if (response && response.status === 200) {
+      
         message.success(t("Paymentconfirmedsuccessfully!"));
         fetchPayments();
         setVisible(false);
         setPictureLink(null);
         setPaymentId("");
-      } else {
-        const errorMessage =
-          response?.data?.message || t("Failedtoconfirmmoneytransfer");
-        message.error(errorMessage);
-      }
+  
     } catch (error) {
       console.error(t("Errorconfirmingpayment:"), error);
       message.error(t("Anerroroccurredwhileconfirmingthpayment"));
@@ -214,7 +212,7 @@ const Payment = () => {
         `${new Intl.NumberFormat("vi-VN", {
           style: "decimal",
           maximumFractionDigits: 0,
-        }).format(amount)} VNĐ`,
+        }).format(amount)} đ`,
     },
     {
       title: t("CreateDate"),
@@ -356,6 +354,7 @@ const Payment = () => {
           type="primary"
           onClick={() => setVisible(true)}
           style={{ marginBottom: 20 }}
+          loading={isLoading} // Hiển thị trạng thái loading
         >
          {t("ConfirmMoneyTransferRequest")}
         </Button>
@@ -363,7 +362,7 @@ const Payment = () => {
 
       <Modal
         title={t("ConfirmMoneyTransferRequest")}
-        visible={visible}
+        open={visible}
         onCancel={() => setVisible(false)}
         footer={[
           <Button key="back" onClick={() => setVisible(false)}>
@@ -375,7 +374,7 @@ const Payment = () => {
             loading={loading}
             onClick={createPayment}
           >
-            {t("ConfirmMoneyTransferRequest")} 
+            {t("ConfirmMoneyTransferRequest1")} 
           </Button>,
         ]}
       >

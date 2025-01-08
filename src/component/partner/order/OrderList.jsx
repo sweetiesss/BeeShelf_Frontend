@@ -14,8 +14,8 @@ export default function OrderList({
   handleDeleteClick,
 }) {
   const { t } = useTranslation();
-  const [openAction, setOpenAction] = useState();
   const actionComponent = useRef();
+  const [openAction, setOpenAction] = useState();
 
   useEffect(() => {
     const handleClickOutSide = (event) => {
@@ -159,51 +159,6 @@ export default function OrderList({
             })}
         </tbody>
       </table>
-      {/* <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-5 mt-5">
-          <p>{t("RowsPerPage")}:</p>
-          <select
-            className="outline outline-1 px-1"
-            onChange={(e) => {
-              const value = e.target.value;
-              setFilterField((prev) => ({ ...prev, size: parseInt(value) }));
-            }}
-            value={filterField.size}
-          >
-            <option value={4}>4</option>
-            <option value={5}>5</option>
-            <option value={6}>6</option>
-            <option value={7}>7</option>
-            <option value={8}>8</option>
-            <option value={9}>9</option>
-            <option value={10}>10</option>
-          </select>
-        </div>
-        <div className="flex space-x-5 items-center">
-          <p>
-            {(filterField.pageIndex + 1) * filterField.size -
-              (filterField.size - 1)}{" "}
-            - {(filterField.pageIndex + 1) * filterField.size} of{" "}
-            {orders?.totalItemsCount} {t("items")}
-          </p>
-          <Pagination
-            totalPagesCount={orders?.totalPagesCount}
-            currentPage={filterField.pageIndex + 1}
-            handleLeft={() =>
-              setFilterField((prev) => ({
-                ...prev,
-                pageIndex: prev.pageIndex - 1,
-              }))
-            }
-            handleRight={() =>
-              setFilterField((prev) => ({
-                ...prev,
-                pageIndex: prev.pageIndex + 1,
-              }))
-            }
-          />
-        </div>
-      </div> */}
       <div className="grid grid-cols-3">
         <div className="flex items-center space-x-5 mt-5">
           <p>{t("ItemsPerPage")}:</p>

@@ -38,10 +38,10 @@ const Ordermanage = () => {
     setLoading(true);
     try {
       const response = await fetchDataBearer({
-        url: "/order/get-warehouse-orders",
+        url: "/order/get-store-orders",
         method: "GET",
         params: {
-          warehouseId: userInfor?.workAtWarehouseId, // Lấy warehouseId từ thông tin người dùng
+          storeId: userInfor?.workAtWarehouseId, // Lấy warehouseId từ thông tin người dùng
           pageIndex: pageIndex,
           pageSize: pageSize,
         },
@@ -263,6 +263,12 @@ const Ordermanage = () => {
       render: (status) => renderStatusTag(status),
     },
     {
+      title: t("ReceiverName"),
+      dataIndex: "receiverName",
+      key: "receiverName",
+      render: (text) => text || "Null",
+    },
+    {
       title: t("Receiver_Phone"),
       dataIndex: "receiverPhone",
       key: "receiverPhone",
@@ -458,11 +464,11 @@ const Ordermanage = () => {
                         <strong>{t("Unit")}:</strong> {item.unit}
                       </Paragraph>
                       <Paragraph>
-                        <strong>{t("Inventory_ID")}:</strong> {item.inventoryId}
+                        <strong>{t("Inventory_ID")}:</strong> {item.roomId}
                       </Paragraph>
                       <Paragraph>
                         <strong>{t("Inventory_Name")}:</strong>{" "}
-                        {item.inventoryName}
+                        {item.roomCode}
                       </Paragraph>
                       <Paragraph>
                         <strong>{t("Lot_ID")}:</strong> {item.lotId}
@@ -540,6 +546,11 @@ const Ordermanage = () => {
                 <div>
                   <p className="font-bold">{t("Receiver_Phone")}:</p>
                   <p>{selectedOrder.receiverPhone}</p>
+                </div>
+                <div>
+                  <p className="font-bold">{t("ReceiverName")}:</p>
+                 
+                  <p>{selectedOrder.receiverName || "Null"}</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Receiver_Address")}:</p>

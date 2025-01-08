@@ -16,8 +16,6 @@ export function useAxios() {
   );
   instance.interceptors.response.use(
     function (response) {
-      console.log("response", response);
-
       return response;
     },
     function (error) {
@@ -46,7 +44,7 @@ export function useAxios() {
       });
       return resultPromise;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return error;
     } finally {
       setLoading(false);
@@ -68,8 +66,6 @@ export default function useAxiosBearer() {
   );
   instance.interceptors.response.use(
     function (response) {
-      console.log("response", response);
-
       return response;
     },
     function (error) {

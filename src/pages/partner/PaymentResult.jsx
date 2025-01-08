@@ -3,12 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AxiosPayment from "../../services/Payment";
 
 export default function PaymentResult() {
-  const [status, setStatus] = useState("failure");
-
+  
   const nav = useNavigate();
   const location = useLocation();
   const { confirmPayment } = AxiosPayment();
-  console.table(location);
+
+  const [status, setStatus] = useState("failure");
   useEffect(() => {
     submitPayment();
   }, []);
@@ -19,12 +19,9 @@ export default function PaymentResult() {
     for (const [key, value] of params.entries()) {
       form[key] = value;
     }
-    console.log(form);
     const submitForm = { ...form, cancel: form.cancel === "true" };
-    console.log(submitForm);
     setStatus(submitForm.status);
     const confirming = await confirmPayment(submitForm);
-    console.log(confirming);
   };
 
   const statusStyles = {
@@ -43,22 +40,18 @@ export default function PaymentResult() {
       <div
         className={`w-[80vw] max-w-[600px] bg-white rounded-lg shadow-lg border p-6 flex flex-col items-center text-center ${statusStyles[status]}`}
       >
-        {/* Status Icon */}
         <div className="text-6xl mb-4">
           {status === "PAID" && "✅"}
           {status === "CANCELLED" && "❌"}
         </div>
 
-        {/* Status Message */}
         <h2 className="text-2xl font-bold mb-2">{statusMessages[status]}</h2>
 
-        {/* Details Section */}
         <p className="text-sm text-gray-600">
           {status === "PAID" && "Thank you for believing in our services."}
           {status === "CANCELLED" && "The payment was canceled."}
         </p>
 
-        {/* Actions */}
         <div className="mt-6 flex justify-center space-x-4">
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"

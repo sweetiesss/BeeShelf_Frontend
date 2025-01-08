@@ -20,6 +20,9 @@ export default function CreateRequestImport({
 }) {
   const { userInfor } = useContext(AuthContext);
   const { setCreateRequest } = useDetail();
+  const { createRequest } = AxiosRequest();
+  const { t } = useTranslation();
+  const floatingComponent = useRef();
   const baseForm = {
     ocopPartnerId: userInfor?.id,
     name: "",
@@ -36,10 +39,7 @@ export default function CreateRequestImport({
   };
   const [form, setForm] = useState(baseForm);
   const [inventory, setInventory] = useState(baseForm);
-  const { createRequest } = AxiosRequest();
-  const { t } = useTranslation();
 
-  const floatingComponent = useRef();
 
   const handleCloseImport = async (e) => {
     e.stopPropagation();
@@ -78,16 +78,16 @@ export default function CreateRequestImport({
     });
   };
   const handleConfirm = async () => {
-    console.log(form);
 
-    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Format date-time
+
+    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, "");
     let submitForm = {
       ...form,
       sendToInventoryId: parseInt(inventory.id),
       lot: {
         ...form.lot,
-        lotNumber: `${form.lot.productId}-${currentDateTime}`, // Product ID + Date-Time
-        name: `${product.name}-${userInfor?.name || "User"}`, // Product Name + User's Name
+        lotNumber: `${form.lot.productId}-${currentDateTime}`, 
+        name: `${product.name}-${userInfor?.name || "User"}`,
       },
     };
     const fetching = await createRequest(submitForm, "Import", true);
@@ -96,15 +96,15 @@ export default function CreateRequestImport({
     }
   };
   const handleSaveDraft = async () => {
-    console.log(form);
-    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, ""); // Format date-time
+
+    const currentDateTime = new Date().toISOString().replace(/[-:.T]/g, "");
     let submitForm = {
       ...form,
       sendToInventoryId: parseInt(inventory.id),
       lot: {
         ...form.lot,
-        lotNumber: `${form.lot.productId}-${currentDateTime}`, // Product ID + Date-Time
-        name: `${product.name}-${userInfor?.name || "User"}`, // Product Name + User's Name
+        lotNumber: `${form.lot.productId}-${currentDateTime}`,
+        name: `${product.name}-${userInfor?.name || "User"}`,
       },
     };
     const fetching = await createRequest(submitForm, "Import", false);
@@ -114,9 +114,6 @@ export default function CreateRequestImport({
   };
 
   const handleReset = () => {};
-  console.log("productData", product);
-  console.log("inventory", inventories);
-
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
@@ -142,13 +139,11 @@ export default function CreateRequestImport({
               styles={{
                 menu: (provided) => ({
                   ...provided,
-
-                  // Restrict the dropdown height
-                  overflowY: "hidden", // Enable scrolling for content
+                  overflowY: "hidden",
                 }),
                 menuList: (provided) => ({
                   ...provided,
-                  padding: 0, // Ensure no extra padding
+                  padding: 0, 
                   maxHeight: "11.5rem",
                   overflow: "auto",
                 }),
@@ -171,8 +166,8 @@ export default function CreateRequestImport({
                     : "white",
                   color: isSelected ? "white !important" : "black",
                   cursor: "pointer",
-                  padding: "0.5rem 1rem", // Option padding
-                  textAlign: "left", // Center-align text
+                  padding: "0.5rem 1rem", 
+                  textAlign: "left", 
                 }),
               }}
               value={inventory}
@@ -180,11 +175,11 @@ export default function CreateRequestImport({
               options={inventories?.data?.items.filter(
                 (item) => item.isCold === product.isCold
               )}
-              getOptionLabel={(option) => option.name}
+              getOptionLabel={(option) => option.storeName}
               getOptionValue={(option) => option.id}
               formatOptionLabel={(selectedOption) => (
                 <div className="">
-                  <p>{selectedOption?.name}</p>
+                  <p>{selectedOption?.storeName}</p>
                   <div
                     className={`flex items-center justify-between text-sm text-gray-500`}
                   >
@@ -247,19 +242,6 @@ export default function CreateRequestImport({
               onChange={handleInput}
             />
           </div>
-          {/* <input
-                placeholder="Lot Number"
-                name="lot.lotNumber"
-                value={form?.lot?.lotNumber}
-                onChange={handleInput}
-              />
-              <input
-                placeholder="Name"
-                name="lot.name"
-                value={form?.lot?.name}
-                onChange={handleInput}
-              /> */}
-
           <div className="flex justify-between gap-10">
             <div className="flex flex-col w-full gap-2">
               <label className="text-[var(--en-vu-600)] font-normal">
@@ -274,19 +256,7 @@ export default function CreateRequestImport({
                 min="1"
               />
             </div>
-            {/* <div className="flex flex-col w-full gap-2">
-                  <label className="text-[var(--en-vu-600)] font-normal">
-                    {t("AmountofProductPerLot")}
-                  </label>
-                  <input
-                    className="outline-none border-2 py-2 focus-within:border-black"
-                    type="number"
-                    name="lot.productAmount"
-                    value={form?.lot?.productAmount / form?.lot?.amount}
-                    onChange={handleInput}
-                    disabled={true}
-                  />
-                </div> */}
+           
             <div className="flex flex-col w-full gap-2">
               <label className="text-[var(--en-vu-600)] font-normal">
                 {t("AmountOfProductPerLot")}
@@ -304,15 +274,6 @@ export default function CreateRequestImport({
 
         <div className="flex justify-between py-2 pb-4">
           <div className="space-x-10">
-            {/* <button
-                    className="text-xl bg-gray-100 p-1 rounded-full border-2 py-2 border-gray-400 hover:bg-gray-200 hover:border-gray-500 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleReset();
-                    }}
-                  >
-                    <ArrowCounterClockwise />
-                  </button> */}
             <button
               className="bg-red-300 text-black hover:text-white px-4 py-2 rounded-md hover:bg-red-500"
               onClick={handleCancel}

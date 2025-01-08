@@ -1,24 +1,20 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AxiosUser from "../../services/User";
 import {
   Bank,
   Buildings,
-  Check,
   CheckCircle,
   CheckFat,
   Cherries,
   Coins,
   CreditCard,
-  DownloadSimple,
   EnvelopeSimple,
-  IdentificationCard,
   MapPin,
   Phone,
   Plant,
   User,
 } from "@phosphor-icons/react";
-import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../../context/AuthContext";
 import Select from "react-select";
 import { useTranslation } from "react-i18next";
@@ -26,6 +22,19 @@ import { ConfigProvider, Spin } from "antd";
 import axios from "axios";
 
 export default function SignUp({ setAction, baseForm }) {
+  const nav = useNavigate();
+  const { requestSignUp } = AxiosUser();
+  const { t } = useTranslation();
+  const [agree, setAgree] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [isSuccess, setSuccess] = useState(false);
+  const [ocopCategory, setOcopCategory] = useState();
+  const { banksList, ocopCategoriesList, provinces } = useAuth();
+  const [checkBussiness, setCheckBussiness] = useState(false);
+  const [checkBussinessLoading, setCheckBussinessLoading] = useState(false);
+  const [checkBussinessError, setCheckBussinessError] = useState(false);
+  const [step, setStep] = useState(1);
   const defaulform = {
     email: baseForm?.email || "",
     firstName: baseForm?.firstName || "",
@@ -46,21 +55,7 @@ export default function SignUp({ setAction, baseForm }) {
       "https://th.bing.com/th/id/R.8e2c571ff125b3531705198a15d3103c?rik=muXZvm3dsoQqwg&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fpng-user-icon-person-icon-png-people-person-user-icon-2240.png&ehk=MfHYkGonqy7I%2fGTKUAzUFpbYm9DhfXA9Q70oeFxWmH8%3d&risl=&pid=ImgRaw&r=0",
   };
   const [form, setForm] = useState(defaulform);
-  const [agree, setAgree] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [isSuccess, setSuccess] = useState(false);
-  const [ocopCategory, setOcopCategory] = useState();
-  const { banksList, ocopCategoriesList, provinces } = useAuth();
 
-  const [checkBussiness, setCheckBussiness] = useState(false);
-  const [checkBussinessLoading, setCheckBussinessLoading] = useState(false);
-  const [checkBussinessError, setCheckBussinessError] = useState(false);
-
-  const [step, setStep] = useState(1);
-  const nav = useNavigate();
-  const { requestSignUp } = AxiosUser();
-  const { t } = useTranslation();
   const contentStyle = {
     padding: 10,
     color: "var(--Xanh-Base)",
@@ -156,14 +151,9 @@ export default function SignUp({ setAction, baseForm }) {
         };
         setLoading(true);
         const result = await requestSignUp(submitFrom);
-        console.log("????", result);
         if (result?.status === 400 || result?.status === 404) {
           const resultError = result?.response?.data?.message;
           const resultErrors = result?.response?.data?.errors;
-          console.log(resultError);
-
-          console.log("check", resultErrors);
-
           if (resultError) {
             Object.keys(defaulform).forEach((field) => {
               if (
@@ -200,9 +190,7 @@ export default function SignUp({ setAction, baseForm }) {
 
           if (Object.keys(resultErrors).length > 0) {
             Object.entries(resultErrors).forEach(([field, value]) => {
-              //  setErrors((prev)=>({...prev,[field]:value}));
               const errorMessage = Array.isArray(value) ? value[0] : value;
-              console.log(errorMessage);
               const fieldError = field.toLowerCase();
               setErrors((prev) => ({
                 ...prev,
@@ -264,7 +252,6 @@ export default function SignUp({ setAction, baseForm }) {
           const provincedFoundId = provinces?.data?.find(
             (item) => item.subDivisionName === provinceSubName
           );
-          console.log("check hrere", provincedFoundId);
           setForm((prev) => ({
             ...prev,
             businessName: result?.data?.data?.name,
@@ -277,7 +264,6 @@ export default function SignUp({ setAction, baseForm }) {
         } else {
           setCheckBussinessError(result?.data?.desc);
         }
-        console.log(result);
       }
     } catch (e) {
       console.log(e);
@@ -860,21 +846,6 @@ export default function SignUp({ setAction, baseForm }) {
             </div>
             <div className="grow shrink basis-0 h-[0px] border border-[#c6c9d8]"></div>
           </div>
-          {/* <div id="buttonDiv" className="bg-black w-full h-fit"></div> */}
-          {/* <GoogleLogin
-          onSuccess={(token) => {
-            const decode=jwtDecode(token?.credential)
-            console.log(decode);
-          }}
-          onError={() => {
-            console.log("Login Failed");
-          }}
-          useOneTap
-          size="large"
-          text="continue_with"
-          auto_select={false}
-        /> */}
-
           <div className="flex justify-center">
             <p className="text-[#848a9f] mr-2">{t("Alreadyhaveanaccount")}?</p>{" "}
             <button

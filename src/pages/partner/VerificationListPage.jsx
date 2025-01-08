@@ -15,7 +15,6 @@ export default function VerificationListPage() {
   const [verificationPapper, setVerificationPapper] = useState();
   const [loading, setLoading] = useState(false);
 
-  // State for Modal
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [scale, setScale] = useState(1);
@@ -36,7 +35,7 @@ export default function VerificationListPage() {
         setVerificationPapper(result);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -44,18 +43,18 @@ export default function VerificationListPage() {
 
   const handleImageClick = (imageUrl) => {
     setSelectedImage(imageUrl);
-    setScale(1); // Reset scale when opening the modal
-    setTransformOrigin("center center"); // Reset transform origin
-    setPosition({ x: 0, y: 0 }); // Reset position
+    setScale(1); 
+    setTransformOrigin("center center"); 
+    setPosition({ x: 0, y: 0 });
     setIsModalVisible(true);
   };
 
   const handleModalClose = () => {
     setIsModalVisible(false);
     setSelectedImage(null);
-    setScale(1); // Reset scale when closing the modal
+    setScale(1);
     setTransformOrigin("center center");
-    setPosition({ x: 0, y: 0 }); // Reset position
+    setPosition({ x: 0, y: 0 });
   };
 
   const handleMouseWheel = (e) => {
@@ -69,9 +68,9 @@ export default function VerificationListPage() {
     setTransformOrigin(`${xPercentage}% ${yPercentage}%`);
 
     if (e.deltaY < 0) {
-      setScale((prev) => prev + 0.1); // Zoom in
+      setScale((prev) => prev + 0.1); 
     } else {
-      setScale((prev) => Math.max(1, prev - 0.1)); // Zoom out
+      setScale((prev) => Math.max(1, prev - 0.1)); 
     }
   };
 
@@ -196,8 +195,6 @@ export default function VerificationListPage() {
           )}
         </div>
       </div>
-
-      {/* Image Modal */}
       <Modal
         visible={isModalVisible}
         footer={null}

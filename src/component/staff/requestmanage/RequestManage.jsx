@@ -682,11 +682,11 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">{t("Warehouse_Name")}:</p>
-                  <p>{selectedRequest.warehouseName}</p>
+                  <p>{selectedRequest.storeName}</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Inventory_Name")}:</p>
-                  <p>{selectedRequest.sendToInventoryName}</p>
+                  <p>{selectedRequest.sendToRoomName}</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Lot_ID")}:</p>
@@ -808,11 +808,11 @@ const RequestManagement = () => {
     </div>
     <div>
       <p className="font-bold">{t("New_Warehouse_Name")}:</p>
-      <p>{selectedExportRequest.warehouseName}</p>
+      <p>{selectedExportRequest.storeName}</p>
     </div>
     <div>
       <p className="font-bold">{t("New_Inventory_Name")}:</p>
-      <p>{selectedExportRequest.sendToInventoryName}</p>
+      <p>{selectedExportRequest.sendToRoomName}</p>
     </div>
     <div>
       <p className="font-bold">{t("New_Lot_ID")}:</p>
@@ -820,11 +820,11 @@ const RequestManagement = () => {
     </div>
     <div>
       <p className="font-bold">{t("Old_Warehouse_Name")}:</p>
-      <p>{selectedExportRequest.exportFromWarehouseName}</p>
+      <p>{selectedExportRequest.exportFromStoreName}</p>
     </div>
     <div>
       <p className="font-bold">{t("Old_Inventory_Name")}:</p>
-      <p>{selectedExportRequest.exportFromInventoryName}</p>
+      <p>{selectedExportRequest.exportFromRoomName}</p>
     </div>
     <div>
       <p className="font-bold">{t("Old_Lot_ID")}:</p>

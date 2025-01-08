@@ -105,14 +105,15 @@ const ZoomableImageModal = ({ imageUrl, visible, onClose }) => {
 
 const PartnerPage = () => {
   const { fetchDataBearer } = useAxios();
-
-  // State cho danh sách vehicles
+  const {
+    getVerificationPaper,
+    verifyVerificationPaper,
+    rejectVerificationPaper,
+  } = AxiosPartner();
   const [vehicles, setVehicles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [showVehicles, setShowVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // State cho modal tạo vehicle
   const [visible, setVisible] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [deleteHolder, setDeleteHolder] = useState();
@@ -120,11 +121,6 @@ const PartnerPage = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
-  const {
-    getVerificationPaper,
-    verifyVerificationPaper,
-    rejectVerificationPaper,
-  } = AxiosPartner();
 
   const [filter, setFilter] = useState({
     pageIndex: 0,
@@ -151,11 +147,7 @@ const PartnerPage = () => {
     setIsModalVisible(false);
     setSelectedImage(null);
   };
-
-  // Form instance
   const [form] = Form.useForm();
-
-  // Hàm fetch danh sách vehicles từ API
   const fetchVehicles = async () => {
     setLoading(true);
     try {
@@ -168,15 +160,6 @@ const PartnerPage = () => {
         },
       });
       setVehicles(response?.data);
-      //   const response2 = await fetchDataBearer({
-      //     url: `productCategory/get-categories`,
-      //     method: "GET",
-      //     params: {
-      //       pageIndex: 0,
-      //       pageSize: 100,
-      //     },
-      //   });
-      //   setCategories(response2?.data);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
       message.error("Failed to fetch vehicles.");
@@ -185,8 +168,6 @@ const PartnerPage = () => {
       setLoading(false);
     }
   };
-
-  // Hàm mở modal và gán dữ liệu vehicle cần update
   const openUpdateModal = (record) => {
     setSelectedVehicle(record);
     form.setFieldsValue({
@@ -197,24 +178,15 @@ const PartnerPage = () => {
     });
     setUpdateVisible(true);
   };
-  //Hàm xử lí detail:
   const [detailVisible, setDetailVisible] = useState(false);
   const [vehicleDetail, setVehicleDetail] = useState(null);
-
-  // Hàm đóng modal
   const handleCloseDetailModal = () => {
     setDetailVisible(false);
     setVehicleDetail(null);
   };
-
-  console.log("vehicleDetail", vehicleDetail);
-
-  // Hàm cập nhật vehicle
   const handleUpdateVehicle = async () => {
     try {
       const values = await form.validateFields();
-      console.log("Form values:", values);
-      console.log("Selected Vehicle:", selectedVehicle);
       const response = await fetchDataBearer({
         url: `/productCategory/update-product-category/${selectedVehicle.id}`,
         method: "PUT",
@@ -242,7 +214,6 @@ const PartnerPage = () => {
       console.error("Error updating product category:", error);
     }
   };
-  // Hàm Delete vehicle:
   const handleDeleteVehicle = (record) => {
     setDeleteHolder(record);
     setDeleteConfirmation(true);
@@ -254,10 +225,9 @@ const PartnerPage = () => {
         url: `productCategory/delete-product-category/${deleteHolder.id}`,
         method: "DELETE",
       });
-
       if (response && response.status === 200) {
         message.success("Category deleted successfully!");
-        fetchVehicles(); // Refresh the category list
+        fetchVehicles();
       } else {
         message.error(response?.data?.message || "Failed to delete category.");
       }
@@ -268,12 +238,9 @@ const PartnerPage = () => {
       setDeleteConfirmation(false);
     }
   };
-  console.log("categories", categories);
-
-  // Hàm tạo vehicle
   const createVehicle = async () => {
     try {
-      const values = await form.validateFields(); // Lấy dữ liệu từ form sau khi validate
+      const values = await form.validateFields();
 
       setLoading(true);
 
@@ -292,7 +259,7 @@ const PartnerPage = () => {
         message.success("Product category created successfully!");
         fetchVehicles();
         setVisible(false);
-        form.resetFields(); // Reset form sau khi tạo thành công
+        form.resetFields();
       } else {
         const errorMessage =
           response?.data?.message || "Failed to create product category.";
@@ -309,8 +276,6 @@ const PartnerPage = () => {
     setDeleteConfirmation(false);
     setDeleteHolder();
   };
-
-  // Fetch dữ liệu khi component mount
   useEffect(() => {
     fetchVehicles();
   }, []);
@@ -318,20 +283,15 @@ const PartnerPage = () => {
   useEffect(() => {
     fetchVehicles();
   }, [filter, refresh]);
-
-  console.log("vehicles", vehicles);
-  console.log("showVehicles", showVehicles);
-
   const handleShowDetails = async (record) => {
     try {
       setDetailLoading(true);
       setVehicleDetail();
       const result = await getVerificationPaper(record?.id);
-      console.log("result", result);
+
       if (result?.status == 200) {
         const resultData = result?.data?.data[result?.data?.data?.length - 1];
         if (resultData) {
-          console.log("resultData", resultData);
           const { id: paperId, ...remainingData } = resultData;
           setVehicleDetail({ ...record, ...remainingData, paperId });
         } else {
@@ -340,7 +300,6 @@ const PartnerPage = () => {
         setDetailVisible(true);
       }
     } catch (e) {
-      console.log(e);
     } finally {
       setDetailLoading(false);
     }
@@ -351,7 +310,6 @@ const PartnerPage = () => {
       setDetailLoading(true);
       if (vehicleDetail) {
         const result = await verifyVerificationPaper(vehicleDetail?.paperId);
-        console.log("result", result);
 
         if (result?.status === 200) {
           setOnAction("");
@@ -377,7 +335,6 @@ const PartnerPage = () => {
           vehicleDetail?.paperId,
           reasonReject
         );
-        console.log("result", result);
 
         if (result?.status === 200) {
           setOnAction("");
@@ -399,23 +356,12 @@ const PartnerPage = () => {
 
   return (
     <div className="">
-      <Button
-        style={{ marginBottom: "2rem" }}
-        type="primary"
-        onClick={
-          () => setVisible(true) // Show modal
-        }
-      >
-        CreateProductCategory
-      </Button>
-
-      {/* Modal tạo vehicle */}
       <Modal
         title="CreateProductCategory"
         open={visible}
         onCancel={() => {
           setVisible(false);
-          form.resetFields(); // Reset form khi đóng modal
+          form.resetFields();
         }}
         footer={[
           <Button key="back" onClick={() => setVisible(false)}>
@@ -432,7 +378,6 @@ const PartnerPage = () => {
         ]}
       >
         <Form form={form} layout="vertical">
-          {/* Vehicle Type */}
           <Form.Item
             label="Name"
             name="typeName"
@@ -445,8 +390,6 @@ const PartnerPage = () => {
           >
             <Input placeholder="Enter product category Name" />
           </Form.Item>
-
-          {/* Vehicle Name */}
           <Form.Item
             label="Description"
             name="typeDescription"
@@ -463,8 +406,6 @@ const PartnerPage = () => {
             <Select
               placeholder="Select Category"
               onChange={(value) => {
-                console.log(value);
-
                 form.setFieldsValue({
                   categoryId: value,
                 });
@@ -477,8 +418,6 @@ const PartnerPage = () => {
               ))}
             </Select>
           </Form.Item>
-
-          {/* License Plate */}
           <Form.Item
             label={"ExpireIn" + " (" + "days" + ")"}
             name="expireIn"
@@ -550,8 +489,6 @@ const PartnerPage = () => {
           >
             <Input placeholder="Enter product category Name" />
           </Form.Item>
-
-          {/* Vehicle Name */}
           <Form.Item
             label="Description"
             name="typeDescription"
@@ -568,7 +505,6 @@ const PartnerPage = () => {
             <Select
               placeholder="Select Category"
               onChange={(value) => {
-                console.log(value);
                 form.setFieldsValue({
                   categoryId: value,
                 });
@@ -581,7 +517,6 @@ const PartnerPage = () => {
               ))}
             </Select>
           </Form.Item>
-          {/* License Plate */}
           <Form.Item
             label="ExpireIn"
             name="expireIn"
@@ -612,7 +547,6 @@ const PartnerPage = () => {
           </Form.Item>
         </Form>
       </Modal>
-      {/* Bảng hiển thị vehicles */}
       <Table
         dataSource={vehicles?.items}
         size="large"
@@ -762,7 +696,6 @@ const PartnerPage = () => {
           <span className="font-semibold">{deleteHolder?.typeName}</span>
         </p>
       </Modal>
-      {/* Detail Modal */}
       <Modal
         centered
         open={detailVisible}
@@ -808,12 +741,6 @@ const PartnerPage = () => {
                   }
                   onClick={() => setOnAction("reject")}
                   danger
-                  // className={`${
-                  //   vehicleDetail?.isVerified === 1 ||
-                  //   vehicleDetail?.isRejected === 1
-                  //     ? ""
-                  //     : "text-[#ff4d4f] border-[#ff4d4f]"
-                  // } hover:text-[#ff4d4f] hover:border-[#ff4d4f]`}
                   style={{
                     borderRadius: "5px",
                     padding: "0 8px",

@@ -7,19 +7,19 @@ const { Option } = Select;
 
 const VehicleManage = () => {
   const { fetchDataBearer } = useAxios();
-
-  // State cho danh sách vehicles
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // State cho modal tạo vehicle
   const [visible, setVisible] = useState(false);
   const [warehouseOptions, setWarehouseOptions] = useState([]);
-
-  // Form instance
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [updateVisible, setUpdateVisible] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState({});
+  const [showDropdownId, setShowDropdownId] = useState(null);
+  const [detailVisible, setDetailVisible] = useState(false);
+  const [vehicleDetail, setVehicleDetail] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [loadingDetailId, setLoadingDetailId] = useState(null);
   const [form] = Form.useForm();
-
-  // Hàm fetch danh sách vehicles từ API
   const fetchVehicles = async () => {
     setLoading(true);
     let allVehicles = [];
@@ -55,8 +55,6 @@ const VehicleManage = () => {
       setLoading(false);
     }
   };
-
-  // Hàm fetch danh sách warehouses từ API
   const fetchWarehouses = async () => {
     try {
       const response = await fetchDataBearer({
@@ -84,12 +82,6 @@ const VehicleManage = () => {
       message.error("Error fetching warehouses.");
     }
   };
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [updateVisible, setUpdateVisible] = useState(false);
-
-  // const [selectedStatus, setSelectedStatus] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState({});
-  const [showDropdownId, setShowDropdownId] = useState(null);
 
   const handleApproveClick = (record) => {
     if (!record) {
@@ -120,8 +112,8 @@ const VehicleManage = () => {
         message.success(
           `Vehicle ID: ${record.id} has been approved with status: ${status}`
         );
-        fetchVehicles(); // Refresh danh sách sau khi approve thành công
-        setShowDropdownId(null); // Ẩn dropdown
+        fetchVehicles();
+        setShowDropdownId(null); 
       } else {
         const errorData = await response?.data;
         message.error(
@@ -133,8 +125,6 @@ const VehicleManage = () => {
       message.error("Something went wrong!");
     }
   };
-
-  // Hàm mở modal và gán dữ liệu vehicle cần update
   const openUpdateModal = (record) => {
     setSelectedVehicle(record);
     form.setFieldsValue({
@@ -146,21 +136,9 @@ const VehicleManage = () => {
     });
     setUpdateVisible(true);
   };
-  //Hàm xử lí detail:
-  const [detailVisible, setDetailVisible] = useState(false);
-  const [vehicleDetail, setVehicleDetail] = useState(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
-  const [loadingDetailId, setLoadingDetailId] = useState(null);
-  //Hàm xử lí cho Approve Status
-  // const [showDropdownId, setShowDropdownId] = useState(null);
-  // const handleStatusChange = (id, status) => {
-  //   setSelectedStatus((prev) => ({ ...prev, [id]: status }));
-  // };
-
-  // Hàm mở modal và fetch chi tiết vehicle
+ 
   const handleVehicleDetail = async (record) => {
-    // setLoadingDetail(record.id);
-    setLoadingDetailId(record.id); // Set loading cho dòng cụ thể
+    setLoadingDetailId(record.id); 
     try {
       const response = await fetchDataBearer({
         url: `/vehicle/get-vehicle/${record.id}`,
@@ -179,23 +157,16 @@ const VehicleManage = () => {
       console.error("Error fetching vehicle details:", error);
       message.error("Something went wrong while fetching vehicle details!");
     } finally {
-      //   setLoadingDetail(null);
       setLoadingDetailId(null);
     }
   };
-
-  // Hàm đóng modal
   const handleCloseDetailModal = () => {
     setDetailVisible(false);
     setVehicleDetail(null);
   };
-
-  // Hàm cập nhật vehicle
   const handleUpdateVehicle = async () => {
     try {
       const values = await form.validateFields();
-      console.log("Form values:", values);
-      console.log("Selected Vehicle:", selectedVehicle);
       const response = await fetchDataBearer({
         url: `/vehicle/update-vehicle/${selectedVehicle.id}`,
         method: "PUT",
@@ -213,7 +184,7 @@ const VehicleManage = () => {
       if (response && response.status === 200) {
         message.success("Vehicle updated successfully!");
         setUpdateVisible(false);
-        fetchVehicles(); // Refresh the vehicle list
+        fetchVehicles();
         form.resetFields();
       } else {
         message.error(response?.data?.message || "Failed to update vehicle.");
@@ -223,7 +194,6 @@ const VehicleManage = () => {
       message.error("duplicate license plates");
     }
   };
-  // Hàm Delete vehicle:
   const handleDeleteVehicle = async (record) => {
     try {
       const response = await fetchDataBearer({
@@ -233,7 +203,7 @@ const VehicleManage = () => {
 
       if (response && response.status === 200) {
         message.success("Vehicle deleted successfully!");
-        fetchVehicles(); // Refresh the vehicle list
+        fetchVehicles();
       } else {
         message.error(response?.data?.message || "Failed to delete vehicle.");
       }
@@ -242,11 +212,9 @@ const VehicleManage = () => {
       message.error("Something went wrong!");
     }
   };
-
-  // Hàm tạo vehicle
   const createVehicle = async () => {
     try {
-      const values = await form.validateFields(); // Lấy dữ liệu từ form sau khi validate
+      const values = await form.validateFields();
 
       setLoading(true);
 
@@ -265,7 +233,7 @@ const VehicleManage = () => {
         message.success("Vehicle created successfully!");
         fetchVehicles();
         setVisible(false);
-        form.resetFields(); // Reset form sau khi tạo thành công
+        form.resetFields();
       } else {
         const errorMessage =
           response?.data?.message || "Failed to create vehicle.";
@@ -278,8 +246,6 @@ const VehicleManage = () => {
       setLoading(false);
     }
   };
-
-  // Fetch dữ liệu khi component mount
   useEffect(() => {
     fetchVehicles();
     fetchWarehouses();
@@ -296,14 +262,12 @@ const VehicleManage = () => {
       </Button>
 
       <h1>Vehicle List</h1>
-
-      {/* Modal tạo vehicle */}
       <Modal
         title="Create Vehicle"
         open={visible}
         onCancel={() => {
           setVisible(false);
-          form.resetFields(); // Reset form khi đóng modal
+          form.resetFields();
         }}
         footer={[
           <Button key="back" onClick={() => setVisible(false)}>
@@ -320,7 +284,7 @@ const VehicleManage = () => {
         ]}
       >
         <Form form={form} layout="vertical">
-          {/* Vehicle Type */}
+
           <Form.Item
             label="Vehicle Type"
             name="type"
@@ -332,8 +296,6 @@ const VehicleManage = () => {
               <Option value="Motorbike">Motorbike</Option>
             </Select>
           </Form.Item>
-
-          {/* Vehicle Name */}
           <Form.Item
             label="Vehicle Name"
             name="name"
@@ -341,8 +303,6 @@ const VehicleManage = () => {
           >
             <Input placeholder="Enter Vehicle Name" />
           </Form.Item>
-
-          {/* License Plate */}
           <Form.Item
             label="License Plate"
             name="licensePlate"
@@ -350,8 +310,6 @@ const VehicleManage = () => {
           >
             <Input placeholder="Enter License Plate" />
           </Form.Item>
-
-          {/* Warehouse ID */}
           <Form.Item
             label="Warehouse ID"
             name="warehouseId"
@@ -363,8 +321,6 @@ const VehicleManage = () => {
                 const selectedWarehouse = warehouseOptions.find(
                   (warehouse) => warehouse.id === value
                 );
-
-                // Set isCold based on selected warehouse
                 form.setFieldsValue({
                   isCold: selectedWarehouse.isCold ? 1 : 0,
                 });
@@ -378,8 +334,6 @@ const VehicleManage = () => {
               ))}
             </Select>
           </Form.Item>
-
-          {/* Is Cold Storage? */}
           <Form.Item
             label="Is Cold Storage?"
             name="isCold"
@@ -479,7 +433,7 @@ const VehicleManage = () => {
           >
             <Select
               placeholder="Select Option"
-              disabled={true} // Luôn disable để không cho phép người dùng thay đổi
+              disabled={true}
             >
               <Option value={1}>Yes</Option>
               <Option value={0}>No</Option>
@@ -536,8 +490,6 @@ const VehicleManage = () => {
           <p>Loading vehicle details...</p>
         )}
       </Modal>
-
-      {/* Bảng hiển thị vehicles */}
       <Table
         dataSource={vehicles}
         columns={[
@@ -591,7 +543,6 @@ const VehicleManage = () => {
                   flexWrap: "wrap",
                 }}
               >
-                {/* Nút Vehicle Detail */}
                 <Button
                   type="default"
                   size="small"
@@ -606,26 +557,37 @@ const VehicleManage = () => {
                 >
                   Detail
                 </Button>
-          
-                {/* Nút Update Vehicle */}
                 <Button
                   type="default"
                   size="small"
                   onClick={() => openUpdateModal(record)}
-                  disabled={record.status === "InService" || record.status === "Available"}
+                  disabled={
+                    record.status === "InService" ||
+                    record.status === "Available"
+                  }
                   style={{
-                    color: record.status === "InService" || record.status === "Available" ? "#d9d9d9" : "#1890ff",
-                    borderColor: record.status === "InService" || record.status === "Available" ? "#d9d9d9" : "#1890ff",
+                    color:
+                      record.status === "InService" ||
+                      record.status === "Available"
+                        ? "#d9d9d9"
+                        : "#1890ff",
+                    borderColor:
+                      record.status === "InService" ||
+                      record.status === "Available"
+                        ? "#d9d9d9"
+                        : "#1890ff",
                     borderRadius: "5px",
                     padding: "0 8px",
                     minWidth: "85px",
-                    cursor: record.status === "InService" || record.status === "Available" ? "not-allowed" : "pointer",
+                    cursor:
+                      record.status === "InService" ||
+                      record.status === "Available"
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                 >
                   Update
                 </Button>
-          
-                {/* Nút Delete Vehicle */}
                 <Button
                   type="default"
                   size="small"
@@ -633,17 +595,17 @@ const VehicleManage = () => {
                   disabled={record.status !== "Repair"}
                   style={{
                     color: record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
-                    borderColor: record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
+                    borderColor:
+                      record.status === "Repair" ? "#ff4d4f" : "#d9d9d9",
                     borderRadius: "5px",
                     padding: "0 8px",
                     minWidth: "85px",
-                    cursor: record.status === "Repair" ? "pointer" : "not-allowed",
+                    cursor:
+                      record.status === "Repair" ? "pointer" : "not-allowed",
                   }}
                 >
                   Delete
                 </Button>
-          
-                {/* Dropdown và Button Approve */}
                 <div
                   style={{
                     display: "flex",
@@ -669,7 +631,7 @@ const VehicleManage = () => {
                       <Option value="Repair">Repair</Option>
                     </Select>
                   )}
-          
+
                   <Button
                     type="default"
                     size="small"
@@ -694,7 +656,6 @@ const VehicleManage = () => {
               </div>
             ),
           },
-          
         ]}
         rowKey="id"
         loading={loading}

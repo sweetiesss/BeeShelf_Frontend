@@ -12,8 +12,6 @@ export default function AxiosPartner() {
         method: "POST",
         data,
       });
-      console.log(fetching);
-
       await toast.promise(fetching, {
         pending: "Request in progress...",
         success: {
@@ -44,13 +42,29 @@ export default function AxiosPartner() {
         url,
         method: "GET",
       });
-
-      console.log(fetching);
-
       return fetching;
     } catch (error) {
       console.error("Error fetching products:", error);
       return error;
+    }
+  };
+  const getProductByUserIdProvinceIdProductId = async (
+    productId,
+    provinceId,
+    userId
+  ) => {
+    try {
+      const url = `partner/get-store-with-products/${productId}/${provinceId}/${userId}`;
+
+      const fetching = await fetchDataBearer({
+        url: url,
+        method: "GET",
+      });
+
+      return fetching;
+    } catch (e) {
+      console.error(e);
+      return e;
     }
   };
   const getOrderRevunue = async (userId, showYear) => {
@@ -62,9 +76,6 @@ export default function AxiosPartner() {
         url,
         method: "GET",
       });
-
-      console.log(fetching);
-
       return fetching;
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -79,9 +90,6 @@ export default function AxiosPartner() {
         url,
         method: "GET",
       });
-
-      console.log(fetching);
-
       return fetching;
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -96,9 +104,6 @@ export default function AxiosPartner() {
         url,
         method: "PUT",
       });
-
-      console.log(fetching);
-
       return fetching;
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -113,9 +118,6 @@ export default function AxiosPartner() {
         url,
         method: "PUT",
       });
-
-      console.log(fetching);
-
       return fetching;
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -130,5 +132,6 @@ export default function AxiosPartner() {
     getVerificationPaper,
     verifyVerificationPaper,
     rejectVerificationPaper,
+    getProductByUserIdProvinceIdProductId,
   };
 }

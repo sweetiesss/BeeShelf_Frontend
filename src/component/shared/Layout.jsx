@@ -26,10 +26,6 @@ export function LayoutGuest() {
         <div id="contact" className="section">
           <ContactPage />
         </div>
-        {/*
-        <div id="package" className="section">
-          <PackagePage />
-        </div> */}
       </div>
     </div>
   );

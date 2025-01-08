@@ -20,7 +20,7 @@ export default function ManagerRoutes() {
       <ConfigProvider
         theme={{
           token: {
-            colorPrimary: "#0db977", // Set the primary color to green
+            colorPrimary: "#0db977", 
           },
         }}
       >
@@ -39,7 +39,6 @@ export default function ManagerRoutes() {
             <Route path="vehicle" element={<VehiclePage />} />
             <Route path="category" element={<CategoryPage />} />
             <Route path="partner" element={<PartnerPage />} />
-            {/* <Route path="payment/result" element={<PaymentResult />} /> */}
           </Route>
         </Routes>
       </ConfigProvider>

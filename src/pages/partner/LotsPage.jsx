@@ -17,15 +17,10 @@ export default function LotsPage() {
   const { userInfor } = useContext(AuthContext);
   const { getOrderByUserId } = AxiosOrder();
   const { getLotByUserId } = AxiosLot();
-  const [lots, setLots] = useState();
   const { t } = useTranslation();
-
-  const [selectedLot, setSelectedLot] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [isShowDetailLot, setShowDetailLot] = useState(null);
+  const [lots, setLots] = useState();
   const nav = useNavigate();
   const location = useLocation();
-  const [inventory, setInventory] = useState(location?.state);
   const {
     dataDetail,
     updateDataDetail,
@@ -35,6 +30,12 @@ export default function LotsPage() {
     createOrder,
     setCreateOrder,
   } = useDetail();
+  
+  const [selectedLot, setSelectedLot] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [isShowDetailLot, setShowDetailLot] = useState(null);
+  const [inventory, setInventory] = useState(location?.state);
+ 
 
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
@@ -52,17 +53,6 @@ export default function LotsPage() {
   useEffect(() => {
     debouncedFetchOrders();
   }, [refresh, filterField]);
-  // useEffect(() => {
-  //   try {
-  //     debouncedFetchOrders();
-  //     setLoading(true);
-  //   } catch (e) {
-  //     console.log(e);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [filterField]);
-
   const debounce = (func, delay) => {
     let timeout;
     return (...args) => {
@@ -72,8 +62,6 @@ export default function LotsPage() {
       }, delay);
     };
   };
-  console.log("inventory", inventory);
-
   const debouncedFetchOrders = useCallback(
     debounce(async () => {
       try {
@@ -90,7 +78,7 @@ export default function LotsPage() {
         );
         setLots(response?.data);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -98,22 +86,14 @@ export default function LotsPage() {
     [filterField]
   );
 
-  console.log(filterField);
 
   const handleAddOrder = async (order) => {
-    // const newOrder = await addOrder(order);
-    // setLots([...lots, newOrder]);
   };
 
   const handleUpdateOrder = async (order) => {
-    // const updatedOrder = await updateOrder(order);
-    // setLots(lots.map((o) => (o.id === updatedOrder.id ? updatedOrder : o)));
-    // setSelectedLot(null);
   };
 
   const handleDeleteOrder = async (orderId) => {
-    // await deleteOrder(orderId);
-    // setLots(lots.filter((o) => o.id !== orderId));
   };
 
   const handleSelectOrder = (order) => {
@@ -121,13 +101,7 @@ export default function LotsPage() {
   };
 
   const handleSearch = (event) => {
-    // setSearchQuery(event.target.value);
   };
-
-  // const filteredOrders = lots.filter((order) =>
-  //   order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
-  console.log("here", lots);
 
   const handleShowDetailOrder = (e, order) => {
     e.stopPropagation();
@@ -182,13 +156,6 @@ export default function LotsPage() {
             <option value={"Completed"}>{t("Completed")}</option>
           </select>
         </div>
-
-        {/* <button
-          className="outline-2 outline flex items-center gap-2 outline-[var(--line-main-color)] text-[var(--en-vu-500-disable)] hover:outline-[var(--Xanh-Base)] hover:text-black  pr-4 pl-3 py-1 rounded-xl font-semibold"
-          onClick={() => nav("create-order")}
-        >
-          + Create Order
-        </button> */}
       </div>
       <div className="flex justify-left gap-4 mt-6 ">
         <div className="w-full">

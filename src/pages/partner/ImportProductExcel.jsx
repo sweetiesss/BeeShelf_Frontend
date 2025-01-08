@@ -16,6 +16,11 @@ import ProductList from "../../component/partner/product/ProductList";
 import AxiosCategory from "../../services/Category";
 
 export default function ImportProductExcel({ result, setResult }) {
+  const { userInfor } = useContext(AuthContext);
+  const { getProductCategoryBy1000 } = AxiosCategory();
+  const { createProductsWithUserId } = AxiosProduct();
+  const { t } = useTranslation();
+
   const [excelDataBase, setExcelDataBase] = useState([]);
   const [excelData, setExcelData] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -34,10 +39,7 @@ export default function ImportProductExcel({ result, setResult }) {
     checked: false,
     indeterminate: false,
   });
-  const { userInfor } = useContext(AuthContext);
-  const { getProductCategoryBy1000 } = AxiosCategory();
-  const { createProductsWithUserId } = AxiosProduct();
-  const { t } = useTranslation();
+ 
 
   useEffect(() => {
     fetchingBeginData();
@@ -49,7 +51,7 @@ export default function ImportProductExcel({ result, setResult }) {
         setProductCategories(productCategoriesResult?.data?.items);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
   useEffect(() => {
@@ -172,41 +174,29 @@ export default function ImportProductExcel({ result, setResult }) {
     setExcelDataBase([]);
     setErrorList([]);
     setSeen([]);
-    if (!file) return; // Exit if no file selected
+    if (!file) return; 
     if (file.size > maxFileSize) {
       alert("The file is too large. Please upload a file smaller than 5 MB.");
-      event.target.value = null; // Clear the file input
+      event.target.value = null; 
       return;
     }
     const fileExtension = file.name.split(".").pop().toLowerCase();
     if (!allowedExtensions.includes(fileExtension)) {
       alert("Invalid file type. Please upload an Excel file (.xlsx or .xls).");
-      event.target.value = null; // Clear the file input
+      event.target.value = null;
       return;
     }
-
-    // Create a file reader
     const reader = new FileReader();
-
-    // When the file is loaded, process it
     reader.onload = (e) => {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: "array" });
-
-      // Assuming the first sheet is the one we want
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-
-      // Convert sheet to JSON format
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-      // Update state with the JSON data
       const updateData = jsonData.map((item, index) => {
         const category = productCategories.find(
           (cate) => cate.id === item.productCategoryId
         );
-        console.log("cate", category);
-
         return {
           ...item,
           id: index,
@@ -221,24 +211,16 @@ export default function ImportProductExcel({ result, setResult }) {
 
       setExcelData(updateData);
       setExcelDataBase(updateData);
-
-      console.log(updateData);
-
-      // Optionally set the result if needed
       setResult && setResult(updateData);
       event.target.value = null;
     };
-
-    // Read the file as an array buffer
     reader.readAsArrayBuffer(file);
   };
 
   const hanldeImportAll = async () => {
     try {
-      console.log(excelData);
       if (errorList.length > 0) return;
       const result = await createProductsWithUserId(excelData);
-      console.log("cuuuuuuuuuuuuu", result);
       if (result.status == 200) {
         const updatedDataBase = excelDataBase.filter(
           (item) => !excelData.some((da) => da.id === item.id)
@@ -250,18 +232,16 @@ export default function ImportProductExcel({ result, setResult }) {
       }
       checkDuplicatedData(result?.response?.data?.message);
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
   const handleImportSelectedProduct = async () => {
     try {
-      console.log(selectedProducts);
       const check = selectedProducts.find((selectedItem) =>
         errorList?.some((errorItem) => errorItem.item === selectedItem)
       );
       if (check) return;
-
       const result = await createProductsWithUserId(selectedProducts);
       if (result.status == 200) {
         const updateData = excelData.filter(
@@ -276,7 +256,6 @@ export default function ImportProductExcel({ result, setResult }) {
         const result = validateExcelData(updateDataBase);
         setErrorList(result.inValid);
         setExcelDataBase(updateDataBase);
-
         const selectProductBaseUpdated = selectedProductsBase.filter(
           (item) =>
             !selectedProducts.some((selected) => selected.id === item.id)
@@ -285,10 +264,8 @@ export default function ImportProductExcel({ result, setResult }) {
         setSelectedProductsBase(selectProductBaseUpdated);
       }
       checkDuplicatedData(result?.response?.data?.message);
-
-      console.log("here", result);
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return e;
     }
   };
@@ -322,15 +299,13 @@ export default function ImportProductExcel({ result, setResult }) {
   };
   const removeDuplicates = () => {
     let uniqueData = [];
-    const seenSet = new Set(seen); // Convert the seen list to a Set for faster lookup
-
+    const seenSet = new Set(seen); 
     selectedProducts.forEach((item) => {
       const identifier = item.name;
       if (
         !seenSet.has(identifier) &&
         !uniqueData.some((i) => i.name === identifier)
       ) {
-        // Add to uniqueData if not in seen list and not already added
         uniqueData.push(item);
       }
     });
@@ -344,7 +319,6 @@ export default function ImportProductExcel({ result, setResult }) {
         !seenSet.has(identifier) &&
         !uniqueData.some((i) => i.name === identifier)
       ) {
-        // Add to uniqueData if not in seen list and not already added
         uniqueData.push(item);
       }
     });
@@ -356,33 +330,27 @@ export default function ImportProductExcel({ result, setResult }) {
     const result = validateExcelData([...uniqueDataBase, ...uniqueData]);
     setErrorList(result.inValid);
     setExcelDataBase([...uniqueDataBase, ...uniqueData]);
-    checkIsDuplicated(false); // Reset the duplicated flag
-    setSeen([]); // Clear the seen list
+    checkIsDuplicated(false);
+    setSeen([]); 
   };
 
   const checkDuplicatedData = (errorMessage) => {
     setSeen([]);
     checkIsDuplicated(false);
     if (errorMessage.includes("Failed to add. Product name already exist.")) {
-      // Extract the part after "Product name already exist."
       const extractedList = errorMessage.split(
         "Product name already exist."
       )[1];
-
-      // Remove the trailing comma and split the string into an array
       const productList = extractedList
         .trim()
-        .slice(0, -1) // Remove trailing comma
+        .slice(0, -1) 
         .split(", ")
-        .map((item) => item.trim()); // Trim each item
-
-      console.log(productList);
+        .map((item) => item.trim());
       if (productList.length > 0) {
         setSeen(productList);
         checkIsDuplicated(true);
       }
     } else {
-      console.log("The error message does not contain the specified text.");
     }
   };
   const handleEdit = (e, product) => {
@@ -395,8 +363,6 @@ export default function ImportProductExcel({ result, setResult }) {
     if (name === "price" && value <= 0) value = 1;
     if (name === "weight" && value <= 0) value = 0.1;
     if (name === "isCold" && type === "checkbox") value = checked ? 1 : 0;
-    console.log("iscold", value);
-
     setEditForm((prev) => ({ ...prev, [name]: value }));
   };
   const handleUpdateEdit = (e) => {
@@ -413,17 +379,12 @@ export default function ImportProductExcel({ result, setResult }) {
     setErrorList(result.inValid);
     setExcelData(updateData);
     setExcelDataBase(updateDataBase);
-    console.log("updateData", updateData);
-
     if (selectedProducts.length > 0) {
       const updatedSelectedProducts = selectedProducts.map((item) =>
         updateData.find((updated) => updated.id == item.id)
       );
-      console.log("updateDataSelection", updatedSelectedProducts);
-
       const result2 = validateExcelData(updatedSelectedProducts);
       setErrorList(result2.inValid);
-
       setSelectedProducts(updatedSelectedProducts);
       setSelectedProductsBase(updatedSelectedProducts);
     }
@@ -466,9 +427,7 @@ export default function ImportProductExcel({ result, setResult }) {
       setSelectedProducts(selectedProductsBase);
     }
   };
-
   const handleSortChange = (value) => {
-    console.log("checkcheck", sortBy === value.toLowerCase());
     let sortd = sortBy;
     let desd = descending;
     if (sortBy === value) {
@@ -478,9 +437,6 @@ export default function ImportProductExcel({ result, setResult }) {
       setSortBy(value);
       sortd = value;
     }
-    console.log(sortd);
-    console.log(desd);
-
     const sortedData = [...excelData].sort((a, b) => {
       if (a[sortd.toLowerCase()] < b[sortd.toLowerCase()]) return desd ? 1 : -1;
       if (a[sortd.toLowerCase()] > b[sortd.toLowerCase()]) return desd ? -1 : 1;
@@ -500,11 +456,11 @@ export default function ImportProductExcel({ result, setResult }) {
       name: (value) =>
         typeof value === "string" && value.trim() !== "" && value.length > 5,
       origin: (value) => typeof value === "string" && value.trim() !== "",
-      price: (value) => !isNaN(Number(value)) && Number(value) > 0, // Convert to a number and check
+      price: (value) => !isNaN(Number(value)) && Number(value) > 0, 
       barcode: (value) => typeof value === "string" && value.trim() !== "",
       unit: (value) => typeof value === "string" && value.trim() !== "",
-      productCategoryId: (value) => !isNaN(Number(value)) && Number(value) > 0, // Convert to a number and check
-      weight: (value) => !isNaN(Number(value)) && Number(value) > 0, // Convert to a number and check
+      productCategoryId: (value) => !isNaN(Number(value)) && Number(value) > 0, 
+      weight: (value) => !isNaN(Number(value)) && Number(value) > 0, 
     };
 
     const validateResult = {
@@ -530,7 +486,6 @@ export default function ImportProductExcel({ result, setResult }) {
     });
     return validateResult;
   };
-  console.log("errorList", errorList);
 
   return (
     <div>
@@ -638,10 +593,6 @@ export default function ImportProductExcel({ result, setResult }) {
                 "bg-[var(--en-vu-200)] rounded-lg"
               }  px-4 py-2 min-h-[1rem]`}
             >
-              {/* <select className="pr-1 bg-inherit text-[var(--text-main-color)] font-bold text-xl rounded-xl outline-none">
-          <option> {t("INSTOCK")}</option>
-          <option>{t("OUTSTOCK")}</option>
-        </select> */}
               {selectedProducts?.length > 0 && (
                 <>
                   <div className="font-semibold flex items-center">
@@ -722,7 +673,7 @@ export default function ImportProductExcel({ result, setResult }) {
                 onClick={() => confirmDelete(showDeleteConfirmation)}
                 className="bg-red-500 text-white px-4 py-2 rounded-md"
               >
-                {t("Confirm ")}
+                {t("Confirm")}
               </button>
             </div>
           </div>

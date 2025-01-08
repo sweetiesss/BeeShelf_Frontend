@@ -25,26 +25,18 @@ const { Option } = Select;
 const CategoryPage = () => {
   const { fetchDataBearer } = useAxios();
 
-  // State cho danh sách vehicles
   const [vehicles, setVehicles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [showVehicles, setShowVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // State cho modal tạo vehicle
   const [visible, setVisible] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [deleteHolder, setDeleteHolder] = useState();
-
   const [filter, setFilter] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
-
-  // Form instance
   const [form] = Form.useForm();
-
-  // Hàm fetch danh sách vehicles từ API
   const fetchVehicles = async () => {
     setLoading(true);
     try {
@@ -77,8 +69,6 @@ const CategoryPage = () => {
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [updateVisible, setUpdateVisible] = useState(false);
-
-  // Hàm mở modal và gán dữ liệu vehicle cần update
   const openUpdateModal = (record) => {
     setSelectedVehicle(record);
     form.setFieldsValue({
@@ -89,22 +79,15 @@ const CategoryPage = () => {
     });
     setUpdateVisible(true);
   };
-  //Hàm xử lí detail:
   const [detailVisible, setDetailVisible] = useState(false);
   const [vehicleDetail, setVehicleDetail] = useState(null);
-
-  // Hàm đóng modal
   const handleCloseDetailModal = () => {
     setDetailVisible(false);
     setVehicleDetail(null);
   };
-
-  // Hàm cập nhật vehicle
   const handleUpdateVehicle = async () => {
     try {
       const values = await form.validateFields();
-      console.log("Form values:", values);
-      console.log("Selected Vehicle:", selectedVehicle);
       const response = await fetchDataBearer({
         url: `/productCategory/update-product-category/${selectedVehicle.id}`,
         method: "PUT",
@@ -132,7 +115,6 @@ const CategoryPage = () => {
       console.error("Error updating product category:", error);
     }
   };
-  // Hàm Delete vehicle:
   const handleDeleteVehicle = (record) => {
     setDeleteHolder(record);
     setDeleteConfirmation(true);
@@ -147,7 +129,7 @@ const CategoryPage = () => {
 
       if (response && response.status === 200) {
         message.success("Category deleted successfully!");
-        fetchVehicles(); // Refresh the category list
+        fetchVehicles();
       } else {
         message.error(response?.data?.message || "Failed to delete category.");
       }
@@ -158,12 +140,10 @@ const CategoryPage = () => {
       setDeleteConfirmation(false);
     }
   };
-  console.log("categories", categories);
 
-  // Hàm tạo vehicle
   const createVehicle = async () => {
     try {
-      const values = await form.validateFields(); // Lấy dữ liệu từ form sau khi validate
+      const values = await form.validateFields();
 
       setLoading(true);
 
@@ -182,7 +162,7 @@ const CategoryPage = () => {
         message.success("Product category created successfully!");
         fetchVehicles();
         setVisible(false);
-        form.resetFields(); // Reset form sau khi tạo thành công
+        form.resetFields(); 
       } else {
         const errorMessage =
           response?.data?.message || "Failed to create product category.";
@@ -199,8 +179,6 @@ const CategoryPage = () => {
     setDeleteConfirmation(false);
     setDeleteHolder();
   };
-
-  // Fetch dữ liệu khi component mount
   useEffect(() => {
     fetchVehicles();
   }, []);
@@ -208,31 +186,23 @@ const CategoryPage = () => {
   useEffect(() => {
     fetchVehicles();
   }, [filter]);
-
-  console.log("vehicles", vehicles);
-  console.log("showVehicles", showVehicles);
-
-  console.log(form.getFieldValue());
-
   return (
     <div className="">
       <Button
         style={{ marginBottom: "2rem" }}
         type="primary"
         onClick={
-          () => setVisible(true) // Show modal
+          () => setVisible(true)
         }
       >
         CreateProductCategory
       </Button>
-
-      {/* Modal tạo vehicle */}
       <Modal
         title="CreateProductCategory"
         open={visible}
         onCancel={() => {
           setVisible(false);
-          form.resetFields(); // Reset form khi đóng modal
+          form.resetFields();
         }}
         footer={[
           <Button key="back" onClick={() => setVisible(false)}>
@@ -249,7 +219,6 @@ const CategoryPage = () => {
         ]}
       >
         <Form form={form} layout="vertical">
-          {/* Vehicle Type */}
           <Form.Item
             label="Name"
             name="typeName"
@@ -262,8 +231,6 @@ const CategoryPage = () => {
           >
             <Input placeholder="Enter product category Name" />
           </Form.Item>
-
-          {/* Vehicle Name */}
           <Form.Item
             label="Description"
             name="typeDescription"
@@ -280,8 +247,6 @@ const CategoryPage = () => {
             <Select
               placeholder="Select Category"
               onChange={(value) => {
-                console.log(value);
-
                 form.setFieldsValue({
                   categoryId: value,
                 });
@@ -294,8 +259,6 @@ const CategoryPage = () => {
               ))}
             </Select>
           </Form.Item>
-
-          {/* License Plate */}
           <Form.Item
             label={"ExpireIn" + " (" + "days" + ")"}
             name="expireIn"
@@ -367,8 +330,6 @@ const CategoryPage = () => {
           >
             <Input placeholder="Enter product category Name" />
           </Form.Item>
-
-          {/* Vehicle Name */}
           <Form.Item
             label="Description"
             name="typeDescription"
@@ -385,7 +346,6 @@ const CategoryPage = () => {
             <Select
               placeholder="Select Category"
               onChange={(value) => {
-                console.log(value);
                 form.setFieldsValue({
                   categoryId: value,
                 });
@@ -398,7 +358,6 @@ const CategoryPage = () => {
               ))}
             </Select>
           </Form.Item>
-          {/* License Plate */}
           <Form.Item
             label="ExpireIn"
             name="expireIn"
@@ -429,7 +388,6 @@ const CategoryPage = () => {
           </Form.Item>
         </Form>
       </Modal>
-      {/* Bảng hiển thị vehicles */}
       <Table
         dataSource={vehicles?.items}
         size="large"

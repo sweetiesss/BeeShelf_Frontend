@@ -3,56 +3,54 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine";
-
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-
 import fromIcon from "../../assets/img/fromIcon.svg";
 import toLocation from "../../assets/img/toLocation.svg";
 import nearestStoreLocation from "../../assets/img/nearestStoreLocation.svg";
 import { toast } from "react-toastify";
 import { t } from "i18next";
-
 const blueIcon = L.icon({
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
-  iconSize: [25, 41], 
-  iconAnchor: [12, 41], 
-  popupAnchor: [1, -34], 
-  shadowSize: [41, 41], 
+  iconSize: [25, 41], // Default size
+  iconAnchor: [12, 41], // Anchor point of the icon
+  popupAnchor: [1, -34], // Anchor point for popups
+  shadowSize: [41, 41], // Shadow size
 });
 const greenIcon = L.icon({
   iconUrl: nearestStoreLocation,
   shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41], 
-  popupAnchor: [1, -34], 
-  shadowSize: [41, 41], 
+  iconSize: [25, 41], // Default size
+  iconAnchor: [12, 41], // Anchor point of the icon
+  popupAnchor: [1, -34], // Anchor point for popups
+  shadowSize: [41, 41], // Shadow size
 });
 const whiteIcon = L.icon({
   iconUrl: fromIcon,
   shadowUrl: markerShadow,
-  iconSize: [25, 41], 
-  iconAnchor: [12, 41], 
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41], 
+  iconSize: [25, 41], // Default size
+  iconAnchor: [12, 41], // Anchor point of the icon
+  popupAnchor: [1, -34], // Anchor point for popups
+  shadowSize: [41, 41], // Shadow size
 });
 const redIcon = L.icon({
   iconUrl: toLocation,
   shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41], 
+  iconSize: [25, 41], 
+  iconAnchor: [12, 41],
   popupAnchor: [1, -34], 
-  shadowSize: [41, 41],
+  shadowSize: [41, 41], 
 });
 
-export default function Mapping({
+export default function MappingOrder({
   showLocation,
   toLocation,
   defaultLocation,
   setDistance,
   setLatLng,
   data,
+  data2,
 }) {
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
@@ -80,8 +78,10 @@ export default function Mapping({
           return { lat, lon };
         }
       }
+      console.error("Location not found: ${address}");
       return null;
     } catch (error) {
+      console.error("Error fetching location data for ${address}:, error");
       return null;
     }
   };
@@ -106,6 +106,7 @@ export default function Mapping({
         : null;
 
       if (fromCoordinates) {
+      
         if (
           !lastCoordinatesRef.current ||
           lastCoordinatesRef.current.lat !== fromCoordinates.lat ||
@@ -115,6 +116,7 @@ export default function Mapping({
           setLatLng(fromCoordinates); 
         }
       }
+
       const toCoordinates = toLocation?.location
         ? await fetchCoordinates(toLocation?.location, "")
         : null;
@@ -125,7 +127,7 @@ export default function Mapping({
       if (!mapRef.current) {
         const initialCoordinates = fromCoordinates ||
           toCoordinates || {
-            lat: 21.028511,
+            lat: 21.028511, 
             lon: 105.804817,
           };
         mapRef.current = L.map(mapContainerRef.current).setView(
@@ -143,11 +145,21 @@ export default function Mapping({
         mapRef.current.removeControl(routingControlRef.current);
         routingControlRef.current = null;
       }
-
       if (data) {
         data.forEach((item) => {
           if (item.latitude && item.longitude) {
             L.marker([item.latitude, item.longitude], { icon: blueIcon })
+              .addTo(mapRef.current)
+              .bindPopup(
+                `<b>${item.name}</b><br>${item.location || "No address"}`
+              );
+          }
+        });
+      }
+      if (data2) {
+        data2.forEach((item) => {
+          if (item.latitude && item.longitude) {
+            L.marker([item.latitude, item.longitude], { icon: redIcon })
               .addTo(mapRef.current)
               .bindPopup(
                 `<b>${item.name}</b><br>${item.location || "No address"}`
@@ -174,10 +186,10 @@ export default function Mapping({
             L.latLng(toCoordinates.lat, toCoordinates.lon),
           ],
           routeWhileDragging: true,
-          show: false,
+          show: false, // Hide the direction table
           addWaypoints: false,
           lineOptions: {
-            styles: [{ color: "blue", weight: 5 }],
+            styles: [{ color: "blue", weight: 5 }], // Set the line color to blue and adjust thickness
           },
           createMarker: (i, waypoint) => {
             if (i === 0) {
@@ -206,10 +218,10 @@ export default function Mapping({
         })
           .on("routesfound", function (e) {
             const routes = e.routes;
-            const distance = routes[0].summary.totalDistance / 1000;
+            const distance = routes[0].summary.totalDistance / 1000; // Convert to kilometers
             setDistance(distance);
 
-            const duration = routes[0].summary.totalTime / 60;
+            const duration = routes[0].summary.totalTime / 60; // Convert to minutes
 
             L.popup()
               .setLatLng([toCoordinates.lat, toCoordinates.lon])
@@ -235,7 +247,6 @@ export default function Mapping({
         return;
       }
     };
-
     initializeMap();
     return () => {
       if (routingControlRef.current) {

@@ -1,5 +1,6 @@
 import React from "react";
-import { Alert, ConfigProvider , Spin } from "antd";
+import { Alert, ConfigProvider, Spin } from "antd";
+import { t } from "i18next";
 
 export default function SpinnerLoading() {
   const contentStyle = {
@@ -12,11 +13,11 @@ export default function SpinnerLoading() {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: "green", // Set the primary color to green
+          colorPrimary: "green",
         },
       }}
     >
-      <Spin tip="loading..." size="large">
+      <Spin tip={t("loading") + `...`} size="large">
         <div style={contentStyle} />
       </Spin>
     </ConfigProvider>
