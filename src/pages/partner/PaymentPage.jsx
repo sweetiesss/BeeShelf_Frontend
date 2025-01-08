@@ -434,7 +434,7 @@ export function PaymentPage() {
           <div
             className="w-[60rem] p-8 shadow-lg rounded-3xl bg-white absolute"
             style={{
-              top: "70%",
+              top: "40%",
               left: "50%",
               transform: "translate(-50%, -50%)",
             }}

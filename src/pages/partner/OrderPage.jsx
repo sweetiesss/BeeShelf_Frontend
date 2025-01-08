@@ -121,7 +121,7 @@ export default function OrderPage() {
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">{t("Orders Management")}</h1>
 
-      <div className="flex gap-10">
+      <div className="flex gap-10 justify-between">
         <div
           className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-fit  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
             filterField.filterByStatus != ""

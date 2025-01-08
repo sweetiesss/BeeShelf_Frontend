@@ -14,7 +14,7 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function EmployeePage() {
   const { userInfor } = useAuth();
-  const { getEmployees, updateEmployee, createEmployee } = AxiosEmployee(); 
+  const { getEmployees, updateEmployee, createEmployee } = AxiosEmployee();
   const [form] = Form.useForm();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -141,6 +141,7 @@ export default function EmployeePage() {
   const edit = (key) => {
     setEditingKey(key);
   };
+
   const columns = [
     {
       title: "First Name",
@@ -164,6 +165,7 @@ export default function EmployeePage() {
     {
       title: "Role",
       dataIndex: "roleName",
+      editable:true,
     },
     {
       title: "Status",
@@ -194,13 +196,23 @@ export default function EmployeePage() {
             </Popconfirm>
           </Space>
         ) : (
-          <Button
-            disabled={editingKey !== ""}
-            onClick={() => edit(record.key)}
-            type="link"
-          >
-            Edit
-          </Button>
+          <>
+            <Button
+              disabled={editingKey !== ""}
+              onClick={() => edit(record.key)}
+              type="link"
+            >
+              Edit
+            </Button>
+            <Button
+              disabled={editingKey !== ""}
+              onClick={() => edit(record.key)}
+              type="link"
+              danger
+            >
+              Delete
+            </Button>
+          </>
         );
       },
     },

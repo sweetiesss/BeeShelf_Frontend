@@ -641,6 +641,12 @@ export default function WarehousesPage() {
             <Descriptions.Item label="Created At">
               {selectedWarehouse.createDate}
             </Descriptions.Item>
+            {/* <Descriptions.Item label="Employee">
+                <div>
+                  <div>Huy Hoang - STAFF</div>
+                  <div>Minh Lê - SHIPPER</div>
+                </div>
+            </Descriptions.Item> */}
           </Descriptions>
         ) : (
           <p>Loading details...</p>

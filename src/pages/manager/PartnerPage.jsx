@@ -356,13 +356,6 @@ const PartnerPage = () => {
 
   return (
     <div className="">
-      <Button
-        style={{ marginBottom: "2rem" }}
-        type="primary"
-        onClick={() => setVisible(true)}
-      >
-        CreateProductCategory
-      </Button>
       <Modal
         title="CreateProductCategory"
         open={visible}

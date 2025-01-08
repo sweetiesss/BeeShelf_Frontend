@@ -765,6 +765,12 @@ const VehiclePage = () => {
           <Button key="close" onClick={handleCloseDetailModal}>
             Close
           </Button>,
+          <Button key="close" danger onClick={handleCloseDetailModal}>
+            Delete
+          </Button>,
+          <Button key="close" type="primary" onClick={handleCloseDetailModal}>
+            Asign
+          </Button>,
         ]}
       >
         {vehicleDetail ? (
