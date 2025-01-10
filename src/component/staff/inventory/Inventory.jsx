@@ -406,7 +406,7 @@ const Inventory = () => {
                   <p className="font-bold text-gray-600">
                     {t("Product_PerLot")}:
                   </p>
-                  <p className="text-gray-800">{item.productPerLot}</p>
+                  <p className="text-gray-800">{item.productPerLot} Unit</p>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="font-bold text-gray-600">
