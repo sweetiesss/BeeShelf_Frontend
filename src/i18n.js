@@ -674,7 +674,7 @@ i18n
           Storage_Fee: "Storage Fee",
           Additional_Fee: "Additional Fee",
           Close: "Close",
-          WarehouseName: "Warehouse Name",
+          WarehouseName: "Store Name",
           ShipperName: "Shipper Name",
           Batch_name_cannot_be_empty_or_whitespace:
             "Batch name cannot be empty or whitespace",
