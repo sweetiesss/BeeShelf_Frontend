@@ -33,7 +33,7 @@ const VehiclePage = () => {
   const [warehouseOptions, setWarehouseOptions] = useState([]);
 
   const [filter, setFilter] = useState({
-    warehouseId: 0,
+    storeId: 0,
     status: "",
     type: "",
     sortBy: "",
@@ -42,11 +42,12 @@ const VehiclePage = () => {
     pageSize: 10,
   });
 
-  const [isColdSelected, setIsColdSelected] = useState(null);
-  const filteredWarehouses = warehouseOptions.filter(
-    (warehouse) =>
-      isColdSelected === null || warehouse.isCold === isColdSelected
-  );
+  // const [isColdSelected, setIsColdSelected] = useState(null);
+  const filteredWarehouses = warehouseOptions
+  // .filter(
+  //   (warehouse) =>
+  //     // isColdSelected === null || warehouse.isCold === isColdSelected
+  // );
   const [form] = Form.useForm();
   const fetchVehicles = async () => {
     setLoading(true);
@@ -55,7 +56,7 @@ const VehiclePage = () => {
         url: `/vehicle/get-vehicles`,
         method: "GET",
         params: {
-          ...(filter?.warehouseId > 0 && { warehouseId: filter?.warehouseId }),
+          ...(filter?.storeId > 0 && { storeId: filter?.storeId }),
           status: filter?.status,
           type: filter?.type,
           sortBy: filter?.sortBy,
@@ -76,7 +77,7 @@ const VehiclePage = () => {
   const fetchWarehouses = async () => {
     try {
       const response = await fetchDataBearer({
-        url: `/warehouse/get-warehouses`,
+        url: `/store/get-stores`,
         method: "GET",
         params: {
           descending: false,
@@ -137,7 +138,7 @@ const VehiclePage = () => {
           `Vehicle ID: ${record.id} has been approved with status: ${status}`
         );
         fetchVehicles();
-        setShowDropdownId(null); 
+        setShowDropdownId(null);
       } else {
         const errorData = await response?.data;
         message.error(
@@ -155,7 +156,7 @@ const VehiclePage = () => {
       type: record.type,
       name: record.name,
       licensePlate: record.licensePlate,
-      warehouseId: record.warehouseId,
+      storeId: record.storeId,
       isCold: record.isCold,
     });
     setUpdateVisible(true);
@@ -165,10 +166,9 @@ const VehiclePage = () => {
   const [vehicleDetail, setVehicleDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingDetailId, setLoadingDetailId] = useState(null);
- 
-  const handleVehicleDetail = async (record) => {
 
-    setLoadingDetailId(record.id); 
+  const handleVehicleDetail = async (record) => {
+    setLoadingDetailId(record.id);
     try {
       const response = await fetchDataBearer({
         url: `/vehicle/get-vehicle/${record.id}`,
@@ -187,7 +187,6 @@ const VehiclePage = () => {
       console.error("Error fetching vehicle details:", error);
       message.error("Something went wrong while fetching vehicle details!");
     } finally {
-      
       setLoadingDetailId(null);
     }
   };
@@ -209,7 +208,7 @@ const VehiclePage = () => {
         data: {
           name: values.name,
           licensePlate: values.licensePlate,
-          warehouseId: values.warehouseId,
+          storeId: values.storeId,
           isCold: values.isCold,
           capacity: values.capacity,
         },
@@ -218,7 +217,7 @@ const VehiclePage = () => {
       if (response && response.status === 200) {
         message.success("Vehicle updated successfully!");
         setUpdateVisible(false);
-        fetchVehicles(); 
+        fetchVehicles();
         form.resetFields();
       } else {
         message.error(response?.data?.message || "Failed to update vehicle.");
@@ -237,7 +236,7 @@ const VehiclePage = () => {
 
       if (response && response.status === 200) {
         message.success("Vehicle deleted successfully!");
-        fetchVehicles(); 
+        fetchVehicles();
       } else {
         message.error(response?.data?.message || "Failed to delete vehicle.");
       }
@@ -248,7 +247,7 @@ const VehiclePage = () => {
   };
   const createVehicle = async () => {
     try {
-      const values = await form.validateFields(); 
+      const values = await form.validateFields();
 
       setLoading(true);
 
@@ -258,7 +257,7 @@ const VehiclePage = () => {
         data: {
           name: values.name,
           licensePlate: values.licensePlate,
-          warehouseId: values.warehouseId,
+          storeId: values.storeId,
           isCold: values.isCold,
           capacity: values.capacity,
         },
@@ -268,7 +267,7 @@ const VehiclePage = () => {
         message.success("Vehicle created successfully!");
         fetchVehicles();
         setVisible(false);
-        form.resetFields(); 
+        form.resetFields();
       } else {
         const errorMessage =
           response?.data?.message || "Failed to create vehicle.";
@@ -289,7 +288,7 @@ const VehiclePage = () => {
   useEffect(() => {
     const newVehicleList = vehicles?.items?.map((prev) => {
       const warehouse = warehouses?.items?.find(
-        (item) => item.id === prev.warehouseId
+        (item) => item.id === prev.storeId
       );
       return { ...prev, warehouse: warehouse };
     });
@@ -308,7 +307,7 @@ const VehiclePage = () => {
             showSearch
             style={{ width: "12rem", height: "fit-content" }}
             optionFilterProp="label"
-            value={filter?.warehouseId}
+            value={filter?.storeId}
             options={[
               {
                 value: 0,
@@ -324,11 +323,11 @@ const VehiclePage = () => {
             onChange={(selectOption) => {
               form.setFieldValue({
                 type: 0,
-                warehouseId: parseInt(selectOption),
+                storeId: parseInt(selectOption),
               });
               setFilter((prev) => ({
                 ...prev,
-                warehouseId: selectOption,
+                storeId: selectOption,
                 pageIndex: 0,
               }));
             }}
@@ -420,10 +419,10 @@ const VehiclePage = () => {
           onClick={() => {
             form.setFieldsValue({
               type: filter.type || null,
-              warehouseId: filter.warehouseId || null,
+              storeId: filter.storeId || null,
               isCold:
                 warehouseOptions.find(
-                  (warehouse) => warehouse.id === filter.warehouseId
+                  (warehouse) => warehouse.id === filter.storeId
                 )?.isCold || 0,
             });
 
@@ -438,8 +437,8 @@ const VehiclePage = () => {
         open={visible}
         onCancel={() => {
           setVisible(false);
-          form.resetFields(); 
-          setIsColdSelected(null); 
+          form.resetFields();
+          // setIsColdSelected(null);
         }}
         footer={[
           <Button key="back" onClick={() => setVisible(false)}>
@@ -558,7 +557,7 @@ const VehiclePage = () => {
           >
             <Select
               placeholder="Select Option"
-              onChange={(value) => setIsColdSelected(value)} // Cập nhật isColdSelected khi thay đổi
+              // onChange={(value) => setIsColdSelected(value)} // Cập nhật isColdSelected khi thay đổi
             >
               <Option value={1}>Yes</Option>
               <Option value={0}>No</Option>
@@ -566,17 +565,20 @@ const VehiclePage = () => {
           </Form.Item>
           <Form.Item
             label="Store"
-            name="warehouseId"
+            name="storeId"
             rules={[{ required: true, message: "Please select warehouse!" }]}
           >
             <Select
-              placeholder="Select Warehouse"
-              disabled={isColdSelected === null}
+              placeholder="Select Store"
+              // disabled={isColdSelected === null}
+              showSearch
+              optionFilterProp="children"
             >
               {filteredWarehouses.length > 0 ? (
                 filteredWarehouses.map((warehouse) => (
                   <Option key={warehouse.id} value={warehouse.id}>
-                    ID: {warehouse.id} - Name: {warehouse.name} -{" "}
+                    {/* ID: {warehouse.id} -  */}
+                    Name: {warehouse.name} -{" "}
                     {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
                   </Option>
                 ))
@@ -594,7 +596,7 @@ const VehiclePage = () => {
         onCancel={() => {
           setUpdateVisible(false);
           form.resetFields();
-          setIsColdSelected(null);
+          // setIsColdSelected(null);
         }}
         footer={[
           <Button key="back" onClick={() => setUpdateVisible(false)}>
@@ -727,25 +729,26 @@ const VehiclePage = () => {
           >
             <Select
               placeholder="Select Option"
-              onChange={(value) => setIsColdSelected(value)}
+              // onChange={(value) => setIsColdSelected(value)}
             >
               <Option value={1}>Yes</Option>
               <Option value={0}>No</Option>
             </Select>
           </Form.Item>
           <Form.Item
-            label="Warehouse ID"
-            name="warehouseId"
+            label="Store"
+            name="storeId"
             rules={[{ required: true, message: "Please select warehouse!" }]}
           >
             <Select
-              placeholder="Select Warehouse"
-              disabled={isColdSelected === null}
+              placeholder="Select Store"
+              // disabled={isColdSelected === null}
             >
               {filteredWarehouses.length > 0 ? (
                 filteredWarehouses.map((warehouse) => (
                   <Option key={warehouse.id} value={warehouse.id}>
-                    ID: {warehouse.id} - Name: {warehouse.name} -{" "}
+                    {/* ID: {warehouse.id} -  */}
+                    Name: {warehouse.name} -{" "}
                     {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
                   </Option>
                 ))
@@ -795,7 +798,7 @@ const VehiclePage = () => {
               {vehicleDetail.status}
             </Descriptions.Item>
             <Descriptions.Item label="Store ID">
-              {vehicleDetail.warehouseId}
+              {vehicleDetail.storeId}
             </Descriptions.Item>
             <Descriptions.Item label="Assigned Driver ID">
               {vehicleDetail.assignedDriverId ?? "N/A"}
@@ -873,7 +876,7 @@ const VehiclePage = () => {
             align: "start",
           },
           {
-            title: "WarehouseName",
+            title: "Store Name",
             key: "warehouseName",
             width: 200,
             align: "start",
