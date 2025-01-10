@@ -52,7 +52,7 @@ export default function OrderList({
             <td className="text-center pb-2">#</td>
             <td className="text-left pb-2  px-3">{t("Order")}</td>
             <td className="text-left pb-2 ">{t("Order Code")}</td>
-            <td className="text-left pb-2 ">{t("Warehouse")}</td>
+            <td className="text-left pb-2 ">{t("Store")}</td>
             <td className="text-left pb-2 ">{t("Receiver Address")}</td>
             <td className="text-left pb-2 ">{t("Receiver Phone")}</td>
             <td className="text-left pb-2 ">{t("CreateDate")}</td>

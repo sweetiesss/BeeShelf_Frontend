@@ -71,7 +71,7 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
       <p className="font-semibold text-3xl mb-4">{t("CreateRequest")}</p>
       <div className=" flex gap-4 items-center mb-4">
         <div className="text-[var(--en-vu-600)] font-normal col-span-1">
-          {t("TypeOfRequest")}
+          {t("Type Of Request")}
         </div>
 
         <Select
@@ -125,8 +125,8 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
               <p className="text-gray-400">
                 {"("}
                 {value === "Import"
-                  ? t("ImportProductToInventory")
-                  : "ExportProductFromInventory"}
+                  ? t("Import Product To Room")
+                  : "Export Product From Room"}
                 {")"}
               </p>
             </div>

@@ -245,7 +245,6 @@ export default function DetailSlide() {
             </span>
             {inputField?.productCategoryId ? (
               <Select
-
                 value={
                   productCategories?.find(
                     (op) =>
@@ -262,11 +261,11 @@ export default function DetailSlide() {
                 }
                 options={productCategories}
                 getOptionValue={(e) => e.id}
-                getOptionLabel={(e) => e.typeName} 
+                getOptionLabel={(e) => e.typeName}
                 styles={{
                   menu: (provided) => ({
                     ...provided,
-                    overflowY: "hidden", 
+                    overflowY: "hidden",
                   }),
                   menuList: (provided) => ({
                     ...provided,
@@ -293,7 +292,7 @@ export default function DetailSlide() {
                       : "white",
                     color: isSelected ? "white" : "black",
                     cursor: "pointer",
-                    padding: "0.5rem 1rem", 
+                    padding: "0.5rem 1rem",
                     textAlign: "left",
                   }),
                 }}
@@ -424,9 +423,9 @@ export default function DetailSlide() {
                     ...provided,
                     paddingTop: "4px",
                     paddingBottom: "4px",
-                    borderColor: "#ccc", 
+                    borderColor: "#ccc",
                     boxShadow: "none",
-                    "&:hover": { borderColor: "#aaa" }, 
+                    "&:hover": { borderColor: "#aaa" },
                   }),
                   option: (provided, state) => ({
                     ...provided,
@@ -1026,7 +1025,7 @@ export default function DetailSlide() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-semibold text-black">
-                  {t("OrdersInformation")}
+                  {t("Order Information")}
                 </h2>
               </div>
               <div
@@ -1072,7 +1071,7 @@ export default function DetailSlide() {
                     dataDetail?.deliveryZoneName,
                 },
                 {
-                  label: t("FromWStore") + ":",
+                  label: t("From Store") + ":",
                   value: (
                     <div className="flex flex-col items-end">
                       <p>{dataDetail?.storeName}</p>
@@ -1090,7 +1089,7 @@ export default function DetailSlide() {
                   ),
                 },
                 {
-                  label: "StartDeliveryDate" + ":",
+                  label: "Start Delivery Date" + ":",
                   value: dataDetail?.deliverStartDate
                     ? format(
                         add(new Date(dataDetail?.deliverStartDate), {
@@ -1101,7 +1100,7 @@ export default function DetailSlide() {
                     : t("NotYet"),
                 },
                 {
-                  label: "CompleteDeliveryDate" + ":",
+                  label: "Complete Delivery Date" + ":",
                   value: dataDetail?.deliverFinishDate
                     ? format(
                         add(new Date(dataDetail?.deliverFinishDate), {
@@ -1151,12 +1150,12 @@ export default function DetailSlide() {
               </div>
               <div className="w-full h-[0.2rem] bg-gray-200" />
               <label className="font-medium text-lg flex justify-between items-center">
-                {t("OrderDetail")}
+                {t("Order Detail")}
               </label>
               <div className="grid grid-cols-11 items-center gap-4 text-sm">
                 <p className="col-span-2">{t("Image")}</p>
                 <p className="text-black  col-span-3 text-ellipsis overflow-hidden text-nowrap">
-                  {t("ProductName")}
+                  {t("Product Name")}
                 </p>
                 <p className="text-black  col-span-2">
                   {t("Price")} <span className="text-gray-400">(vnd)</span>
@@ -1197,19 +1196,19 @@ export default function DetailSlide() {
               ))}
               <div className="w-full h-[0.2rem] bg-gray-200" />
               <label className="font-medium text-lg flex justify-between items-center">
-                {t("TotalFees")}
+                {t("Total Fees")}
               </label>
               {[
                 {
-                  label: t("AdditionalFee") + ":",
+                  label: t("Additional Fee") + ":",
                   value: dataDetail?.orderFees?.[0]?.additionalFee || 0,
                 },
                 {
-                  label: t("DeliveryFee") + ":",
+                  label: t("Delivery Fee") + ":",
                   value: dataDetail?.orderFees?.[0]?.deliveryFee || 0,
                 },
                 {
-                  label: t("StorageFee") + ":",
+                  label: t("Storage Fee") + ":",
                   value: dataDetail?.orderFees?.[0]?.storageFee || 0,
                 },
                 {
@@ -1402,8 +1401,8 @@ export default function DetailSlide() {
                 productId: item.productId,
                 productName: item.productName,
                 totalLot: item.amount,
-                productAmount: item.productAmount, 
-                lots: [], 
+                productAmount: item.productAmount,
+                lots: [],
               },
             ])
           ).values()
@@ -1416,11 +1415,11 @@ export default function DetailSlide() {
           return {
             productId: pro.productId,
             productName: pro.productName,
-            totalLot: data.reduce((sum, lot) => sum + lot.amount, 0), 
+            totalLot: data.reduce((sum, lot) => sum + lot.amount, 0),
             productAmount: data.reduce(
               (sum, lot) => sum + lot.productAmount,
               0
-            ), 
+            ),
             lots: data.map((lot) => ({
               name: lot.name,
               lotNumber: lot.lotNumber,
@@ -1431,7 +1430,7 @@ export default function DetailSlide() {
             })),
           };
         });
-        return cleanLots; 
+        return cleanLots;
       }
       return [];
     };
@@ -1816,6 +1815,7 @@ export default function DetailSlide() {
         document.removeEventListener("mousedown", handleClickOutSide);
       };
     }, []);
+    console.log("dataDetail", dataDetail);
 
     return (
       <>
@@ -1851,14 +1851,32 @@ export default function DetailSlide() {
             {[
               { label: "Lot Num:", value: dataDetail?.lotNumber },
               { label: "Product Name:", value: dataDetail?.productName },
-              { label: "Create date:", value: dataDetail?.createDate },
-              { label: "Amount:", value: dataDetail?.lotAmount },
               {
-                label: "Product amount:",
-                value: dataDetail?.totalProductAmount,
+                label: "Create date:",
+                value: format(
+                  add(new Date(dataDetail?.createDate), { hours: 7 }),
+                  "HH:mm - dd/MM/yyyy"
+                ),
               },
-              { label: "Import date:", value: dataDetail?.importDate },
-              { label: "Expiration date:", value: dataDetail?.expirationDate },
+              { label: "Lots amount:", value: dataDetail?.lotAmount + " lot" },
+              {
+                label: "Total products amount:",
+                value:
+                  dataDetail?.totalProductAmount +
+                  " " +
+                  dataDetail?.productUnit,
+              },
+              { label: "Import date:", value:  format(
+                add(new Date(dataDetail?.importDate), { hours: 7 }),
+                "HH:mm - dd/MM/yyyy"
+              ), },
+              {
+                label: "Expiration date:",
+                value: format(
+                  add(new Date(dataDetail?.expirationDate), { hours: 7 }),
+                  "HH:mm - dd/MM/yyyy"
+                ),
+              },
               { label: "Store:", value: dataDetail?.storeName },
             ]?.map((item, index) => (
               <div key={index} className="flex justify-between text-lg">

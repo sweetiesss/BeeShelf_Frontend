@@ -50,7 +50,7 @@ export default function AxiosLot() {
     userId,
     search,
     productId,
-    inventoryId,
+    roomId,
     sortBy,
     descending,
     page,
@@ -62,8 +62,8 @@ export default function AxiosLot() {
       productId && queryParams.append("filterBy", "ProductId");
       productId && queryParams.append("filterQuery", productId);
 
-      inventoryId && queryParams.append("filterBy", "InventoryId");
-      inventoryId && queryParams.append("filterQuery", inventoryId);
+      roomId && queryParams.append("filterBy", "roomId");
+      roomId && queryParams.append("filterQuery", roomId);
 
       queryParams.append("sortBy", sortBy);
       queryParams.append("descending", descending);

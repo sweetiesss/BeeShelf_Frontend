@@ -939,7 +939,7 @@ export default function InventoryPage() {
                 <XCircle fill="#ef4444" weight="fill" />
               </div>
               <p className="text-2xl">
-                {`${t("BuyingRoom")}: ${inventory.roomCode}?`}{" "}
+                {`${t("Hiring room")}: ${inventory.roomCode}?`}{" "}
                 <span className="text-gray-400 font-normal">
                   {inventory.isCold === 0 ? "(Normal room)" : "(Frozen room)"}
                 </span>

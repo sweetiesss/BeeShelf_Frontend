@@ -165,7 +165,7 @@ export default function EmployeePage() {
     {
       title: "Role",
       dataIndex: "roleName",
-      editable:true,
+      editable: true,
     },
     {
       title: "Status",

@@ -159,7 +159,7 @@ export function PaymentPage() {
     <div className="h-full relative">
       <div className="flex justify-between">
         <div>
-          <p className="text-3xl font-semibold">{t("TransactionManagement")}</p>
+          <p className="text-3xl font-semibold">{t("Transaction Management")}</p>
         </div>
         <div className="flex gap-4">
           <button
@@ -172,7 +172,7 @@ export function PaymentPage() {
             className="p-2 px-4  border-2 rounded-2xl hover:bg-green-600 bg-[var(--Xanh-Base)] text-white flex items-center"
             onClick={() => openExhangePage(true)}
           >
-            <ArrowsLeftRight className="text-2xl mr-2" /> {t("CoinExchange")}
+            <ArrowsLeftRight className="text-2xl mr-2" /> {t("Coin Exchange")}
           </button>
         </div>
       </div>
@@ -180,7 +180,7 @@ export function PaymentPage() {
         <div className="shadow-xl border-2 bg-white rounded-lg p-8  mb-3 overflow-y-scroll max-h-[50rem] w-full relative">
           <div className="text-2xl mb-4">{t("Transaction")}</div>
           <div className="flex gap-4 items-center mb-4">
-            <label>{t("TypeOfTransaction")}: </label>
+            <label>{t("Type Of Transaction")}: </label>
             <select
               className="border-2 px-2 py-1 rounded-xl text-gray-300 focus-within:text-black focus-within:border-black"
               value={typePayment}
@@ -442,10 +442,10 @@ export function PaymentPage() {
           >
             <div className="mb-8">
               <h1 className="text-2xl font-bold mb-4 text-center">
-                {t("MoneyExchange")}
+                {t("Money Exchange")}
               </h1>
               <p className="text-xl text-center text-gray-500">
-                {t("ChooseYourExchangeAmount")}
+                {t("Choose Your Exchange Amount")}
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-10">
@@ -534,7 +534,7 @@ export function PaymentPage() {
                 className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-lg transition-all"
                 disabled={loadingButton}
               >
-                {t("GenerateQRCode")}
+                {t("Generate QR Payment")}
               </button>
             </div>
           </div>
@@ -546,7 +546,7 @@ export function PaymentPage() {
           <div
             className="w-[60rem] p-8 shadow-lg rounded-3xl bg-white absolute"
             style={{
-              top: "70%",
+              top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
             }}
@@ -554,10 +554,10 @@ export function PaymentPage() {
           >
             <div className="mb-8">
               <h1 className="text-2xl font-bold mb-4 text-center">
-                {t("MoneyWithdraw")}
+                {t("Money Withdraw")}
               </h1>
               <p className="text-xl text-center text-gray-500">
-                {t("ChooseYourWithDrawnAmount")}
+                {t("Choose Your Withdrawn Amount")}
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-10">
@@ -653,7 +653,7 @@ export function PaymentPage() {
                 onClick={handleSubmitWithdrawnPayment}
                 className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-lg transition-all"
               >
-                {t("CreateWithdrawnRequest")}
+                {t("Create Withdrawn Request")}
               </button>
             </div>
           </div>

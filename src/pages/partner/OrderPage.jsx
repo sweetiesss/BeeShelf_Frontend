@@ -10,6 +10,7 @@ import AxiosInventory from "../../services/Inventory";
 
 import SpinnerLoading from "../../component/shared/Loading";
 import { useTranslation } from "react-i18next";
+import { Warning } from "@phosphor-icons/react";
 
 export default function OrderPage() {
   const { t } = useTranslation();
@@ -79,11 +80,9 @@ export default function OrderPage() {
     [filterField]
   );
 
-  const handleAddOrder = async (order) => {
-  };
+  const handleAddOrder = async (order) => {};
 
-  const handleUpdateOrder = async (order) => {
-  };
+  const handleUpdateOrder = async (order) => {};
 
   const handleDeleteOrder = (order) => {
     setDeleteConfirmation(true);
@@ -104,8 +103,7 @@ export default function OrderPage() {
     selectedOrder === order ? setSelectedOrder(null) : setSelectedOrder(order);
   };
 
-  const handleSearch = (event) => {
-  };
+  const handleSearch = (event) => {};
   const handleShowDetailOrder = (e, order) => {
     e.stopPropagation();
     setShowDetailOrder(isShowDetailOrder === order ? null : order);
@@ -175,29 +173,65 @@ export default function OrderPage() {
         </div>
       </div>
       {deleteConfirmation && (
+        // <>
+        //   <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
+        //   <div
+        //     className="absolute bg-white border z-10 border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
+        //     style={{
+        //       top: "50%",
+        //       left: "50%",
+        //       transform: "translate(-50%, -50%)",
+        //     }}
+        //   >
+        //     <p>{`${t("AreYouSureWantToDelete")} ${orderHolder?.orderCode}?`}</p>
+        //     <div className="flex justify-end gap-4">
+        //       <button
+        //         onClick={cancelDelete}
+        //         className="bg-gray-300 text-black px-4 py-2 rounded-md"
+        //       >
+        //         {t("Cancel")}
+        //       </button>
+        //       <button
+        //         onClick={confirmDelete}
+        //         className="bg-red-500 text-white px-4 py-2 rounded-md"
+        //       >
+        //         {t("Confirm")}
+        //       </button>
+        //     </div>
+        //   </div>
+        // </>
         <>
           <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
           <div
-            className="absolute bg-white border z-10 border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
+            className="absolute bg-white border border-gray-300 z-10 shadow-md rounded-2xl p-8 w-[30rem] h-fit text-black"
+            // ref={deleteBox}
             style={{
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
             }}
           >
-            <p>{`${t("AreYouSureWantToDelete")} ${orderHolder?.orderCode}?`}</p>
-            <div className="flex justify-end gap-4">
+            <div className="flex items-center justify-center">
+              <div className="text-5xl bg-fit h-fit p-4 bg-[#fff5f6] rounded-full mb-6">
+                <Warning weight="fill" color="#fe3f56" />
+              </div>
+            </div>
+            <p className="w-full text-2xl font-semibold text-center  mb-6">
+              Delete Order
+            </p>
+            <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${orderHolder?.orderCode}" product?`}</p>
+            <div className="flex justify-between gap-4">
               <button
                 onClick={cancelDelete}
-                className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
               >
-                {t("Cancel")}
+                {t("No, Keep It.")}
               </button>
               <button
                 onClick={confirmDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
+                className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
               >
-                {t("Confirm")}
+                {t("Yes, Delete!")}
               </button>
             </div>
           </div>

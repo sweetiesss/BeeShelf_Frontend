@@ -99,7 +99,7 @@ export default function ExportRequestSide({
     <div className="flex gap-10 justify-start items-start">
       <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[48rem]">
         <div className="flex justify-between items-center ">
-          <p className="font-medium text-2xl ">{t("CreateForm")}</p>
+          <p className="font-medium text-2xl ">{t("Create Form")}</p>
           <button
             className="text-2xl  rounded-full p-2  cursor-pointer text-red-500"
             onClick={(e) => {
@@ -179,7 +179,7 @@ export default function ExportRequestSide({
         ) : (
           <div className="grid grid-cols-7  relative h-[6rem] items-center border-2 border-dashed  p-4 cursor-pointer ">
             <div className="col-start-2 col-span-5 text-center text-gray-400">
-              {t("YourProductSelection")}
+              {t("Your Product Selection")}
             </div>
           </div>
         )}
@@ -187,7 +187,7 @@ export default function ExportRequestSide({
         <div className="flex w-full gap-10">
           <div className="form-group gap-2 w-full">
             <label className="text-[var(--en-vu-600)] font-normal">
-              {t("Inventory")}
+              {t("Room")}
             </label>
             <Select
               styles={{
@@ -283,7 +283,7 @@ export default function ExportRequestSide({
               placeholder={
                 typeRequest === "Export"
                   ? selectedProductImported?.storeName
-                  : t("ChooseProductFirst...")
+                  : t("Choose Product First...")
               }
             />
           </div>
@@ -323,10 +323,8 @@ export default function ExportRequestSide({
       </div>
       <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[48rem]">
         <div>
-          <p className="font-medium text-2xl ">{t("SelectProduct")}</p>
-          <p className="text-gray-500  ">
-            {t("ChooseOrDragProductToCreateForm")}
-          </p>
+          <p className="font-medium text-2xl ">{t("Select Product")}</p>
+          <p className="text-gray-500  ">{t("Choose Product")}</p>
         </div>
         <div className="flex-col h-[42rem] max-h-[38rem] overflow-auto">
           {productsImported?.items?.map((pro) => {
@@ -354,11 +352,12 @@ export default function ExportRequestSide({
                     <div className="flex justify-between text-gray-400">
                       <p>
                         <span className="font-medium">
-                          {t("storeName") + ": "}
+                          {t("Store Name") + ": "}
                         </span>
                         {pro?.storeName}
                       </p>
                       <p>
+                        {"Expiration" + ": "}
                         {pro?.expirationDate
                           ? `${differenceInDays(
                               new Date(pro.expirationDate),
@@ -380,10 +379,10 @@ export default function ExportRequestSide({
                       }`}
                     />
                     {[
-                      { label: t("LotNumber"), value: product?.lotNumber },
-                      { label: t("ProductName"), value: product?.productName },
+                      { label: t("Lot Number"), value: product?.lotNumber },
+                      { label: t("Product Name"), value: product?.productName },
                       {
-                        label: t("storeName"),
+                        label: t("Store Name"),
                         value: product?.storeName,
                       },
                       {
@@ -399,11 +398,11 @@ export default function ExportRequestSide({
                           : "N/A",
                       },
                       {
-                        label: t("ImportDate"),
+                        label: t("Import Date"),
                         value: format(product?.importDate, "dd/MM/yyyy"),
                       },
                       {
-                        label: t("LotAmount"),
+                        label: t("Lot Amount"),
                         value:
                           product?.lotAmount +
                           " lots (" +
@@ -413,12 +412,12 @@ export default function ExportRequestSide({
                           ")",
                       },
                       {
-                        label: t("ProductPerLot"),
+                        label: t("Product Per Lot"),
                         value: product?.productPerLot,
                       },
                       {
                         label: t("Frozen"),
-                        value: product?.isCold === 1 ? "True" : "False",
+                        value: product?.isCold === 1 ? "Yes" : "No",
                       },
                     ].map((item) => {
                       return (
@@ -469,10 +468,13 @@ export default function ExportRequestSide({
                 </div>
                 <div className="flex justify-between text-gray-400">
                   <p>
-                    <span className="font-medium">{t("storeName") + ": "}</span>
+                    <span className="font-medium">
+                      {t("Store Name") + ": "}
+                    </span>
                     {pro?.storeName}
                   </p>
                   <p>
+                    {"Expiration" + ": "}
                     {pro?.expirationDate
                       ? `${differenceInDays(
                           new Date(pro.expirationDate),
@@ -487,7 +489,6 @@ export default function ExportRequestSide({
               </div>
             );
           })}
-         
         </div>
       </div>
     </div>

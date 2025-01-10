@@ -107,6 +107,8 @@ const OrderDashboard = () => {
           setTotalStatusCount2(calculateOrderStatuses(getData2));
         }
         if (result3?.status === 200) {
+          console.log("result3", result3);
+
           setAllProduct(result3?.data);
         }
         if (result4?.status === 200) {
@@ -125,7 +127,8 @@ const OrderDashboard = () => {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (tooltipItem) => `${tooltipItem.raw.toLocaleString()} ${t("orders")}`,
+          label: (tooltipItem) =>
+            `${tooltipItem.raw.toLocaleString()} ${t("orders")}`,
         },
       },
     },
@@ -378,7 +381,7 @@ const OrderDashboard = () => {
                   <p className="text-xl font-bold">
                     {allIventories?.totalItemsCount}
                   </p>
-                  <p className="text-gray-500">{t("TotalBoughtInventories")}</p>
+                  <p className="text-gray-500">{t("Total Bought Rooms")}</p>
                 </div>
               </div>
             </div>
@@ -397,19 +400,32 @@ const OrderDashboard = () => {
                 </h2>
                 <div className="flex flex-col gap-4  ">
                   {allProducts?.products?.map((item) => (
-                    <div className="border-[1px] shadow-lg px-4 py-4 rounded-xl">
-                      <p className="font-medium text-lg">{item?.productName}</p>
-                      <div className="text-sm text-gray-500">
-                        <div className="flex gap-4">
-                          <p>{t("Stock")}:</p>
-                          <p>{item?.stock}</p>
-                        </div>
-                        <div className="flex gap-4">
-                          <p>{t("StoredAt")}:</p>
-                          <p>{item?.warehouseName}</p>
+                    <>
+                    <div className="border-[1px] shadow-lg px-4 py-4 rounded-xl flex gap-4">
+                      <div>
+                        <img
+                          src={item.pictureLink}
+                          alt={item.name}
+                          className="w-[5rem] h-[5rem] object-cover object-center rounded-lg border-2 border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <p className="font-medium text-lg">
+                          {item?.productName}
+                        </p>
+                        <div className="text-sm text-gray-500">
+                          <div className="flex gap-4">
+                            <p>{t("Stock")}:</p>
+                            <p>{item?.stock}</p>
+                          </div>
+                          <div className="flex gap-4">
+                            <p>{t("StoredAt")}:</p>
+                            <p>{item?.storeName}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
+                    </>
                   ))}
                 </div>
               </div>
