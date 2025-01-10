@@ -79,7 +79,7 @@ const ShowRoomLot = ({
                 {layout?.map((box) => (
                   <div
                     className={`relative ${
-                      box?.id !== roomShow?.additionalInfo?.roomId
+                      box?.id !== roomShow?.roomId
                         ? "bg-gray-300 "
                         : "bg-green-400 "
                     } flex justify-center items-center overflow-hidden`}
