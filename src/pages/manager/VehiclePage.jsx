@@ -736,18 +736,19 @@ const VehiclePage = () => {
             </Select>
           </Form.Item>
           <Form.Item
-            label="Warehouse ID"
+            label="Store"
             name="storeId"
             rules={[{ required: true, message: "Please select warehouse!" }]}
           >
             <Select
-              placeholder="Select Warehouse"
+              placeholder="Select Store"
               // disabled={isColdSelected === null}
             >
               {filteredWarehouses.length > 0 ? (
                 filteredWarehouses.map((warehouse) => (
                   <Option key={warehouse.id} value={warehouse.id}>
-                    ID: {warehouse.id} - Name: {warehouse.name} -{" "}
+                    {/* ID: {warehouse.id} -  */}
+                    Name: {warehouse.name} -{" "}
                     {warehouse.isCold ? "(Cold Storage)" : "(Non-Cold Storage)"}
                   </Option>
                 ))
