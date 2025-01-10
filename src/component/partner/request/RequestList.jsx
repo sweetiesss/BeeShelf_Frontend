@@ -56,7 +56,7 @@ export default function RequestList({
             <td className="text-left pb-2 ">{t("Type")}</td>
             <td className="text-center pb-2">{t("Status")}</td>
             <td className="text-center pb-2 ">{t("Product")}</td>
-            <td className="text-left pb-2 ">{t("Warehouse")}</td>
+            <td className="text-left pb-2 ">{t("To Store")}</td>
             <td className="text-left pb-2 ">{t("CreateDate")}</td>
             <td className="text-left pb-2 "></td>
           </tr>
@@ -114,7 +114,7 @@ export default function RequestList({
                       {request?.productName}
                     </td>
                     <td className=" px-1 py-2 max-w-[15rem] w-fit overflow-clip text-ellipsis">
-                      {request?.warehouseName}
+                      {request?.storeName}
                     </td>
                     <td className=" px-1 py-2 ">
                       {new Date(request?.createDate).toLocaleDateString()}

@@ -357,11 +357,11 @@ export default function CreateOrderPage() {
       ) : (
         <div className="flex gap-40 h-full text-lg">
           <form className="space-y-6 w-[40%]">
-            <p className="text-2xl font-semibold mb-4">{t("Create Order")}</p>
+            <p className="text-2xl font-semibold mb-4">{t("CreateOrder")}</p>
             <div className="space-y-6 w-full">
               <div>
                 <p className="text-xl font-semibold mb-4">
-                  {t("CustomerInformation")}
+                  {t("Customer Information")}
                 </p>
                 <div>
                   <label className="block  font-medium text-gray-700">
@@ -406,7 +406,7 @@ export default function CreateOrderPage() {
                   <input
                     type="text"
                     name="receiverAddress"
-                    placeholder={t("receiverAddress")}
+                    placeholder={t("Receiver Address")}
                     value={form.receiverAddress}
                     onChange={handleInputChange}
                     className="mt-1 outline-none border-2 p-[0.35rem] flex-grow "

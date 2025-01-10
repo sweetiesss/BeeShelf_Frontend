@@ -208,29 +208,16 @@ export default function ProfileEdit() {
         >
           Save Changes
         </button>
+        <button
+          className={`relative p-4 mt-4 w-full text-xl font-semibold text-white rounded-2xl transition duration-200 bg-blue-500 hover:bg-blue-500`}
+          onClick={handleResetPassword}
+        >
+          Reset Password
+        </button>
       </div>
       <div className="col-span-2 row-span-1 p-4 bg-white rounded-lg border-2 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold">Secure Data</h2>
-        <div className="mt-4 w-full">
-          {errors?.citizenIdentificationNumber ===
-            "citizenIdentificationNumber" && (
-            <p className="font-medium text-red-500 text-md">
-              {errors?.citizenIdentificationNumber}
-            </p>
-          )}
-          <label
-            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
-          >
-            citizenIdentificationNumber
-          </label>
-          <input
-            type="text"
-            name="citizenIdentificationNumber"
-            value={form.citizenIdentificationNumber}
-            onChange={handleInputChange}
-            className={`px-2 py-1 w-full text-lg rounded-lg border`}
-          />
-        </div>
+
         <div className="mt-4 w-full">
           {errors?.taxIdentificationNumber === "taxIdentificationNumber" && (
             <p className="font-medium text-red-500 text-md">
@@ -240,7 +227,7 @@ export default function ProfileEdit() {
           <label
             className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
           >
-            taxIdentificationNumber
+            Tax Identification Number
           </label>
           <input
             type="text"
@@ -260,7 +247,7 @@ export default function ProfileEdit() {
             <label
               className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
             >
-              bankName
+              Bank Name
             </label>
             <input
               type="text"
@@ -279,7 +266,7 @@ export default function ProfileEdit() {
             <label
               className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
             >
-              bankAccountNumber
+              Bank Account Number
             </label>
             <input
               type="text"
@@ -289,33 +276,6 @@ export default function ProfileEdit() {
               className={`px-2 py-1 w-full text-lg rounded-lg border`}
             />
           </div>
-        </div>
-        <div className="flex gap-4 items-end mt-4 w-full">
-          <div className="w-full">
-            {errors?.confirmPassword === "confirmPassword" && (
-              <p className="font-medium text-red-500 text-md">
-                {errors?.confirmPassword}
-              </p>
-            )}
-            <label
-              className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
-            >
-              confirmPassword
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={form.confirmPassword}
-              onChange={handleInputChange}
-              className={`px-2 py-1 w-full text-lg rounded-lg border`}
-            />
-          </div>
-          <button
-            className={`px-4 py-2 text-white bg-gray-400 rounded-lg transition duration-200 cursor-pointer hover:bg-gray-700 text-nowrap`}
-            onClick={handleResetPassword}
-          >
-            Reset Password
-          </button>
         </div>
       </div>
       <div className="col-span-2 row-span-1 p-4 bg-white rounded-lg border-2 shadow-lg">
@@ -382,25 +342,6 @@ export default function ProfileEdit() {
           ></select>
         </div>
 
-        <div className="mt-4 w-full">
-          {errors?.provinceId === "provinceId" && (
-            <p className="font-medium text-red-500 text-md">
-              {errors?.provinceId}
-            </p>
-          )}
-          <label
-            className={`block mb-1 ml-2 text-lg font-medium text-gray-500`}
-          >
-            provinceId
-          </label>
-          <input
-            type="text"
-            name="provinceId"
-            value={form.provinceId}
-            onChange={handleInputChange}
-            className={`px-2 py-1 w-full text-lg rounded-lg border`}
-          />
-        </div>
       </div>
     </div>
   );

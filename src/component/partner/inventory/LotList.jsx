@@ -57,7 +57,7 @@ export default function LotList({
             <td className="text-left pb-2  px-3">{t("Picture")}</td>
             <td className="text-left pb-2">{t("Lot")}</td>
             <td className="text-left pb-2 ">{t("Lot Code")}</td>
-            <td className="text-left pb-2 ">{t("Warehouse")}</td>
+            <td className="text-left pb-2 ">{t("Store")}</td>
             <td className="text-left pb-2 ">{t("Product Name")}</td>
             <td className="text-left pb-2 ">{t("Lot Amount")}</td>
             <td className="text-left pb-2 ">{t("Total Product")}</td>
@@ -86,7 +86,7 @@ export default function LotList({
                   </td>
                   <td className=" px-1 py-2 ">{order?.name}</td>
                   <td className=" px-1 py-2 ">{order?.lotNumber}</td>
-                  <td className=" px-1 py-2 ">{order?.warehouseName}</td>
+                  <td className=" px-1 py-2 ">{order?.storeName}</td>
                   <td className=" px-1 py-2 ">{order?.productName}</td>
 
                   <td className=" px-1 py-2 ">{order?.lotAmount}</td>

@@ -30,18 +30,17 @@ export default function LotsPage() {
     createOrder,
     setCreateOrder,
   } = useDetail();
-  
+
   const [selectedLot, setSelectedLot] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isShowDetailLot, setShowDetailLot] = useState(null);
   const [inventory, setInventory] = useState(location?.state);
- 
 
   const [filterField, setFilterField] = useState({
     userId: userInfor?.id,
     search: "",
     productId: null,
-    inventoryId: inventory ? inventory?.id : null,
+    roomId: inventory ? inventory?.id : null,
     sortBy: "CreateDate",
     descending: true,
     pageIndex: 0,
@@ -70,7 +69,7 @@ export default function LotsPage() {
           filterField.userId,
           filterField.search,
           filterField.productId,
-          filterField.inventoryId,
+          filterField.roomId,
           filterField.sortBy,
           filterField.descending,
           filterField.pageIndex,
@@ -86,22 +85,17 @@ export default function LotsPage() {
     [filterField]
   );
 
+  const handleAddOrder = async (order) => {};
 
-  const handleAddOrder = async (order) => {
-  };
+  const handleUpdateOrder = async (order) => {};
 
-  const handleUpdateOrder = async (order) => {
-  };
-
-  const handleDeleteOrder = async (orderId) => {
-  };
+  const handleDeleteOrder = async (orderId) => {};
 
   const handleSelectOrder = (order) => {
     selectedLot === order ? setSelectedLot(null) : setSelectedLot(order);
   };
 
-  const handleSearch = (event) => {
-  };
+  const handleSearch = (event) => {};
 
   const handleShowDetailOrder = (e, order) => {
     e.stopPropagation();
@@ -113,6 +107,7 @@ export default function LotsPage() {
     const { name, value } = e.target;
     setFilterField((prev) => ({ ...prev, [name]: value }));
   };
+  console.log(inventory);
 
   return (
     <div className="p-4">
@@ -124,12 +119,12 @@ export default function LotsPage() {
               nav("../inventory", { state: { ...inventory } });
             }}
           >
-            {inventory?.name} {">"}
+            {inventory?.roomCode} {">"}
           </h1>
         )}
         <h1 className="text-3xl font-bold mb-6">{t("Lots Management")}</h1>
       </div>
-      <div className="flex gap-10">
+      {/* <div className="flex gap-10">
         <div
           className={`flex items-center border border-gray-300 rounded-2xl overflow-hidden w-fit  px-4 py-1  focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--Xanh-Base)]  focus-within:text-black ${
             filterField.filterByStatus != ""
@@ -156,7 +151,7 @@ export default function LotsPage() {
             <option value={"Completed"}>{t("Completed")}</option>
           </select>
         </div>
-      </div>
+      </div> */}
       <div className="flex justify-left gap-4 mt-6 ">
         <div className="w-full">
           {loading ? (

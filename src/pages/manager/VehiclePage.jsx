@@ -312,7 +312,7 @@ const VehiclePage = () => {
             options={[
               {
                 value: 0,
-                label: "Select warehouses",
+                label: "Select store",
               },
               ...(warehouses?.items
                 ? warehouses?.items?.map((item) => ({
@@ -565,7 +565,7 @@ const VehiclePage = () => {
             </Select>
           </Form.Item>
           <Form.Item
-            label="Warehouse ID"
+            label="Store"
             name="warehouseId"
             rules={[{ required: true, message: "Please select warehouse!" }]}
           >
@@ -794,7 +794,7 @@ const VehiclePage = () => {
             <Descriptions.Item label="Status">
               {vehicleDetail.status}
             </Descriptions.Item>
-            <Descriptions.Item label="Warehouse ID">
+            <Descriptions.Item label="Store ID">
               {vehicleDetail.warehouseId}
             </Descriptions.Item>
             <Descriptions.Item label="Assigned Driver ID">

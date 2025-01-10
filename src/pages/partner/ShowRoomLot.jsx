@@ -8,9 +8,10 @@ import { toast } from "react-toastify";
 import AxiosInventory from "../../services/Inventory";
 import { useTranslation } from "react-i18next";
 
-const RoomMapping = ({
+const ShowRoomLot = ({
   data,
   storeInfor,
+  roomShow,
   handleBuyClick,
   handleShowInventoryDetail,
 }) => {
@@ -41,15 +42,15 @@ const RoomMapping = ({
       h: Math.round(room.length / pixelToMeterRatio),
       static: true,
     }));
-    setLayout(takeingData||undefined);
+    setLayout(takeingData || undefined);
   }, [data]);
   return (
     <div className="flex gap-10 overflow-hidden">
       <div className="px-10 border-2 rounded-lg shadow-xl">
-        <p className="mt-4 text-xl font-medium w-full text-center">
-          {storeInfor?.name}
+        <p className="mt-4 max-sm:text-3xl text-xl font-medium w-full text-center">
+          Room map
         </p>
-        <p className="mt-1 w-full text-center">
+        <p className="mt-1 w-full text-center max-sm:text-3xl">
           {storeInfor?.width}m x {storeInfor?.length}m
         </p>
         <div className={`w-[50rem] h-[50rem]  flex items-center`}>
@@ -78,27 +79,15 @@ const RoomMapping = ({
                 {layout?.map((box) => (
                   <div
                     className={`relative ${
-                      box?.ocopPartnerId === -1
-                        ? "bg-gray-300 cursor-not-allowed"
-                        : "bg-white hover:bg-[var(--en-vu-200)] cursor-pointer"
+                      box?.id !== roomShow?.additionalInfo?.roomId
+                        ? "bg-gray-300 "
+                        : "bg-green-400 "
                     } flex justify-center items-center overflow-hidden`}
                     key={box.i}
-                    onClick={(e) =>
-                      !box.ocopPartnerId
-                        ? handleBuyClick(box)
-                        : box.ocopPartnerId === -1
-                        ? {}
-                        : handleShowInventoryDetail(e, box)
-                    }
                     style={{
                       border: "1px solid black",
                     }}
                   >
-                    {box.ocopPartnerId && box.ocopPartnerId !== -1 && (
-                      <div className="absolute flex justify-center items-end bg-green-500 w-32 text-white h-10 -top-[1rem] -right-[3.5rem] rotate-45 z-30">
-                        <p>{t("H")}</p>
-                      </div>
-                    )}
                     <p>{box.roomCode}</p>
                   </div>
                 ))}
@@ -111,4 +100,4 @@ const RoomMapping = ({
   );
 };
 
-export default RoomMapping;
+export default ShowRoomLot;

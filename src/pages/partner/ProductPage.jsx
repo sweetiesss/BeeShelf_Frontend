@@ -14,6 +14,7 @@ import { ProductListSkeleton } from "../shared/SkeletonLoader";
 import { format } from "date-fns";
 import AxiosCategory from "../../services/Category";
 import SpinnerLoading from "../../component/shared/Loading";
+import { Warning } from "@phosphor-icons/react";
 
 export default function ProductPage() {
   const deleteBox = useRef();
@@ -53,7 +54,6 @@ export default function ProductPage() {
   const [sortBy, setSortBy] = useState("CreateDate");
   const [descending, setDescending] = useState(true);
 
- 
   const debounce = (func, delay) => {
     let timeout;
     return (...args) => {
@@ -320,7 +320,7 @@ export default function ProductPage() {
     setFetching((prev) => !prev);
   };
   const handleSearchChange = (e) => {
-    setSearch(e.target.value); 
+    setSearch(e.target.value);
   };
 
   const handleSortChange = (value) => {
@@ -371,32 +371,68 @@ export default function ProductPage() {
         )}
       </div>
       {showDeleteConfirmation && (
+        // <>
+        //   <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
+        //   <div
+        //     className="absolute bg-white border z-10 border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
+        //     style={{
+        //       top: "50%",
+        //       left: "50%",
+        //       transform: "translate(-50%, -50%)",
+        //     }}
+        //     ref={deleteBox}
+        //   >
+        //     <p>{`${t("AreYouSureWantToDelete")} ${
+        //       showDeleteConfirmation.name
+        //     }?`}</p>
+        //     <div className="flex justify-end gap-4">
+        //       <button
+        //         onClick={cancelDelete}
+        //         className="bg-gray-300 text-black px-4 py-2 rounded-md"
+        //       >
+        //         {t("Cancel")}
+        //       </button>
+        //       <button
+        //         onClick={() => confirmDelete(showDeleteConfirmation)}
+        //         className="bg-red-500 text-white px-4 py-2 rounded-md"
+        //       >
+        //         {t("Confirm")}
+        //       </button>
+        //     </div>
+        //   </div>
+        // </>
         <>
           <div className="fixed inset-0 bg-black bg-opacity-50 z-10"></div>
           <div
-            className="absolute bg-white border z-10 border-gray-300 shadow-md rounded-lg p-4 w-fit h-fit"
+            className="absolute bg-white border border-gray-300 z-10 shadow-md rounded-2xl p-8 w-[30rem] h-fit text-black"
+            ref={deleteBox}
             style={{
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
             }}
-            ref={deleteBox}
           >
-            <p>{`${t("AreYouSureWantToDelete")} ${
-              showDeleteConfirmation.name
-            }?`}</p>
-            <div className="flex justify-end gap-4">
+            <div className="flex items-center justify-center">
+              <div className="text-5xl bg-fit h-fit p-4 bg-[#fff5f6] rounded-full mb-6">
+                <Warning weight="fill" color="#fe3f56" />
+              </div>
+            </div>
+            <p className="w-full text-2xl font-semibold text-center  mb-6">
+              Delete Product
+            </p>
+            <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${showDeleteConfirmation.name}" product?`}</p>
+            <div className="flex justify-between gap-4">
               <button
                 onClick={cancelDelete}
-                className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
               >
-                {t("Cancel")}
+                {t("No, Keep It.")}
               </button>
               <button
                 onClick={() => confirmDelete(showDeleteConfirmation)}
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
+                className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
               >
-                {t("Confirm")}
+                {t("Yes, Delete!")}
               </button>
             </div>
           </div>
