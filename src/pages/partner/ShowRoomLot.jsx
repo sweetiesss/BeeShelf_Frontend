@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import AxiosInventory from "../../services/Inventory";
 import { useTranslation } from "react-i18next";
 
-const RoomMapping = ({
+const ShowRoomLot = ({
   data,
   storeInfor,
   handleBuyClick,
@@ -111,4 +111,4 @@ const RoomMapping = ({
   );
 };
 
-export default RoomMapping;
+export default ShowRoomLot;

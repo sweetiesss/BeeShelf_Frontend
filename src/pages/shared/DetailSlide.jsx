@@ -17,7 +17,7 @@ import AxiosCategory from "../../services/Category";
 import { useTranslation } from "react-i18next";
 
 export default function DetailSlide() {
-  const { userInfor, setRefrestAuthWallet, authWallet } =
+  const { userInfor, setRefrestAuthWallet, authWallet, isAuthenticated } =
     useContext(AuthContext);
   const { t } = useTranslation();
   const {
@@ -1816,6 +1816,12 @@ export default function DetailSlide() {
       };
     }, []);
     console.log("dataDetail", dataDetail);
+    const state = {
+      code: isAuthenticated,
+      user: userInfor?.id,
+      additionalInfo: dataDetail,
+    };
+    const stateQueryString = encodeURIComponent(JSON.stringify(state));
 
     return (
       <>
@@ -1866,10 +1872,13 @@ export default function DetailSlide() {
                   " " +
                   dataDetail?.productUnit,
               },
-              { label: "Import date:", value:  format(
-                add(new Date(dataDetail?.importDate), { hours: 7 }),
-                "HH:mm - dd/MM/yyyy"
-              ), },
+              {
+                label: "Import date:",
+                value: format(
+                  add(new Date(dataDetail?.importDate), { hours: 7 }),
+                  "HH:mm - dd/MM/yyyy"
+                ),
+              },
               {
                 label: "Expiration date:",
                 value: format(
@@ -1878,6 +1887,19 @@ export default function DetailSlide() {
                 ),
               },
               { label: "Store:", value: dataDetail?.storeName },
+              {
+                label: "Qr location:",
+                value: (
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+                      `https://www.beeshelf.com/Location?state=${stateQueryString}`
+                    )}&size=100x100`}
+                    alt={dataDetail?.name}
+                    className="w-[10rem] h-[10rem] object-cover object-center rounded-lg border-2 border-gray-500"
+                    onClick={() => nav(`../Location?state=${stateQueryString}`)}
+                  />
+                ),
+              },
             ]?.map((item, index) => (
               <div key={index} className="flex justify-between text-lg">
                 <span className="text-gray-600">{item.label}</span>

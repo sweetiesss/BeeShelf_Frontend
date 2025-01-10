@@ -357,7 +357,7 @@ export default function CreateOrderPage() {
       ) : (
         <div className="flex gap-40 h-full text-lg">
           <form className="space-y-6 w-[40%]">
-            <p className="text-2xl font-semibold mb-4">{t("Create Order")}</p>
+            <p className="text-2xl font-semibold mb-4">{t("CreateOrder")}</p>
             <div className="space-y-6 w-full">
               <div>
                 <p className="text-xl font-semibold mb-4">

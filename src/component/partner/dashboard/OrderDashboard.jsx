@@ -254,6 +254,9 @@ const OrderDashboard = () => {
     setThisYear(new Date().getFullYear());
   };
 
+  console.log("allProduct",allProducts);
+  
+
   return (
     <div className="p-6">
       <h1 className="text-4xl font-bold mb-6">{t("Dashboard")}</h1>
@@ -404,7 +407,7 @@ const OrderDashboard = () => {
                     <div className="border-[1px] shadow-lg px-4 py-4 rounded-xl flex gap-4">
                       <div>
                         <img
-                          src={item.pictureLink}
+                          src={item.productImage}
                           alt={item.name}
                           className="w-[5rem] h-[5rem] object-cover object-center rounded-lg border-2 border-gray-500"
                         />

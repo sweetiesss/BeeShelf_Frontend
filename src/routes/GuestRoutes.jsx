@@ -5,6 +5,7 @@ import ServicePage from "../pages/guest/ServicePage";
 import PackagePage from "../pages/guest/PackagePage";
 import ContactPage from "../pages/guest/ContactPage";
 import LoginAndSignInPage from "../pages/guest/LoginAndSignInPage";
+import LocationRoom from "../pages/shared/LocationRoom";
 
 
 export default function GuestRoutes() {
@@ -15,6 +16,7 @@ export default function GuestRoutes() {
         <Route path="/authorize/forgot-password" element={<LoginAndSignInPage toAction="Forgotpassword"/>} />
         <Route path="/reset-password" element={<LoginAndSignInPage toAction="Forgotpassword"/>} />
         <Route path="/authorize/signup" element={<LoginAndSignInPage toAction="SignUp"/>} />
+        <Route path="/location/*" element={<LocationRoom/>} />
       </Routes>
   )
 }
