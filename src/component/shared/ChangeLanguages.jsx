@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { LANGUAGES } from "../constants/Language";
 import { GlobeHemisphereWest } from "@phosphor-icons/react";
 
-export const LanguageSelector = ({ className }) => {
+export const LanguageSelector = ({ className, globalSize }) => {
   const { i18n, t } = useTranslation();
 
   const onChangeLang = (e) => {
@@ -13,7 +13,10 @@ export const LanguageSelector = ({ className }) => {
 
   return (
     <div className={`text-black flex ${className && className}`}>
-      <GlobeHemisphereWest weight="duotone" className="text-3xl" />
+      <GlobeHemisphereWest
+        weight="duotone"
+        className={`${globalSize ? globalSize : "text-3xl"}`}
+      />
       <select
         id="languageSelect"
         defaultValue={i18n.language}

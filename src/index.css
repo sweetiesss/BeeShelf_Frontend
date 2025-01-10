@@ -15,6 +15,11 @@ html{
   margin: 0;
 }
 }
+@media (max-width:500px){
+html{
+  font-size: 7px;
+}
+}
 @font-face {  
   font-family: lexend;
   src: url(./assets/font/Lexend-VariableFont_wght.ttf);
