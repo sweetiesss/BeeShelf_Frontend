@@ -57,7 +57,7 @@ const Inventory = () => {
   );
   //Hàm format datetime
   const formatDateTime = (dateString) => {
-    if (!dateString) return "Null"; // Return "Null" if the input is falsy
+    if (!dateString) return "N/A"; // Return "Null" if the input is falsy
 
     // Tạo một đối tượng Date với múi giờ Asia/Bangkok (UTC+7)
     const dateInBangkok = new Date(

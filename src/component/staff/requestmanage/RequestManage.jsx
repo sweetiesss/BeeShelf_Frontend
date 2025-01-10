@@ -86,7 +86,7 @@ const RequestManagement = () => {
   };
 
   const formatDateTime = (dateString) => {
-    if (!dateString) return "Null"; // Return "Null" if the input is falsy
+    if (!dateString) return "N/A"; // Return "Null" if the input is falsy
 
     // Tạo một đối tượng Date với múi giờ Asia/Bangkok (UTC+7)
     const dateInBangkok = new Date(
@@ -654,7 +654,7 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">{t("Product_Per_Lot_Amount")}:</p>
-                  <p>{selectedRequest.productPerLotAmount}</p>
+                  <p>{selectedRequest.productPerLotAmount} Unit</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Total_Product_Amount")}:</p>
@@ -678,7 +678,7 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">{t("Cancel_Reason")}:</p>
-                  <p>{selectedRequest.cancellationReason || t("Null")}</p>
+                  <p>{selectedRequest.cancellationReason || t("N/A")}</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Warehouse_Name")}:</p>
@@ -779,7 +779,7 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">{t("Product_Per_Lot_Amount")}:</p>
-                  <p>{selectedExportRequest.productPerLotAmount}</p>
+                  <p>{selectedExportRequest.productPerLotAmount} Unit</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Total_Product_Amount")}:</p>
@@ -804,7 +804,7 @@ const RequestManagement = () => {
     </div>
     <div>
       <p className="font-bold">{t("Cancel_Reason")}:</p>
-      <p>{selectedExportRequest.cancellationReason || t("Null")}</p>
+      <p>{selectedExportRequest.cancellationReason || t("N/A")}</p>
     </div>
     <div>
       <p className="font-bold">{t("New_Warehouse_Name")}:</p>
