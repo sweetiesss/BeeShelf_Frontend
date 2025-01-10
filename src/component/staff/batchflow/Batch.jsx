@@ -821,13 +821,13 @@ const BatchManage = () => {
                             <strong className="text-gray-700">
                               {t("Inventory_ID")}:
                             </strong>{" "}
-                            {detail.inventoryId}
+                            {detail.roomId}
                           </p>
                           <p>
                             <strong className="text-gray-700">
                               {t("Inventory_Name")}:
                             </strong>{" "}
-                            {detail.inventoryName}
+                            {detail.roomCode}
                           </p>
                         </div>
 
