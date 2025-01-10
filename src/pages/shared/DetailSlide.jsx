@@ -1471,7 +1471,7 @@ export default function DetailSlide() {
             {[
               {
                 label: t("RoomName") + ":",
-                value: dataDetail?.name,
+                value: dataDetail?.roomCode,
               },
               {
                 label: t("Store") + ":",
