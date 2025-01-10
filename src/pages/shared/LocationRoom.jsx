@@ -23,13 +23,13 @@ export default function LocationRoom() {
   useEffect(() => {
     const fetchBeginData = async () => {
       try {
-        if (!state?.additionalInfo || !state?.code) {
+        if (!state?.storeId || !state?.code) {
           console.warn("Required state data is missing.");
           return;
         }
 
         const response = await axios.get(
-          `${process.env.REACT_APP_BASE_URL_API}store/get-store/${state.additionalInfo?.storeId}`,
+          `${process.env.REACT_APP_BASE_URL_API}store/get-store/${state?.storeId}`,
           {
             headers: {
               Authorization: `Bearer ${state.code}`,
@@ -41,7 +41,7 @@ export default function LocationRoom() {
         }
 
         const response2 = await axios.get(
-          `${process.env.REACT_APP_BASE_URL_API}room/get-rooms?filterBy=StoreId&filterQuery=${state.additionalInfo?.storeId}&descending=false&pageIndex=0&pageSize=1000`,
+          `${process.env.REACT_APP_BASE_URL_API}room/get-rooms?filterBy=StoreId&filterQuery=${state?.storeId}&descending=false&pageIndex=0&pageSize=1000`,
           {
             headers: {
               Authorization: `Bearer ${state.code}`,
@@ -97,7 +97,7 @@ export default function LocationRoom() {
         <div className="flex items-center justify-center">
           <div className=" md:grid md:grid-cols-5 md:grid-rows-12 mt-16 gap-y-4 gap-x-10 py-10 ">
             <div className="flex flex-col md:col-span-2 md:row-span-11">
-              <div className="md:text-2xl text-3xl font-semibold col-span-2">
+              {/* <div className="md:text-2xl text-3xl font-semibold col-span-2">
                 <p className="mb-4">Lots Detail</p>
                 <div className="grid grid-cols-6 grid-rows-6 gap-x-6">
                   <div className="col-span-3 row-span-4">
@@ -166,7 +166,7 @@ export default function LocationRoom() {
                     ))}
                   
                 </div>
-              </div>
+              </div> */}
               <p className="md:text-2xl text-3xl font-semibold col-span-2 row-span-1 mb-4">
                 {t("WarehouseInformation")}
               </p>

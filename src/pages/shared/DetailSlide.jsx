@@ -1819,9 +1819,12 @@ export default function DetailSlide() {
     const state = {
       code: isAuthenticated,
       user: userInfor?.id,
-      additionalInfo: dataDetail,
+      roomId:dataDetail?.roomId,
+      storeId:dataDetail?.storeId,
     };
+    // const stateQueryString = encodeURIComponent(`code:${isAuthenticated}&user:${userInfor?.id}`);
     const stateQueryString = encodeURIComponent(JSON.stringify(state));
+    // const stateQueryString =decodeURI("code:1&roomCode:2");
 
     return (
       <>
@@ -1890,10 +1893,16 @@ export default function DetailSlide() {
               {
                 label: "Qr location:",
                 value: (
+                  // <img
+                  // src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+                  //   `https://www.beeshelf.com/Location?state=${stateQueryString}`
+                  // )}size=100x100`}
+                  //   alt={dataDetail?.name}
+                  //   className="w-[10rem] h-[10rem] object-cover object-center rounded-lg border-2 border-gray-500"
+                  //   onClick={() => nav(`../Location?state=${stateQueryString}`)}
+                  // />
                   <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
-                      `https://www.beeshelf.com/Location?state=${stateQueryString}`
-                    )}&size=100x100`}
+                    src={`https://api.qrserver.com/v1/create-qr-code/?data=${`https://www.beeshelf.com/Location?state=${stateQueryString}`}`}
                     alt={dataDetail?.name}
                     className="w-[10rem] h-[10rem] object-cover object-center rounded-lg border-2 border-gray-500"
                     onClick={() => nav(`../Location?state=${stateQueryString}`)}
