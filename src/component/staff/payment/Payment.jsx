@@ -155,12 +155,12 @@ const Payment = () => {
 
   // Định nghĩa các cột trong bảng
   const columns = [
-    {
-      title: t("ID"), 
-      dataIndex: "id",
-      key: "id",
-      align: "center",
-    },
+    // {
+    //   title: t("ID"), 
+    //   dataIndex: "id",
+    //   key: "id",
+    //   align: "center",
+    // },
     // {
     //   title: t("ocopPartnerId"),
     //   dataIndex: "ocopPartnerId",
@@ -171,25 +171,25 @@ const Payment = () => {
       title: t("OcopPartnerEmail"),
       dataIndex: "partner_email",
       key: "partner_email",
-      align: "center",
+      // align: "center",
     },
     {
       title: t("OcopPartnerEmail"),
       dataIndex: "partner_email",
       key: "partner_email",
-      align: "center",
+      // align: "center",
     },
     {
       title: t("BankName"),
       dataIndex: "partner_bank_name",
       key: "partner_bank_name",
-      align: "center",
+      // align: "center",
     },
     {
       title: t("BankAccount"),
       dataIndex: "partner_bank_account",
       key: "partner_bank_account",
-      align: "center",
+      // align: "center",
     },
     // {
     //   title: t("TransferBy"),
@@ -201,7 +201,7 @@ const Payment = () => {
       title: t("TransferByStaffEmail"),
       dataIndex: "transferByStaffEmail",
       key: "transferByStaffEmail",
-      align: "center",
+      // align: "center",
     },
     {
       title: t("Amount"),
@@ -252,7 +252,7 @@ const Payment = () => {
       key: "confirmDate",
       align: "center",
       render: (text) => {
-        if (!text) return "Null";
+        if (!text) return "N/A";
         const date = new Date(text);
         const formattedDate = new Intl.DateTimeFormat("vi-VN", {
           day: "2-digit",
@@ -379,11 +379,14 @@ const Payment = () => {
         ]}
       >
         <Form layout="vertical">
-          <Form.Item label={t("StaffID")}  required>
+          {/* <Form.Item label={t("Staff")}  required>
+            <Input value={userInfor?.id} disabled placeholder="Staff ID" />
+          </Form.Item> */}
+            <Form.Item label={t("Staff")}  name="staffId" hidden>
             <Input value={userInfor?.id} disabled placeholder="Staff ID" />
           </Form.Item>
 
-          <Form.Item label={t("PaymentID")} required>
+          <Form.Item label={t("Payment")} required>
             <Select
               value={moneyTransferId}
               onChange={setPaymentId}
