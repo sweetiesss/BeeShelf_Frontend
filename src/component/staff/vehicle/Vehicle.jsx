@@ -180,7 +180,7 @@ const Vehicle = () => {
     }
   };
   const columns = [
-    { title: t("ID"), dataIndex: "id", key: "id" },
+    // { title: t("ID"), dataIndex: "id", key: "id" },
     {
       title: t("Vehicle_Name"),
       dataIndex: "name",

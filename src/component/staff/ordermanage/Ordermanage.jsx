@@ -209,12 +209,12 @@ const Ordermanage = () => {
 
   // Cột trong bảng
   const columns = [
-    {
-      title: t("Order_ID"),
-      dataIndex: "id",
-      key: "id",
-      render: (text) => <span>{text}</span>,
-    },
+    // {
+    //   title: t("Order_ID"),
+    //   dataIndex: "id",
+    //   key: "id",
+    //   render: (text) => <span>{text}</span>,
+    // },
     {
       title: t("Order_Code"),
       dataIndex: "orderCode",
