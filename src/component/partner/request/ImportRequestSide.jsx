@@ -113,7 +113,7 @@ export default function ImportRequestSide({ inventories, products }) {
     <div className="flex gap-10 justify-start items-start">
       <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[48rem]">
         <div className="flex justify-between items-center ">
-          <p className="font-medium text-2xl ">{t("Create Form")}</p>
+          <p className="font-medium text-2xl ">{t("CreateForm")}</p>
           <button
             className="text-2xl  rounded-full p-2  cursor-pointer text-red-500"
             onClick={(e) => {
@@ -126,7 +126,7 @@ export default function ImportRequestSide({ inventories, products }) {
         </div>
         <div className="form-group gap-2">
           <label className="text-[var(--en-vu-600)] font-normal">
-            {t("Request Name")}
+            {t("RequestName")}
           </label>
           <input
             className="outline-none border-2 py-2 px-4 focus-within:border-black"
@@ -170,7 +170,7 @@ export default function ImportRequestSide({ inventories, products }) {
         ) : (
           <div className="grid grid-cols-7  relative h-[6rem] items-center border-2 border-dashed  p-4 cursor-pointer ">
             <div className="col-start-2 col-span-5 text-center text-gray-400">
-              {t("Your Product Selection")}
+              {t("YourProductSelection")}
             </div>
           </div>
         )}
@@ -188,7 +188,7 @@ export default function ImportRequestSide({ inventories, products }) {
           </div>
           <div className="form-group gap-2 w-full">
             <label className="text-[var(--en-vu-600)] font-normal">
-              {t("Amount of Product Per Lot")}
+              {t("AmountofProductPerLot")}
             </label>
             <input
               className="outline-none border-2 py-2 px-4 focus-within:border-black"
@@ -290,7 +290,7 @@ export default function ImportRequestSide({ inventories, products }) {
                 </div>
               </div>
             )}
-            placeholder={"Choose Product First..."}
+            placeholder={t("ChooseProductFirst")}
           />
         </div>
         <div className="flex justify-between py-2 pb-4">
@@ -317,9 +317,9 @@ export default function ImportRequestSide({ inventories, products }) {
       </div>
       <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[48rem]">
         <div>
-          <p className="font-medium text-2xl ">{t("Select Product")}</p>
+          <p className="font-medium text-2xl ">{t("SelectProduct")}</p>
           <p className="text-gray-500  ">
-            {t("Choose Product")}
+            {t("ChooseProduct")}
           </p>
         </div>
         <div className="flex-col h-[38rem] max-h-[38rem] overflow-auto">
@@ -358,10 +358,10 @@ export default function ImportRequestSide({ inventories, products }) {
                       }`}
                     />
                     {[
-                      { label: t("Display Name"), value: product?.name },
+                      { label: t("Displayname"), value: product?.name },
                       { label: t("Origin"), value: product?.origin },
                       {
-                        label: t("Product Category Name"),
+                        label: t("Productcategoryname"),
                         value: product?.productCategoryName,
                       },
                       {
@@ -374,15 +374,15 @@ export default function ImportRequestSide({ inventories, products }) {
                           new Intl.NumberFormat().format(product?.price) +
                           " vnd" +
                           " / " +
-                          product?.unit,
+                          t(product?.unit),
                       },
                       {
-                        label: t("Create Date"),
+                        label: t("Createdate"),
                         value: format(product?.createDate, "dd/MM/yyyy"),
                       },
                       {
                         label: t("Frozen"),
-                        value: product?.isCold === 1 ? "Yes" : "No",
+                        value: product?.isCold === 1 ? t("Yes") : t("No"),
                       },
                     ].map((item) => {
                       return (
@@ -404,7 +404,7 @@ export default function ImportRequestSide({ inventories, products }) {
                             `}
                       onClick={() => handleSelectProduct(pro)}
                     >
-                      Choose
+                      {t("Choose")}
                     </button>
                   </div>
                 </div>

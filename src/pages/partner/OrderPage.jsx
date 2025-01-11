@@ -112,12 +112,12 @@ export default function OrderPage() {
   };
   const handleFiltered = (e) => {
     const { name, value } = e.target;
-    setFilterField((prev) => ({ ...prev, [name]: value }));
+    setFilterField((prev) => ({ ...prev, filterByStatus: value }));
   };
 
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6">{t("Orders Management")}</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("OrdersManagement")}</h1>
 
       <div className="flex gap-10 justify-between">
         <div
@@ -139,7 +139,6 @@ export default function OrderPage() {
             <option value={"Pending"}>{t("Pending")}</option>
             <option value={"Canceled"}>{t("Canceled")}</option>
             <option value={"Processing"}>{t("Processing")}</option>
-            <option value={"Shipped"}>{t("Shipped")}</option>
             <option value={"Delivered"}>{t("Delivered")}</option>
             <option value={"Returned"}>{t("Returned")}</option>
             <option value={"Refunded"}>{t("Refunded")}</option>
@@ -151,7 +150,7 @@ export default function OrderPage() {
           className="outline-2 outline flex items-center gap-2 outline-[var(--line-main-color)] text-[var(--en-vu-500-disable)] hover:outline-[var(--Xanh-Base)] hover:text-black  pr-4 pl-3 py-1 rounded-xl font-semibold"
           onClick={() => nav("create-order")}
         >
-          + {t("Create Order")}
+          + {t("CreateOrder")}
         </button>
       </div>
       <div className="flex justify-left gap-4 mt-6 ">
@@ -217,21 +216,21 @@ export default function OrderPage() {
               </div>
             </div>
             <p className="w-full text-2xl font-semibold text-center  mb-6">
-              Delete Order
+              {t("DeleteOrder")}
             </p>
-            <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${orderHolder?.orderCode}" product?`}</p>
+            <p className="text-center w-full text-wrap  mb-6">{`${t("Youaregoingtodeletethe")} "${orderHolder?.orderCode}" ${t("Order")}?`}</p>
             <div className="flex justify-between gap-4">
               <button
                 onClick={cancelDelete}
                 className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
               >
-                {t("No, Keep It.")}
+                {t("NoKeepIt")}.
               </button>
               <button
                 onClick={confirmDelete}
                 className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
               >
-                {t("Yes, Delete!")}
+                {t("YesDelete")}!
               </button>
             </div>
           </div>

@@ -59,18 +59,19 @@ export default function CreateOrderPage() {
     const newErrors = {};
    
     if (!form.receiverPhone || !/^\d{10,15}$/.test(form.receiverPhone)) {
-      newErrors.receiverPhone = t("Invalid phone number");
+      newErrors.receiverPhone = t("Invalidphonenumber");
     }
 
+   
     if (!form.receiverAddress) {
-      newErrors.receiverAddress = t("Receiver Address is required");
+      newErrors.receiverAddress = t("Receiveraddressisrequired");
     }
     if (!form.receiverName) {
-      newErrors.receiverAddress = t("Receiver Address is required");
+      newErrors.receiverAddress = t("Receivernameisrequired");
     }
 
     if (form.products.length === 0) {
-      newErrors.products = t("At least one product must be added");
+      newErrors.products = t("Atleastoneproductmustbeadded");
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -79,11 +80,11 @@ export default function CreateOrderPage() {
     const newErrors = {};
 
     if (!item.productId) {
-      newErrors.productId = t("Select a product");
+      newErrors.productId = t("Selectaproduct");
     }
 
     if (!item.productAmount || item.productAmount <= 0) {
-      newErrors.productAmount = t("Invalid product amount");
+      newErrors.productAmount = t("Invalidproductamount");
     } else {
       const maxAmount = dataStored?.reduce(
         (accurate, item) => accurate + (item.productInStorage || 0),
@@ -97,7 +98,7 @@ export default function CreateOrderPage() {
         maxAmount <
           item?.productAmount + (productAmmountInForm?.productAmount || 0)
       ) {
-        newErrors.productAmount = t(`Only ${maxAmount} available in stock`);
+        newErrors.productAmount = t(`${t("Only")} ${maxAmount} ${t("availableinstock")}`);
       }
     }
 
@@ -361,15 +362,16 @@ export default function CreateOrderPage() {
             <div className="space-y-6 w-full">
               <div>
                 <p className="text-xl font-semibold mb-4">
-                  {t("Customer Information")}
+                  {t("ReceiverInformation")}
                 </p>
                 <div>
                   <label className="block  font-medium text-gray-700">
-                    {t("Receiver Name")}
+                    {t("ReceiverName")}
                   </label>
                   <input
                     type="text"
                     name="receiverName"
+                    placeholder="EX: Tran Van Cuong..."
                     value={form.receiverName}
                     onChange={handleInputChange}
                     className="mt-1 block w-full border-gray-300 border-2  px-2 py-1"
@@ -383,11 +385,12 @@ export default function CreateOrderPage() {
                 </div>
                 <div>
                   <label className="block  font-medium text-gray-700">
-                    {t("Receiver Phone")}
+                    {t("ReceiverPhone")}
                   </label>
                   <input
                     type="text"
                     name="receiverPhone"
+                    placeholder="EX: 0312821930"
                     value={form.receiverPhone}
                     onChange={handleInputChange}
                     className="mt-1 block w-full border-gray-300 border-2  px-2 py-1"
@@ -400,13 +403,13 @@ export default function CreateOrderPage() {
                   )}
                 </div>
                 <label className="block  font-medium text-gray-700">
-                  {t("Receiver Address")}
+                  {t("ReceiverAddress")}
                 </label>
                 <div className="flex items-center gap-4">
                   <input
                     type="text"
                     name="receiverAddress"
-                    placeholder={t("Receiver Address")}
+                    placeholder="EX: 286-294 Đ. Thụy Khuê, Thuỵ Khuê, Tây Hồ, Hà Nội Vietnam"
                     value={form.receiverAddress}
                     onChange={handleInputChange}
                     className="mt-1 outline-none border-2 p-[0.35rem] flex-grow "
@@ -491,7 +494,7 @@ export default function CreateOrderPage() {
                           <p className="text-gray-500 text-sm">
                             {(option?.price).toFixed(0) +
                               " vnd/" +
-                              option?.unit}
+                              t(option?.unit)}
                           </p>
                         </div>
                       </div>
@@ -507,18 +510,18 @@ export default function CreateOrderPage() {
                           <p className="text-gray-500 text-sm">
                             {(option?.price).toFixed(0) +
                               " vnd/" +
-                              option?.unit}
+                              t(option?.unit)}
                           </p>
                         </div>
                       </div>
                     )
                   }
-                  placeholder={t("Select Product")}
+                  placeholder={t("SelectProduct")}
                 />
 
                 <div className="flex gap-10 items-center">
                   <div className="flex w-fit text-nowrap gap-4">
-                    <p>Max amount:</p>
+                    <p>{t("Maxamount")}:</p>
                     <p>
                       {(() => {
                         const totalStorage = dataStored?.reduce(
@@ -541,7 +544,7 @@ export default function CreateOrderPage() {
                           currentProduct?.productAmount || 0;
 
                         return `${totalStorage - currentAmount} ${
-                          productUnit || ""
+                          t(productUnit) || ""
                         }`;
                       })()}
                     </p>
@@ -592,7 +595,7 @@ export default function CreateOrderPage() {
                           <span>{product?.name}</span>
                           <div className="flex gap-6">
                             <p>
-                              {item.productAmount} {product.unit}
+                              {item.productAmount} {t(product.unit)}
                             </p>
                             <span>
                               {new Intl.NumberFormat().format(

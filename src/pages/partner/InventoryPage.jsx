@@ -59,8 +59,6 @@ export default function InventoryPage() {
 
   const [sortCriteria, setSortCriteria] = useState(null);
 
- 
-
   const [provinceList, setProvinencesList] = useState([]);
   const [provinceAvailableList, setProvinencesAvailableList] = useState([]);
 
@@ -210,6 +208,7 @@ export default function InventoryPage() {
       setMonthToBuyInventory("");
       return;
     }
+    if (data > 9999) return;
     setMonthToBuyInventory(Math.floor(data));
     if (dataPrice > authWallet?.totalAmount) {
       setErrors("NotEnoughtMoneyToDoThis");
@@ -462,16 +461,14 @@ export default function InventoryPage() {
   const getInventoriesList = () => {
     const inventoriesOwnedList = inventoriesOwned?.data?.items || [];
     const result =
-      inventories?.data?.items?.map(
-        (inventory) => {
-          if (inventory.ocopPartnerId === null) {
-            return inventory;
-          }
-          if (inventory.ocopPartnerId !== userInfor?.id)
-            return { ...inventory, ocopPartnerId: -1 };
+      inventories?.data?.items?.map((inventory) => {
+        if (inventory.ocopPartnerId === null) {
           return inventory;
         }
-      ) || [];
+        if (inventory.ocopPartnerId !== userInfor?.id)
+          return { ...inventory, ocopPartnerId: -1 };
+        return inventory;
+      }) || [];
     const combinedList = [...inventoriesOwnedList, ...result];
     setInventoriesBased(combinedList);
     setInventoriesShowList(combinedList);
@@ -939,9 +936,9 @@ export default function InventoryPage() {
                 <XCircle fill="#ef4444" weight="fill" />
               </div>
               <p className="text-2xl">
-                {`${t("Hiring room")}: ${inventory.roomCode}?`}{" "}
+                {`${t("Hiringroom")}: ${inventory.roomCode}?`}{" "}
                 <span className="text-gray-400 font-normal">
-                  {inventory.isCold === 0 ? "(Normal room)" : "(Frozen room)"}
+                  {inventory.isCold === 0 ? t("Normalroom") : t("Frozenroom")}
                 </span>
               </p>
 

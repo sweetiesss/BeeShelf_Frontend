@@ -7,16 +7,27 @@ import ContactPage from "../pages/guest/ContactPage";
 import LoginAndSignInPage from "../pages/guest/LoginAndSignInPage";
 import LocationRoom from "../pages/shared/LocationRoom";
 
-
 export default function GuestRoutes() {
   return (
-      <Routes>
-        <Route path="" index element={<LayoutGuest />}/>
-        <Route path="/authorize/signin" element={<LoginAndSignInPage toAction="Login"/>} />
-        <Route path="/authorize/forgot-password" element={<LoginAndSignInPage toAction="Forgotpassword"/>} />
-        <Route path="/reset-password" element={<LoginAndSignInPage toAction="Forgotpassword"/>} />
-        <Route path="/authorize/signup" element={<LoginAndSignInPage toAction="SignUp"/>} />
-        <Route path="/location/*" element={<LocationRoom/>} />
-      </Routes>
-  )
+    <Routes>
+      <Route path="" index element={<LayoutGuest />} />
+      <Route
+        path="/authorize/signin"
+        element={<LoginAndSignInPage toAction="Login" />}
+      />
+      <Route
+        path="/authorize/forgot-password"
+        element={<LoginAndSignInPage toAction="Forgotpassword" />}
+      />
+      <Route
+        path="/reset-password"
+        element={<LoginAndSignInPage toAction="Forgotpassword" />}
+      />
+      <Route
+        path="/authorize/signup"
+        element={<LoginAndSignInPage toAction="SignUp" />}
+      />
+      <Route path="/location/*" element={<LocationRoom />} />
+    </Routes>
+  );
 }

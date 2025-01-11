@@ -154,12 +154,14 @@ export function PaymentPage() {
     }
   };
 
+  console.log("ordersSale",ordersSale);
+  
 
   return (
     <div className="h-full relative">
       <div className="flex justify-between">
         <div>
-          <p className="text-3xl font-semibold">{t("Transaction Management")}</p>
+          <p className="text-3xl font-semibold">{t("TransactionManagement")}</p>
         </div>
         <div className="flex gap-4">
           <button
@@ -172,7 +174,7 @@ export function PaymentPage() {
             className="p-2 px-4  border-2 rounded-2xl hover:bg-green-600 bg-[var(--Xanh-Base)] text-white flex items-center"
             onClick={() => openExhangePage(true)}
           >
-            <ArrowsLeftRight className="text-2xl mr-2" /> {t("Coin Exchange")}
+            <ArrowsLeftRight className="text-2xl mr-2" /> {t("CoinExchange")}
           </button>
         </div>
       </div>
@@ -180,7 +182,7 @@ export function PaymentPage() {
         <div className="shadow-xl border-2 bg-white rounded-lg p-8  mb-3 overflow-y-scroll max-h-[50rem] w-full relative">
           <div className="text-2xl mb-4">{t("Transaction")}</div>
           <div className="flex gap-4 items-center mb-4">
-            <label>{t("Type Of Transaction")}: </label>
+            <label>{t("TypeOfTransaction")}: </label>
             <select
               className="border-2 px-2 py-1 rounded-xl text-gray-300 focus-within:text-black focus-within:border-black"
               value={typePayment}
@@ -188,7 +190,7 @@ export function PaymentPage() {
             >
               <option value="Exchange">{t("Exchange")}</option>
               <option value="Withdrawn">{t("Withdrawn")}</option>
-              <option value="OrdersSales">{t("Order Sales")}</option>
+              <option value="OrdersSales">{t("OrderSales")}</option>
             </select>
           </div>
           {typePayment === "Exchange" ? (
@@ -200,7 +202,7 @@ export function PaymentPage() {
                   <td className="text-left pb-2  px-3">{t("Code")}</td>
                   <td className="text-left pb-2 ">{t("CreateDate")}</td>
                   <td className="text-left pb-2 ">{t("Description")}</td>
-                  <td className="text-left pb-2 ">{t("Amount")}</td>
+                  <td className="text-left pb-2 ">{t("Amount")} (vnd)</td>
                   <td className="text-center pb-2">{t("Status")}</td>
                 </tr>
               </thead>
@@ -235,7 +237,6 @@ export function PaymentPage() {
                             }`}
                           >
                             {new Intl.NumberFormat().format(payment?.amount)}{" "}
-                            vnd
                           </td>
                           <td className=" px-1 py-2 text-center align-middle">
                             <p
@@ -270,7 +271,7 @@ export function PaymentPage() {
                   <td className="text-left pb-2 ">{t("Account")}</td>
                   <td className="text-left pb-2 ">{t("CreateDate")}</td>
                   <td className="text-left pb-2 ">{t("ConfirmDate")}</td>
-                  <td className="text-left pb-2 ">{t("Amount")}</td>
+                  <td className="text-left pb-2 ">{t("Amount")} (vnd)</td>
                   <td className="text-center pb-2">{t("Status")}</td>
                 </tr>
               </thead>
@@ -330,8 +331,7 @@ export function PaymentPage() {
                             )}
                           </td>
                           <td className=" px-1 py-2 font-medium text-red-500">
-                            {new Intl.NumberFormat().format(payment?.amount)}{" "}
-                            vnd
+                            {new Intl.NumberFormat().format(payment?.amount)}
                           </td>
                           <td className=" px-1 py-2 text-center align-middle">
                             <p
@@ -365,10 +365,7 @@ export function PaymentPage() {
                   <td className="text-left pb-2  px-3">{t("OrderCode")}</td>
                   <td className="text-left pb-2 ">{t("ShipperEmail")}</td>
                   <td className="text-left pb-2 ">{t("ShipperName")}</td>
-                  <td className="text-left pb-2 ">{t("Account")}</td>
-                  <td className="text-left pb-2 ">{t("CreateDate")}</td>
-                  <td className="text-left pb-2 ">{t("ConfirmDate")}</td>
-                  <td className="text-left pb-2 ">{t("Amount")}</td>
+                  <td className="text-left pb-2 ">{t("Amount")} (vnd)</td>
                   <td className="text-center pb-2">{t("Status")}</td>
                 </tr>
               </thead>
@@ -389,34 +386,27 @@ export function PaymentPage() {
                             {payment?.shipperEmail}
                           </td>
                           <td className=" px-1 py-2">{payment?.shipperName}</td>
-                          <td className=" px-1 py-2">
-                            {payment?.partner_bank_account}
-                          </td>
-                          <td className=" px-1 py-2 ">
-                          </td>
-                          <td className=" px-1 py-2 ">
-                          </td>
+
                           <td className=" px-1 py-2 text-green-500 font-medium">
                             {new Intl.NumberFormat().format(
                               payment?.totalAmount
-                            )}{" "}
-                            vnd
+                            )}
                           </td>
                           <td className=" px-1 py-2 text-center align-middle">
                             <p
                               className={`px-2 py-1 inline-block rounded-full text-sm font-semibold h-fit w-fit ${
-                                payment?.isTransferred === 1
+                                payment?.isConfirmed === 1
                                   ? "bg-green-200 text-green-800"
-                                  : payment?.isTransferred === 0
+                                  : payment?.isDeleted === 0
                                   ? "bg-gray-200 text-gray-800"
                                   : "bg-red-200 text-red-800"
                               }`}
                             >
-                              {payment?.isTransferred === 1
+                              {payment?.isConfirmed === 1
                                 ? t("COMPLETE")
-                                : payment?.isTransferred === 0
+                                : payment?.isDeleted === 0
                                 ? t("PENDING")
-                                : "CANCELED"}
+                                : t("CANCELED")}
                             </p>
                           </td>
                         </tr>
@@ -442,10 +432,10 @@ export function PaymentPage() {
           >
             <div className="mb-8">
               <h1 className="text-2xl font-bold mb-4 text-center">
-                {t("Money Exchange")}
+                {t("MoneyExchange")}
               </h1>
               <p className="text-xl text-center text-gray-500">
-                {t("Choose Your Exchange Amount")}
+                {t("ChooseYourExchangeAmount")}
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-10">
@@ -494,7 +484,7 @@ export function PaymentPage() {
                   min={0}
                   max={1000000}
                   className=" rounded-lg px-4 text-xl w-full max-w-sm h-[3.5rem] outline-none bg-transparent"
-                  placeholder="Enter custom amount"
+                  placeholder={t("Entercustomamount")}
                   value={customeAmount}
                   onChange={(e) => {
                     setError();
@@ -517,7 +507,7 @@ export function PaymentPage() {
                 </div>
                 <div
                   className=" rounded-lg px-4 text-xl w-full max-w-sm h-[3.5rem] outline-none bg-transparent cursor-not-allowed items-center flex"
-                  placeholder="Enter custom amount"
+                
                 >
                   {new Intl.NumberFormat().format(customeAmount)}
                 </div>
@@ -534,7 +524,7 @@ export function PaymentPage() {
                 className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-lg transition-all"
                 disabled={loadingButton}
               >
-                {t("Generate QR Payment")}
+                {t("GenerateQRPayment")}
               </button>
             </div>
           </div>
@@ -554,10 +544,10 @@ export function PaymentPage() {
           >
             <div className="mb-8">
               <h1 className="text-2xl font-bold mb-4 text-center">
-                {t("Money Withdraw")}
+                {t("MoneyWithdraw")}
               </h1>
               <p className="text-xl text-center text-gray-500">
-                {t("Choose Your Withdrawn Amount")}
+                {t("ChooseYourWithdrawnAmount")}
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-10">
@@ -610,14 +600,14 @@ export function PaymentPage() {
                   min={0}
                   max={1000000}
                   className=" rounded-lg px-4 text-xl w-full max-w-sm h-[3.5rem] outline-none bg-transparent"
-                  placeholder="Enter custom amount"
+                  placeholder={t("Entercustomamount")}
                   value={customeAmount}
                   onChange={(e) => {
                     setError();
                     if ((e.target.value < 20000) & (e.target.value > 0))
                       setError("TheMinimumAmountMustBeLarger20000vnd");
                     if (e.target.value > authWallet?.totalAmount)
-                      setError("TheMinimumAmountMustBeLargerYourWallet");
+                      setError("TheAmountMustBeSmallerThanYourCoinInWallet");
 
                     setCustomAmount(e.target.value);
                   }}
@@ -653,7 +643,7 @@ export function PaymentPage() {
                 onClick={handleSubmitWithdrawnPayment}
                 className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-lg transition-all"
               >
-                {t("Create Withdrawn Request")}
+                {t("CreateWithdrawnRequest")}
               </button>
             </div>
           </div>

@@ -384,7 +384,7 @@ const OrderDashboard = () => {
                   <p className="text-xl font-bold">
                     {allIventories?.totalItemsCount}
                   </p>
-                  <p className="text-gray-500">{t("Total Bought Rooms")}</p>
+                  <p className="text-gray-500">{t("TotalBoughtRooms")}</p>
                 </div>
               </div>
             </div>
