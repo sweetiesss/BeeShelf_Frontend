@@ -383,7 +383,7 @@ const RequestManagement = () => {
             <Table
               dataSource={requests}
               columns={[
-                { title: t("Request_ID"), dataIndex: "id", key: "id" },
+                // { title: t("Request_ID"), dataIndex: "id", key: "id" },
                 {
                   title: t("Partner_Email"),
                   dataIndex: "partner_email",
