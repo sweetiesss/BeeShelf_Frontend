@@ -650,7 +650,7 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">{t("Lot_Amount")}:</p>
-                  <p>{selectedRequest.lotAmount}</p>
+                  <p>{selectedRequest.lotAmount} lot</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Product_Per_Lot_Amount")}:</p>
