@@ -71,7 +71,7 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
       <p className="font-semibold text-3xl mb-4">{t("CreateRequest")}</p>
       <div className=" flex gap-4 items-center mb-4">
         <div className="text-[var(--en-vu-600)] font-normal col-span-1">
-          {t("Type Of Request")}
+          {t("TypeOfRequest")}
         </div>
 
         <Select
@@ -112,21 +112,21 @@ export default function CreateRequestPage({ handleCancel, handleClose }) {
           }}
           value={{
             value: typeRequest,
-            label: typeRequest,
+            label: t(typeRequest),
           }} 
           onChange={(selectedOption) => setTypeRequest(selectedOption.value)}
           options={[
-            { value: "Import", label: "Import" },
-            { value: "Export", label: "Export" },
+            { value: "Import", label: t("Import") },
+            { value: "Export", label: t("Export") },
           ]}
           formatOptionLabel={({ value }) => (
             <div className="flex items-center gap-4">
-              <p>{value}</p>
+              <p>{t(value)}</p>
               <p className="text-gray-400">
                 {"("}
                 {value === "Import"
-                  ? t("Import Product To Room")
-                  : "Export Product From Room"}
+                  ? t("ImportProductToRoom")
+                  : t("ExportProductFromRoom")}
                 {")"}
               </p>
             </div>

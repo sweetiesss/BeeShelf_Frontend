@@ -188,6 +188,7 @@ const BatchManage = () => {
         }
         const formattedOrders = response.data.items.map((order) => ({
           id: order.id,
+          orderCode:order.orderCode,
           partnerEmail: order.partner_email,
         }));
         console.log(t("Formatted_orders:"), formattedOrders);
@@ -279,7 +280,7 @@ const BatchManage = () => {
 
   //Hàm xử lí ngày giờ
   const formatDateTime = (dateString) => {
-    if (!dateString) return "Null"; // Return "Null" if the input is falsy
+    if (!dateString) return "N/A"; // Return "Null" if the input is falsy
 
     // Tạo một đối tượng Date với múi giờ Asia/Bangkok (UTC+7)
     const dateInBangkok = new Date(
@@ -346,11 +347,11 @@ const BatchManage = () => {
   };
 
   const columns = [
-    {
-      title: t("Batch_ID"),
-      dataIndex: "id",
-      key: "id",
-    },
+    // {
+    //   title: t("Batch_ID"),
+    //   dataIndex: "id",
+    //   key: "id",
+    // },
     {
       title: t("Batch_Name"),
       dataIndex: "name",
@@ -572,7 +573,8 @@ const BatchManage = () => {
             <Select mode="multiple" placeholder={t("Select_orders")} allowClear>
               {orders.map((order) => (
                 <Option key={order.id} value={order.id}>
-                  {t("id")}: {order.id} - {t("email")}: {order.partnerEmail}
+                  {/* {t("id")}: {order.id} */}
+                  {t("Order Code")}: {order.orderCode} - {t("email")}: {order.partnerEmail}
                 </Option>
               ))}
             </Select>
@@ -799,12 +801,12 @@ const BatchManage = () => {
                     >
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <p>
+                          {/* <p>
                             <strong className="text-gray-700">
                               {t("Order_ID")}:
                             </strong>{" "}
                             {detail.id}
-                          </p>
+                          </p> */}
                           <p>
                             <strong className="text-gray-700">
                               {t("Product_Name")}:

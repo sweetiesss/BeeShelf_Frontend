@@ -85,7 +85,7 @@ export default function LocationRoom() {
             <div className="text-[#0db977] text-5xl md:text-[25px] font-bold cursor-pointer  relative">
               <img
                 src="../../../beeShelf.png"
-                className="h-[25px] md:h-[5rem] w-fit absolute md:top-[-25px] md:left-[-85px] -top-2 left-3"
+                className="h-[25px] md:h-[5rem] md:w-fit absolute md:top-[-25px] md:left-[-85px] -top-2 left-3"
               />
               <p className="max-sm:pl-20">BeeShelf</p>
             </div>

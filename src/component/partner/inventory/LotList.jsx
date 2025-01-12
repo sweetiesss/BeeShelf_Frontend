@@ -54,14 +54,14 @@ export default function LotList({
         <thead>
           <tr>
             <td className="text-center pb-2">#</td>
-            <td className="text-left pb-2  px-3">{t("Picture")}</td>
-            <td className="text-left pb-2">{t("Lot")}</td>
-            <td className="text-left pb-2 ">{t("Lot Code")}</td>
+            <td className="text-left pb-2  px-3">{t("ProductImage")}</td>
+            <td className="text-left pb-2">{t("lot")}</td>
+            <td className="text-left pb-2 ">{t("LotCode")}</td>
             <td className="text-left pb-2 ">{t("Store")}</td>
-            <td className="text-left pb-2 ">{t("Product Name")}</td>
-            <td className="text-left pb-2 ">{t("Lot Amount")}</td>
-            <td className="text-left pb-2 ">{t("Total Product")}</td>
-            <td className="text-left pb-2 ">{t("Import Date")}</td>
+            <td className="text-left pb-2 ">{t("ProductName")}</td>
+            <td className="text-left pb-2 ">{t("LotAmount")}</td>
+            <td className="text-left pb-2 ">{t("TotalProduct")}</td>
+            <td className="text-left pb-2 ">{t("ImportDate")}</td>
             <td className="text-left pb-2 ">{t("ExpirationDate")}</td>
             <td className="text-left pb-2 ">{t("")}</td>
           </tr>
@@ -89,8 +89,8 @@ export default function LotList({
                   <td className=" px-1 py-2 ">{order?.storeName}</td>
                   <td className=" px-1 py-2 ">{order?.productName}</td>
 
-                  <td className=" px-1 py-2 ">{order?.lotAmount}</td>
-                  <td className=" px-1 py-2 ">{order?.totalProductAmount}</td>
+                  <td className=" px-1 py-2 ">{order?.lotAmount +" "+ t(order?.productUnit)}</td>
+                  <td className=" px-1 py-2 ">{order?.totalProductAmount +" "+ t(order?.productUnit)}</td>
                   <td className=" px-1 py-2 ">
                     {format(order?.importDate, "dd/MM/yyyy")}
                   </td>
@@ -111,7 +111,7 @@ export default function LotList({
                           ref={actionComponent}
                         >
                           <div onClick={(e) => handleShowDetailOrder(e, order)}>
-                            Show detail
+                            {t("ShowDetail")}
                           </div>
                           {order?.status === "Draft" && (
                             <div
@@ -120,7 +120,7 @@ export default function LotList({
                                 handleCloseAction();
                               }}
                             >
-                              Delete
+                              {t("Delete")}
                             </div>
                           )}
                         </div>

@@ -50,13 +50,13 @@ export default function RequestList({
         <thead>
           <tr>
             <td className="text-center pb-2  ">#</td>
-            <td className="text-left pb-2  px-3">{t("Order")}</td>
+            <td className="text-left pb-2  px-3">{t("ProductImage")}</td>
             <td className="text-left pb-2 ">{t("RequestName")}</td>
             <td className="text-left pb-2 ">{t("Description")}</td>
             <td className="text-left pb-2 ">{t("Type")}</td>
             <td className="text-center pb-2">{t("Status")}</td>
             <td className="text-center pb-2 ">{t("Product")}</td>
-            <td className="text-left pb-2 ">{t("To Store")}</td>
+            <td className="text-left pb-2 ">{t("ToStore")}</td>
             <td className="text-left pb-2 ">{t("CreateDate")}</td>
             <td className="text-left pb-2 "></td>
           </tr>
@@ -88,7 +88,7 @@ export default function RequestList({
                     <td className=" px-1 py-2 max-w-[20rem]">
                       {request?.description}
                     </td>
-                    <td className=" px-1 py-2 ">{request?.requestType}</td>
+                    <td className=" px-1 py-2 ">{t(request?.requestType)}</td>
                     <td className=" px-1 py-2 text-center align-middle">
                       <p
                         className={`px-2 py-1 inline-block rounded-full text-sm font-semibold h-fit w-fit ${
@@ -107,7 +107,7 @@ export default function RequestList({
                             : "bg-red-200 text-red-800"
                         }`}
                       >
-                        {request.status}
+                        {t(request.status)}
                       </p>
                     </td>
                     <td className=" px-1 py-2 text-center">
@@ -131,7 +131,7 @@ export default function RequestList({
                             ref={actionComponent}
                           >
                             <div onClick={() => handleShowDetail(request)}>
-                              Show detail
+                              {t("ShowDetail")}
                             </div>
                             {request?.status === "Draft" && (
                               <div
@@ -140,7 +140,7 @@ export default function RequestList({
                                   handleCloseAction();
                                 }}
                               >
-                                Delete
+                                {t("Delete")}
                               </div>
                             )}
                           </div>

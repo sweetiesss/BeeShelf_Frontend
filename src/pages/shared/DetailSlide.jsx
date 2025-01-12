@@ -717,6 +717,8 @@ export default function DetailSlide() {
         setShowUpdateConfirm(false);
       }
     };
+    console.log("dataDetail", dataDetail);
+    console.log("lotData", lotData);
 
     return (
       <>
@@ -725,7 +727,7 @@ export default function DetailSlide() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-semibold text-black">
-                  Request information
+                  {t("RequestInformation")}
                 </h2>
               </div>
               <div
@@ -758,7 +760,7 @@ export default function DetailSlide() {
                       : "bg-red-200 text-red-800"
                   }`}
                 >
-                  {dataDetail?.status}
+                  {t(dataDetail?.status)}
                 </div>
               </div>
 
@@ -771,52 +773,99 @@ export default function DetailSlide() {
                       : "text-blue-500"
                   }`}
                 >
-                  {dataDetail?.requestType}
+                  {t(dataDetail?.requestType)}
                 </p>
               </div>
             </div>
 
             <div className="w-full flex flex-col gap-4">
               {[
-                { label: "Lot Num:", value: dataDetail?.lotId },
-                { label: "Product Name:", value: lotData?.lotNumber },
+                { label: t("Lotnumber") + ":", value: dataDetail?.lotId },
                 {
-                  label: "Create date:",
+                  label: t("Productname") + ":",
+                  value: lotData?.lotNumber || t("Waiting..."),
+                },
+                {
+                  label: t("Createdate") + ":",
                   value: format(
                     add(new Date(dataDetail?.createDate), { hours: 7 }),
                     "HH:mm - dd/MM/yyyy"
                   ),
                 },
-                { label: "Description:", value: dataDetail?.description },
-                { label: "Amount:", value: lotData?.lotAmount + " lots" },
-                { label: "Product Per Lot:", value: lotData?.productPerLot },
                 {
-                  label: "Total Product Amount:",
-                  value: lotData?.totalProductAmount,
+                  label: t("Description") + ":",
+                  value: dataDetail?.description,
                 },
                 {
-                  label: "Apporve Date:",
+                  label: t("Amount") + ":",
+                  value: lotData?.lotAmount
+                    ? lotData?.lotAmount + " " + t("lots")
+                    : t("Waiting..."),
+                },
+                {
+                  label: t("Productperlot") + ":",
+                  value: lotData?.productPerLot
+                    ? lotData?.productPerLot + " " + t(lotData?.productUnit)
+                    : t("Waiting..."),
+                },
+                {
+                  label: t("Totalproductamount") + ":",
+                  value: lotData?.totalProductAmount
+                    ? lotData?.totalProductAmount +
+                      " " +
+                      t(lotData?.productUnit)
+                    : t("Waiting..."),
+                },
+                {
+                  label: t("Apporvedate") + ":",
                   value: dataDetail?.apporveDate
-                    ? dataDetail?.apporveDate
-                    : "Not Yet",
+                    ? format(
+                        add(new Date(dataDetail?.apporveDate), { hours: 7 }),
+                        "HH:mm - dd/MM/yyyy"
+                      )
+                    : t("NotYet"),
                 },
                 {
-                  label: "Deliver Date:",
+                  label: t("Delivereddate") + ":",
                   value: dataDetail?.deliverDate
                     ? format(
                         add(new Date(dataDetail?.deliverDate), { hours: 7 }),
                         "HH:mm - dd/MM/yyyy"
                       )
-                    : "Not Yet",
+                    : t("NotYet"),
                 },
 
-                { label: "To Store:", value: dataDetail?.storeName },
+                { label: t("ToStore") + ":", value: dataDetail?.storeName },
+                { label: t("ToRoom") + ":", value: dataDetail?.sendToRoomName },
               ]?.map((item, index) => (
                 <div key={index} className="grid grid-cols-2 gap-4  text-lg">
                   <div className="text-gray-600">{item.label}</div>
                   <div className="text-black">{item.value}</div>
                 </div>
               ))}
+              {dataDetail?.status === "Canceled" && (
+                <>
+                  <div className="grid grid-cols-2 gap-4  text-lg">
+                    <div className="text-gray-600">{t("Canceldate")}:</div>
+                    <div className="text-black">
+                      {dataDetail?.cancelDate
+                        ? format(
+                            add(new Date(dataDetail?.cancelDate), {
+                              hours: 7,
+                            }),
+                            "HH:mm - dd/MM/yyyy"
+                          )
+                        : t("NotYet")}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4  text-lg">
+                    <div className="text-gray-600">{t("Reason")}:</div>
+                    <div className="text-black">
+                      {dataDetail?.cancellationReason||t("Donthaveanyreason")}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
           <div className="flex justify-between items-center w-full gap-4">
@@ -826,7 +875,7 @@ export default function DetailSlide() {
                   className="bg-red-500 text-white px-4 py-2 rounded-md w-full"
                   onClick={(e) => handleDeleteClick(e, dataDetail)}
                 >
-                  Delete
+                  {t("Delete")}
                 </button>
                 <button
                   className="bg-gray-500 text-white px-4 py-2 rounded-md w-full"
@@ -835,13 +884,13 @@ export default function DetailSlide() {
                     nav("request/update-request", { state: { ...dataDetail } });
                   }}
                 >
-                  Edit
+                  {t("Edit")}
                 </button>
                 <button
                   className="bg-green-500 text-white px-4 py-2 rounded-md w-full"
                   onClick={handleSendRequest}
                 >
-                  Send
+                  {t("Send")}
                 </button>
               </>
             ) : dataDetail?.status === "Pending" ? (
@@ -852,7 +901,7 @@ export default function DetailSlide() {
                     handleUpdateStatusClick(e, dataDetail, "Canceled")
                   }
                 >
-                  Cancel
+                  {t("Cancel")}
                 </button>
               </>
             ) : (
@@ -877,21 +926,23 @@ export default function DetailSlide() {
                 </div>
               </div>
               <p className="w-full text-2xl font-semibold text-center  mb-6">
-                Delete Request
+                {t("DeleteRequest")}
               </p>
-              <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${dataDetail?.name}" request?`}</p>
+              <p className="text-center w-full text-wrap  mb-6">{`${t(
+                "Youaregoingtodeletethe"
+              )} "${dataDetail?.name}" ${t("Request")}?`}</p>
               <div className="flex justify-between gap-4">
                 <button
                   onClick={cancelDelete}
                   className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
                 >
-                  {t("No, Keep It.")}
+                  {t("NoKeepIt")}.
                 </button>
                 <button
                   onClick={() => confirmDelete(showDeleteConfirmation)}
                   className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
                 >
-                  {t("Yes, Delete!")}
+                  {t("YesDelete")}!
                 </button>
               </div>
             </div>
@@ -914,16 +965,18 @@ export default function DetailSlide() {
                 </div>
               </div>
               <p className="w-full text-2xl font-semibold text-center  mb-6">
-                Cancel Request
+                {t("CancelRequest")}
               </p>
-              <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${dataDetail?.name}" request?`}</p>
+              <p className="text-center w-full text-wrap  mb-6">{`${t(
+                "Youaregoingtocancelthe"
+              )} "${dataDetail?.name}" ${t("Request")}?`}</p>
               <div className="mb-8">
                 {showUpdateConfirmation[1] === "Canceled" && (
                   <div className="flex gap-4 items-center">
-                    <label>Reason</label>
+                    <label>{t("Reason")}</label>
                     <input
                       className="w-full border-2 rounded-lg px-4 py-2"
-                      placeholder="Fill reason why you cancel the request"
+                      placeholder={t("Fillreasonwhyyoucanceltherequest")}
                       type="text"
                       onChange={(e) => setCancelReason(e.target.value)}
                     />
@@ -935,13 +988,13 @@ export default function DetailSlide() {
                   onClick={exitUpdateStatus}
                   className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
                 >
-                  {t("No, Keep It.")}
+                  {t("NoKeepIt")}.
                 </button>
                 <button
                   onClick={confirmUpdateStatus}
                   className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
                 >
-                  {t("Yes, Cancel!")}
+                  {t("YesCancel")}!
                 </button>
               </div>
             </div>
@@ -1018,6 +1071,8 @@ export default function DetailSlide() {
     const cancelCancel = () => {
       setShowCancelConfirmation(null);
     };
+    console.log("datadetail", dataDetail);
+
     return (
       <>
         <div className="w-[800px] h-full bg-white p-6 flex flex-col gap-8 text-black max-h-[100vh] overflow-auto">
@@ -1025,7 +1080,7 @@ export default function DetailSlide() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-semibold text-black">
-                  {t("Order Information")}
+                  {t("OrderInformation")}
                 </h2>
               </div>
               <div
@@ -1071,12 +1126,12 @@ export default function DetailSlide() {
                     dataDetail?.deliveryZoneName,
                 },
                 {
-                  label: t("From Store") + ":",
+                  label: t("FromStore") + ":",
                   value: (
                     <div className="flex flex-col items-end">
-                      <p>{dataDetail?.storeName}</p>
+                      <p>{dataDetail?.warehouseName}</p>
                       <p className="text-gray-400">
-                        {"(" + dataDetail?.storeLocation + ")"}
+                        {"(" + dataDetail?.warehouseLocation + ")"}
                       </p>
                     </div>
                   ),
@@ -1089,7 +1144,7 @@ export default function DetailSlide() {
                   ),
                 },
                 {
-                  label: "Start Delivery Date" + ":",
+                  label: t("StartDeliveryDate") + ":",
                   value: dataDetail?.deliverStartDate
                     ? format(
                         add(new Date(dataDetail?.deliverStartDate), {
@@ -1100,7 +1155,7 @@ export default function DetailSlide() {
                     : t("NotYet"),
                 },
                 {
-                  label: "Complete Delivery Date" + ":",
+                  label: t("CompleteDeliveryDate") + ":",
                   value: dataDetail?.deliverFinishDate
                     ? format(
                         add(new Date(dataDetail?.deliverFinishDate), {
@@ -1110,10 +1165,6 @@ export default function DetailSlide() {
                       )
                     : t("NotYet"),
                 },
-                {
-                  label: t("Distance") + ":",
-                  value: dataDetail?.distance + " km",
-                },
               ]?.map((item, index) => (
                 <div key={index} className="flex justify-between ">
                   <span className="text-gray-600">{item.label}</span>
@@ -1121,7 +1172,7 @@ export default function DetailSlide() {
                 </div>
               ))}
               <div className="flex justify-between ">
-                <span className="text-gray-600">{t("Status")}</span>
+                <span className="text-gray-600">{t("Status")}:</span>
                 <span
                   className={`px-2 py-1 rounded-xl  ${
                     dataDetail?.status === "Delivered"
@@ -1148,14 +1199,37 @@ export default function DetailSlide() {
                   {t(dataDetail?.status)}
                 </span>
               </div>
+              {dataDetail?.status === "Canceled" && (
+                <>
+                  <div className="flex justify-between ">
+                    <span className="text-gray-600">{t("CancelDate")}:</span>
+                    <span className="text-black">
+                      {dataDetail?.cancelDate
+                        ? format(
+                            add(new Date(dataDetail?.cancelDate), {
+                              hours: 7,
+                            }),
+                            "HH:mm - dd/MM/yyyy"
+                          )
+                        : t("NotYet")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between ">
+                    <span className="text-gray-600">{t("CancelReason")}:</span>
+                    <span className="text-black">
+                      {dataDetail?.cancellationReason}
+                    </span>
+                  </div>
+                </>
+              )}
               <div className="w-full h-[0.2rem] bg-gray-200" />
               <label className="font-medium text-lg flex justify-between items-center">
-                {t("Order Detail")}
+                {t("OrderDetail")}
               </label>
               <div className="grid grid-cols-11 items-center gap-4 text-sm">
                 <p className="col-span-2">{t("Image")}</p>
                 <p className="text-black  col-span-3 text-ellipsis overflow-hidden text-nowrap">
-                  {t("Product Name")}
+                  {t("ProductName")}
                 </p>
                 <p className="text-black  col-span-2">
                   {t("Price")} <span className="text-gray-400">(vnd)</span>
@@ -1196,19 +1270,19 @@ export default function DetailSlide() {
               ))}
               <div className="w-full h-[0.2rem] bg-gray-200" />
               <label className="font-medium text-lg flex justify-between items-center">
-                {t("Total Fees")}
+                {t("TotalFees")}
               </label>
               {[
                 {
-                  label: t("Additional Fee") + ":",
+                  label: t("AdditionalFee") + ":",
                   value: dataDetail?.orderFees?.[0]?.additionalFee || 0,
                 },
                 {
-                  label: t("Delivery Fee") + ":",
+                  label: t("DeliveryFee") + ":",
                   value: dataDetail?.orderFees?.[0]?.deliveryFee || 0,
                 },
                 {
-                  label: t("Storage Fee") + ":",
+                  label: t("StorageFee") + ":",
                   value: dataDetail?.orderFees?.[0]?.storageFee || 0,
                 },
                 {
@@ -1283,21 +1357,23 @@ export default function DetailSlide() {
                 </div>
               </div>
               <p className="w-full text-2xl font-semibold text-center  mb-6">
-                Delete Order
+                {t("DeleteOrder")}
               </p>
-              <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${dataDetail?.orderCode}" order?`}</p>
+              <p className="text-center w-full text-wrap  mb-6">{`${t(
+                "Youaregoingtodeletethe"
+              )} "${dataDetail?.orderCode}" ${t("Order")}?`}</p>
               <div className="flex justify-between gap-4">
                 <button
                   onClick={cancelDelete}
                   className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
                 >
-                  {t("No, Keep It.")}
+                  {t("NoKeepIt")}.
                 </button>
                 <button
                   onClick={() => confirmDelete(showDeleteConfirmation)}
                   className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
                 >
-                  {t("Yes, Delete!")}
+                  {t("YesDelete")}!
                 </button>
               </div>
             </div>
@@ -1365,6 +1441,7 @@ export default function DetailSlide() {
         setMonthToBuyInventory("");
         return;
       }
+      if (data > 9999) return;
       setMonthToBuyInventory(Math.floor(data));
       if (dataPrice > authWallet?.totalAmount) {
         setErrors("NotEnoughtMoneyToDoThis.");
@@ -1587,7 +1664,7 @@ export default function DetailSlide() {
               >
                 <XCircle fill="#ef4444" weight="fill" />
               </div>
-              <p className="text-2xl">{`${t("ExtendingRoom")}: ${
+              <p className="text-2xl">{`${t("ExtendingInventory")}: ${
                 dataDetail?.name
               }`}</p>
               <div className="flex items-center justify-between my-7">
@@ -1819,8 +1896,8 @@ export default function DetailSlide() {
     const state = {
       code: isAuthenticated,
       user: userInfor?.id,
-      roomId:dataDetail?.roomId,
-      storeId:dataDetail?.storeId,
+      roomId: dataDetail?.roomId,
+      storeId: dataDetail?.storeId,
     };
     // const stateQueryString = encodeURIComponent(`code:${isAuthenticated}&user:${userInfor?.id}`);
     const stateQueryString = encodeURIComponent(JSON.stringify(state));
@@ -1833,7 +1910,7 @@ export default function DetailSlide() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-2xl font-semibold text-black">
-                  Lots information
+                  {t("LotsInformation")}
                 </h2>
               </div>
               <div
@@ -1858,40 +1935,40 @@ export default function DetailSlide() {
 
           <div className="w-full flex flex-col gap-4">
             {[
-              { label: "Lot Num:", value: dataDetail?.lotNumber },
-              { label: "Product Name:", value: dataDetail?.productName },
+              { label: t("Lotnumber")+":", value: dataDetail?.lotNumber },
+              { label: t("Productname")+":", value: dataDetail?.productName },
               {
-                label: "Create date:",
+                label: t("Createdate")+":",
                 value: format(
                   add(new Date(dataDetail?.createDate), { hours: 7 }),
                   "HH:mm - dd/MM/yyyy"
                 ),
               },
-              { label: "Lots amount:", value: dataDetail?.lotAmount + " lot" },
+              { label: t("Lotsamount")+":", value: dataDetail?.lotAmount + " "+t("lot") },
               {
-                label: "Total products amount:",
+                label: t("Totalproductsamount")+":",
                 value:
                   dataDetail?.totalProductAmount +
                   " " +
-                  dataDetail?.productUnit,
+                  t(dataDetail?.productUnit),
               },
               {
-                label: "Import date:",
+                label: t("Importdate")+":",
                 value: format(
                   add(new Date(dataDetail?.importDate), { hours: 7 }),
                   "HH:mm - dd/MM/yyyy"
                 ),
               },
               {
-                label: "Expiration date:",
+                label: t("Expirationdate")+":",
                 value: format(
                   add(new Date(dataDetail?.expirationDate), { hours: 7 }),
                   "HH:mm - dd/MM/yyyy"
                 ),
               },
-              { label: "Store:", value: dataDetail?.storeName },
+              { label: t("Warehouse")+":", value: dataDetail?.storeName },
               {
-                label: "Qr location:",
+                label: t("Qrlocation")+":",
                 value: (
                   // <img
                   // src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(

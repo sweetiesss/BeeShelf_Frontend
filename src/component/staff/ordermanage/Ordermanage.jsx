@@ -76,7 +76,7 @@ const Ordermanage = () => {
   };
 
   const formatDateTime = (dateString) => {
-    if (!dateString) return "Null"; // Return "Null" if the input is falsy
+    if (!dateString) return "N/A"; // Return "Null" if the input is falsy
 
     // Tạo một đối tượng Date với múi giờ Asia/Bangkok (UTC+7)
     const dateInBangkok = new Date(
@@ -209,12 +209,12 @@ const Ordermanage = () => {
 
   // Cột trong bảng
   const columns = [
-    {
-      title: t("Order_ID"),
-      dataIndex: "id",
-      key: "id",
-      render: (text) => <span>{text}</span>,
-    },
+    // {
+    //   title: t("Order_ID"),
+    //   dataIndex: "id",
+    //   key: "id",
+    //   render: (text) => <span>{text}</span>,
+    // },
     {
       title: t("Order_Code"),
       dataIndex: "orderCode",
@@ -266,7 +266,7 @@ const Ordermanage = () => {
       title: t("ReceiverName"),
       dataIndex: "receiverName",
       key: "receiverName",
-      render: (text) => text || "Null",
+      render: (text) => text || "N/A",
     },
     {
       title: t("Receiver_Phone"),
@@ -550,7 +550,7 @@ const Ordermanage = () => {
                 <div>
                   <p className="font-bold">{t("ReceiverName")}:</p>
                  
-                  <p>{selectedOrder.receiverName || "Null"}</p>
+                  <p>{selectedOrder.receiverName || "N/A"}</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Receiver_Address")}:</p>

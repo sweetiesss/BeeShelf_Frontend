@@ -279,12 +279,12 @@ const DeliveryZone = () => {
         bordered={false} // Đã chỉnh bordered thành false
         loading={loadingShippers}
         columns={[
-          {
-            title: t("Employee_ID"),
-            dataIndex: "employeeId",
-            key: "employeeId",
-            align: "center",
-          },
+          // {
+          //   title: t("Employee_ID"),
+          //   dataIndex: "employeeId",
+          //   key: "employeeId",
+          //   align: "center",
+          // },
           {
             title: t("Shipper_Name"),
             dataIndex: "shipperName",
@@ -349,7 +349,9 @@ const DeliveryZone = () => {
             >
               {shippersOption.map((shipper) => (
                 <Option key={shipper.employeeId} value={shipper.employeeId}>
-                  {`${shipper.shipperName} (ID: ${shipper.employeeId})`}
+                  {`Shipper Name:${shipper.shipperName}
+                
+                   `}
                 </Option>
               ))}
             </Select>
@@ -393,7 +395,9 @@ const DeliveryZone = () => {
             >
               {shippersOption2.map((shipper) => (
                 <Option key={shipper.employeeId} value={shipper.employeeId}>
-                  {`${shipper.shipperName} (ID: ${shipper.employeeId})`}
+                  {`Shipper Name: ${shipper.shipperName} 
+     
+                  `}
                 </Option>
               ))}
             </Select>

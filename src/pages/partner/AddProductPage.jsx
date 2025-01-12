@@ -462,7 +462,7 @@ export default function AddProductPage() {
                       value: category.id,
                       label: category.typeName,
                     }))}
-                    placeholder="Select category"
+                    placeholder={t("Selectcategory")}
                   />
                   {errors.productCategoryId && (
                     <p className="text-red-500 text-sm absolute -bottom-[22px]">

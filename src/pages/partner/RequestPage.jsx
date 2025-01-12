@@ -8,8 +8,9 @@ import { useDetail } from "../../context/DetailContext";
 
 import { NavLink } from "react-router-dom";
 import SpinnerLoading from "../../component/shared/Loading";
-import { t } from "i18next";
+
 import { ArrowCounterClockwise, Warning } from "@phosphor-icons/react";
+import { useTranslation } from "react-i18next";
 
 export default function RequestPage() {
   const { userInfor } = useContext(AuthContext);
@@ -36,7 +37,7 @@ export default function RequestPage() {
     pageIndex: 0,
     pageSize: 10,
   };
-
+  const { t } = useTranslation();
   useEffect(() => {
     fetchingData();
   }, []);
@@ -171,7 +172,7 @@ export default function RequestPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6">Request Management</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("RequestManagement")}</h1>
       <div className="flex justify-between">
         <div className="flex gap-10">
           <div
@@ -188,14 +189,14 @@ export default function RequestPage() {
               value={filterField.status}
               onChange={handleFiltered}
             >
-              <option value={""}>Select Request Status</option>
-              <option value={"Draft"}>Draft</option>
-              <option value={"Pending"}>Pending</option>
-              <option value={"Canceled"}>Canceled</option>
-              <option value={"Processing"}>Processing</option>
-              <option value={"Delivered"}>Delivered</option>
-              <option value={"Failed"}>Failed</option>
-              <option value={"Completed"}>Completed</option>
+              <option value={""}>{t("All")}</option>
+              <option value={"Draft"}>{t("Draft")}</option>
+              <option value={"Pending"}>{t("Pending")}</option>
+              <option value={"Canceled"}>{t("Canceled")}</option>
+              <option value={"Processing"}>{t("Processing")}</option>
+              <option value={"Delivered"}>{t("Delivered")}</option>
+              <option value={"Failed"}>{t("Failed")}</option>
+              <option value={"Completed"}>{t("Completed")}</option>
             </select>
           </div>
 
@@ -206,16 +207,16 @@ export default function RequestPage() {
                 : "text-[var(--en-vu-300)]"
             }`}
           >
-            <label>{t("Request Type")}: </label>
+            <label>{t("RequestType")}: </label>
             <select
               className="outline-none"
               name="isImport"
               value={filterField.isImport}
               onChange={handleFiltered}
             >
-              <option value={""}>All</option>
-              <option value={"import"}>Import</option>
-              <option value={"export"}>Export</option>
+              <option value={""}>{t("All")}</option>
+              <option value={"import"}>{t("Import")}</option>
+              <option value={"export"}>{t("Export")}</option>
             </select>
           </div>
           <div
@@ -229,7 +230,7 @@ export default function RequestPage() {
           to="create-request"
           className="outline-2 outline flex items-center gap-2 outline-[var(--line-main-color)] text-[var(--en-vu-500-disable)] hover:outline-[var(--Xanh-Base)] hover:text-black  pr-4 pl-3 py-1 rounded-xl font-semibold"
         >
-          + {"Create Request"}
+          + {t("CreateRequest")}
         </NavLink>
       </div>
       <div className="flex justify-left gap-4 mt-6 ">
@@ -265,21 +266,23 @@ export default function RequestPage() {
                 </div>
               </div>
               <p className="w-full text-2xl font-semibold text-center  mb-6">
-                Delete Request
+                {t("DeleteRequest")}
               </p>
-              <p className="text-center w-full text-wrap  mb-6">{`You are going to delete the "${showDeleteConfirmation?.name}" request?`}</p>
+              <p className="text-center w-full text-wrap  mb-6">{`${t(
+                "Youaregoingtodeletethe"
+              )} "${showDeleteConfirmation?.name}" ${t("Request")}?`}</p>
               <div className="flex justify-between gap-4">
                 <button
                   onClick={cancelDelete}
                   className="bg-[#f5f5f7] text-black px-4 py-2 rounded-3xl w-full"
                 >
-                  {t("No, Keep It.")}
+                  {t("NoKeepIt")},
                 </button>
                 <button
                   onClick={() => confirmDelete(showDeleteConfirmation)}
                   className="bg-[#fe3f56] text-white px-4 py-2 rounded-3xl w-full"
                 >
-                  {t("Yes, Delete!")}
+                  {t("YesDelete")}!
                 </button>
               </div>
             </div>
