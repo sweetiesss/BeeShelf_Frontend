@@ -386,10 +386,10 @@ const Inventory = () => {
               }}
             >
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
+                {/* <div className="flex justify-between items-center">
                   <p className="font-bold text-gray-600">{t("Lot_ID")}:</p>
                   <p className="text-gray-800">{item.id}</p>
-                </div>
+                </div> */}
                 <div className="flex justify-between items-center">
                   <p className="font-bold text-gray-600">{t("Code_Lot_Number")}:</p>
                   <p className="text-gray-800">{item.lotNumber}</p>
@@ -400,7 +400,7 @@ const Inventory = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="font-bold text-gray-600">{t("Lot_Amount")}:</p>
-                  <p className="text-gray-800">{item.lotAmount}</p>
+                  <p className="text-gray-800">{item.lotAmount} lot</p>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="font-bold text-gray-600">
@@ -418,7 +418,7 @@ const Inventory = () => {
                   <p className="font-bold text-gray-600">
                     {t("Total_Product_Amount")}:
                   </p>
-                  <p className="text-gray-800">{item.totalProductAmount}</p>
+                  <p className="text-gray-800">{item.totalProductAmount} Unit</p>
                 </div>
               </div>
             </Card>
