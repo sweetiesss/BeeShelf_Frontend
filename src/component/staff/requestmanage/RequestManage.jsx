@@ -488,7 +488,7 @@ const RequestManagement = () => {
             <Table
               dataSource={requestExports}
               columns={[
-                { title: t("Request_ID"), dataIndex: "id", key: "id" },
+                // { title: t("Request_ID"), dataIndex: "id", key: "id" },
                 {
                   title: t("Partner_Email"),
                   dataIndex: "partner_email",
@@ -632,10 +632,10 @@ const RequestManagement = () => {
             </div>
             <div>
               <div className="grid grid-cols-1 gap-2">
-                <div>
+                {/* <div>
                   <p className="font-bold">{t("Request_ID")}:</p>
                   <p>{selectedRequest.id}</p>
-                </div>
+                </div> */}
                 <div>
                   <p className="font-bold">{t("Partner_Email")}:</p>
                   <p>{selectedRequest.partner_email}</p>
@@ -650,7 +650,7 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">{t("Lot_Amount")}:</p>
-                  <p>{selectedRequest.lotAmount}</p>
+                  <p>{selectedRequest.lotAmount} lot</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Product_Per_Lot_Amount")}:</p>
@@ -658,7 +658,7 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">{t("Total_Product_Amount")}:</p>
-                  <p>{selectedRequest.totalProductAmount}</p>
+                  <p>{selectedRequest.totalProductAmount} Unit</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Create_Date")}:</p>

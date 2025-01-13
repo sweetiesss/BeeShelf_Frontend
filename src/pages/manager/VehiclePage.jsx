@@ -11,8 +11,8 @@ import {
 } from "antd";
 import useAxios from "../../services/CustomizeAxios";
 import { Descriptions } from "antd";
-import { t } from "i18next";
 
+import { useTranslation } from "react-i18next";
 import {
   Garage,
   GearSix,
@@ -23,7 +23,9 @@ import {
 } from "@phosphor-icons/react";
 const { Option } = Select;
 
+
 const VehiclePage = () => {
+  const { t } = useTranslation();
   const { fetchDataBearer } = useAxios();
   const [vehicles, setVehicles] = useState([]);
   const [showVehicles, setShowVehicles] = useState([]);
@@ -67,8 +69,8 @@ const VehiclePage = () => {
       });
       setVehicles(response?.data);
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
-      message.error("Failed to fetch vehicles.");
+      console.error(t("Errorfetchingvehicles"), error);
+      message.error(t("Failedtofetchvehicles"));
       setVehicles([]);
     } finally {
       setLoading(false);
@@ -95,11 +97,11 @@ const VehiclePage = () => {
         }));
         setWarehouseOptions(options);
       } else {
-        message.error("Failed to fetch warehouses.");
+        message.error(t("Failedtofetchstore"));
       }
     } catch (error) {
-      console.error("Error fetching warehouses:", error);
-      message.error("Error fetching warehouses.");
+      console.error(t("Errorfetchingstore"), error);
+      message.error(t("Errorfetchingstore"));
     }
   };
 
