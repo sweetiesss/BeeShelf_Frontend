@@ -638,8 +638,8 @@ const BatchManage = () => {
                     {/* Order Header */}
                     <div className="flex justify-between items-center mb-4">
                       <div className="text-lg font-semibold text-gray-700">
-                        Order ID:{" "}
-                        <span className="text-blue-500">{order.id}</span>
+                        {/* Order ID:{" "}
+                        <span className="text-blue-500">{order.id}</span> */}
                       </div>
                     </div>
 
@@ -716,7 +716,7 @@ const BatchManage = () => {
                           <strong className="text-gray-900">
                             {t("Cancellation_Reason")}:
                           </strong>{" "}
-                          {order.cancellationReason}
+                          {order.cancellationReason} 
                         </p>
                       </div>
 
@@ -859,7 +859,7 @@ const BatchManage = () => {
                             <strong className="text-gray-700">
                               {t("Amount")}:
                             </strong>{" "}
-                            {detail.productAmount}
+                            {detail.productAmount} Unit
                           </p>
                         </div>
                       </div>

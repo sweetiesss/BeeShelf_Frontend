@@ -527,10 +527,10 @@ const Ordermanage = () => {
             </div>
             <div>
               <div className="grid grid-cols-1 gap-2">
-                <div>
+                {/* <div>
                   <p className="font-bold">{t("Order_ID")}:</p>
                   <p>{selectedOrder.id}</p>
-                </div>
+                </div> */}
                 <div>
                   <p className="font-bold">{t("Order_Code")}:</p>
                   <p>{selectedOrder.orderCode}</p>
