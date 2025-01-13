@@ -302,13 +302,11 @@ const Inventory = () => {
                     <Paragraph>
                       <strong>{t("Weight")}:</strong> {item.weight} kg
                     </Paragraph>
-
                     <Paragraph>
-                      <strong>{t("Total_Product")}:</strong> {item.totalProduct}
+                      <strong>{t("Total_Product")}:</strong> {item.totalProduct} Unit
                     </Paragraph>
                     <Paragraph>
-                      <strong>{t("Warehouse_Name")}:</strong>{" "}
-                      {item.storeName}
+                      <strong>{t("Warehouse_Name")}:</strong> {item.storeName}
                     </Paragraph>
                     <Paragraph>
                       <strong>{t("Bought_Date")}:</strong>{" "}
@@ -391,7 +389,9 @@ const Inventory = () => {
                   <p className="text-gray-800">{item.id}</p>
                 </div> */}
                 <div className="flex justify-between items-center">
-                  <p className="font-bold text-gray-600">{t("Code_Lot_Number")}:</p>
+                  <p className="font-bold text-gray-600">
+                    {t("Code_Lot_Number")}:
+                  </p>
                   <p className="text-gray-800">{item.lotNumber}</p>
                 </div>
                 <div className="flex justify-between items-center">
@@ -410,6 +410,12 @@ const Inventory = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="font-bold text-gray-600">
+                    {t("Unit")}:
+                  </p>
+                  <p className="text-gray-800"> Bottle/Package/Carton/Box/Bag/..</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-gray-600">
                     {t("Product_Name")}:
                   </p>
                   <p className="text-gray-800">{item.productName}</p>
@@ -418,7 +424,9 @@ const Inventory = () => {
                   <p className="font-bold text-gray-600">
                     {t("Total_Product_Amount")}:
                   </p>
-                  <p className="text-gray-800">{item.totalProductAmount} Unit</p>
+                  <p className="text-gray-800">
+                    {item.totalProductAmount} Unit
+                  </p>
                 </div>
               </div>
             </Card>

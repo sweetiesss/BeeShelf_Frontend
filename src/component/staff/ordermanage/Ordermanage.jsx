@@ -455,7 +455,7 @@ const Ordermanage = () => {
                         }).format(item.productPrice)}
                       </Paragraph>
                       <Paragraph>
-                        <strong>{t("Amount")}:</strong> {item.productAmount}
+                        <strong>{t("Amount")}:</strong> {item.productAmount} Unit
                       </Paragraph>
                       <Paragraph>
                         <strong>{t("Weight")}:</strong> {item.weight} kg
