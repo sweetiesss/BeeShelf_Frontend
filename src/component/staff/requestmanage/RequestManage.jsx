@@ -653,6 +653,10 @@ const RequestManagement = () => {
                   <p>{selectedRequest.lotAmount} lot</p>
                 </div>
                 <div>
+                  <p className="font-bold">{t("Unit")}:</p>
+                  <p>Liter/Milliter/Pices/Bottle/Package/Carton/Box/Bag/..</p>
+                </div>
+                <div>
                   <p className="font-bold">{t("Product_Per_Lot_Amount")}:</p>
                   <p>{selectedRequest.productPerLotAmount} Unit</p>
                 </div>
@@ -774,8 +778,12 @@ const RequestManagement = () => {
                   <p>{selectedExportRequest.description}</p>
                 </div>
                 <div>
+                  <p className="font-bold">{t("Unit")}:</p>
+                  <p>Liter/Milliter/Pices/Bottle/Package/Carton/Box/Bag/..</p>
+                </div>
+                <div>
                   <p className="font-bold">{t("Lot_Amount")}:</p>
-                  <p>{selectedExportRequest.lotAmount}</p>
+                  <p>{selectedExportRequest.lotAmount} lot</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Product_Per_Lot_Amount")}:</p>
@@ -783,7 +791,7 @@ const RequestManagement = () => {
                 </div>
                 <div>
                   <p className="font-bold">{t("Total_Product_Amount")}:</p>
-                  <p>{selectedExportRequest.totalProductAmount}</p>
+                  <p>{selectedExportRequest.totalProductAmount} Unit</p>
                 </div>
                 <div>
                   <p className="font-bold">{t("Create_Date")}:</p>
@@ -799,38 +807,38 @@ const RequestManagement = () => {
                 </div>
 
                 <div>
-      <p className="font-bold">{t("Cancel_Date")}:</p>
-      <p>{formatDateTime(selectedExportRequest.cancelDate)}</p>
-    </div>
-    <div>
-      <p className="font-bold">{t("Cancel_Reason")}:</p>
-      <p>{selectedExportRequest.cancellationReason || t("N/A")}</p>
-    </div>
-    <div>
-      <p className="font-bold">{t("New_Warehouse_Name")}:</p>
-      <p>{selectedExportRequest.storeName}</p>
-    </div>
-    <div>
-      <p className="font-bold">{t("New_Inventory_Name")}:</p>
-      <p>{selectedExportRequest.sendToRoomName}</p>
-    </div>
-    <div>
-      <p className="font-bold">{t("New_Lot_ID")}:</p>
-      <p>{selectedExportRequest.lotId}</p>
-    </div>
-    <div>
-      <p className="font-bold">{t("Old_Warehouse_Name")}:</p>
-      <p>{selectedExportRequest.exportFromStoreName}</p>
-    </div>
-    <div>
-      <p className="font-bold">{t("Old_Inventory_Name")}:</p>
-      <p>{selectedExportRequest.exportFromRoomName}</p>
-    </div>
-    <div>
-      <p className="font-bold">{t("Old_Lot_ID")}:</p>
-      <p>{selectedExportRequest.exportFromLotId}</p>
-    </div>
-  </div>
+                  <p className="font-bold">{t("Cancel_Date")}:</p>
+                  <p>{formatDateTime(selectedExportRequest.cancelDate)}</p>
+                </div>
+                <div>
+                  <p className="font-bold">{t("Cancel_Reason")}:</p>
+                  <p>{selectedExportRequest.cancellationReason || t("N/A")}</p>
+                </div>
+                <div>
+                  <p className="font-bold">{t("New_Warehouse_Name")}:</p>
+                  <p>{selectedExportRequest.storeName}</p>
+                </div>
+                <div>
+                  <p className="font-bold">{t("New_Inventory_Name")}:</p>
+                  <p>{selectedExportRequest.sendToRoomName}</p>
+                </div>
+                <div>
+                  <p className="font-bold">{t("New_Lot_ID")}:</p>
+                  <p>{selectedExportRequest.lotId}</p>
+                </div>
+                <div>
+                  <p className="font-bold">{t("Old_Warehouse_Name")}:</p>
+                  <p>{selectedExportRequest.exportFromStoreName}</p>
+                </div>
+                <div>
+                  <p className="font-bold">{t("Old_Inventory_Name")}:</p>
+                  <p>{selectedExportRequest.exportFromRoomName}</p>
+                </div>
+                <div>
+                  <p className="font-bold">{t("Old_Lot_ID")}:</p>
+                  <p>{selectedExportRequest.exportFromLotId}</p>
+                </div>
+              </div>
             </div>
           </div>
         )}
