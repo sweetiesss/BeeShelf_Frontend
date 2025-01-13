@@ -78,6 +78,10 @@ export default function ImportRequestSide({ inventories, products }) {
     };
     try {
       const result = await createRequest(updatedForm, "Import", send);
+      if(result?.status===200){
+        setForm();
+        setSelectedProduct();
+      }
     } catch (error) {
       console.error("Error submitting request:", error);
     }
@@ -131,7 +135,7 @@ export default function ImportRequestSide({ inventories, products }) {
           <input
             className="outline-none border-2 py-2 px-4 focus-within:border-black"
             name="name"
-            value={form.name}
+            value={form?.name}
             onChange={handleInput}
           />
         </div>
@@ -142,7 +146,7 @@ export default function ImportRequestSide({ inventories, products }) {
           <input
             className="outline-none border-2 py-2 px-4 focus-within:border-black"
             name="description"
-            value={form.description}
+            value={form?.description}
             onChange={handleInput}
           />
         </div>
@@ -176,7 +180,7 @@ export default function ImportRequestSide({ inventories, products }) {
         )}
 
         <div className="flex w-full gap-10">
-          <div className="form-group gap-2 w-full">
+          <div className="form-group gap-2 w-full relative">
             <label>{t("AmountofLot")}</label>
             <input
               className="outline-none border-2 py-2 px-4 focus-within:border-black"
@@ -185,8 +189,9 @@ export default function ImportRequestSide({ inventories, products }) {
               value={form?.lot?.lotAmount || ""}
               onChange={handleInput}
             />
+            <div className="absolute bottom-2 right-10">{t("lot")}</div>
           </div>
-          <div className="form-group gap-2 w-full">
+          <div className="form-group gap-2 w-full relative">
             <label className="text-[var(--en-vu-600)] font-normal">
               {t("AmountofProductPerLot")}
             </label>
@@ -197,6 +202,9 @@ export default function ImportRequestSide({ inventories, products }) {
               value={form?.lot?.productPerLot || ""}
               onChange={handleInput}
             />
+            <div className="absolute bottom-2 right-10">
+              {t(selectedProduct?.unit)}
+            </div>
           </div>
         </div>
         <div className="form-group gap-2">
@@ -251,7 +259,9 @@ export default function ImportRequestSide({ inventories, products }) {
               <div className="">
                 <div className="flex gap-4 ">
                   <p>{selectedOption?.roomCode}</p>
-                  <p className="text-sm text-gray-500">{"(" + selectedOption?.storeName + ")"}</p>
+                  <p className="text-sm text-gray-500">
+                    {"(" + selectedOption?.storeName + ")"}
+                  </p>
                 </div>
                 <div
                   className={`flex items-center justify-between text-sm text-gray-500`}
@@ -318,9 +328,7 @@ export default function ImportRequestSide({ inventories, products }) {
       <div className="w-1/2 flex-col flex gap-8  rounded-xl shadow-xl p-10 border-2 h-[48rem]">
         <div>
           <p className="font-medium text-2xl ">{t("SelectProduct")}</p>
-          <p className="text-gray-500  ">
-            {t("ChooseProduct")}
-          </p>
+          <p className="text-gray-500  ">{t("ChooseProduct")}</p>
         </div>
         <div className="flex-col h-[38rem] max-h-[38rem] overflow-auto">
           {products?.map((pro) => {

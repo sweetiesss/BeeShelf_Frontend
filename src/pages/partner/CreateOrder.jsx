@@ -66,7 +66,7 @@ export default function CreateOrderPage() {
       newErrors.receiverAddress = t("Receiveraddressisrequired");
     }
     if (!form.receiverName) {
-      newErrors.receiverAddress = t("Receivernameisrequired");
+      newErrors.receiverName = t("Receivernameisrequired");
     }
 
     if (form.products.length === 0) {

@@ -1234,7 +1234,7 @@ export default function DetailSlide() {
                 <p className="text-black  col-span-2">
                   {t("Price")} <span className="text-gray-400">(vnd)</span>
                 </p>
-                <p className="text-black  col-span-1">{t("x")}</p>
+                <p className="text-black  col-span-1">{t("Amount")}</p>
                 <p className="text-black  col-span-1">{t("Unit")}</p>
                 <p className="text-black  col-span-2  text-end">
                   {t("Total")} <span className="text-gray-400">(vnd)</span>

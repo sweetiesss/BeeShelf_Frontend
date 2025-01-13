@@ -89,7 +89,7 @@ export default function LotList({
                   <td className=" px-1 py-2 ">{order?.storeName}</td>
                   <td className=" px-1 py-2 ">{order?.productName}</td>
 
-                  <td className=" px-1 py-2 ">{order?.lotAmount +" "+ t(order?.productUnit)}</td>
+                  <td className=" px-1 py-2 ">{order?.lotAmount +" "+ t("lot")}</td>
                   <td className=" px-1 py-2 ">{order?.totalProductAmount +" "+ t(order?.productUnit)}</td>
                   <td className=" px-1 py-2 ">
                     {format(order?.importDate, "dd/MM/yyyy")}
